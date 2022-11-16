@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/curve/spline-surface/'">
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="正如〈貝茲曲線〉中談到的，只要有適當的數學公式，就可以算出每個點的位置然後畫出圖形，然而有時候，我們數學不夠好，難以找出數學公式來表現想要的「曲面」，怎麼辦呢？
+既然，貝茲曲線可以用來近似出我們想要的...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="貝茲曲面">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/BezierSurface.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="正如〈貝茲曲線〉中談到的，只要有適當的數學公式，就可以算出每個點的位置然後畫出圖形，然而有時候，我們數學不夠好，難以找出數學公式來表現想要的「曲面」，怎麼辦呢？
+既然，貝茲曲線可以用來近似出我們想要的...">
+    <title>貝茲曲面</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+    <!-- 網頁層級廣告 -->
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script>
+  </head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="BezierSurface.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回
+            OpenSCAD 首頁</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+                <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../images/facebook.png"></a>
+                </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>貝茲曲面</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>正如〈<a href="BezierCurve.html">貝茲曲線</a>〉中談到的，只要有適當的數學公式，就可以算出每個點的位置然
+            後畫出圖形，然而有時候，我們數學不夠好，難以找出數學公式來表現想要的「曲面」，怎麼辦呢？</p>
+          <p>既然，貝茲曲線可以用來近似出我們想要的曲線，那麼可不可以進一步擴充貝茲曲線，想辦法近似出我們想要的曲面？</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-1.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>上面這個曲面，使用了 16 個控制點（綠色的點）來建立貝茲曲面，改變控制點的位置，就可以改變曲面。</p>
+          <h1>四條貝茲曲線</h1>
+          <p>許多繪圖軟體在建立曲線時，大多都是使用三次貝茲曲線，也就是使用四個控制點來建立曲線，對於複雜的曲線，就是用多條三次貝茲曲線連接在一起，
+            每條三次貝茲曲線會有彼此共用的控制點，例如：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-2.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>在上圖中可以看到，這段曲線其實是由三條三次貝茲曲線構成，第一條的第四個控制點，其實是第二條的第一個控制點，為了構成平滑的曲線，圖中顯示
+            的三個控制點構成了一條切線，通過了兩條貝茲曲線的銜接點。</p>
+          <p>因此為了便於控制，這邊在擴充貝茲曲線為貝茲曲面時，就使用三次貝茲曲線作為基礎，我們使用四條三次貝茲曲線，因此會需要 16 個控制點。</p>
+          <p>在這之前，為了將焦點集中在曲面的構造上，我已經將〈<a href="BezierCurve.html">貝茲曲線</a>〉中的範例程式
+            碼做了進一步的封裝，成為 <a href="https://openhome.cc/eGossip/OpenSCAD/lib-bezier_curve.html"><code>bezier_curve</code>
+              函式</a>，這個函式會傳回貝茲曲線路徑上所有的點，因此，只要結合〈<a href="https://openhome.cc/Gossip/OpenSCAD/Polyline3D.html">3D 線段</a>
+            〉中繪製 3D 線段的程式碼，就可以繪製貝茲曲線，一樣地，為了集中焦點在曲面構造上，我將 3D 線段的程式碼也抽取為 <a href="https://openhome.cc/eGossip/OpenSCAD/lib-polyline3d.html">polyline3d
+              模組</a>了，它們都是我的程式庫 <a href="https://github.com/JustinSDK/dotSCAD">dotSCAD</a>
+            的一部份。</p>
+          <p>現在先簡單地用 16 個控制點來畫出四條貝茲曲線：</p>
+          <pre class="prettyprint"><code lang="openscad">include &lt;line3d.scad&gt;;
+include &lt;polyline3d.scad&gt;;
+include &lt;bezier_curve.scad&gt;;
+
+ctrl_pts = [
+    [[0, 0, 20],  [60, 0, -35],   [90, 0, 60],    [200, 0, 5]],
+    [[0, 50, 30], [100, 60, -25], [120, 50, 120], [200, 50, 5]],
+    [[0, 100, 0], [60, 120, 35],  [90, 100, 60],  [200, 100, 45]],
+    [[0, 150, 0], [60, 150, -35], [90, 180, 60],  [200, 150, 45]]
+];
+
+thickness = 2;
+t_step = 0.05;
+
+for(i = [0:len(ctrl_pts) - 1]) {
+    bezier_pts = bezier_curve(t_step, ctrl_pts[i]);
+    polyline3d(bezier_pts, thickness);
+}
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-3.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <h1>從線到面</h1>
+          <p>現在我們有四條貝茲曲線了，從圖中看來的感覺，若是有塊布可以罩住這些線，就會是個曲面了？來試試，將產生的每個點連成面，這會用到〈<a href="FunctionGrapher.html">函
+              式圖形</a>〉中談到的方式，同樣地，我將程式碼重構為一個 <a href="https://openhome.cc/eGossip/OpenSCAD/lib-function_grapher.html"><code>function_grapher</code>
+              模組</a>，以便將焦點集中在曲面的構造上：</p>
+          <pre class="prettyprint"><code lang="openscad">include &lt;bezier_curve.scad&gt;;
+include &lt;function_grapher.scad&gt;;
+
+ctrl_pts = [
+    [[0, 0, 20],  [60, 0, -35],   [90, 0, 60],    [200, 0, 5]],
+    [[0, 50, 30], [100, 60, -25], [120, 50, 120], [200, 50, 5]],
+    [[0, 100, 0], [60, 120, 35],  [90, 100, 60],  [200, 100, 45]],
+    [[0, 150, 0], [60, 150, -35], [90, 180, 60],  [200, 150, 45]]
+];
+thickness = 2;
+t_step = 0.05;
+
+g_pts = [for(i = [0:len(ctrl_pts) - 1]) 
+    bezier_curve(t_step, ctrl_pts[i])
+]; 
+
+function_grapher(g_pts, thickness);
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-4.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>X 軸方向看來很平滑，感覺很接近了，不過，在 Y 軸方向上，因為還是只有四個控制點，因而看來仍是直線而不像是曲線。</p>
+          <h1>用貝茲來做貝茲</h1>
+          <p>在 Y 軸方向上仍不平滑，如果 Y
+            軸上的控制點也是由貝茲曲線產生，是不是就可以平滑了呢？這是什麼意思？來想像一下，在現有的四條貝茲曲線上，每個對應的步進線段上各取一個點，是不是也可以得到四個點？</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-5.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>如果對於每個對應的四個點也再做一條貝茲曲線會如何呢？</p>
+          <pre class="prettyprint"><code lang="openscad">include &lt;line3d.scad&gt;;
+include &lt;polyline3d.scad&gt;;
+include &lt;bezier_curve.scad&gt;;
+
+ctrl_pts = [
+    [[0, 0, 20],  [60, 0, -35],   [90, 0, 60],    [200, 0, 5]],
+    [[0, 50, 30], [100, 60, -25], [120, 50, 120], [200, 50, 5]],
+    [[0, 100, 0], [60, 120, 35],  [90, 100, 60],  [200, 100, 45]],
+    [[0, 150, 0], [60, 150, -35], [90, 180, 60],  [200, 150, 45]]
+];
+
+thickness = 2;
+t_step = 0.05;
+
+// 第一次畫四條貝茲曲線
+g_pts = [for(i = [0:len(ctrl_pts) - 1]) 
+    bezier_curve(t_step, ctrl_pts[i])
+]; 
+for(i = [0:len(g_pts) - 1]) {
+    polyline3d(g_pts[i], thickness);
+}
+
+// 四條貝茲曲線上各自對應的四個點
+crtl_j = 5;
+color("red") union() {
+    polyline3d([for(i = [0:len(g_pts) - 1]) g_pts[i][crtl_j]], thickness);
+    for(i = [0:3]) {
+        translate(g_pts[i][5]) sphere(r = thickness * 2);
+    }
+}
+
+// 用四條貝茲曲線上各自對應的四個點再畫貝茲曲線
+for(j = [0:len(g_pts[0]) - 1]) {
+    ctrl_pts2 = [for(i = [0:len(g_pts) - 1]) g_pts[i][j]];
+    bezier_pts = bezier_curve(t_step, ctrl_pts2);
+    color(j == crtl_j ? "blue" : "green") polyline3d(bezier_pts, thickness);
+
+}
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-6.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>綠線部份在 X 軸與 Y 軸上，看來是不是都平滑了呢？</p>
+          <p>為了更清楚說明，除了綠線之外，在上圖中，在原先畫出的四條貝茲曲線上，各找出第五個對應的點，也就是紅球的部份，用這四個點畫出了藍色的貝茲
+            曲線，每條綠線就是這樣一一找出四個點，然後畫出來的貝茲曲線。</p>
+          <p>現在，不畫線了，直接把找到的綠線上每個點餵給 <code>function_grapher</code> 模組：</p>
+          <pre class="prettyprint"><code lang="openscad">include &lt;bezier_curve.scad&gt;;
+include &lt;function_grapher.scad&gt;;
+
+ctrl_pts = [
+    [[0, 0, 20],  [60, 0, -35],   [90, 0, 60],    [200, 0, 5]],
+    [[0, 50, 30], [100, 60, -25], [120, 50, 120], [200, 50, 5]],
+    [[0, 100, 0], [60, 120, 35],  [90, 100, 60],  [200, 100, 45]],
+    [[0, 150, 0], [60, 150, -35], [90, 180, 60],  [200, 150, 45]]
+];
+
+thickness = 2;
+t_step = 0.05;
+
+bezier_pts = [for(i = [0:len(ctrl_pts) - 1]) 
+    bezier_curve(t_step, ctrl_pts[i])
+]; 
+
+g_pts = [for(j = [0:len(bezier_pts[0]) - 1]) 
+    bezier_curve(t_step, 
+        [for(i = [0:len(bezier_pts) - 1]) bezier_pts[i][j]]
+    ) 
+];
+
+function_grapher(g_pts, thickness);
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierSurface-7.JPG"
+                alt="貝茲曲面"></div>
+          </div>
+          <p></p>
+          <p>你可以進一步將每個點計算的相關細節封裝起來，就像我的 <a href="https://openhome.cc/eGossip/OpenSCAD/lib-bezier_surface.html"><code>bezier_surface</code>
+              函式</a> 那樣，這麼一來，你就可以簡單地描述你的貝茲曲面了：</p>
+          <pre class="prettyprint"><code lang="openscad">include &lt;bezier_curve.scad&gt;;
+include &lt;bezier_surface.scad&gt;; 
+include &lt;function_grapher.scad&gt;;
+
+t_step = 0.05;
+thickness = 0.5;
+
+ctrl_pts = [
+    [[0, 0, 20],  [60, 0, -35],   [90, 0, 60],    [200, 0, 5]],
+    [[0, 50, 30], [100, 60, -25], [120, 50, 120], [200, 50, 5]],
+    [[0, 100, 0], [60, 120, 35],  [90, 100, 60],  [200, 100, 45]],
+    [[0, 150, 0], [60, 150, -35], [90, 180, 60],  [200, 150, 45]]
+];
+
+g = bezier_surface(t_step, ctrl_pts);
+function_grapher(g, thickness);    
+</code></pre>
+          <p>從貝茲曲線到貝茲曲面，就數學上本身是個值得探討的過程，而就程式面上也很有趣，你可以看到，為了將焦點集中在目前想要解決的任務上，你得適當
+            地封裝一些基礎操作，基於上頭繼續解決更高層的任務，這樣你才不會每次都被一些雜亂的程式碼所干擾。</p>
+          <p>至於該怎麼封裝才會有彈性？有足夠的隔離性？這就得融合一些語言上的特性，持續不斷地經驗累積與思考，動手實作並改進了。</p>
+          <p>這就是為什麼我會持續創作一些作品，持續記錄想法，並且試著做出 <a href="https://github.com/JustinSDK">dotSCAD</a>
+            這個程式庫的原因了，如果有興趣，可以看看我的程式庫原始碼，以及提交歷史，你會發現，其中就有著許多我的作品與文件中想法的影子。</p>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+ 
+</html>

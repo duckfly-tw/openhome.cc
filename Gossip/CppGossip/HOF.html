@@ -1,0 +1,311 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈一級函式與 algorithm〉，看了幾個 algorithm 的函式可以接受函式的例子，既然如此，函式也可以傳回函式，這邊的指的函式傳遞，包括了函式指標、lambda 運算式。
+從函式中傳回函式...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="高階函式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/HOF.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈一級函式與 algorithm〉，看了幾個 algorithm 的函式可以接受函式的例子，既然如此，函式也可以傳回函式，這邊的指的函式傳遞，包括了函式指標、lambda 運算式。
+從函式中傳回函式...">
+
+    <title>高階函式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HOF.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>高階函式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Algorithm.html">一級函式與 algorithm</a>〉，看了幾個 <code>algorithm</code> 的函式可以接受函式的例子，既然如此，函式也可以傳回函式，這邊的指的函式傳遞，包括了函式指標、lambda 運算式。</p>
+<p>從函式中傳回函式指標，基本上沒什麼問題，因為函式指標不會消失，然而，從函式中傳回 lambda 運算式，就得留意一下了，因為函式中的 lambda 運算式，生命周期就是侷限於函式之中，如果如下傳回函式：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+auto foo() {
+    auto f = [] { cout &lt;&lt; "foo" &lt;&lt; endl; };
+    return f;
+}
+
+int main() {
+    auto fn = foo();
+    fn();
+
+    return 0;
+}
+</code></pre>
+<p>那麼沒什麼問題，<code>f</code> 會複製給 <code>fn</code>，然而如果是傳回參考：</p>
+<pre class="prettyprint"><code lang="c++">auto&amp; foo() {
+    auto f = [] { cout &lt;&lt; "foo" &lt;&lt; endl; };
+    return f; 
+}
+</code></pre>
+<p>因為 <code>foo</code> 函式執行過後，呼叫者參考的 <code>f</code> 變數已經無效，編譯時就會產生警訊：</p>
+<pre class="prettyprint"><code lang="c++">warning: reference to local variable 'f'
+</code></pre>
+<p>另一個問題是，若以參考方式捕捉了區域變數：</p>
+<pre class="prettyprint"><code lang="c++">auto foo() {
+    string text = "foo";
+    auto f = [&amp;] { cout &lt;&lt; text &lt;&lt; endl; };
+    return f;
+}
+</code></pre>
+<p>編譯雖然會過，然而實際上捕捉的變數在 <code>foo</code> 函式執行過後已經無效，最後呼叫傳回的 lambda 運算式時，就會發生不可預期的結果，如果你是從其他具有一級函式特性的語言來到 C++，要記得的就是，C++ 的 lambda 運算式，並不會擴展被捕捉變數的生命周期。</p>
+<p>這並不是指傳回 lambda 運算式時，就不能用 <code>&amp;</code> 來捕捉變數，主要還是要看捕捉的變數，其位址是否有效，例如以下就沒有問題，因為實際上 lambda 運算式捕捉的變數，參考的位址是 <code>main</code> 中的 <code>text</code> 變數位址：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+auto foo(string &amp;text) {
+    auto f = [&amp;] { cout &lt;&lt; text &lt;&lt; endl; };
+    return f;
+}
+
+int main() {
+    string text = "foo";
+    auto f = foo(text);
+    f();
+    return 0;
+}
+</code></pre>
+<p>來看看傳回 lambda 運算式的一個例子，感覺像是函式產生了新函式，記憶了指定的引數：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+auto add(int m) {
+    return [m] (int n) { return m + n ; };
+}
+
+int main() {
+    auto plus10 = add(10);
+    cout &lt;&lt; plus10(20) &lt;&lt; endl;  // 30
+    cout &lt;&lt; plus10(40) &lt;&lt; endl;  // 50
+
+    return 0;
+}
+</code></pre>
+<p>那麼可不可以接受函式、傳回函式呢？</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+int binary_fun(int, int);
+
+int add(int m, int n) {
+    return m + n;
+}
+
+int mul(int m, int n) {
+    return m * n;
+}
+
+auto bind(decltype(binary_fun) bf, int fst) {
+    return [bf, fst] (int snd) { return bf(fst, snd); };
+}
+
+int main() {
+    auto add10 = bind(add, 10);
+    auto mul5 = bind(mul, 5); 
+
+    cout &lt;&lt; add10(30) &lt;&lt; endl; // 40
+    cout &lt;&lt; mul5(20) &lt;&lt; endl;  // 100
+
+    return 0;
+}
+</code></pre>
+<p>範例的 <code>bind</code> 方法，可以接受函式並傳回函式，傳回的函式綁定了第一個引數，像 <code>bind</code> 這類可以接受函式、傳回函式的函式，稱為高階函式（high-order function）。</p>
+<p>實際上，<code>functional</code> 標頭檔就提供了個 <code>bind</code> 可以使用，而且更有彈性，可以指定要綁定哪個參數：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+int add(int m, int n) {
+    return m + n;
+}
+
+int mul(int m, int n) {
+    return m * n;
+}
+
+int main() {
+    auto add10 = bind(add, _1, 10);
+    auto mul5 = bind(mul, _1, 5); 
+
+    cout &lt;&lt; add10(30) &lt;&lt; endl;  // 40
+    cout &lt;&lt; mul5(20) &lt;&lt; endl;   // 100
+
+    return 0;
+}
+</code></pre>
+<p>佔位符 <code>_1</code> 是位於 <code>std::placeholders</code> 名稱空間之中，代表傳回的函式可接受的第一個參數，以上例來說，<code>bind(add, _1, 10)</code> 表示 <code>add</code> 的 <code>a</code> 會是佔位符 <code>_1</code>，<code>b</code> 會是 10，因此傳回的函式第一個參數接受到的引數，相當於指定了 <code>a</code> 的值。</p>
+<p>因此若有多個參數要綁定，會是如下：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+void foo(int a, int b, int c, int d) {
+    cout &lt;&lt; "a: " &lt;&lt; a &lt;&lt; endl 
+         &lt;&lt; "b: " &lt;&lt; b &lt;&lt; endl
+         &lt;&lt; "c: " &lt;&lt; c &lt;&lt; endl
+         &lt;&lt; "d: " &lt;&lt; d &lt;&lt; endl;
+}
+
+int main() {
+    auto wat = bind(foo, _1, 20, _2, 40);
+    wat(10, 30);
+
+    return 0;
+}
+</code></pre>
+<p>在上例中，<code>b</code> 被綁定為 30，<code>d</code> 被綁定為 40，傳回的函式第一個引數值會是 <code>a</code> 的值，第二個引數值會是 <code>c</code> 的值，因此結果顯示如下：</p>
+<pre class="prettyprint"><code lang="c++">a: 10
+b: 20
+c: 30
+d: 40
+</code></pre>
+<p>因此，如果想調換參數順序，可以如下：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+void foo(int a, int b) {
+    cout &lt;&lt; "a: " &lt;&lt; a &lt;&lt; endl 
+         &lt;&lt; "b: " &lt;&lt; b &lt;&lt; endl;
+}
+
+int main() {
+    auto wat = bind(foo, _2, _1);
+    wat(10, 20);
+
+    return 0;
+}
+</code></pre>
+<p>執行結果如下：</p>
+<pre class="prettyprint"><code lang="c++">a: 20
+b: 10
+</code></pre>
+<p>實際上，<code>functional</code> 中包含了對應於運算子的函子（Functor），像是 <code>plus</code>、<code>minus</code>、<code>multiplies</code> 等，之後的文件會談到函子，在這邊只要先知道，它就是個類別，重載了呼叫運算子 <code>()</code>，建構其實例之後，可以看成是個函式。</p>
+<p>因此，上例可以進一步修改如下：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+int main() {
+    auto add10 = bind(plus&lt;int&gt;{}, _1, 10);
+    auto mul5 = bind(multiplies&lt;int&gt;{}, _1, 5); 
+
+    cout &lt;&lt; add10(30) &lt;&lt; endl;  // 40
+    cout &lt;&lt; mul5(20) &lt;&lt; endl;   // 100
+
+    return 0;
+}
+</code></pre>
+<p><code>bind</code> 預設不處理參考，因此若是以下的範例：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+void foo(int &amp;a, const int &amp;b) {
+    a++;
+    cout &lt;&lt; &amp;b &lt;&lt; endl;
+}
+
+int main() {
+    int a = 10;
+    int b = 20;
+    auto wat = bind(foo, a, b);
+    wat();
+    cout &lt;&lt; "a: " &lt;&lt; a &lt;&lt; endl 
+         &lt;&lt; "b: " &lt;&lt; &amp;b &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+<p>執行之後，<code>main</code> 中的 <code>a</code> 值依舊是 10，而 <code>foo</code> 的 <code>b</code> 位址與 <code>main</code> 的 <code>b</code> 不同：</p>
+<pre class="prettyprint"><code lang="c++">0x61feb0
+a: 10
+b: 0x61feb8
+</code></pre>
+<p>若要符合參數的參考指定，可以使用 <code>ref</code> 與 <code>cref</code>，後者的 c 代表了 <code>const</code>，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+using namespace placeholders;
+
+void foo(int &amp;a, const int &amp;b) {
+    a++;
+    cout &lt;&lt; &amp;b &lt;&lt; endl;
+}
+
+int main() {
+    int a = 10;
+    int b = 20;
+    auto wat = bind(foo, ref(a), cref(b));
+    wat();
+    cout &lt;&lt; "a: " &lt;&lt; a &lt;&lt; endl 
+         &lt;&lt; "b: " &lt;&lt; &amp;b &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+<p>執行之後，<code>main</code> 中的 <code>a</code> 值是 11，而 <code>foo</code> 的 <code>b</code> 位址與 <code>main</code> 的 <code>b</code> 相同：</p>
+<pre class="prettyprint"><code lang="c++">0x61feb0
+a: 11
+b: 0x61feb0
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

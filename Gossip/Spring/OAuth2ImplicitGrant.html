@@ -1,0 +1,158 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="假設啦！因為 gossip 微網誌很受歡迎，有人打算用 JavaScript、HTML5 之類的前端技術，幫 gossip 微網誌的使用者寫個在「瀏覽器中執行的應用程式」，協助使用者管理訊息、做做文字...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Implicit 核發流程">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/OAuth2ImplicitGrant.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="假設啦！因為 gossip 微網誌很受歡迎，有人打算用 JavaScript、HTML5 之類的前端技術，幫 gossip 微網誌的使用者寫個在「瀏覽器中執行的應用程式」，協助使用者管理訊息、做做文字...">
+
+    <title>Implicit 核發流程</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OAuth2ImplicitGrant.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Implicit 核發流程</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>假設啦！因為 gossip 微網誌很受歡迎，有人打算用 JavaScript、HTML5 之類的前端技術，幫 gossip 微網誌的使用者寫個在「瀏覽器中執行的應用程式」，協助使用者管理訊息、做做文字雲分析之類，不過 gossip 微網誌是我在管理的，我不能私下直接給你使用者名稱、密碼，使用者也不會給你這些敏感資訊，怎麼辦呢？</p>
+<p>如果我支援 OAuth 2 的 Implicit 核發流程，就可以解決這件事，要建立這麼一個授權伺服器，基本流程與〈<a href="OAuth2PasswordGrant.html">Password Credentials 核發流程</a>〉類似，最主要在於授權類型等需要做些變更，因此，若以〈<a href="OAuth2PasswordGrant.html">Password Credentials 核發流程</a>〉中的 AuthSvr 成果來修改：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...
+
+@SpringBootApplication
+@EnableAuthorizationServer
+public class AuthSvrApplication {
+    ...略
+
+    @Bean
+    public AuthorizationServerConfigurer authorizationServerConfigurer() {
+        return new AuthorizationServerConfigurerAdapter() {
+            @Override
+            public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+                clients.inMemory()
+                       .withClient("browserclient")
+                       .secret(passwordEncoder.encode("browserclient12345678"))
+                       .scopes("account", "message", "email")
+                       .resourceIds("resource")
+                       .authorizedGrantTypes("implicit")
+                       .redirectUris("http://localhost:8082/hello.html");
+            }
+
+            ...略        
+        };
+    }
+
+    ...略
+}
+</code></pre>
+<p>在這邊可以看到 <code>authorizedGrantTypes</code> 設為 <code>"implicit"</code>，並且指定了個 <code>redirectUris</code>，這是待會請求核發 Access Token 時必須指定的重導網址，瀏覽器收到 Access Token 後也確實會重導至該網址，實際上，對於第三方應用程式，我必須有個地方可以讓它們申請建立應用程式，建立應用程式時會需要填寫重導網址、應用程式會使用到的 scope 資訊，如果你曾經在社交網站上開設過應用程式，對這個動作應不陌生，在這邊為了簡化範例，就直接寫死在程式碼中。</p>
+<p>接下來啟動授權伺服器，打開瀏覽器請求 <code>http://localhost:8081/oauth/authorize?response_type=token&amp;client_id=browserclient&amp;redirect-uri=http://localhost:8082/hello.html</code>，注意到端點是 <code>/oauth/authorize</code>，請求參數 <code>response_type</code> 為 <code>token</code>，表示請求核發 Access Token，<code>client_id</code> 為客戶端 ID，<code>redirect-uri</code> 為收到 Access Token 時要重導的網址，必須與方才的 <code>redirectUris</code> 設定相同。</p>
+<p>因為第三方應用程式未持有使用者名稱、密碼，實際上會是使用者連到第三方應用程式，而被要求重新導向至 <code>http://localhost:8081/oauth/authorize?response_type=token&amp;client_id=browserclient&amp;redirect-uri=http://localhost:8082/hello.html</code>，這時驗證伺服器會要求使用者自身輸入名稱、密碼：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ImplicitGrant-1.JPG" alt="Implicit 核發流程"  /></div></div></p>
+<p>輸入 <code>caterpillar</code> 與 <code>12345678</code> 之後，會顯示底下頁面，由使用者確認是否允許第三方應用程式拿到這些 scope 的權限：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ImplicitGrant-2.JPG" alt="Implicit 核發流程"  /></div></div></p>
+<p>喜歡在社交網站上玩第三方應用程式的人，應該很熟悉這個畫面，當然，就開發者而言，這個頁面也是可以自訂的，這我就不談了。</p>
+<p>選擇允許的權限範圍後，按下「Authorize」，會被要求重新導向至 <code>http://localhost:8082/hello.html#access_token=236584f9-749e-45db-8489-e9c5066c54a6&amp;token_type=bearer&amp;expires_in=43199&amp;scope=message%20account%20email</code>，注意 <code>#</code> 之後附上了 <code>access_token</code>、<code>token_type</code>、<code>expires_in</code> 與 <code>scope</code> 資訊。</p>
+<p>只要有 <code>access_token</code>，就可以對驗證伺服器的 <code>/oauth/check_access</code> 端點進行請求，當然，這個動作是第三方應用程式要做的，你的 hello.html 放在 <code>http://localhost:8082/</code> 網站上，在重新導向至該站時，會取得 hello.html，然而，瀏覽器不會發送 <code>#</code> 之後的東西，因此你的 hello.html 中必須有 JavaScript 來提取出 <code>access_token</code>。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;Hello&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script&gt;
+    const href = window.location.href;
+    const frag = href.split('#')[1];
+    const params = frag.split('&amp;');
+    const token = params.map(param =&gt; param.split('='))
+          .reduce((acc, pair) =&gt; {
+              acc[pair[0]] = pair[1];
+              return acc;
+          }, {});
+
+    fetch('http://localhost:8080/hello', {
+        headers: {          
+            'Authorization': 'Bearer ' + token.access_token
+        }
+    })
+    .then(response =&gt; response.text())
+    .then(text =&gt; {
+        document.getElementById('console').innerHTML = text;
+    });
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>這是個純 HTML 加 JavaScript，這也是 Implicit 的應用場景，也就是一開頭就談到的，你寫的是「瀏覽器中執行的應用程式」，你大可以把這類應用程式，放在不支援後端技術的內容傳遞網站上。</p>
+<p>在上頭的 JavaScript 中，取得了 URI，並從中剖析出 <code>access_token</code>，然後透過 Fetch API 跨站請求了資源伺服器，請求時記得以 <code>Authorization</code> 附上 Access Token，<code>Bearer</code> 表明了 Access Token 的種類。</p>
+<p>這種情況下，第三方應用程式得運用跨站請求，因此資源伺服器上的 <code>hello</code> 端點，必須能接受跨站請求，這在 Spring 中只需要標註 <code>@CrossOrigin</code>：</p>
+<pre class="prettyprint"><code lang="java">@CrossOrigin
+@GetMapping("/hello")
+public String hello(OAuth2Authentication oauth) {
+    return "hello " + oauth.getPrincipal();
+}
+</code></pre>
+<p>如果以上設定都沒有錯誤，實際上先前在「Authorize」按下後，你就會看到以下的畫面：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ImplicitGrant-3.JPG" alt="Implicit 核發流程"  /></div></div></p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Cloud/OAuth2/OAuth2ImplicitGrant">OAuth2ImplicitGrant</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

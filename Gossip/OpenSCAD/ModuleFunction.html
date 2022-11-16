@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/basics/module-function/'">
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈使用 OpenSCAD CheatSheet〉中最後談到了自訂模組，嗯！學程式語言最討厭大概就是名詞定義了，模組這玩意兒不是你在一些主流語言中看過的那玩意兒，實際上函式在 OpenSCAD 也不是...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="module 與 function">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/ModuleFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈使用 OpenSCAD CheatSheet〉中最後談到了自訂模組，嗯！學程式語言最討厭大概就是名詞定義了，模組這玩意兒不是你在一些主流語言中看過的那玩意兒，實際上函式在 OpenSCAD 也不是...">
+    <title>module 與 function</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="ModuleFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回
+            OpenSCAD 目錄</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+                <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../images/facebook.png"></a>
+                </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>module 與 function</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>在〈<a href="CheatSheet.html">使用
+              OpenSCAD CheatSheet</a>〉中最後談到了自訂模組，嗯！學程式語言最討厭大概就是名詞定義了，模組這玩意兒不是你在一
+            些主流語言中看過的那玩意兒，實際上函式在 OpenSCAD 也不是！</p>
+          <h1>沒有魔法數字</h1>
+          <p>不過要談到 OpenSCAD 的模組或函式之前，先來看一個重要的觀念，就以〈<a href="CheatSheet.html">使
+              用 OpenSCAD CheatSheet</a>〉中的一個範例來說好了：</p>
+          <pre class="prettyprint"><code lang="openscad">translate([-5, -5, -5])
+    linear_extrude(10) 
+        text("春", font = "標楷體");
+</code></pre>
+          <p>嗯？這範例有什麼問題？10 是什麼？-5 又是什麼？<strong>理想上，在一個 OpenSCAD
+              中，呼叫模組或函式時，最好不要使用數字！最好是給予數字一個具意義的變數名稱！</strong>例如：</p>
+          <pre class="prettyprint"><code lang="openscad">height = 10;
+offset_for_center = -height / 2;
+
+translate([offset_for_center, offset_for_center, offset_for_center])
+    linear_extrude(height) 
+        text("春", font = "標楷體");
+</code></pre>
+          <p>這樣在呼叫函式或模組時，看起來會清楚的多。不過也不是只有用數字，最好是將值都給予一個具意義的變數名稱，像是 <code>"春"</code>
+            或 <code>"標楷體"</code> 也可以給予一個變數名稱：</p>
+          <pre class="prettyprint"><code lang="openscad">height = 10;
+offset_for_center = -height / 2;
+word = "春";
+font = "標楷體";
+
+translate([offset_for_center, offset_for_center, offset_for_center])
+    linear_extrude(height) 
+        text(word, font = font);
+</code></pre>
+          <p>這樣程式碼就是最理想的情況，在撰寫 OpenSCAD 程式的過程中，每一段時間，就得記得回顧一下程式碼，做這類給予值一個名稱的動作。</p>
+          <h1>建立模組</h1>
+          <p>給予值一個名稱的動作，除了可讀性的考量之外，另一個目的就是，當你發現模型已達一個階段性目標時，要將之封裝為模組就會非常方便，例如，若上
+            頭你想要建立一個 <code>chinese_word</code> 模組，第一步可以這麼寫：</p>
+          <pre class="prettyprint"><code lang="openscad">height = 10;
+offset_for_center = -height / 2;
+word = "春";
+font = "標楷體";
+
+module chinese_word() {
+    translate([offset_for_center, offset_for_center, offset_for_center])
+        linear_extrude(height) 
+            text(word, font = font);
+}
+
+chinese_word();
+</code></pre>
+          <p>可以看到，在 OpenSCAD 中使用 <code>module</code> 來建立模組，而上面這個範例，只是使用了 <code>module</code>
+            區域來包住先前的程式碼而已，這當然不是最後的成果，目的只是要你在下一步，將 <code>translate</code>、<code>linear_extrude</code>
+            與 <code>text</code> 中使用到的變數，放到 <code>module</code>
+            的參數列而已，可以的話，順便在參數的順序安排上花一點心思：</p>
+          <pre class="prettyprint"><code lang="openscad">height = 10;
+offset_for_center = -height / 2;
+word = "春";
+font = "標楷體";
+
+module chinese_word(word, font, height, offset_for_center) {
+    translate([offset_for_center, offset_for_center, offset_for_center])
+        linear_extrude(height) 
+            text(word, font = font);
+}
+
+chinese_word(word, font, height, offset_for_center);
+</code></pre>
+          <p>單看 <code>chinese_word(word, font, height, offset_for_center)</code>
+            這句，是不是清楚多了？現在想了一下 <code>offset_for_center</code>
+            這個，好像可以更有彈性一些，讓使用者能自行決定要不要置中，這可以這麼修改：</p>
+          <pre class="prettyprint"><code lang="openscad">height = 10;
+word = "春";
+font = "標楷體";
+
+module chinese_word(word, font, height, center = true) {
+    offset_for_center = center ? -height / 2 : 0;
+    translate([offset_for_center, offset_for_center, offset_for_center])
+        linear_extrude(height) 
+            text(word, font = font);
+}
+
+chinese_word(word, font, height, center = false);
+</code></pre>
+          <p>這邊看到了 <code>center = true</code>，這是預設參數，如果沒有提供 <code>center</code>
+            參數，那麼它就是 <code>true</code>。模組中用了 <code>?:</code> 三元運算子，<code>?</code>
+            前如果是 <code>true</code>，就傳回 <code>:</code> 前的值，否則傳回 <code>:</code>
+            後的值。那麼，接下來如果想將 <code>chinese_word</code>，繞 X 軸旋轉 90 度，只要寫…</p>
+          <pre class="prettyprint"><code lang="openscad">rotate([90, 0, 0]) 
+    chinese_word(word, font, height, center = false)
+</code></pre>
+          <p>這樣的程式碼，是不是比層層縮排要來得容易閱讀，具有彈性的多了？！現在來回顧一下，〈<a href="https://openhome.cc/Gossip/OpenSCAD/HelloOpenSCAD.html">Hello,
+              OpenSCAD!</a>〉中的範例：</p>
+          <pre class="prettyprint"><code lang="openscad">my_text = "Hello, OpenSCAD!";
+step_angle = 30;
+radius = 30;
+height = 5;
+
+len_of_my_text = len(my_text);
+
+for(i = [0:len_of_my_text]) {
+    rotate(step_angle * i) 
+        translate([radius, 0, i * 5]) 
+            linear_extrude(height) 
+                text(my_text[len_of_my_text - i]);
+} 
+</code></pre>
+          <p>相信你應該看得懂程式碼在做什麼了，自行試著將之封裝為模組吧！</p>
+          <p>一個複雜的模型，一定是由許多基礎的子模型建構而來，就像其他類型的程式中，一個複雜的任務演算，一定是由許多子任務演算來完成；每當你覺得模
+            型達到一個子目標（也就是那種…嗯…接下來可以做下一步了的時候），就可以將之建立為模組，久而久之，你就會累積起自己的常用模組。</p>
+          <h1>建立函式</h1>
+          <p>在 OpenSCAD 中，模組很具體，就是一個可見的模型，也就是，你的程式會在 OpenSCAD 的模型預覽上作出改變，套句
+            Functional programming 中的術語，你可以說模組是有<strong>副作用（Side effect）</strong>的
+            操作。</p>
+          <p>其實在命令式語言中，被稱之為函式或方法的東西，就相當於 OpenSCAD 中的模組，而 <strong>OpenSCAD
+              中的函式，真的就是…數學函式的概念</strong>，就像是 <code>f(x) = x + 1</code>，你給它 <code>x</code>
+            為 1，一定是傳回 2，不會有副作用，絕對的引用透明（Referential Transparency）。</p>
+          <p>好啦！我並不想賣弄術語，簡單來說，如果你有一個數學運算，像是想使用畢氏定理求斜邊長好了，就可以使用 OpenSCAD 的函式：</p>
+          <pre class="prettyprint"><code lang="openscad">length_side1 = 10;
+length_side2 = 20;
+
+function length_hypotenuse(length_side1, length_side1) = 
+    sqrt(pow(length_side1, 2) + pow(length_side2, 2));
+
+echo(length_hypotenuse(length_side1, length_side1));  // ECHO: 22.3607
+</code></pre>
+          <p>可以看到，建立函式使用 <code>function</code>，當然不只有能建數學公式，只要是給一些引數，傳回一個值的演算，都可
+            以使用 <code>function</code> 來定義。</p>
+          <p>不過，比較麻煩的是，你不能用 <code>if...else</code>，這只能在模組中用，也不能用 <code>for</code>，
+            這也只能在模組用，<code>if...else</code> 比較好解決，可以改用 <code>?:</code>
+            三元運算，沒有迴圈比較麻煩，需要重複性計算的演算怎麼辦？記得嗎？OpenSCAD 是 Functional
+            programming，重複性的計算就是…使用遞迴！</p>
+          <p>「遞迴只應天上有，凡人只能用迴圈」是嗎？其實只要任務單一，每次遞迴只專注當次子任務的分解，不管前後任務之狀態，遞迴並不困難的！</p>
+          <p>在前面的範例有看到 <code>len</code> 函式，可以用來計算文字的長度，假設現在沒有 <code>len</code>
+            函式可以用了，我們自己來定義一個，記得，只要看當次任務該解什麼就好了，那麼，計算文字長度的當次任務是什麼，不就是「看看有沒有字元，有就在
+            計數上加 1」：</p>
+          <pre class="prettyprint"><code lang="openscad">function my_len(text, count = 0) = 
+    text[count] == undef ? count : my_len(text, count + 1);
+
+echo(my_len("TEST"));  // ECHO: 4
+</code></pre>
+          <p>就 <code>my_len</code> 的函式本體來說，就是將 <code>count</code> 當成索引，取 <code>text</code>
+            中的字元，也就是「看看有沒有字元」，如果超出索引就是 <code>undef</code>，不是 <code>undef</code>
+            就 <code>count + 1</code>，也就是「有就在計數上加 1」，下次計數就是下一次呼叫 <code>my_len</code>
+            的事了…XD</p>
+          <p>順便一提的是，以 Functional programming 的術語來說，OpenSCAD 的模組就像是 Functional
+            programming 中非純綷、有副作用的部份，而 OpenSCAD 的函式，就像是 Functional programming
+            中純綷、無副作用的部份。</p>
+          <h1>use 與 include</h1>
+          <p>一些可重用的模組或函式，你可以分門別類地放在不同的 .scad
+            檔案中，為檔案取個適當的名稱，之後若需要檔案中的某些函式或模組，可以使用 <code>use</code> 來指定檔案。例如，你有個
+            2d.scad，當中有一些 2D 繪圖的模組或函式，在另一個檔案中想使用時，可以如下：</p>
+          <pre class="prettyprint"><code lang="openscad">use &lt;2d.scad&gt;;
+</code></pre>
+          <p><code>use</code> 很單純，只會使用指定檔案中的模組或函式定義，也就是說，如果有個 a.scad 被 b.scad
+            使用了（<code>use &lt;a.scad&gt;;</code>），而現在你有個 c.scad 需要 a.scad 與
+            b.scad 中的定義，那麼就必須同時在 c.scad 中：</p>
+          <pre class="prettyprint"><code lang="openscad">use &lt;a.scad&gt;;
+use &lt;b.scad&gt;;
+</code></pre>
+          <p>只是在 c.scad 中使用一個 <code>use &lt;b.scad&gt;;</code>，並不會自動執行 b.scad
+            中的 <code>use &lt;a.scad&gt;</code>。</p>
+          <p><code>use</code> 只會使用指定檔案中的定義，不會執行指定檔案中的程式碼；另一個 <code>include</code>，
+            會將被 <code>include</code> 的檔案，直接合併至目前檔案中執行，也就是說，被 <code>include</code>
+            的檔案中之程式碼會被執行，因此，被 <code>include</code> 的檔案中設定的變數也會生效，這是使用 <code>include</code>
+            的一個情境。</p>
+          <p>跟 <code>use</code> 不同的是，如果有個 a.scad 被 b.scad <code>include</code>
+            了，而現在有個 c.scad 又 <code>include</code> 了 b.scad，那麼，就是將
+            a.scad、b.scad、c.scad 合併然而一起執行。</p>
+          <p>順便一提的是，我這陣子玩的 3D 模型原始碼，一些可重用的部份，收集在兩個 repoitory 中，有興趣的可以看看：</p>
+          <ul>
+            <li><a href="https://github.com/JustinSDK/TurtleSCAD">TurtleSCAD</a></li>
+            <li><a href="https://github.com/JustinSDK/MazeSCAD">MazeSCAD</a></li>
+          </ul>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+  
+</html>

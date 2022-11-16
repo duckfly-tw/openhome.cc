@@ -1,0 +1,216 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/basics/wat/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在程式語言的分類上，有所謂強型別（Strong type）、弱型別（Weak type）語言，強弱之別是相對的，沒有絕對之分野，端看語言對型態檢查的嚴格程度、型態轉換規則是否多元。
+靜態定型語言不一定...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="弱型別的代價 - WAT！">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/WeakType.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在程式語言的分類上，有所謂強型別（Strong type）、弱型別（Weak type）語言，強弱之別是相對的，沒有絕對之分野，端看語言對型態檢查的嚴格程度、型態轉換規則是否多元。
+靜態定型語言不一定...">
+
+    <title>弱型別的代價 - WAT！</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="WeakType.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>弱型別的代價 - WAT！</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在程式語言的分類上，有所謂強型別（Strong type）、弱型別（Weak type）語言，強弱之別是相對的，沒有絕對之分野，端看語言對型態檢查的嚴格程度、型態轉換規則是否多元。</p>
+<p>靜態定型語言不一定就是強型別語言，例如 Scala 可以使用 <code>implicit</code> 來定義隱式轉換（Implicit conversion）規則，願意的話，可讓整個語言看來偏向弱型別；動態定型語言也不一定就是弱型別，舉例來說，Ruby、Python 就偏向強型別語言。</p>
+<p>Java 偏向強型別語言，在 Java 中運算或操作，較少有自動之型態轉換，舉例來說，字串在 Java 中不能直接作以下之操作：</p>
+<pre class="prettyprint"><code lang="javascript">String number1 = "3";
+String number2 = "2";
+int result = number1 - number2;
+</code></pre>
+<p>在偏向強型別的語言中，多數情況下型態轉換或剖析必須明確指定。例如：</p>
+<pre class="prettyprint"><code lang="javascript">String number1 = "3";
+String number2 = "2";
+int result = Integer.parseInt(number1) - Integer.parseInt(number2);
+</code></pre>
+<p>並非偏向強型別的語言，就不會發生自動型態。例如，Java 中的 <code>+</code> 運算子，只要有運算元有一個是字串，就會嘗試將另一個運算元轉為字串，而後進行字串串接：</p>
+<pre class="prettyprint"><code lang="javascript">String number = 1 + "23";  // "123"，基本型態按字面轉為字串
+Person person = new Person();
+String description = "Person: " + person; // 呼叫 person 的 toString()
+</code></pre>
+<p>JavaScript 偏向弱型別語言，字串的減法操作是可行的：</p>
+<pre class="prettyprint"><code lang="javascript">var result = '3' - '2';
+console.log(result);        // 1
+console.log(typeof result); // number
+</code></pre>
+<p>偏向強型別的語言，多數情況下必須明確進行型態轉換或剖析，避免了許多非預期的自動型態轉換造成的錯誤，然而帶來了語法上的冗長，弱型別語言則相反，取得了語法簡潔的優點，但必須多注意非預期型態轉換帶來的問題。</p>
+<p>JavaScript 的基本型態 <code>number</code>、<code>string</code> 與 <code>boolean</code>，會在必要的時候，自動型態轉換為對應的包裹物件 <code>Number</code>、<code>String</code> 與 <code>Boolean</code>。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; var number = 10;
+undefined
+&gt; number.toString(2);
+'1010'
+&gt; (10).toString(2);
+'1010'
+&gt;
+</code></pre>
+<p><code>number</code> 變數指定的 10，型態是 <code>number</code>，但在操作的 <code>toString</code> 物件才會有的方法，此時會自動使用 <code>Number</code> 實例來包裹 10 這個 <code>number</code>，因此才可以操作 <code>toString</code>。如果是實字表示，則可以加上 <code>()</code> 後直接操作 <code>toString</code>， 同樣會為你自動進行型態轉換。</p>
+<p>類似地，在對 <code>string</code> 作操作時，若必要，也會自動包裹為 <code>String</code> 的實例。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; 'caterpillar'.toUpperCase();
+'CATERPILLAR'
+&gt; 
+</code></pre>
+<p><code>toUpperCase</code> 是 <code>String</code> 上定義的方法，執行環境必要時，會將 <code>string</code> 使用 <code>String</code> 包裹，才讓你操作 <code>toUpperCase</code>方法。</p>
+<p>你可以直接建立包裹物件。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; typeof 10;
+'number'
+&gt; typeof 'caterpillar';
+'string'
+&gt; typeof new Number(10);
+'object'
+&gt; typeof new String('caterpillar');
+'object'
+&gt; 
+</code></pre>
+<p>關於 <code>Number</code>、<code>String</code> 與 <code>Boolean</code> 上可操作的方法，可參考：</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></li>
+</ul>
+<p>你也可以使用 <code>parseInt</code>、<code>parseFloat</code> 將字串轉換為數值，其好處是會自動忽略字串尾端非數字部份。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; parseInt('10 years old...XD');
+10
+&gt; parseFloat('3.14159......');
+3.14159
+&gt; parseInt('0x10');
+16
+&gt; parseInt('010');
+10
+&gt; parseInt('010', 10);
+10
+&gt; parseInt('010', 8);
+8
+&gt; 
+</code></pre>
+<p>後兩個 <code>parseInt</code> 分別指定了基數為 10 進位或 8 進位，如果字串以 0x 開頭，基數預設為 16 進位，以 0 開頭，建議直接指定基數為 10 或 8 進位，其他字串則預設為 10 進位。</p>
+<p>對於字串，如果代表數字的話，可使用 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 來作運算，不過要注意，<code>+</code> 優先作字串的串接，而非轉換為數字作數值加法，<code>-</code>、<code>*</code>、<code>/</code> 則會轉換為數字。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; '6' + '2';
+'62'
+&gt; '6' - '2';
+4
+&gt; '6' * '2';
+12
+&gt; '6' / '2';
+3
+&gt; 
+</code></pre>
+<p>在 JavaScript 中若結合布林值作 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 等運算，<code>true</code> 會被當作 1，而 <code>false</code> 會被當作 0。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; 1 + true;
+2
+&gt; 1 + false;
+1
+&gt; 
+</code></pre>
+<p>布林值很有趣，在真假判斷式中，所有東西都可以轉換為布林值。一個口訣是 &hellip;</p>
+<blockquote><p>除了 0、<code>NaN</code>、<code>''</code>、<code>null</code>、<code>undefinied</code> 是假的（<code>false</code>）之外，其他都是真的（<code>true</code>）。</p>
+</blockquote>
+<p>0、<code>NaN</code>、<code>''</code>、<code>null</code>、<code>undefinied</code> 就是所謂 False Family 成員。</p>
+<p>例如，若物件上不存在某個特性，直接取用該特性會得到 <code>undefined</code> 的值，所以若想知道某物件上是否存在該特性，則可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; var o = {};
+undefined
+&gt; o.x ? 'has x' : 'has no x';
+'has no x'
+&gt; o.x = 10;
+10
+&gt; o.x ? 'has x' : 'has no x';
+'has x'
+&gt; 
+</code></pre>
+<p>在布林值判斷式中，如果取得 <code>undefined</code>，則會當作 <code>false</code>。如果你想避免 <code>x</code> 被設為 0、<code>NaN</code>、<code>''</code>、<code>null</code> 而造成誤判，則可以作更嚴格的檢查。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function hasX(obj) {
+    return typeof(obj.x) !== 'undefined';
+}
+
+console.log('has x? ' + hasX({}));        // has x? false
+console.log('has x? ' + hasX({x : 10}));  // has x? true
+</code></pre>
+<p>型態轉換也會發生在相等性比較時，在 JavaScript 中有兩個相等性運算子 <code>==</code> 與 <code>===</code>，都可以判斷值或物件參考是否相同，簡單來說，前者會嘗試將 <code>==</code> 兩邊轉換為同一型態，再比較是否相等，但後者只要 <code>===</code> 兩邊型態不一，就會判斷為 <code>false</code>。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; '' == 0;
+true
+&gt; '' === 0;
+false
+&gt; null == undefined;
+true
+&gt; null === undefined;
+false
+&gt; 1 == true;
+true
+&gt; 1 === true;
+false
+&gt; 
+</code></pre>
+<p>簡單來說，<code>==</code> 執行較寬鬆的比較，可允許型態轉換後的比較，<code>===</code> 執行較嚴格的比較，型態必須相同才有可能為 <code>true</code>（當然，<code>!=</code> 與 <code>!==</code> 則是不相等的比較）。建議執行嚴格的比較，也就是使用 <code>===</code> 與 <code>!==</code> 來比較相等或不相等。</p>
+<p>在弱型別語言中，型態轉換自動發生的規則多，若是不確定，最好還是實際測試了解結果，避免不必要的型態轉換而發生誤判或錯誤的運算結果。</p>
+<p>以下來看幾個初學者容易 WAT 脫口而出的例子：</p>
+<pre class="prettyprint"><code lang="javascript">&gt; [] + [];
+''
+&gt; [] + {};
+'[object Object]'
+&gt; {} + [];
+0
+&gt; {} + {};
+NaN
+&gt; 
+</code></pre>
+<p>這個例子其實是來自 Gary Bernhardt 在 CodeMash 2012 時的一場 <a href="https://www.destroyallsoftware.com/talks/wat">WAT 閃電秀</a>，有時間的話，上去看看笑一笑吧！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

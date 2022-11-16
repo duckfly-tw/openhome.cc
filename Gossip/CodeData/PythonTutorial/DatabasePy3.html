@@ -1,0 +1,175 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="除了使用檔案、物件序列化來儲存程式運行結果之外，資料庫的應用也是常見用來儲存資料，以備後續查詢、載入等用途的一個選項，在這邊介紹一下 DBM 與 DB-API 2.0。
+DBM
+dbm 為柏克萊大學發...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 3 Tutorial 第六堂（1）資料庫介面">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/DatabasePy3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="除了使用檔案、物件序列化來儲存程式運行結果之外，資料庫的應用也是常見用來儲存資料，以備後續查詢、載入等用途的一個選項，在這邊介紹一下 DBM 與 DB-API 2.0。
+DBM
+dbm 為柏克萊大學發...">
+
+    <title>Python 3 Tutorial 第六堂（1）資料庫介面</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DatabasePy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/PythonTutorial/">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 3 Tutorial 第六堂（1）資料庫介面</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>除了使用檔案、物件序列化來儲存程式運行結果之外，資料庫的應用也是常見用來儲存資料，以備後續查詢、載入等用途的一個選項，在這邊介紹一下 DBM 與 DB-API 2.0。</p>
+<h1>DBM</h1>
+<p><code>dbm</code> 為柏克萊大學發展的檔案型資料庫，Python 的 <code>dbm</code> 模組提供了對 Unix 程式庫的介面。<code>dbm</code> 物件就像個字典，在不需要關聯式資料庫，只需要快速存取鍵值的場合可以使用，<code>dbm</code> 物件的鍵值都必須是字串。Python 提供 DBM 的多數實現，如果你不確定要用哪一種，可以使用 <code>anydbm</code> 模組，它會檢查並選擇系統上可用的 DBM 實作。</p>
+<p>在這邊直接轉貼〈<a href="https://docs.python.org/3.5/library/dbm.html#module-dbm">dbm — Interfaces to Unix “databases”</a>〉中的範例程式碼作個示範：</p>
+<pre class="prettyprint"><code lang="python">import dbm
+
+# Open database, creating it if necessary.
+with dbm.open('cache', 'c') as db:
+
+    # Record some values
+    db[b'hello'] = b'there'
+    db['www.python.org'] = 'Python Website'
+    db['www.cnn.com'] = 'Cable News Network'
+
+    # Note that the keys are considered bytes now.
+    assert db[b'www.python.org'] == b'Python Website'
+    # Notice how the value is now in bytes.
+    assert db['www.cnn.com'] == b'Cable News Network'
+
+    # Often-used methods of the dict interface work too.
+    print(db.get('python.org', b'not present'))
+
+    # Storing a non-string key or value will raise an exception (most
+    # likely a TypeError).
+    db['www.yahoo.com'] = 4
+
+# db is automatically closed when leaving the with statement.
+</code></pre>
+<p>在這邊你看到了 <code>with</code> 這個語法，如註解中說明的，它會自動關閉檔案，現在暫且忽略它，之後我們還會詳細看到 <code>with</code> 的介紹。</p>
+<h1>DB-API 2.0（PEP 249）</h1>
+<p>為 Python 中存取資料庫的標準介面，就我的認知而言，其角色應該是類似於 Java 中的 JDBC。Python 中的 <code>sqlite3</code> 模組，提供了 DB-API 2.0 的實作，可用以存取 <a href="http://www.sqlite.org/">SQLite</a> 資料庫。接下來的範例，會存取的資料庫表格如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/DatabasePy3-1.png" alt="資料庫介面"  /></div></div></p>
+<p>以下直接列出範例程式碼，程式很簡單，應該一目瞭然，API 細節可參考〈<a href="https://docs.python.org/3.5/library/sqlite3.html">sqlite3 — DB-API 2.0 interface for SQLite databases</a>〉。</p>
+<pre class="prettyprint"><code lang="python">def connect(name):
+    create = not os.path.exists(name)
+    conn = sqlite3.connect(name)
+    if create:
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE directors ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
+            "name TEXT UNIQUE NOT NULL)")
+        cursor.execute("CREATE TABLE dvds ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
+            "title TEXT NOT NULL, "
+            "year INTEGER NOT NULL, "
+            "duration INTEGER NOT NULL, "
+            "director_id INTEGER NOT NULL, "
+            "FOREIGN KEY (director_id) REFERENCES directors)")
+        conn.commit()
+
+    return conn
+
+def add_dvd(conn, title, year, duration, director):
+    director_id = get_and_set_director(conn, director)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO dvds "
+                   "(title, year, duration, director_id) "
+                   "VALUES (?, ?, ?, ?)",
+                   (title, year, duration, director_id))
+    conn.commit()
+
+def get_and_set_director(conn, director):
+    director_id = get_director_id(conn, director)
+    if director_id is not None:
+        return director_id
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO directors (name) VALUES (?)",
+                   (director,))
+    conn.commit()
+    return get_director_id(conn, director)
+
+def get_director_id(conn, director):
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM directors WHERE name=?",
+                   (director,))
+    fields = cursor.fetchone()
+    return fields[0] if fields is not None else None
+
+def all_dvds(conn):
+    cursor = conn.cursor()
+    sql = ("SELECT dvds.title, dvds.year, dvds.duration, "
+           "directors.name FROM dvds, directors "
+           "WHERE dvds.director_id = directors.id"
+           " ORDER BY dvds.title")
+    cursor.execute(sql)
+    return [(str(fields[0]), fields[1], fields[2], str(fields[3]))
+            for fields in cursor]
+
+def all_directors(conn):
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM directors ORDER BY name")
+    return [str(fields[0]) for fields in cursor]
+</code></pre>
+<p>以下是個存取資料庫的例子：</p>
+<pre class="prettyprint"><code lang="python">db_name = 'dvd_library.sqlite3'
+conn = connect(db_name)
+add_dvd(conn, 'Python Tutorial 2013', 2013, 1, 'Justin')
+print(all_directors(conn))
+print(all_dvds(conn))
+</code></pre>
+<h2>練習 8：pickle、shelve 與 DB-API 2.0</h2>
+<p>在 Lab 檔案中有個 lab/exercises/exercise8，當中有 pickle_ex.py、shelve_ex.py、sql_ex.py 三個檔案，分別是先前介紹 <code>pickle</code>、<code>shelve</code> 與 DB-API 2.0 時的三個程式範例，不過程式碼內容不完整，請任選你想要練習的對象，按加上頭列出的範例程式碼，就不齊全的部份補齊。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

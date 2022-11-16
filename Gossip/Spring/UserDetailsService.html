@@ -1,0 +1,272 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="目前我們的 gossip 專案，是基於 Web 容器安全管理，而且有自己的密碼管理方式，想要直接套用先前談過的 Spring Security 的話，似乎得做些不少的修改，這也蠻符合既有專案想套用 S...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="UserDetailsService">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/UserDetailsService.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="目前我們的 gossip 專案，是基於 Web 容器安全管理，而且有自己的密碼管理方式，想要直接套用先前談過的 Spring Security 的話，似乎得做些不少的修改，這也蠻符合既有專案想套用 S...">
+
+    <title>UserDetailsService</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="UserDetailsService.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>UserDetailsService</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>目前我們的 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/MVC/Interceptor/gossip">gossip</a> 專案，是基於 Web 容器安全管理，而且有自己的密碼管理方式，想要直接套用先前談過的 Spring Security 的話，似乎得做些不少的修改，這也蠻符合既有專案想套用 Spring Security 的情況，有沒有辦法比較簡單的套用呢？</p>
+<p>無論如何，先來做點基本的設定吧！先在 build.gradle 裏加上相依的程式庫：</p>
+<pre class="prettyprint"><code lang="java">compile 'org.springframework.security:spring-security-core:5.1.2.RELEASE' 
+compile 'org.springframework.security:spring-security-config:5.1.2.RELEASE'
+compile 'org.springframework.security:spring-security-web:5.1.2.RELEASE'
+</code></pre>
+<p>新增 <code>SecurityInitializer</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+
+public class SecurityInitializer extends AbstractSecurityWebApplicationInitializer {
+}
+</code></pre>
+<p>在 <code>SpringInitializer</code> 的 <code>getRootConfigClasses</code> 裏增加 <code>SecurityConfig</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+import org.springframework.web.servlet.support.*;
+
+public class SpringInitializer
+     extends AbstractAnnotationConfigDispatcherServletInitializer{
+    ... 略
+
+    @Override
+    protected Class&lt;?&gt;[] getRootConfigClasses() {
+        return new Class&lt;?&gt;[] {RootConfig.class, SecurityConfig.class};
+    }
+
+    ... 略
+}
+</code></pre>
+<p>然後就可以在 <code>SecurityConfig</code> 裏進行設定了，不過在這之前，你得先看看 web.xml 中有關於 Web 容器安全機制相關設定，瞭解哪些頁面需要防護，以及哪些角色可以存取，角色部份比較單純，因為 gossip 應用程式只有一種角色 <code>ROLE_MEMBER</code>。</p>
+<p>接著，得看看目前處理登入登出的 <code>AccessController</code> 在做些什麼：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+public class AccessController {
+    ...略
+
+    @Autowired
+    private UserService userService;
+
+
+    @PostMapping("login")
+    public String login(
+            @RequestParam String username, 
+            @RequestParam String password,
+            HttpServletRequest request) {
+
+        Optional&lt;String&gt; optionalPasswd = userService.encryptedPassword(username, password);
+
+        try {
+            request.login(username, optionalPasswd.get());
+            request.getSession().setAttribute("login", username);
+            return REDIRECT_MEMBER_PATH;
+        } catch(NoSuchElementException | ServletException e) {
+            request.setAttribute("errors", Arrays.asList("登入失敗"));
+            List&lt;Message&gt; newest = userService.newestMessages(10);
+            request.setAttribute("newest", newest);
+            return INDEX_PATH;
+        }
+    }
+
+    @GetMapping("logout")
+    public String logout(HttpServletRequest request) throws ServletException {
+        request.logout(); 
+        return REDIRECT_INDEX_PATH;
+    }
+}
+</code></pre>
+<p><code>UserService</code> 透過 <code>encryptedPassword</code> 方法，取得了編碼後的密碼，然後透過 <code>HttpServletRequest</code> 的 <code>login</code> 方法進行登入，這個部份必須想辦法改用 Spring Security 的流程，而 <code>request.logout()</code> 登出的部份也是。</p>
+<p>在登入之後，必須設定 <code>login</code> 屬性，以便應用程式其他地方使用，接著導向會員頁面；登入失敗則必須顯示登入失敗的訊息並導向首頁。</p>
+<p>然後，根據這些資訊，可以初步在 <code>SecurityConfig</code> 中如下設定：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+...略
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter  {
+    ...
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+            .antMatchers("/member", "/new_message", "/del_message", "/logout").hasRole("MEMBER")
+            .anyRequest().permitAll()
+            .and()
+                .formLogin().loginPage("/").loginProcessingUrl("/login")
+                .successHandler((request, response, auth) -&gt; {
+                    request.getSession().setAttribute("login", auth.getName());
+                    response.sendRedirect("/gossip/member");
+                })
+                .failureHandler((request, response, ex) -&gt; {
+                    response.sendRedirect("/gossip?username=" + request.getParameter("username") + "&amp;error");
+                })
+            .and()
+                .logout().logoutUrl("/logout")
+                .addLogoutHandler((request, response, auth) -&gt; {
+                    request.getSession().invalidate();
+                    try {
+                        response.sendRedirect("/gossip");
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                })
+            .and()
+                .csrf().disable();  
+    }
+}
+</code></pre>
+<p>在這邊看到了 <code>successHandler</code> 與 <code>failureHandler</code> 的運用，可以用來實作原本在 <code>AccessController</code> 中的部份流程，重新導向的話，基本上是要求瀏覽器重新請求指定的網址，這個不成問題，在登入的過程中，除了可以透過 <code>request.getParameter("username")</code> 取得使用者名稱之外，在 <code>successHandler</code> 的處理器中，也可以透過第三個參數，也就是 <code>Authentication</code> 實例的 <code>getName</code> 來取得。</p>
+<p>比較需要注意的地方在於，你不能使用 <code>HttpServletRequest</code> 的 <code>getRequestDispatcher</code> 來進行 <code>forward</code> 來轉發，<code>getRequestDispatcher</code> 要嘛是個 JSP，要嘛是個 Servlet，別忘了，Spring MVC 是透過 <code>DispatcherServlet</code> 來處理請求，想想看目前的 gossip 應用程式中，你 <code>getRequestDispatcher</code> 時的對象究竟要設誰呢？</p>
+<p>因此在這邊，仿效〈<a href="LoginOutForm.html">自訂登入登出頁面</a>〉中的做法，在登入失敗時給予一個 <code>error</code> 參數並重新導向，為此，必須改一下 index.html 中顯示「登入失敗」的模版片段：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;Gossip 微網誌&lt;/title&gt;
+        &lt;link rel="stylesheet" href="css/gossip.css" type="text/css"&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div id="login"&gt;
+            ...略
+
+            &lt;p&gt;&lt;span th:unless="${param.error == null}" th:text='登入失敗' style='color: rgb(255, 0, 0);'&gt;登入失敗&lt;/span&gt;&lt;/p&gt;
+
+            &lt;form method='post' action='login'&gt;
+                ...略
+            &lt;/form&gt;
+        &lt;/div&gt;
+       ...略
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>因為 gossip 應用程式在登入時，並沒有使用 CSRF Token，在這邊使用了 <code>csrf().disable()</code> 停用 CSRF 防護。</p>
+<p>現在的問題剩下，怎麼實作驗證與授權了，暫時不想大改應用程式的話，一個方式就是仍然使用 <code>userService.encryptedPassword(username, password)</code>，想辦法在不修改應用程式既有程式碼的情況下，也能提供使用者名稱、密碼、角色清單資訊。</p>
+<p>這就可以進一步來認識 Spring Security 的驗證過程了，在透過 <code>AuthenticationManagerBuilder</code> 的 <code>inMemoryAuthentication</code> 或 <code>jdbcAuthentication</code> 設定驗證來源時，會各自套用 <code>UserDetailsManagerConfigurer</code> 的子類實例，真正在進行時驗證，就會從 <code>UserDetailsManagerConfigurer</code> 取得 <code>UserDetailsService</code> 實例，以便從驗證來源取得使用者名稱、密碼、角色清單等資訊。</p>
+<p><code>UserDetailsService</code>，它只有一個方法必須實作：</p>
+<pre class="prettyprint"><code lang="java">package org.springframework.security.core.userdetails;
+
+public interface UserDetailsService {
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+}
+</code></pre>
+<p>也就是說根據使用者名稱，想辦法提供 <code>UserDetails</code> 實例，<code>UserDetails</code> 包含了使用者名稱、密碼、角色清單等資訊，Spring Security 提供了一個簡單的 <code>User</code> 實作，在建構時可以只提供使用者名稱、密碼、角色清單。</p>
+<p>如果有從驗證來源取得使用者名稱、密碼、角色清單等資訊時有各自的策略，也可以自行實作 <code>UserDetailsService</code>，既然如此，這不就符合我們的需求嗎？</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+...
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter  {
+    @Autowired
+    private AccountDAO accountDAO;
+
+    @Autowired
+    private UserService userService;
+
+    ... 略
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(username -&gt; {
+            return new User(
+                username, 
+                username + ":" + accountDAO.accountByUsername(username).get().getPassword(), 
+                Arrays.asList(new SimpleGrantedAuthority("ROLE_MEMBER"))
+            );
+        })
+        .passwordEncoder(new UserServiceBasedPasswordEncoder());
+    }
+
+    private class UserServiceBasedPasswordEncoder implements PasswordEncoder {
+        @Override
+        public String encode(CharSequence rawPassword) {
+            // 不用編碼，因為後續實際上會使用 UserService 的 encryptedPassword 方法
+            return rawPassword.toString();
+        }
+
+        @Override
+        public boolean matches(CharSequence rawPassword, String passwordFromUserDetails) {
+            String[] namePassword = passwordFromUserDetails.split(":");
+            String name = namePassword[0];
+            String password = namePassword[1];
+            return userService.encryptedPassword(name, rawPassword.toString()).get().equals(password);
+        }
+    }
+}
+</code></pre>
+<p><code>AuthenticationManagerBuilder</code> 可以透過 <code>userDetailsService</code> 設定 <code>UserDetailsService</code> 實例，因為 <code>UserDetailsService</code> 只有一個方法要實作，這邊直接用了 Lambda 語法來實現，在當中直接使用 gossip 專案中既有的 <code>AccountDAO</code> 實作，因為它正好也有個 <code>accountByUsername</code> 方法，可以根據名稱取得使用者資訊。</p>
+<p><code>UserDetails</code> 實作中必須包含角色清單，在這邊使用 <code>SimpleGrantedAuthority</code> 來建立，可作為 <code>User</code> 建構時的第三個參數。</p>
+<p>因為我們會透過 <code>userService.encryptedPassword(username, password)</code> 來編碼，這可以實作為 <code>PasswordEncoder</code>，如註解中看到的，<code>encode</code> 的部份不用實作，一個比較 workaround 的地方在於，<code>userService.encryptedPassword(username, password)</code> 需要使用者名稱，然而，<code>matches</code> 方法中沒有提供，因此，在實作 <code>UserDetailsService</code>，故意在查詢出來的密碼前，附加了使用者名稱與 <code>":"</code>。</p>
+<p><code>UserDetails</code> 中提供的密碼，會成為 <code>matches</code> 的第二個引數，只要依 <code>":"</code> 切割，就可以取得使用者名稱的部份，因而可以拿來給 <code>userService.encryptedPassword(username, password)</code> 使用。</p>
+<p>這麼一來，就可以刪除 web.xml 中與 Web 安全機制相關的設定，並將 <code>AccessController</code> 刪除，重新部署應用程式之後，就會由 Spring Security 接手頁面防護、驗證與授權等任務了。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Security/UserDetailsService/gossip">gossip</a> 中找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

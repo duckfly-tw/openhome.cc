@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="你想要設計一個 2D 繪圖程式庫，繪圖嘛！最基本的就是點的資訊： class Point { final double x; final double y; Point(double x, double y) { this.x = x; this.y = y; } } 你會提供一些基本的 2D 圖案，2D 圖形的幾">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Visitor" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/visitor/" />
+    <meta property="og:description" content="你想要設計一個 2D 繪圖程式庫，繪圖嘛！最基本的就是點的資訊： class Point { final double x; final double y; Point(double x, double y) { this.x = x; this.y = y; } } 你會提供一些基本的 2D 圖案，2D 圖形的幾" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Visitor" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/visitor/" />
+    <meta name="twitter:description" content="你想要設計一個 2D 繪圖程式庫，繪圖嘛！最基本的就是點的資訊： class Point { final double x; final double y; Point(double x, double y) { this.x = x; this.y = y; } } 你會提供一些基本的 2D 圖案，2D 圖形的幾" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443692" type="image/x-icon">
+    <title> 漫談模式  :: Visitor</title>
+    <link href="../../../css/nucleus.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443692.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443692"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/behavioral/visitor/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item parent"><a href="../index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item active"><a href="index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item"><a href="../../functional/index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../../functional/immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../../functional/pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../../functional/map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../../functional/filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../../functional/reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../../functional/flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">行為式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Visitor</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#面積周長">面積／周長</a></li>
+    <li><a href="index.html#ad-hoc-多型">ad hoc 多型</a></li>
+    <li><a href="index.html#揭露結構型態">揭露結構／型態</a></li>
+    <li><a href="index.html#模式比對">模式比對</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/visitor/">visitor</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/gof/">Gof</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/pattern-matching/">pattern matching</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/ad-hoc-polymorphism/">ad hoc polymorphism</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/polymorphism/">polymorphism</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/data-carrier/">data carrier</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/algebraic-data-type/">algebraic data type</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Visitor</h1>
+
+ <i class="space fa fa-calendar"> January 5, 2022</i> 
+<p>你想要設計一個 2D 繪圖程式庫，繪圖嘛！最基本的就是點的資訊：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Point</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> x<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> y<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    Point<span style="color:#f92672">(</span><span style="color:#66d9ef">double</span> x<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> y<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">y</span> <span style="color:#f92672">=</span> y<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>你會提供一些基本的 2D 圖案，2D 圖形的幾何資訊與呈現會是分離的，因此你設計了一些類別，來封裝 2D 圖形的幾何資訊：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Shape</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 傳回一組逆時針順序的點，作為繪製形狀的資訊
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Rectangle</span> <span style="color:#66d9ef">implements</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> Point center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> width<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> height<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Rectangle<span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> width<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> height<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">center</span> <span style="color:#f92672">=</span> center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">=</span> width<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">height</span> <span style="color:#f92672">=</span> height<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 實作…逆時針建立長方形的四個點 …
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Circle</span> <span style="color:#66d9ef">implements</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> Point center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> radius<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Circle<span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> radius<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">center</span> <span style="color:#f92672">=</span> center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">=</span> radius<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 實作…逆時針建立 96 邊形的 96 個點 … 96 邊形在人眼看來就像個圓了
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>在你的設計中，為了繪製圖形，每個 2D 圖案最後都會轉換為多邊形，<code>Shape</code> 的 <code>polygon</code> 方法要傳回一組逆時針順序的點，代表轉換後的多邊形，你會提供固定的幾個基本 2D 圖案幾何資訊，也許目前是五個吧！只不過上面只列出了其中兩個 <code>Rectangle</code> 與 <code>Circle</code>，總之，這些類別只用來封裝幾何資訊，除了規範的 <code>polygon</code> 方法之外，不提供其他的方法操作，因為你也不知道使用者會用這些資訊做哪些計算。</p>
+<h2 id="面積周長">面積／周長</h2>
+<p>如果使用者要計算 2D 圖案的面積，在拿到一個 <code>Shape</code> 後，必須知道它是什麼型態，轉型後進一步取得幾何資訊吧！也就是可以自定義一個方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">area</span><span style="color:#f92672">(</span>Shape shape<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Rectangle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var rect <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Rectangle<span style="color:#f92672">)</span> shape<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">*</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Circle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var circle <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Circle<span style="color:#f92672">)</span> shape<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span><span style="color:#a6e22e">其他</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> 判斷 Shape 實例的真正型態後計算面積
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>喔！<code>instanceof</code> 耶！不好的訊號！沒辦法，因為 <code>Circle</code>、<code>Rectangle</code> 只作為純綷的資料載體，而且程式庫是由你設計的，使用者不能變動原始碼，只能拿到幾何資訊後，做他想做的事！</p>
+<p>或許使用者又想計算周長了，因此自定義了一個 <code>perimeter</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">perimeter</span><span style="color:#f92672">(</span>Shape shape<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Rectangle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var rect <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Rectangle<span style="color:#f92672">)</span> shape<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 2 <span style="color:#f92672">*</span> <span style="color:#f92672">(</span>rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">+</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Circle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var circle <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Circle<span style="color:#f92672">)</span> shape<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 2 <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span><span style="color:#a6e22e">其他</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> 判斷 Shape 實例的真正型態後計算周長
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>總之，如果使用者想利用幾何資訊做些什麼，他可以自定方法、判斷型態、取得對應的幾何資訊後進行對應的計算處理，顯然地，這些方法實現上出現了固定的比對形態、抽取資料欄位的流程模式&hellip;使用者問你有沒有辦法，用多型什麼的來解決這類重複。</p>
+<h2 id="ad-hoc-多型">ad hoc 多型</h2>
+<p>多型啊！如果你指的是 ad hoc 多型就有可能，ad hoc 多型 &hellip; 就 Java 而言的白話文，就是運用重載（overload）啦！</p>
+<p>為了能讓使用者指定數學公式，你先定義了一個 <code>Func</code> 介面，這個介面中要列出你定義的 <code>Shape</code> 子型態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Func</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Rectangle rect<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Circle circle<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>接著讓 <code>Shape</code> 實例都提供 <code>apply(Func func)</code> 方法，其中 <code>Rectangle</code>、<code>Circle</code> 在實作時，都是 <code>func.apply(this)</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Shape</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Func func<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Rectangle</span> <span style="color:#66d9ef">extends</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> Point center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> width<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> height<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Rectangle<span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> width<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> height<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">center</span> <span style="color:#f92672">=</span> center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">=</span> width<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">height</span> <span style="color:#f92672">=</span> height<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Func func<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> func<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span><span style="color:#a6e22e">略</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Circle</span> <span style="color:#66d9ef">implements</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> Point center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">double</span> radius<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Circle<span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> radius<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">center</span> <span style="color:#f92672">=</span> center<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">=</span> radius<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Func func<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> func<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span><span style="color:#a6e22e">略</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>好了！你的工作結束了！若使用者想計算面積，可以實現 <code>Func</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Area</span> <span style="color:#66d9ef">implements</span> Func <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Rectangle rect<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">*</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Circle circle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>以計算面積為例，使用者可以這麼撰寫程式了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var area <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Area<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>var rect <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Rectangle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">,</span> 20<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>var circle <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Circle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>rect<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>area<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>circle<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>area<span style="color:#f92672">));</span>
+</span></span></code></pre></div><p>類似地，如果使用者想計算周長，可以寫個 <code>Perimeter</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Perimeter</span> <span style="color:#66d9ef">implements</span> Func <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Rectangle rect<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span> <span style="color:#f92672">*</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>Circle circle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span> <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>這麼一來就可以計算周長了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var perimeter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Perimeter<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>var rect <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Rectangle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">,</span> 20<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>var circle <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Circle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>rect<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>perimeter<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>circle<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>perimeter<span style="color:#f92672">));</span>
+</span></span></code></pre></div><p>嗯？好像不需要 <code>instanceof</code> 了耶！在 Gof 中，<code>Func</code> 的實現是被稱為 Visitor 的角色，不需要 <code>instanceof</code> 的原因在於，<code>Func</code> 實例在 <code>Rectangle</code>、<code>Circle</code> 的 <code>apply</code> 方法中造訪了 <code>this</code>，方法中的 <code>this</code> 本來就具備型態，編譯器知道要呼叫哪個 <code>Func</code> 實例的哪個 <code>apply</code>，也就是這個行為是在靜態時期就決定的，其實就是 Java 的重載應用。</p>
+<h2 id="揭露結構型態">揭露結構／型態</h2>
+<p>好處呢？記得一開始設下的限制嗎？<code>Shape</code> 的實作類別只用來封裝幾何資訊，除了規範的 <code>polygon</code> 方法之外，沒有提供其他的方法操作，因為也不知道使用者會用這些資訊做哪些計算。</p>
+<p><code>Shape</code> 的實作類別只用來封裝幾何資訊，它們是作為純綷的資料載體（data carrier），目的就是要揭露它們擁有的資料、擁有的結構，例如，<code>Rectangle</code> 就是有 <code>center</code>、<code>width</code>、<code>height</code>，<code>Circle</code> 就是有 <code>center</code>、<code>radius</code>。</p>
+<p>因此 <code>Func</code> 進入 <code>Rectangle</code>、<code>Circle</code> 的 <code>apply</code> 中造訪，並沒有破壞封裝，資料本來就都是公開的！</p>
+<p>由於程式庫由你設計，使用者只能運用你提供的資料載體，這就會出現根據實際型態，取得其中承載的資料之需求，這就是為何一開始的範例，會出現比對型態、抽取資料欄位的類似流程。</p>
+<p>其實一開始寫的那些 <code>static</code> 的 <code>area</code>、<code>perimeter</code>，並沒有什麼不好，就是實作上出現類似針對型態、欄位等模式進行比對的流程，一堆 <code>if/else</code>、<code>instanceof</code>、cast 讓人看了厭煩罷了，如果你真的想去之而後快，那麼 Visitor 模式會是個思考的方向。</p>
+<p>不過實作起來麻煩，許多人因為看到進入方法造訪了 <code>this</code>，還認為 Visitor 破壞了封裝，是個反模式（anti-pattern）&hellip;這些其實都是誤會&hellip;</p>
+<p>誤會有幾方面，例如，你在不該用 Visitor 的地方用了 Visitor，也許用次型態多型就能解決，或者你不知道是什麼情境限制下，才會導致實作時會出現什麼樣的類似流程，為了解決重複問題，才會出現類似 Visitor 的實作。</p>
+<p>那麼，到底 Visitor 想解決什麼？剛才談到的，使用者運用你提供的資料載體，會出現根據實際型態，取得其中承載的資料之需求，這時就會出現類似的模式比對流程，既然如此，有沒有想過，如果語言內建了模式比對（pattern matching）的簡潔語法，寫來會是如何呢？</p>
+<h2 id="模式比對">模式比對</h2>
+<p>其實模式比對這類功能，概念源自於函數式，現代開發者多多少少都認識一些函數式了吧！就算你不願意，語言、程式庫或框架也會逼著你學嘛！</p>
+<p>簡單來說，函數式的思考出發點是〈<a href="../../../haskell/algebraic-data-type/index.html">代數資料型態</a>〉，其優先思考資料該具有什麼樣的結構，方才不是談到資料載體就是要揭露擁有的結構嘛！在函數式中，資料的結構是公開的，處理資料的方式往往就是先比對結構來取得需要的資料&hellip;這就是模式比對之目的。</p>
+<p>只不過，Java 沒有模式比對的直接支援的話，實作時又要看來簡潔一些的話，方式之一就是朝著 Visitor 模式的方向思考。</p>
+<p>如果你使用 Java 17 的話，倒是可以更簡單地實現模式比對，資料載體的部份，可以使用 <code>record</code> 類別（在網路上可以找到不少 <code>record</code> 類別的語法與特性說明，這邊就不特別介紹了）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>record <span style="color:#a6e22e">Point</span><span style="color:#f92672">(</span><span style="color:#66d9ef">double</span> x<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> y<span style="color:#f92672">)</span> <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Shape</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>record <span style="color:#a6e22e">Rectangle</span><span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> width<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> height<span style="color:#f92672">)</span> <span style="color:#66d9ef">implements</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 實作…逆時針建立長方形的四個點 …
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>record <span style="color:#a6e22e">Circle</span><span style="color:#f92672">(</span>Point center<span style="color:#f92672">,</span> <span style="color:#66d9ef">double</span> radius<span style="color:#f92672">)</span> <span style="color:#66d9ef">implements</span> Shape <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>Point<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">polygon</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 實作…逆時針建立 96 邊形的 96 個點 … 96 邊形在人眼看來就像個圓了
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Java 17 已經正式具備 <code>instanceof</code> 模式比對的功能，寫來會是長這樣：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">area</span><span style="color:#f92672">(</span>Shape shape<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Rectangle rect<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>shape <span style="color:#66d9ef">instanceof</span> Circle circle<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>   
+</span></span></code></pre></div><p>大多數的情況下，用到 <code>instanceof</code> 都會叫你要三思一下，不過，如果是具備以上情境，使用到 <code>instanceof</code> 合情合理，在沒有模式比對的 Java 版本中，使用一開始的 <code>instanceof</code> 寫法，完全也是沒有錯的喔！反而是硬是不想寫 <code>instanceof</code>，還讓程式變得複雜了。</p>
+<p>如果你真的不想用 <code>instanceof</code>，其實 <code>switch</code> 已經實驗性地支援模式比對，在 Java 17 的話還得開啟 Preview 就是了，以下是使用 <code>switch</code> 的版本：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">double</span> <span style="color:#a6e22e">area</span><span style="color:#f92672">(</span>Shape shape<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>shape<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> Rectangle rect <span style="color:#f92672">-&gt;</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">width</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">height</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> Circle circle <span style="color:#f92672">-&gt;</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> circle<span style="color:#f92672">.</span><span style="color:#a6e22e">radius</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">PI</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var rect <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Rectangle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">,</span> 20<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        var circle <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Circle<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Point<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 0<span style="color:#f92672">),</span> 10<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>area<span style="color:#f92672">(</span>rect<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>area<span style="color:#f92672">(</span>circle<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>是不是簡單多了，之後 <code>switch</code> 模式比對的功能還會增強，像是在模式比對時指定 <code>center</code>、<code>width</code> 之類的，只不過目前語法還未定，只能先期待了。</p>
+<p>也就是說，在不具備模式比對的語言中，若想在模式比對時看來簡潔一些，Visitor 模式可以說是不得已而為之的方式（或說是 hack），如果語言支援模式比對等相關的元素，Visitor 模式的概念，基本上就不需要了。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/behavioral/visitor/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/behavioral/visitor/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aVisitor&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2fbehavioral%2fvisitor%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../state/index.html" title="State"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../interpreter.html" title="Interpreter"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443692"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443692"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443692"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443692"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443692"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443692"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443692"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443692"></script>
+  </body>
+</html>

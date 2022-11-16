@@ -1,0 +1,207 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈簡化控制器〉中的控制器已經簡化許多，當然，若要檢討的話，還有一些改善的空間，例如，在 AccountController 中，register 方法與 resetPassword 方法中，都有著針...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="建立表單物件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/Validation.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈簡化控制器〉中的控制器已經簡化許多，當然，若要檢討的話，還有一些改善的空間，例如，在 AccountController 中，register 方法與 resetPassword 方法中，都有著針...">
+
+    <title>建立表單物件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Validation.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>建立表單物件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="FrontController.html">簡化控制器</a>〉中的控制器已經簡化許多，當然，若要檢討的話，還有一些改善的空間，例如，在 <code>AccountController</code> 中，<code>register</code> 方法與 <code>resetPassword</code> 方法中，都有著針對表單的格式驗證，這類格式驗證可以抽取出來在表單物件中進行，從而簡化控制器的流程。</p>
+<p>針對驗證的部份，JSR303 規範了 Java Validation API，而 Spring 可以整合 JSR303，然而需要有個 JSR303 的實作品，在這邊打算使用 Hibernate Validator，因此在 build.gradle 加入相依程式庫設定：</p>
+<pre class="prettyprint"><code lang="java">compile 'org.hibernate:hibernate-validator:6.0.13.Final'
+</code></pre>
+<p>接著先針對註冊表單設計一個對應的表單類別：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+public class RegisterForm {
+    @Email(message = "未填寫郵件或格式不正確")
+    private String email;
+
+    @Pattern(regexp = "^\\w{1,16}$", message = "未填寫使用者名稱或格式不正確")
+    private String username;
+
+    @Size(min = 8, max = 16, message = "請確認密碼符合格式")
+    private String password;
+
+    private String password2;
+
+    @AssertTrue(message="密碼與再次確認密碼不相符")
+    private boolean isValid() {
+        return password.equals(password2);
+    }
+
+    // ... Getters 與 Setters ... 略
+}
+</code></pre>
+<p>在 <code>RegisterForm</code> 中，可以看到 <code>@Email</code> 用來驗證郵件格式、<code>@Size</code> 用來驗證字串長度以及 <code>@Pattern</code> 可自訂規則表示式進行驗證，至於 <code>@AssertTrue</code> 的部份，可自訂驗證方法來進行斷言，Spring 會自動收集對應名稱的請求參數，另外，針對重設密碼的表單，也設計了一個對應的表單物件：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Size;
+
+public class ResetPasswordForm {
+    private String token;
+    private String name;
+    private String email;
+
+    @Size(min = 8, max = 16, message = "請確認密碼符合格式")
+    private String password;
+
+    private String password2;
+
+    @AssertTrue(message="密碼與再次確認密碼不相符")
+    private boolean isValid() {
+        return password.equals(password2);
+    }    
+
+
+    // ... Getters 與 Setters ... 略
+}
+</code></pre>
+<p>接下來就可以使用這兩個表單物件來重構 <code>AccountController</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+@SessionAttributes("token")
+public class AccountController {
+    ... 略
+
+    @PostMapping("register")
+    public String register(
+            @Valid RegisterForm form,
+            BindingResult bindingResult,
+            Model model) {
+
+        List&lt;String&gt; errors = toList(bindingResult);
+
+        String path;
+        if(errors.isEmpty()) {
+            path = REGISTER_SUCCESS_PATH;
+
+            Optional&lt;Account&gt; optionalAcct = userService.tryCreateUser(
+                    form.getEmail(), form.getUsername(), form.getPassword());
+            if(optionalAcct.isPresent()) {
+                emailService.validationLink(optionalAcct.get());
+            } else {
+                emailService.failedRegistration(
+                    form.getUsername(), form.getEmail());
+            }
+        } else {
+            path = REGISTER_FORM_PATH;
+            model.addAttribute("errors", errors);
+        }
+
+        return path;
+    }
+
+    ...略
+
+    @PostMapping("reset_password")
+    public String resetPassword( 
+            @Valid ResetPasswordForm form,
+            BindingResult bindingResult,
+            @SessionAttribute(name = "token") String storedToken,
+            Model model) {
+
+        if(storedToken == null || !storedToken.equals(form.getToken())) {
+            return REDIRECT_INDEX_PATH;
+        }
+
+        List&lt;String&gt; errors = toList(bindingResult);
+
+        if(!errors.isEmpty()) {
+            Optional&lt;Account&gt; optionalAcct =
+               userService.accountByNameEmail(form.getName(), form.getEmail());
+            model.addAttribute("errors", errors);
+            model.addAttribute("acct", optionalAcct.get());
+            return RESET_PASSWORD_FORM_PATH;
+        } else {
+            userService.resetPassword(form.getName(), form.getPassword());
+            return RESET_PASSWORD_SUCCESS_PATH;
+        }    
+    } 
+
+    private List&lt;String&gt; toList(BindingResult bindingResult) {
+        List&lt;String&gt; errors = new ArrayList&lt;&gt;(); 
+        if(bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(err -&gt; {
+                errors.add(err.getDefaultMessage());
+            });
+        }
+        return errors;
+    }    
+}
+</code></pre>
+<p><code>register</code> 現在注入了 <code>RegisterForm</code> 實例，<code>@Valid</code> 標註必須驗證欄位，如果有欄位驗證錯誤的話，會收集在 <code>BindingResult</code> 之中，透過注入其實例，稍後就可以檢查是否有相關的驗證問題。</p>
+<p><code>BindingResult</code> 可以透過 <code>hasErrors</code> 來詢問是否有欄位錯誤，如果有的話，可以透過 <code>getFieldErrors</code> 取得 <code>FieldError</code> 清單，透過每個 <code>FieldError</code> 實例的 <code>getDefaultMessage</code> 可以取得設定之錯誤訊息，如程式碼所示，<code>resetPassword</code> 方法也作了類似的處理。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/MVC/Validation/gossip">gossip</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

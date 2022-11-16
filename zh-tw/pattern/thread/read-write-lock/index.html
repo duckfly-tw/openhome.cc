@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="如果有個資料，可能同時間會有許多執行緒對它進行讀取與寫入，你可能要注意資料的同步問題，簡單的方式是，若有執行緒正在讀或寫，就鎖定物件，其他執">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Read-Write-Lock" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/thread/read-write-lock/" />
+    <meta property="og:description" content="如果有個資料，可能同時間會有許多執行緒對它進行讀取與寫入，你可能要注意資料的同步問題，簡單的方式是，若有執行緒正在讀或寫，就鎖定物件，其他執" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Read-Write-Lock" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/thread/read-write-lock/" />
+    <meta name="twitter:description" content="如果有個資料，可能同時間會有許多執行緒對它進行讀取與寫入，你可能要注意資料的同步問題，簡單的方式是，若有執行緒正在讀或寫，就鎖定物件，其他執" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443694" type="image/x-icon">
+    <title> 漫談模式  :: Read-Write-Lock</title>
+    <link href="../../../css/nucleus.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443694.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443694"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/thread/read-write-lock/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item"><a href="../../behavioral/index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../../behavioral/template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../../behavioral/chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../../behavioral/command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../../behavioral/iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../../behavioral/strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../../behavioral/observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../../behavioral/state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../../behavioral/visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../../behavioral/interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../../behavioral/memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../../behavioral/mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item"><a href="../../functional/index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../../functional/immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../../functional/pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../../functional/map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../../functional/filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../../functional/reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../../functional/flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item parent"><a href="../index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item active"><a href="index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">執行緒</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Read-Write-Lock</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#讀寫鎖">讀寫鎖</a></li>
+    <li><a href="index.html#java-的-readwritelock">Java 的 ReadWriteLock</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/thread/">thread</a>
+  <a class="tag-link" href="../../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/read-write-lock/">read-write-lock</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Read-Write-Lock</h1>
+
+ <i class="space fa fa-calendar"> January 13, 2022</i> 
+<p>如果有個資料，可能同時間會有許多執行緒對它進行讀取與寫入，你可能要注意資料的同步問題，簡單的方式是，若有執行緒正在讀或寫，就鎖定物件，其他執行緒這時想讀或寫，就必須等待，然而，這種完全的鎖定，效率上比較不佳，特別是寫入少而讀取多的情況。</p>
+<h2 id="讀寫鎖">讀寫鎖</h2>
+<p>若有執行緒正在讀取物件狀態，由於沒有變更狀態，其他執行緒若也是讀取，可以不用鎖定物件，這時只要針對寫入執行緒鎖定就可以了；若有執行緒正在寫入，可以鎖定物件，其他執行緒必須等待寫入完成，才能取得讀取鎖定。</p>
+<p>看似單純，不過在讀取時，由於不鎖定，也就會有許多執行緒正在讀取的可能性，這時就必須記錄讀取執行緒的數量；另外，為了避免寫入者飢餓，因為有過多讀取執行緒，造成寫入執行緒遲遲無法取得鎖定，你可能得考慮寫入執行緒優先取得鎖定的問題。</p>
+<p>將這些任務考量進去，會構成複雜的鎖定邏輯，比較好的方式是，設計一個專門管理鎖定的物件，由它來負責讀寫的鎖定與解除問題：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">readData</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readLock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    doRead<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readUnLock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeData</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">writeLock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    doWrite<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">writeUnLock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><code>lock</code> 會是個專門管理鎖定的物件，<code>readLock</code>、<code>writeLock</code> 等方法的實現概念可能像是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> writerFirst <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span> <span style="color:#75715e">// 寫入優先
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">readLock</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> InterruptedException<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>writingWriters <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">||</span> <span style="color:#f92672">(</span>writerFirst <span style="color:#f92672">&amp;&amp;</span> waitingWriters <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        wait<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    readingReaders<span style="color:#f92672">++;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">readUnLock</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    readingReaders<span style="color:#f92672">--;</span>
+</span></span><span style="display:flex;"><span>    writerFirst <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    notifyAll<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeLock</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    waitingWriters<span style="color:#f92672">++</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>readingReaders <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">||</span> writingWriters <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        wait<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    waitingWriters<span style="color:#f92672">--;</span>
+</span></span><span style="display:flex;"><span>    writingWriters<span style="color:#f92672">++;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeUnLock</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    writingWriters<span style="color:#f92672">--;</span>
+</span></span><span style="display:flex;"><span>    writerFirst <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    notifyAll<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>其中 <code>writerFirst</code> 是寫入優先的旗標，目的是在有寫入執行緒等待的話，在解除鎖定時，可以優先由寫入執行緒取得鎖定，不過缺點就是寫入的動作頻繁時，讀取者必須等待機率增多；相反地若設為讀取優先，讀取的回應性會增高，資料更新機會下降。</p>
+<h2 id="java-的-readwritelock">Java 的 ReadWriteLock</h2>
+<p>可以看到，讀寫鎖的需求複雜，實作上更複雜，可以的話，尋找程式庫的方案，詳細瞭解方案是為了解決哪些讀寫鎖定需求，才是務實的做法，甚至可以察覺到需求中未曾考量的細節。</p>
+<p>例如，Java 標準 API 的 <code>ReadWriteLock</code> 介面定義了讀取鎖定與寫入鎖定行為，可以使用 <code>readLock</code>、<code>writeLock</code> 方法傳回 <code>Lock</code> 實作物件，可以依需求取得不同的讀寫鎖定實作物件。</p>
+<p>例如，<code>ReentrantReadWriteLock</code> 是 <code>ReadWriteLock</code> 介面的主要實作類別，<code>readLock</code> 方法會傳回 <code>ReentrantReadWriteLock.ReadLock</code> 實例，<code>writeLock</code> 方法會傳回 <code>ReentrantReadWriteLock.WriteLock</code> 實例。</p>
+<p><code>ReentrantReadWriteLock.ReadLock</code> 實作了 <code>Lock</code> 介面，呼叫其 <code>lock</code> 方法時，若沒有 <code>ReentrantReadWriteLock.WriteLock</code> 實例呼叫過 <code>lock</code> 方法，也就是沒有任何寫入鎖定時，才能取得讀取鎖定。</p>
+<p><code>ReentrantReadWriteLock.WriteLock</code> 實作了 <code>Lock</code> 介面，呼叫其 <code>lock</code> 方法時，若沒有 <code>ReentrantReadWriteLock.ReadLock</code> 或 <code>ReentrantReadWriteLock.WriteLock</code> 實例呼叫過 <code>lock</code> 方法，也就是沒有任何讀取或寫入鎖定時，才能取得寫入鎖定。</p>
+<p>來看看一個實際應用的例子，針對讀取多而寫入少，想增加讀取效率的情況：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Arrays<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.concurrent.locks.*<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ArrayList</span><span style="color:#f92672">&lt;</span>E<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ReadWriteLock lock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantReadWriteLock<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Object<span style="color:#f92672">[]</span> elems<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> next<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ArrayList</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> capacity<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        elems <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Object<span style="color:#f92672">[</span>capacity<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ArrayList</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">(</span>16<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>E elem<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        lock<span style="color:#f92672">.</span><span style="color:#a6e22e">writeLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>next <span style="color:#f92672">==</span> elems<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                elems <span style="color:#f92672">=</span> Arrays<span style="color:#f92672">.</span><span style="color:#a6e22e">copyOf</span><span style="color:#f92672">(</span>elems<span style="color:#f92672">,</span> elems<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">*</span> 2<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            elems<span style="color:#f92672">[</span>next<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> elem<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            lock<span style="color:#f92672">.</span><span style="color:#a6e22e">writeLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> E <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> index<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>E<span style="color:#f92672">)</span> elems<span style="color:#f92672">[</span>index<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> next<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            lock<span style="color:#f92672">.</span><span style="color:#a6e22e">readLock</span><span style="color:#f92672">().</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/thread/read-write-lock/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/thread/read-write-lock/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aRead-Write-Lock&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2fthread%2fread-write-lock%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../future/index.html" title="Future"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../thread-specific-storage/index.html" title="Thread-Specific Storage"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443694"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443694"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443694"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443694"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443694"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443694"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443694"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443694"></script>
+  </body>
+</html>

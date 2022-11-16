@@ -1,0 +1,147 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Widget 概覽〉中使用過 Container，或許你用過其他 UI 框架，當中也有名為 Container 的元件，通常（實現了 Composite 模式）用來管理一組元件，不過 Flutte...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 Container">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/Container.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Widget 概覽〉中使用過 Container，或許你用過其他 UI 框架，當中也有名為 Container 的元件，通常（實現了 Composite 模式）用來管理一組元件，不過 Flutte...">
+
+    <title>使用 Container</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Container.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Container</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Widget.html">Widget 概覽</a>〉中使用過 <code>Container</code>，或許你用過其他 UI 框架，當中也有名為 Container 的元件，通常（實現了 <a href="../DesignPattern/CompositePattern.htm">Composite 模式</a>）用來管理一組元件，不過 Flutter 中的 <code>Container</code> 跟它們不同，只容納「一個」元件。</p>
+<p>可以把 Flutter 中的 <code>Container</code> 想成是個盒子，本身也是個 <code>Widget</code>，<code>Container</code> 直接繼承 <code>StatelessWidget</code>：</p>
+<pre class="prettyprint"><code lang="dart">Widget &gt; StatelessWidget &gt; Container
+</code></pre>
+<p><code>Container</code> 本身其實也是個可視元件，例如，來個全紅的 <code>Container</code>，底下這個範例執行後，整個螢幕會被紅色填滿：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  Container(
+    color: Colors.red,
+  )
+);
+</code></pre>
+<p><code>Container</code> 裏頭只能放一個 <code>Widget</code>，使用 <code>Container</code> 的目的，通常就是為了對該 <code>Widget</code> 做些裝飾、排列，設定尺寸、約束、邊框（border）、邊距（margin）或墊充（padding）。</p>
+<p>有關於邊距、邊框、墊充，官方網站〈<a href="https://flutter.dev/docs/development/ui/layout">Layouts in Flutter</a>〉中有張圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Container-1.JPG" alt="使用 Container"  /></div></div></p>
+<p>例如，來建立一個最大 300 x 300 的 <code>Container</code>，包含邊框、墊充等設定：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  Center(
+    child: Container(
+      child: Container(color: Colors.red), // 內裝背景紅色元件
+      alignment: Alignment.center,         // 內裝元件置中對齊
+      decoration: BoxDecoration(           // 裝飾內裝元件
+        color: Colors.green,                               // 綠色背景
+        border: Border.all(width: 10, color: Colors.blue), // 藍色邊框
+      ),
+      padding: const EdgeInsets.all(20),   // 墊充
+      constraints: BoxConstraints(         // 容器的尺寸約束
+        maxWidth: 300,
+        maxHeight: 300,
+      ),
+    )
+  )
+);
+</code></pre>
+<p>因為作為根的 <code>Widget</code> 會被填滿整個螢幕，為了令 <code>Container</code> 的 <code>constraints</code> 能起作用，將之置於 <code>Center</code> 中，<code>constraints</code> 設定的大小會包含邊框、墊充。</p>
+<p>範例中的內裝元件只是另一個設定為紅色的 <code>Container</code>，沒有設定 <code>constraints</code>、<code>decoration</code>、<code>padding</code> 等，因此預設會填滿整個 <code>Container</code>，執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Container-2.JPG" alt="使用 Container"  /></div></div></p>
+<p><code>Container</code> 的 <code>padding</code>、<code>margin</code>，都是使用 <code>EdgeInsetsGeometry</code> 實例來設定，<code>EdgeInsets</code> 提供了一些便捷的 <code>static</code> 方法，<code>all</code> 表示四邊都設定相同的值，其他還有 <code>EdgeInsets.only</code>、<code>EdgeInsets.symmetric</code> 等，可以查詢一下 <a href="https://api.flutter.dev/flutter/painting/EdgeInsets-class.html"><code>EdgeInsets</code></a> 的 API 文件，來認識一下各設定之意義。</p>
+<p><code>Container</code> 還有個特別功能，可以透過 <code>transform</code> 指定矩陣運算來變形。例如依序繞 X、Y、Z 軸旋轉後平移：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() {
+  Matrix4 m = Matrix4.translationValues(-50, 150, 0);
+  m.multiply(Matrix4.rotationZ(-.5));  // 單位：徑度
+  m.multiply(Matrix4.rotationY(1));
+  m.multiply(Matrix4.rotationX(1));
+
+  runApp(
+    Center(
+      child: Container(
+        child: Text('哈囉，世界！',
+          textDirection: TextDirection.ltr,
+          style: TextStyle(fontSize: 40),
+        ), // 內裝元件
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.green,
+        ),
+        constraints: BoxConstraints(
+          maxWidth: 300,
+          maxHeight: 300,
+        ),
+        transform: m,
+      )
+    )
+  );
+}
+</code></pre>
+<p>座標原點是螢幕左上角，往右為正 X 軸，往下為正 Y 軸，深度為正 Z 軸，也就是採用的是<a href="../WebGL/CoordinateSystems.html">右手座標</a>，<code>Matrix4</code> 的運算採用的是<a href="../WebGL/PostMultiplication.html">後乘</a>，簡單來說，想想看你想寫繞 X、Y、Z 軸旋轉後平移的矩陣公式，會是這麼寫：</p>
+<pre class="prettyprint"><code lang="dart">[平移] * [旋轉 Z] * [旋轉 Y] * [旋轉 X] * [目標]
+</code></pre>
+<p>程式碼的撰寫時相乘順序就是依序這麼寫，範例的執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Container-3.JPG" alt="使用 Container"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

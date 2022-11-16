@@ -1,0 +1,644 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="通常，選用了一種繼承的映射模式之後，就無法再套用另一種模式，但在某些情況下，您還是可以混用兩種繼承模式，例如混用 繼
+承 - Table per class hierarchy 與 繼承
+- Ta...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="繼承 - 混合模式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/MixingInheritance.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="通常，選用了一種繼承的映射模式之後，就無法再套用另一種模式，但在某些情況下，您還是可以混用兩種繼承模式，例如混用 繼
+承 - Table per class hierarchy 與 繼承
+- Ta...">
+
+
+    <title>繼承 - 混合模式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MixingInheritance.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>繼承 - 混合模式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             通常，選用了一種繼承的映射模式之後，就無法再套用另一種模式，但在某些情況下，您還是可以混用兩種繼承模式，例如混用 <a href="InheritanceTablePerClassHierarchy.html">繼
+承 - Table per class hierarchy</a> 與 <a href="InheritanceTablePerSubClass.html">繼承
+- Table per &nbsp;subclass</a>，用Table per class hierarchy的方式將 DefaultUser 映射至T_USER表格，而用Table per subclass的方式將PowerUser的新定義的屬性映射至另一個T_Poweruser表格。<br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; create table T_PowerUser (</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id bigint not null,</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherProperty varchar(255),</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; primary key (id)</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; )</span><br>
+
+
+
+
+      <br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; create table T_USER (</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id bigint not null auto_increment,</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; userType varchar(255) not null,</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name varchar(255),</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; someProperty varchar(255),</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; primary key (id)</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; )</span><br>
+
+
+
+
+      <br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; alter table T_PowerUser </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; add index id (id), </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; add constraint id </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreign key (id) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; references T_USER (id)</span><br>
+
+
+
+
+      <br>
+
+
+
+
+      
+
+
+
+
+
+      您可以使用&lt;join&gt;標籤來加以定義，例如：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping package="onlyfun.caterpillar"&gt; <br><br>    &lt;class name="User" table="T_USER"&gt; <br><br>        &lt;id name="id" column="id"&gt; <br>            &lt;generator class="native"/&gt; <br>        &lt;/id&gt; <br><br>        &lt;discriminator column="userType"/&gt; <br> <br>        &lt;property name="name" column="name"/&gt; <br><br>        &lt;subclass name="DefaultUser" <br>                  discriminator-value="Default"&gt; <br>            &lt;property name="someProperty" column="someProperty" /&gt; <br>        &lt;/subclass&gt; <br> <br>        &lt;subclass name="PowerUser" <br>                  discriminator-value="Power"&gt; <br><span style="font-weight: bold;">           &lt;join table="T_PowerUser"&gt;</span><br><span style="font-weight: bold;">		&lt;key column="id" foreign-key="id"/&gt;</span><br><span style="font-weight: bold;">                &lt;property name="otherProperty" column="otherProperty"/&gt;</span><br><span style="font-weight: bold;">           &lt;/join&gt; </span><br>        &lt;/subclass&gt;  <br><br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+      <br>
+
+
+
+
+儲存物件時的一個例子如下：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, userType) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, 'Power')</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_PowerUser</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (otherProperty, id) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?)</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, someProperty, userType) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?, 'Default')</span><br>
+
+
+
+
+      </div>
+
+
+
+
+      <br>
+
+
+
+
+查詢時的一個例子如下：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">Hibernate: <br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp; select<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.id as id0_,<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_,<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.someProperty as someProp4_0_,<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_1_.otherProperty as otherPro2_1_,<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.userType as userType0_ <br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp; from<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER user0_ <br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp; left outer join<br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_PowerUser user0_1_ <br>
+
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; on user0_.id=user0_1_.id<br>
+
+
+
+
+      </div>
+
+
+
+
+      <br>
+
+
+
+
+儲存的表格範例如下：<br>
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mysql&gt; select * from t_user;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+----------+-------------+--------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">| id | userType | name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | someProperty |</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+----------+-------------+--------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">|&nbsp; 1 | Power&nbsp;&nbsp;&nbsp; | caterpillar | NULL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">|&nbsp; 2 | Default&nbsp; | Bush&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | hu....hu...&nbsp; |</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+----------+-------------+--------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">2 rows in set (0.00 sec)</span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mysql&gt; select * from t_poweruser;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+---------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">| id | otherProperty |</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+---------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">|&nbsp; 1 | Bla...Bla...&nbsp; |</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+---------------+</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">1 row in set (0.00 sec)</span><br>
+
+
+
+      </div>
+
+
+
+      
+      <br>
+
+
+
+這個混用模式的問題是，在繼承的廣度大時，outer join會成為問題，您可以在&lt;join&gt;上加上fetch屬性為select：<br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; &nbsp; &nbsp; ...</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;join table="T_PowerUser" fetch="select"&gt;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;key
+column="id" foreign-key="FK_USER"/&gt;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;property name="otherProperty" column="otherProperty"/&gt;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/join&gt;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; &nbsp; &nbsp; ...</span><br>
+
+
+
+      <br>
+
+
+
+則查詢時的一個例子如下，原來的一次查詢換成了兩次select查詢：<br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">Hibernate: </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.id as id0_,</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_,</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.someProperty as someProp4_0_,</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.userType as userType0_ </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER user0_</span><br>
+
+
+
+      <span style="font-weight: bold;">Hibernate: </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user_1_.otherProperty as otherPro2_1_ </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_PowerUser user_1_ </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; where</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user_1_.id=?</span><br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

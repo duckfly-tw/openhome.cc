@@ -1,0 +1,74 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="來看到Scala中以下的函式定義與使用：def sum(a: Int, b: Int) = a + bprintln(sum(1, 2))    // 顯示 3如果改為以下的函式定義與使用，其結果也相...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="鞣製（Curry）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/Curry.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="來看到Scala中以下的函式定義與使用：def sum(a: Int, b: Int) = a + bprintln(sum(1, 2))    // 顯示 3如果改為以下的函式定義與使用，其結果也相...">
+
+
+    <title>鞣製（Curry）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Curry.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>鞣製（Curry）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            來看到Scala中以下的函式定義與使用：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int, b: Int) = a + b<br>println(sum(1, 2))    // 顯示 3</code></pre><br>如果改為以下的函式定義與使用，其結果也相同：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int)(b: Int) = a + b<br>println(sum(1)(2))    // 顯示 3</code></pre><br>第二個範例其實是使用了<span style="font-weight: bold;">鞣製（Curry）</span>的特性。所謂鞣製，是指將接受多個參數的函式（例如第一個範例的sum接受兩個參數），改為接受單一參數的函式（也就是第二個範例的sum(a: Int)），在函式執行過後傳回一個函式物件再套用剩下的參數（也就是第二個範例的(b: Int)），就像是將兩個函式鞣製在一起。<br><br>所以第二個範例，相當於以下的作用：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int) = (b: Int) =&gt; a + b<br>println(sum(1)(2))    // 顯示 3</code></pre><br>不過這只是個比喻，實際上你要取得呼叫鞣製函式的傳回函式物件，並不能像以下的範例：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int)(b: Int) = a + b<br>val s = sum(1)        // 這是錯的 missing arguments for method sum</code></pre><br>若你真的要取得鞣製函式的傳回函式物件，可以使用 <a href="PartiallyAppliedFunction.html">部份套用函式（Partially applied function）</a> 的方式：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int)(b: Int) = a + b<br>val s = sum(1)_<br>println(s(2))       // 顯示 3</code></pre><br>在Scala中，結合鞣製函式的特性，可以讓你定義出一些函式，在呼叫使用時，感覺像是內建語法的一部份。要真正體驗這個特性之前，你還得先了解一件事，就是在Scala中，如果函式只接受一個引數，則引數列可以撰寫()或{}，例如以下的範例都會顯示"XD"：<br><pre class="prettyprint"><code lang="scala">println("XD")<br>println{"XD"}</code></pre><br>了解這個特性之後，你可以知道，先前的sum範例也可以：<br><pre class="prettyprint"><code lang="scala">def sum(a: Int)(b: Int) = a + b<br>println(sum(1)(2))    // 顯示 3<br>println(sum(1)<span style="font-weight: bold;">{2}</span>))    // 顯示 3</code></pre><br>因為sum(1)傳回函式物件後馬上套用第二個引數，而引數值只有一個，所以可以也使用{}來傳入引數。接著來看到 <a href="ByNameParameter.html">以名呼叫參數（By-name parameter）</a> 中的這個範例：<br><pre class="prettyprint"><code lang="scala">def unless(cond: Boolean, expr: =&gt; Any) = {<br>    if(!cond) {<br>        expr<br>    }<br>}</code></pre><br>如果你使用鞣製的特性，把它改為以下的定義：<br><pre class="prettyprint"><code lang="scala">def unless(cond: Boolean)(expr: =&gt; Any) = {<br>    if(!cond) {<br>        expr<br>    }<br>}</code></pre><br>那麼，你可以如下使用unless函式：<br><pre class="prettyprint"><code lang="scala">val flag = false<br>unless(flag) {<br>    println("XD")<br>    println("Orz")<br>}</code></pre><br>單看以上這個語法，你會感覺unless就像是內建的語法之一。另一個  <a href="ByNameParameter.html">以名呼叫參數（By-name parameter）</a> 中的這個範例：<br><pre class="prettyprint"><code lang="scala">def until(cond: =&gt; Boolean, expr: =&gt; Unit) {<br>    if(!cond) {<br>        expr<br>        until(cond, expr)<br>    }<br>}</code></pre><br>如果你使用鞣製的特性，把它改為以下的定義：<br><pre class="prettyprint"><code lang="scala">def until(cond: =&gt; Boolean)(expr: =&gt; Unit) {<br>    if(!cond) {<br>        expr<br>        until(cond)(expr)<br>    }<br>}</code></pre><br>那麼你就可以如下使用until函式：<br><pre class="prettyprint"><code lang="scala">var count = 10<br>until(count == 0) {<br>    println(count)<br>    count -= 1<br>}</code></pre><br>單看以上這個語法，你會感覺until就像是內建的語法之一。你可以再回憶一下 <a href="OverloadLocalRepeat.html">函
+式重載、區域函式、重複參數</a> 中，最後一個使用foldLeft別名方法/:的範例，這是因為/:也使用了鞣製的特性：<br><pre class="prettyprint"><code lang="scala">def sum(numbers: Int*) = (0 /: numbers) {_ + _}<br>println(sum(1, 2))         // 顯示 3</code></pre><br>
+        
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

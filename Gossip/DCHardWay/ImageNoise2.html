@@ -1,0 +1,166 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="接續〈圖片雜訊處理（一）〉，首先來探討一下白雜訊（White noise），理論上這類雜訊在產生時，不會有任何規律，來試著建立一個 white_noise：
+import cv2
+import num...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="圖片雜訊處理（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/ImageNoise2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="接續〈圖片雜訊處理（一）〉，首先來探討一下白雜訊（White noise），理論上這類雜訊在產生時，不會有任何規律，來試著建立一個 white_noise：
+import cv2
+import num...">
+
+    <title>圖片雜訊處理（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImageNoise2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>圖片雜訊處理（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>接續〈<a href="ImageNoise.html">圖片雜訊處理（一）</a>〉，首先來探討一下白雜訊（White noise），理論上這類雜訊在產生時，不會有任何規律，來試著建立一個 <code>white_noise</code>：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import numpy as np
+
+def white_noise(image, min_noise, max_noise):
+    img = np.copy(image)
+    noise = np.random.randint(min_noise, max_noise, img.shape)
+    return np.clip(img + noise, 0, 255).astype('uint8')
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+noisy = white_noise(img, -5, 5)
+
+cv2.imshow('White Noise', noisy)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>這邊的 <code>white_noise</code> 可以指定雜訊範圍，與圖片的之灰階值相加，<code>np.clip</code> 指定了，超過 0 到 255 範圍的話，就各設為 0 或 255，來看看效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise2-1.JPG" alt="圖片雜訊處理（二）"  /></div></div></p>
+<p>與〈<a href="ImageNoise.html">圖片雜訊處理（一）</a>〉中的椒鹽雜訊相比較，這邊的雜訊看來比較像是隔了一層薄霧，或者像是噴砂的效果。</p>
+<p>若單純地讓雜訊在每個像素點生成：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+width = 250
+height = 250
+
+img = np.random.randint(0, 255, (height, width)).astype('uint8')
+
+cv2.imshow('White Noise', img)
+
+plt.hist(img.ravel(), 256, [0, 256])
+plt.show())
+</code></pre>
+<p>觀察其直方圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise2-2.JPG" alt="圖片雜訊處理（二）"  /></div></div></p>
+<p>可以發現這種雜訊，每個雜訊值在圖上的總數，大致上是差不多數量，為什麼叫白雜訊呢？我們知道，自然界中的白光，其實是環境中各種顏色，也就是各種頻率的光混合而成，「白」比喻的就是雜訊的分佈具有類似特性，類似地，也有<a href="https://zh.wikipedia.org/zh-tw/%E7%B2%89%E7%BA%A2%E5%99%AA%E5%A3%B0">粉紅雜訊（Pink noise）</a>之類的雜訊…</p>
+<p>你也可能聽過所謂的白噪音，也是借用了這類比喻，指的是混合了各種頻率聲音的噪音，若頻率範圍在人類可接受的範圍內，而且每個頻率的功率一致，據說很適合用來助眠…XD</p>
+<p>頻率跟圖像的關係為何？就目前可以先瞭解的是，就灰階圖像而言，灰階值就好比訊號的振幅值，像素彼此之間的距離，就好比時間的間距，若鄰近像素間的灰階度變化小，就像是短時間內振幅變化週期長的低頻訊號，若鄰近像素間的灰階度變化大，就像是短時間內振幅的變化週期短的高頻訊號。</p>
+<p>（後續文件會看到，灰階圖像的灰階值，可以分解為數個週期變化，與那些週期相對的就是頻率，那些頻率就是指圖像的頻率。）</p>
+<p>範例中的雜訊，是由各種值組合而成（只是程式計算時還是得給個界線），每個雜訊間的值並不相關（不過範例使用的 <code>randint</code> 基本上還是偽隨機），視 <code>white_noise</code> 給定的值範圍而定，若範圍小，每個像素彼此間的雜訊變化小，也就構成了低頻訊號。</p>
+<p>若 <code>white_noise</code> 給定的範圍大，每個像素彼此間的雜訊變化大，也就構成了高頻訊號，就這點來看，之前看過的椒鹽雜訊就是高頻訊號。</p>
+<p>由於是隨機生成雜訊值，雜訊構成的訊號，具有各式各樣的頻率（只是程式計算時還是得給個界線），就像白雜訊一樣，這邊也就命名為 <code>white_noise</code>。</p>
+<p>只不過，就範例而言，雜訊是在指定範圍內平均分佈，比較像是在打光均勻的環境中，ISO 開很大照像時得到的雜訊。</p>
+<p>實際環境中光線明暗可能不均，亮一點的地方，整體雜訊值可能高些，暗一點的地方整體會有較低的雜訊值，然而無論整體雜訊值是高或低，雜訊值的範圍內，落在中間值的可能性會比較高。</p>
+<p>來看看高斯雜訊（Gaussian noise），簡單來說，它產生的雜訊依舊是隨機的，沒辦法預測會生成什麼值，然而將雜訊加以統計，會呈現高斯分佈，也就是常態分佈。例如：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import numpy as np
+
+def gaussian_noise(image, mean = 0, sigma = 1):
+    img = np.copy(image)
+    noise = np.random.normal(mean, sigma, img.shape)
+    return np.clip(img + noise, 0, 255).astype('uint8')
+
+mean = 0            # 平均值
+sigma = 15          # 標準差
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+noisy = gaussian_noise(img, mean, sigma)
+
+cv2.imshow('Gaussian Noise',  noisy)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>建立的圖案如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise2-3.JPG" alt="圖片雜訊處理（二）"  /></div></div></p>
+<p>相對來說，高斯雜訊與原圖會比較融合。雜訊依舊是隨機不可預測的，觀察雜訊的直方圖：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+width = 250
+height = 250
+mean = 0           
+sigma = 15          
+
+img = np.random.normal(mean, sigma, (height, width))
+cv2.imshow('Gaussian Noise', img)
+
+a, b = np.min(img), np.max(img)
+plt.hist(img.ravel(), int(b - a), [a, b])
+plt.show()
+</code></pre>
+<p>從顯示出來的結果可以看到，雜訊生成的值呈高斯分佈，從之前談到的圖像與訊號關係，高斯雜訊構成的頻率也會是高斯分佈：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise2-4.JPG" alt="圖片雜訊處理（二）"  /></div></div></p>
+<p>高斯雜訊可以調整平均值、標準差之類的參數。例如方才的 <code>gaussian_noise</code>，若 <code>mean</code> 為 20，<code>sigma</code> 為 20，會產生以下的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise2-5.JPG" alt="圖片雜訊處理（二）"  /></div></div></p>
+<p>或許你還會想到，之前文件不是談過 <a href="PerlinNoise.html">Perlin 雜訊</a>？當然，除此之外，還有許多雜訊生成的方式，像是方才談到的粉紅雜訊，以及 Poisson 雜訊之類的&hellip;</p>
+<p>重要的是理解雜訊的原理，找出應用的方式，看看能否達到想要的效果…</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

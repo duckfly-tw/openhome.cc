@@ -1,0 +1,208 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在 使用 Maven 中略為提到了建構生命週期（Build lifecycle）。在Ant中，你可以有自訂建構過程的彈性，哪個目標要相依在哪個目標上，該目標有相依於另一個目標，這些都可以自行定義。在M...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="建構生命週期">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/BuildLifeCycle.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在 使用 Maven 中略為提到了建構生命週期（Build lifecycle）。在Ant中，你可以有自訂建構過程的彈性，哪個目標要相依在哪個目標上，該目標有相依於另一個目標，這些都可以自行定義。在M...">
+
+
+    <title>建構生命週期</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BuildLifeCycle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>建構生命週期</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在 <a href="Maven.html">使用 Maven</a> 中略為提到了<span style="font-weight: bold;">建構生命週期（Build lifecycle）</span>。在Ant中，你可以有自訂建構過程的彈性，哪個目標要相依在哪個目標上，該目標有相依於另一個目標，這些都可以自行定義。在Maven中，則明確定義了專案建構的過程。<br>
+      <br>
+      <span style="font-weight: bold;">在Maven中，有三個內建的建構生命週期：Default、Clean與Site。</span>Default處理專案部署，Clean處理專案資源清除，Site處理專案文件。<br>
+      <br>
+每個建構生命週期中會再分為數個<span style="font-weight: bold;">階段（Phase）</span>，階段就好似Ant中的目標（Target），代表著建構生命週期中的一個步驟，只不過在Maven中，階段與階段間的順序是明確定義的，以Default建構生命週期來說，當中有著以下的階段順序（完整順序可參考 <a href="http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html#Lifecycle_Reference">Lifecycle Reference</a>）：<br>
+      
+      <ul>
+        <li><span style="font-weight: bold;"><span style="font-family: Courier New,Courier,monospace;">validate</span></span><span style="font-family: Courier New,Courier,monospace;">：驗證專案正確性以及所有必要資訊已備妥。</span></li>
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">compil：</span>編譯專案原始碼。</li>
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">test</span>：進行單元測試。</li>
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">package</span>：將相關檔案進行封裝，例如產生JAR檔案。</li>
+        
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">integration-test：</span>進行整合測試。</li><li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">verify：</span>驗證檔案封裝是否正確。</li>
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">install</span>：將封裝的檔案安裝至本地貯藏室（Local repository）。</li>
+        <li style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">deploy</span>：部署檔案。</li>
+      </ul><br>
+      每個階段可以使用mvn指令搭配階段名稱呼叫，這些階段必須按照順序進行，例如在 <a href="Maven.html">使用 Maven</a> 你就看過，如果你執行了：<br>
+      
+      <div style="margin-left: 40px;">mvn package<br>
+      </div>
+      <br>
+      那麼也會先進行validate、compile、test等階段，再執行package階段，所以如果想完成以上所有階段，就是執行：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mvn deploy</span><br>
+      </div>
+
+      <br>
+你可以指定執行多個階段，例如：<br>
+
+      <div style="margin-left: 40px;">mvn clean package<br>
+      </div>
+      <br>
+在上面，會先執行clean（與先前必要的階段），而後再執行package（與先前必要的階段）。<br>
+      <br>
+實際上，比階段還細的是目的（Goal），階段是相關特定目的組合而成。例如Default週期中各階段可能的目的有：<br>
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+        <li><span style="font-weight: bold;">process-resources - </span>resources:resources</li>
+        <li><span style="font-weight: bold;">compile - </span>compiler:compile</li>
+        <li><span style="font-weight: bold;">process-test-resources - </span>resources:testResources</li>
+        <li><span style="font-weight: bold;">test-compile - </span>compiler:testCompile</li>
+        <li><span style="font-weight: bold;">test - </span>surefire:test</li>
+        <li><span style="font-weight: bold;">package - </span>jar:jar</li>
+        <li><span style="font-weight: bold;">install - </span>install:install</li>
+        <li><span style="font-weight: bold;">deploy - </span>deploy:deploy</li>
+      </ul>
+      <br>
+你可以在階段與階段間指定目的，例如：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">mvn clean dependency:copy-dependencies package</span><br>
+      </div>
+      <br>
+在上例中，clean與package兩個階段間指定了目的dependency:copy-dependencies，這會將相關的程式複製至target/dependency資料夾中。<br>
+      <br>
+先列出一些常用的階段與目的指令如下：<br>
+      
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li><span style="font-weight: bold;">mvn compile</span></li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">編譯專案</div>
+
+      <br>
+
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li>mvn clean</li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">清除專案</div>
+
+      <br>
+
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li>mvn dependency:copy-dependencies</li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">將相依程式庫（JAR）複製至target/dependency目錄</div>
+
+      <br>
+
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li>mvn package</li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">包裝專案為JAR，放在target目錄<br>
+      </div>
+
+      <br>
+      
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li><span style="font-weight: bold;">mvn exec:java -Dexec.mainClass=packageName.className</span></li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">指定主類別執行程式<br>
+      <span style="font-weight: bold;"></span></div>
+
+      <span style="font-weight: bold;"><br>
+      </span>
+      
+      <ul style="font-family: Courier New,Courier,monospace;">
+<li><span style="font-weight: bold;">mvn dependency:purge-local-repository</span></li>
+      </ul>
+
+      
+      <div style="margin-left: 40px;">刪除已下載的plugin並重新下載plugin<br>
+      <span style="font-weight: bold;"></span></div>
+
+      <br>
+
+      
+      <ul>
+        <li><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mvn install</span></li>
+      </ul>
+      <div style="margin-left: 40px;">將專案產生的JAR檔，安裝至本地貯藏室。如果想將其它位置JAR檔安裝至本地貯藏室，可以如下：<br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mvn install:install-file </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;-Dfile=/exampleDir/lib/example.jar </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;-DgroupId=cc.openhome</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;-DartifactId=example </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;-Dversion=1.0.0</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;-Dpackaging=jar</span><br>
+      </div>
+      
+      <br>
+<br>
+      
+有關建構生命週期，你可以再參考這篇文章：<br>
+
+      <ul>
+        <li><a href="http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">Introduction to the Build Lifecycle</a></li>
+      </ul>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

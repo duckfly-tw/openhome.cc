@@ -1,0 +1,292 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="就目前為此，你已經知道實例方法、類別方法與單例方法，也已經看過類別、模組，那麼如果你有個物件o，打算呼叫某個實例方法some，那查找方法的順序為何？大致可循以下順序：
+      
+      ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="方法查找順序">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Ruby/MethodLookup.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="就目前為此，你已經知道實例方法、類別方法與單例方法，也已經看過類別、模組，那麼如果你有個物件o，打算呼叫某個實例方法some，那查找方法的順序為何？大致可循以下順序：
+      
+      ...">
+
+
+    <title>方法查找順序</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MethodLookup.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Ruby 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>方法查找順序</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            就目前為此，你已經知道實例方法、類別方法與單例方法，也已經看過類別、模組，那麼如果你有個物件<span style="font-family: Courier New,Courier,monospace;">o</span>，打算呼叫某個實例方法<span style="font-family: Courier New,Courier,monospace;">some</span>，那查找方法的順序為何？大致可循以下順序：<br>
+      
+      <ol>
+        <li>查看物件是否定義<span style="font-family: Courier New,Courier,monospace;">some</span>單例方法</li>
+        <li>查看物件的類別是否定義<span style="font-family: Courier New,Courier,monospace;">some</span>實例方法</li>
+        <ol>
+          <li>若類別定義了<span style="font-family: Courier New,Courier,monospace;">some實例方法後，再include某模組具有some實例方法，則使用的是模組的some</span>方法</li>
+          <li>若類別<span style="font-family: Courier New,Courier,monospace;">include某模組具有some實例方法後，</span>再定義了some實例方法，<span style="font-family: Courier New,Courier,monospace;">則使用的是類別的some</span>方法</li>
+        </ol>
+        <li>查看物件的父類別是否定義<span style="font-family: Courier New,Courier,monospace;">some</span>實例方法<br>
+          </li>
+      </ol>
+      <br>
+可以實際撰寫簡單的測試：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; module M1<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts "M1 some"<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts "Some some"<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+            </span>=&gt; nil<br>
+&gt;&gt; class Other &lt; Some; end<br>
+=&gt; nil<br>
+&gt;&gt; Other.new.some<br>
+            <span style="font-weight: bold;">Some some</span><br>
+=&gt; nil<br>
+            <span style="font-weight: bold;">&gt;&gt;&nbsp;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+      <br>
+      以上Other僅繼承Some，使用的是繼承下來的實例方法。若再include模組：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;"></span><span style="font-weight: bold;">&gt;&gt; class Other &lt; Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; include M1<br>
+&gt;&gt; end<br>
+      </span>=&gt; Other<span style="font-weight: bold;"><br>
+&gt;&gt; Other.new.some<br>
+      </span>M1 some<span style="font-weight: bold;"><br>
+=&gt; nil<br>
+      </span><span style="font-weight: bold;">&gt;&gt;&nbsp;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">模組覆蓋了Some的some定義，使用的是模組的some定義。若再於Other中定義方法：</span><br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;">&gt;&gt; class Other<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts "Other some"<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+      </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; Other.new.some<br>
+Other some<br>
+      </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; </span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+      <br>再度定義的方法覆蓋了模組的<span style="font-family: Courier New,Courier,monospace;">some</span>定義，若再於物件定義單例方法：<span style="font-family: Courier New,Courier,monospace;"></span><br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;">&gt;&gt; o = Other.new<br>
+      </span>=&gt; #&lt;Other:0x27e2a28&gt;<span style="font-weight: bold;"><br>
+&gt;&gt; def o.some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; puts "o some"<br>
+&gt;&gt; end<br>
+      </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; o.some<br>
+      </span>o some<span style="font-weight: bold;"><br>
+      </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+
+      <br>
+      則單例方法會覆蓋Other定義的some方法。<br>
+      <br>
+先前談過，可以使用<span style="font-weight: bold;">remove_method</span>移除實例方法，但僅能移除類別中定義的方法，繼承下來的方法或include進來的方法無法移除。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts "Some some"<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; class Other &lt; Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts "Other some"<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; o = Other.new<br>
+            </span>=&gt; #&lt;Other:0x212d888&gt;<span style="font-weight: bold;"><br>
+&gt;&gt; o.some<br>
+            </span>Other some<br>
+=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; class Other<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; remove_method :some<br>
+&gt;&gt; end<br>
+            </span>=&gt; Other<span style="font-weight: bold;"><br>
+&gt;&gt; o.some<br>
+            </span>Some some<span style="font-weight: bold;"><br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; class Other<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; remove_method :some<br>
+&gt;&gt; end<br>
+            </span>NameError: method `some' not defined in Other<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):18:in `remove_method'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):18:in `&lt;class:Other&gt;'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):17<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from C:/Winware/Ruby192/bin/irb:12:in `&lt;main&gt;'<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+&nbsp;
+
+
+
+
+
+
+
+
+      
+<br>
+
+      你可以使用<span style="font-family: Courier New,Courier,monospace; font-weight: bold;">undef_method</span>讓方法查找失效，想回復方法查找，可重新於類別中重新定義同名方法。<br>
+      <br>
+      <br>
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

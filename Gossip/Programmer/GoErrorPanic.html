@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於一門在2009年發佈的Go語言來說，卻看似神奇地走回了檢查函式傳回值是否有error的老路...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Go的error與panic">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Programmer/GoErrorPanic.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於一門在2009年發佈的Go語言來說，卻看似神奇地走回了檢查函式傳回值是否有error的老路...">
+    <title>Go的error與panic態</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="GoErrorPanic.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="index.html">回程式人目錄</a>
+          <ul class="pure-menu-list">
+            <br>
+            <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                  title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a
+                href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                  alt="Facebook" src="../images/facebook.png"></a> </div>
+            <br>
+            <div id="search box">
+              <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+            <br>
+            <div class="ad" style="text-align: center;">
+              <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+              <!-- 2015 新版型 160 x 600 廣告 --> <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+              <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>Go的error與panic</h1>
+        </header>
+        <article class="content"><br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          iThome 網站首載：<a href="http://www.ithome.com.tw/voice/103455">Go的error與panic</a><br>
+          <br>
+          就目前許多現代語言來說，都具備了例外處理機制，以便處理程式中的各種錯誤，對許多開發者來說，多半也習慣了與例外相處（無論愛或不愛），然而對於一門在2009年發佈的Go語言來說，卻看似神奇地走回了檢查函式傳回值是否有error的老路，熟悉例外處理的開發者因此將目光望向panic與recover，試著將之與try-catch作個對比來換取熟悉感...<br>
+            <br>
+          
+          <dl>
+            <dt>走回古老的模式</dt>
+          </dl>
+          <br>
+            就先來談談C語言吧！畢竟許多開發者的想法中，認為Go是基於C語言的元素加上若干改進而來。在C語言中沒有例外處理機制，開發者必須在一開始就主動檢查函式的傳回值是否正確（或者藉由全域變數的設置與檢測），決定要採取哪些適當的動作，然而，檢查傳回值的程式碼有些冗贅，而函式在傳回值上，若要能同時兼具執行結果與回報錯誤的效果，實作時並不容易。<br>
+            <br>
+            因而C語言之後，包括了C++、Java的許多語言，都內建了例外處理機制，可以將處理例外的程式碼集中至某處，這麼一來，負責函式主要功能的程式實作就可以更緊湊，看起來更容易閱讀，在許多介紹例外處理機制的場合，C語言也經常被拿來作為支持例外處理機制是好東西的對照語言。不過，相對於C++、Java等來說年輕許多的Go語言，若函式執行時有可能發生錯誤，該函式的簽署上通常會傳回兩個值，第一個是執行成功的傳回值，第二個則是執行失敗時的錯誤值，通常是個error實例。<br>
+            <br>
+            舉個例子來說，在Go語言中使用os.Open函式開啟檔案時，經常會看到這樣的模式：<br>
+            f, err := os.Open("filename.ext")<br>
+            if err != nil {<br>
+            &nbsp;&nbsp;&nbsp; log.Fatal(err)<br>
+            }<br>
+            // 使用 *File f 做其他事<br>
+            <br>
+            在開啟檔案之後，後續可能會使用File的Read函式讀取檔案，這函式也是傳回兩個值，照例地，開發者得使用if檢測第二個值是否為nil，可想而知地，程式中可能會面臨一次又一次的error檢測程式碼，若這類呼叫形成了巢狀層次，而開發者想將error誤往外傳播，程式撰寫上也是相當的麻煩。<br>
+            <br>
+          
+          <dl>
+            <dt>例外的替代品panic？</dt>
+          </dl>
+          <br>
+            許多學習或使用Go的開發者都在問，為什麼這麼新的一門語言不提供例外呢？在Go語言官方的FAQ中有個〈Why does Go not have exceptions?〉（https://goo.gl/ZJt7dR）中做了解釋，一開始就談到了try-catch-finally會讓程式碼變得錯綜複雜，而且也常令開發者，將許多應當能處理的「錯誤」，視之為「例外」。FAQ中也談到，對於確實是例外的情況，Go也提供了一對函式能達到通知與復原，這一對函式就是panic與recover。<br>
+            <br>
+            在函式中若執行panic，那麼函式的流程就會中斷，如果A函式呼叫了B函式，而B函式中呼叫了panic，那麼B函式會從呼叫了panic的地方中斷，而A函式也會從呼叫了B函式的地方中斷，若有更深層的呼叫鏈，panic的效應也會一路往回傳播，若開發者有例外處理的經驗，馬上就會意識到，這相當於被拋出的例外都沒有處理的情況。<br>
+            <br>
+            如果發生了panic，而開發者必須做一些處理，可以使用recover（必須在被defer的函式中才有效果），panic會被捕捉並作為recover的傳回值，那麼panic就不會一路往回傳播，因此，雖然Go語言中沒有例外處理機制，也可使用panic與recover（以及defer）來進行類似的處理。實際上，確實也有些程式庫，使用函式模擬了try-catch-finally的語法。<br>
+            <br>
+            不過，在Go的慣例中，鼓勵使用error明確地進行錯誤檢查，然而，對於巢狀且深層的呼叫時，使用panic會比較便於傳播，就Go的慣例來說，這樣的便利性建議以套件為界限，於套件之中，必要時可以使用panic，而套件公開的函式，建議以error來回報錯誤，若套件公開的函式中可能會收到panic，建議使用recover捕捉，並轉換為error進行回報。<br>
+            <br>
+          
+          <dl>
+            <dt>也不是那麼古老</dt>
+          </dl>
+          <br>
+            其實沒有例外處理機制，也並非那麼古老。Apple在WWDC2014首次發佈的Swift中，也沒有例外處理機制，雖然2015年發佈的Swift 2有了do-catch之類的語法，也建議將之用在於程式設計上或非預期的執行時期錯誤（programming or unexpected runtime errors）（https://goo.gl/xlOvj7）。<br>
+            <br>
+            檢測錯誤值以做出對應的處理，在其他語言中也並非少見，像是我在先前專欄〈函數式風格錯誤處理〉中談到了Scala的Option、Either與Try，也是透過模式比對（Pattern match），在發現錯誤時進行對應處理，事實上，Option的概念某些程度上也就是檢測null的概念，像Java這類古老的語言，也導入了Optional，檢測錯誤值並非是那麼古老而不適用的手法。<br>
+            <br>
+            實際上，也有例外處理不適用的情況，例如非同步處理的場合，在我先前專欄〈非同步操作的多種模式〉中談過，因為非同步呼叫之後會立刻執行後續程式碼，當非同步操作拋出錯誤時，通常早就離開了try-catch區塊，因此非同步程式庫的設計，往往是透過對回呼函式傳入一個err參數，而開發者藉由檢測err來確定執行成功或失敗，並採取對應的動作。<br>
+            <br>
+            回頭看看Go語言，雖然是以傳回error的方式來回報錯誤，不過，因為Go語言的函式可以傳回兩個以上的值，因而執行成功的值與錯誤值是分開的，若函式傳回兩個值，開發者也必須明確地指定給兩個變數（若真的不需要，也要使用_作為佔位），否則會發生編譯錯誤，這感覺就像是Java中的Checked Exception，若這麼類比的話，panic就有點像是Java中的Unchecked Exception了。<br>
+            <br>
+            實際上，許多開發團隊或開發者不喜歡使用例外，Apple是一個例子，Google當然也是，《約耳趣談軟體》的作者也曾在〈Exceptions〉（http://goo.gl/iTaewU）中談過「不認為例外處理比"goto"好」，比較可取的方式是「函式出問題時回報錯誤，那怕它會有些冗贅」，甚至認為C/C++/Java這類語言，單純只是因為函式不能以簡潔的方式傳回多個值，才會使得例外處理機制變得吸引人。<br>
+            <br>
+          
+          <dl>
+            <dt>認真思考「錯誤」與「例外」</dt>
+          </dl>
+          <br>
+            約耳的論點很有趣，也似乎解釋了Go語言可以傳回多個值，因而更鼓勵傳回error，而不是使用panic，在Haskell中也可以傳回多個值，也鼓勵以比對的方式來檢測錯誤，不過，就算是Haskell，也有需要使用error或ioError引發例外的時侯呢！畢竟，就是有些情況確實是無法處理，若是在Java的世界中，這類情況建議使用RuntimeException來表現，而目前認為最好的實踐方式就是不要處理，讓程式崩潰，因為這通常是個必須修正的Bug，而不是可以恢復的情況。<br>
+            <br>
+            顯然地，重點在於開發者有沒有認真地思考過，哪些是可以處理的「錯誤」，而哪些又是確實無法處理的「例外」，就像我先前專欄〈Shit Happens！該抓還是該丟？〉中談過的，開發者是否瞭解錯誤種類與處理錯誤的前後文資訊，確實地，有的開發者只是不想處理錯誤，就乾脆統統列為例外，而有的開發者只是想粉飾太平，將實際上無法處理的例外，全部當成錯誤捕捉然後吞掉，這反而造成程式後續除錯時的困難重重。<br>
+            <br>
+            在Go語言中，現在有兩種選擇了，開發者是要選擇error或panic呢？或者去使用那些實作出try-catch外觀的程式庫，繼續用著熟悉的例外處理典範呢？實際上，現在許多語言在錯誤處理機制上，也是混雜著多種典範，無論那是透過語法或者程式庫的支援。選擇是多了起來，然而，如果不認真地思考「錯誤」與「例外」的差異，最終還是會有開發者只選擇熟悉或單純只是方便的方式，讓錯誤與例外繼續糾纏不清！<br>
+          <ul>
+          </ul>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+               </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+ 
+</html>

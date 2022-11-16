@@ -1,0 +1,407 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在程式中常出現一些簡單的對話或訊息方塊，有GTK中，它們都是GtkDialog的子類，在這邊先介紹一些GTK內建的對話方塊，常見類型之一是GtkMessageDialog，首先看個簡單的範例，改寫 自...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="GtkMessageDialog">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/GTKGossip/GtkMessageDialog.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在程式中常出現一些簡單的對話或訊息方塊，有GTK中，它們都是GtkDialog的子類，在這邊先介紹一些GTK內建的對話方塊，常見類型之一是GtkMessageDialog，首先看個簡單的範例，改寫 自...">
+
+
+    <title>GtkMessageDialog</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GtkMessageDialog.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/GTKGossip/">回 GTK 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>GtkMessageDialog</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             在程式中常出現一些簡單的對話或訊息方塊，有GTK中，它們都是GtkDialog的子類，在這邊先介紹一些GTK內建的對話方塊，常見類型之一是GtkMessageDialog，首先看個簡單的範例，改寫 <a href="CustomCallback.html">自
+訂 callback 函式</a> 中的例子，按下按鈕後會出現訊息方塊：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>message_dialog_demo.c</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br><span style="font-weight: bold;">void button_clicked(GtkWidget *button, gpointer data) {</span><br><span style="font-weight: bold;">    GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(data), </span><br><span style="font-weight: bold;">                             GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, </span><br><span style="font-weight: bold;">                             GTK_BUTTONS_OK, "良葛格學習筆記");</span><br><span style="font-weight: bold;">    gtk_window_set_title(GTK_WINDOW(dialog), "GtkMessageDialog");</span><br><span style="font-weight: bold;">    gtk_message_dialog_format_secondary_text(</span><br><span style="font-weight: bold;">         GTK_MESSAGE_DIALOG(dialog), "http://caterpillar.onlyfun.net");</span><br><span style="font-weight: bold;">    gtk_dialog_run(GTK_DIALOG(dialog));</span><br><span style="font-weight: bold;">    gtk_widget_destroy(dialog);</span><br><span style="font-weight: bold;">}</span><br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br>    GtkWidget *button;<br><br>    gtk_init(&amp;argc, &amp;argv);<br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "GtkMessageDialog");<br><br>    button = gtk_button_new_with_label("按我");<br>    gtk_container_add(GTK_CONTAINER(window), button);<br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br>    g_signal_connect(GTK_OBJECT(button), "clicked",<br>                     G_CALLBACK(button_clicked), window);<br><br>    gtk_widget_show(window);<br>    gtk_widget_show(button);<br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+
+
+      <br>
+
+
+
+gtk_message_dialog_new()的宣告如下：<br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">GtkWidget* gtk_message_dialog_new(GtkWindow *parent,<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GtkDialogFlags
+flags,<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GtkMessageType
+type,<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GtkButtonsType
+buttons,<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const gchar *message_format,<br>
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...);<br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+設定parent，當訊息方塊是獨佔式（Modal）時，若不回應訊息方塊，則無法操作其父視窗，GtkDialogFlags則可以設定：<br>
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li><span>GTK_DIALOG_MODAL：設定為獨佔視窗。</span></li>
+
+
+
+        <li><span>GTK_DIALOG_DESTROY_WITH_PARENT：如果parent被銷毀，則一併銷毀對話方塊。</span></li>
+
+
+
+        <li><span>GTK_DIALOG_NO_SEPARATOR：在對話方塊中不出現分隔線，在 </span><a href="GtkDialog.html">使用 GtkDialog 自訂對話方塊</a> 中會再介紹<span>。</span></li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      <br>
+
+
+
+      GtkMessageType則指定這是哪個類型的訊息：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>GTK_MESSAGE_INFO</li>
+
+
+
+        <li>GTK_MESSAGE_WARNING</li>
+
+
+
+        <li>GTK_MESSAGE_QUESTION</li>
+
+
+
+        <li>GTK_MESSAGE_ERROR</li>
+
+
+
+        <li>GTK_MESSAGE_OTHER</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      &nbsp;&nbsp;&nbsp; <br>
+
+
+
+GtkButtonsType則可以設定幾個預設的按鈕類型：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>GTK_BUTTONS_NONE</li>
+
+
+
+        <li>GTK_BUTTONS_OK</li>
+
+
+
+        <li>GTK_BUTTONS_CLOSE</li>
+
+
+
+        <li>GTK_BUTTONS_CANCEL</li>
+
+
+
+        <li>GTK_BUTTONS_YES_NO</li>
+
+
+
+        <li>GTK_BUTTONS_OK_CANCEL</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      <br>
+
+message_format的設定，其實是類似printf()的字串格式，例如可以這麼設定：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(data), </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GTK_BUTTONS_OK, "%s 已刪除", filename);</span><br>
+
+      </div>
+
+      <br>
+
+
+
+要顯示對話方塊，方法之一是使用gtk_dialog_run()，這會將對話方塊以獨佔模式顯示，無論其GtkDialogFlags設定為何，因為這
+會呼叫gtk_window_set_modal()函式，將對話方塊設定為獨佔模式，當回應對話方塊之後，您要使用
+gtk_widget_destroy()銷毀對話方塊。<br>
+
+
+
+      <br>
+
+
+
+以下是一個執行時對話方塊的參考畫面：<br>
+
+
+
+      <br>
+
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/GtkMessageDialog-1.jpg" /></div></div><br>
+
+
+
+      <br>
+
+
+
+gtk_dialog_run()結束後會傳回一個response id，為 <a href="http://library.gnome.org/devel/gtk/2.12/GtkDialog.html#GtkResponseType">GtkResponseType</a> 的enum值，代表使用者按下的按鈕，如果對話方塊只是被關閉（按下X），則會傳回GTK_RESPONSE_NONE，您可以依這個傳回值來決定回應對話方塊後的下一步動作，例如GtkDialog的說明文件中有這麼一段範例程式：<br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">&nbsp;gint result = gtk_dialog_run (GTK_DIALOG (dialog));<br>
+
+
+
+      &nbsp;switch (result)<br>
+
+
+
+      &nbsp;&nbsp; {<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp; case GTK_RESPONSE_ACCEPT:<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do_application_specific_something ();<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp; default:<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do_nothing_since_dialog_was_cancelled ();<br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+
+
+
+      &nbsp;&nbsp; }<br>
+
+
+
+      &nbsp;gtk_widget_destroy (dialog);<br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+      <br>
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

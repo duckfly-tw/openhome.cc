@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/maze/square/'">
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈簡易自動迷宮〉中，使用二元樹演算法介紹了迷宮生成的基本原理，如果你對 Functional programming 不熟悉，使用二元樹演算法還有個好處，因為它不在乎你走訪區塊的順序，因此你只要使用...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="隨機迷宮">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/RandomMaze.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈簡易自動迷宮〉中，使用二元樹演算法介紹了迷宮生成的基本原理，如果你對 Functional programming 不熟悉，使用二元樹演算法還有個好處，因為它不在乎你走訪區塊的順序，因此你只要使用...">
+    <title>隨機迷宮</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="RandomMaze.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回
+            OpenSCAD 目錄</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+                <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../images/facebook.png"></a>
+                </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>隨機迷宮</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>在〈<a href="SimpleGeneratedMaze.html">簡易自動迷宮</a>〉中，使用二元樹演算法介紹了迷宮生成的基
+            本原理，如果你對 Functional programming
+            不熟悉，使用二元樹演算法還有個好處，因為它不在乎你走訪區塊的順序，因此你只要使用 OpenSCAD 的 List
+            Comprehensions 語法，在 x、y 方向上遞增，持續地打掉上或右牆，就可以生成迷宮的區塊資料。</p>
+          <p>然而，如果你想改善偏差，基本上就會遇上一個問題，你必須記錄走過的區塊有哪些，如果你還不單只是想打掉上或右牆，而想要像〈<a href="ManualMaze.html">手
+              動迷宮</a>〉中談到的方式，如果可以往右走，表示沒有右牆，如果可以往上走，表示沒有上牆，如果可以往左走，表示左邊區塊沒有右牆，如果
+            可以往下走，表示下邊區塊沒有上牆，那你還得變更區塊中的牆面形態。</p>
+          <p>也就是說，在不能重新指定變數值或者向量內容的 Functional programming
+            風格中，你得試著改變你的迷宮區塊資料，這乍聽起來不可能，不過，這只是你從命令式的程式語言來看 Functional
+            programming 的 OpenSCAD，才會有的誤解。</p>
+          <h1>建立基礎函式</h1>
+          <p>無論如何，直接從實際的例子來看吧！我就不一步一步改變偏差的問題了，直接來個四個方向隨機走訪，這對你來說會有點難，因為就算是我，也得一步
+            一步思考，一步一步來，我第二次重寫 OpenSCAD
+            迷宮大概花了三、四個小時吧！這邊雖然會告訴你怎麼寫，不過你自己能思考、動手寫得出來，應該是另外一回事了。</p>
+          <p>無論如何，有機會還是建議試著挑戰看看，就算失敗了，對 OpenSCAD 也會有更多的認識（也許因此而放棄？…XD）。</p>
+          <p>方才談到了，我們要能記錄區塊是否造訪過，這是因為重複造訪區塊，就可能會打掉額外的牆面，使得迴圈不再是完美迷宮，記得迷宮的路徑會組成一棵
+            樹，打掉額外的牆面會使得路徑形成迴路，也就是樹有些節點連成一個圈圈了，這不會是我們想要的。</p>
+          <p>因此，我們的區塊資料就多一個 <code>visited</code> 欄位吧！</p>
+          <pre class="prettyprint"><code lang="openscad">function block_data(x, y, wall_type, visited) = [x, y, wall_type, visited];
+</code></pre>
+          <p>一開始的區塊資料都是有上牆與右牆，而且都是沒造訪過的，這個我們定義一個 <code>starting_maze</code>
+            函式來做這個動作，為了簡化範例，我們的出口一律設在右上角區塊：</p>
+          <pre class="prettyprint"><code lang="openscad">// 建立一個初始的迷宮狀態     
+function starting_maze(rows, columns) =  [
+    for(y = [1:rows]) 
+        for(x = [1:columns]) 
+            block_data(
+                x, y, 
+                // 除了出口只需要上牆外，其他都先建立上牆與右牆
+                y == rows &amp;&amp; x == columns ? UP_WALL : UP_RIGHT_WALL, 
+                // 未造訪狀態
+                false 
+            )
+];
+</code></pre>
+          <p>因為我們的迷宮區塊資料會組成一個一維向量，因此，想找出 (x, y) 位置的區塊是否造訪過之前，我們必須要能指定 (x,
+            y)，得知想要的區塊資料是在哪個索引位置：</p>
+          <pre class="prettyprint"><code lang="openscad">// 找出 (x, y) 位置的區塊資料
+function indexOf(x, y, maze, i = 0) =
+    i &gt; len(maze) ? -1 : (
+        [get_x(maze[i]), get_y(maze[i])] == [x, y] ? i : 
+            indexOf(x, y, maze, i + 1)
+    );
+</code></pre>
+          <p>對！這需要用到遞迴，沒那麼難，如果索引已經超出一維向量的長度了，表示找不到，因此傳回
+            -1，如果沒超出索引範圍，就看看目前索引位置的區塊資料位置與 (x, y) 是否相同，如果是就傳回索引，要不然就從下個索引再找。</p>
+          <p>遞不遞迴的其實並不是重點，真正的重點是學會分而治之（Divide and conquer），使用 Functional
+            programming，只是強迫你一定要分而治之而已，你比較難寫出像命令式語言那種又臭又長的漿糊（真要寫出漿糊也還是可以啦！如果你堅持的話，誰能阻止得了你
+            呢？）。</p>
+          <p>有了 <code>indexOf</code>，要找出 (x, y) 是否造訪過就簡單了：</p>
+          <pre class="prettyprint"><code lang="openscad">// 查詢 (x, y) 是否造訪過
+function visited(x, y, maze) = maze[indexOf(x, y, maze)][3];
+</code></pre>
+          <p>若要查詢指定的 (x, y) 是否可造訪，我們還要檢查一下是不是超出迷宮邊界了：</p>
+          <pre class="prettyprint"><code lang="openscad">// 查詢 (x, y) 是否可造訪
+function visitable(x, y, maze, rows, columns) = 
+    y &gt; 0 &amp;&amp; y &lt;= rows &amp;&amp;     // y 不超出邊界
+    x &gt; 0 &amp;&amp; x &lt;= columns &amp;&amp;  // x 不超出邊界
+    !visited(x, y, maze);     // 未造訪過
+</code></pre>
+          <p>如果想將 (x, y) 設定為已造訪，可以使用 <code>set_visited</code> 函式：</p>
+          <pre class="prettyprint"><code lang="openscad">// 設定 (x, y) 位罝為已造訪
+function set_visited(x, y, maze) = [
+    for(b = maze) 
+        [x, y] == [get_x(b), get_y(b)] ? 
+            [x, y, get_wall_type(b), true] : b
+];
+</code></pre>
+          <p>接著注意了，我們需要隨機決定往右、往上、往左或往下，雖然你可以用 <code>rands</code> 直接產生 0、1、2丶3
+            來代表，不過，<code>rands</code> 是亂數，你有可能產生 0、1、1、1、2、3
+            這樣的序列後，才真正探尋過四個方向，為了效率，我直接使用寫死了 0、1、2、3 可能的排列組合（如果你不想手寫，那就參考〈<a href="https://openhome.cc/Gossip/OpenSCAD/Permutation.htm">排
+              列組合</a>〉用程式來產生吧！）。</p>
+          <p>寫死了還是亂數嗎？我真正用到亂數的地方，是從這一串排列組合中隨機拿出一個：</p>
+          <pre class="prettyprint"><code lang="openscad">// 0（右）、1（上）、2（左）、3（下）
+function rand_dirs() =
+    [
+        [0, 1, 2, 3],
+        [0, 1, 3, 2],
+        [0, 2, 1, 3],
+        [0, 2, 3, 1],
+        [0, 3, 1, 2],
+        [0, 3, 2, 1],
+        [1, 0, 2, 3],
+        [1, 0, 3, 2],
+        [1, 2, 0, 3],
+        [1, 2, 3, 0],
+        [1, 3, 0, 2],
+        [1, 3, 2, 0],
+        [2, 0, 1, 3],
+        [2, 0, 3, 1],
+        [2, 1, 0, 3],
+        [2, 1, 3, 0],
+        [2, 3, 0, 1],
+        [2, 3, 1, 0],
+        [3, 0, 1, 2],
+        [3, 0, 2, 1],
+        [3, 1, 0, 2],
+        [3, 1, 2, 0],
+        [3, 2, 0, 1],
+        [3, 2, 1, 0]
+    ][round(rands(0, 24, 1)[0])];
+</code></pre>
+          <p>被隨機取出的其中一個向量，只要依序讀出，就一定會探尋完四個方向，這樣就可以避開方才的問題，接著，我寫了個 <code>next_x</code>、<code>next_y</code>
+            來取得下個 x 或 y：</p>
+          <pre class="prettyprint"><code lang="openscad">// 根據下一個區塊的方向取得 x 位置
+function next_x(x, dir) = x + [1, 0, -1, 0][dir];
+// 根據下一個區塊的方向取得 y 位置
+function next_y(y, dir) = y + [0, 1, 0, -1][dir];
+</code></pre>
+          <p>準備工作就到這為止了，接下來要正式進入迷宮資料的建置了…</p>
+          <h1>打牆了！</h1>
+          <p>如果目前是在 (x, y)
+            位置，而且能往右且往右走的話，那麼右邊的牆要打掉，一個區塊有四種牆面型態，因此我們要判斷四種可能性，對吧？像是如果原本只有上牆，或者原本沒有牆，往右走就不用打牆
+            了，直接保留原牆面狀態，如果原本有右牆就改為無牆，如果有上與右牆，就改為上牆？</p>
+          <p>基本上是這樣沒錯，你這麼寫應該也可以產生迷宮，只是比較沒有效率而已，仔細想想，如果沒有右牆，表示右牆曾被拆過，那就是曾從右邊區塊往左走
+            過，那麼右邊區塊本來就不能再走了，這表示沒有右牆的兩個牆面狀態判斷會是多餘的，因此，就只要判斷有上右牆以及只有右牆的狀態了：</p>
+          <pre class="prettyprint"><code lang="openscad">// 往右走，打掉右牆
+function go_right_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, UP_WALL, visited(x, y, maze)] : 
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+</code></pre>
+          <p>類似地，可以往上而且要往上走時，也只要判斷有上右牆以及上牆這兩種情況：</p>
+          <pre class="prettyprint"><code lang="openscad">// 往上走，打掉上牆    
+function go_up_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, RIGHT_WALL, visited(x, y, maze)] :  
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+</code></pre>
+          <p>往左或往下的話，則是要注意，我們打掉的並不是目前區塊的牆面，而是要前往的下個區塊牆面：</p>
+          <pre class="prettyprint"><code lang="openscad">// 往左走，打掉左方區塊的右牆
+function go_left_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x - 1, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x - 1, y, UP_WALL, visited(x - 1, y, maze)] : 
+            [x - 1, y, NO_WALL, visited(x - 1, y, maze)]
+    ) : b
+]; 
+
+// 往下走，打掉下方區塊的上牆
+function go_down_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y - 1] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y - 1, RIGHT_WALL, visited(x, y - 1, maze)] : 
+            [x, y - 1, NO_WALL, visited(x, y - 1, maze)]
+    ) : b
+]; 
+</code></pre>
+          <p>嗯？為什麼都是用三元運算子？因為 OpenSCAD 的函式語法中，不能使用 <code>if...else</code>，只能使用
+            <code>?:</code> 來達到相同的效果了，<code>if...else</code>
+            在某些語言中，也可以是運算式（Expression），如果 OpenSCAD 能支援的話，其實對可讀性會很有幫助。</p>
+          <p>不過，也許作者的原意是不想要函式又臭又長吧！使用 <code>?:</code>
+            寫多層一點的話，就會很難閱讀，這時你就不得不拆出另一個函式來改進可讀性，你不這麼做也可以，只是會寫出漿糊！</p>
+          <p>接著，就是根據指定的方向來決定要往哪邊走了：</p>
+          <pre class="prettyprint"><code lang="openscad">// 0（右）、1（上）、2（左）、3（下）
+function try_block(dir, x, y, maze, rows, columns) =
+    dir == 0 ? go_right_from(x, y, maze) : (
+        dir == 1 ? go_up_from(x, y, maze) : (
+            dir == 2 ? go_left_from(x, y, maze) : 
+                 go_down_from(x, y, maze)   // 這時 dir 一定是 3
+
+        )
+    );
+</code></pre>
+          <h1>隨機走訪</h1>
+          <p>接著就是重點戲碼了，這邊也是最麻煩的，當我們在 (x, y) 點想繼續走訪迷宮時，必須確定還有可造訪的方向：</p>
+          <pre class="prettyprint"><code lang="openscad">// 從 (x, y) 出發，找出可造訪的方向
+function visitable_dirs_from(x, y, maze, rows, columns) = [
+    for(dir = [0, 1, 2, 3]) 
+        if(visitable(next_x(x, dir), next_y(y, dir), maze, maze_rows, columns)) 
+            dir
+];  
+</code></pre>
+          <p>既然目前已經是在 (x, y) 點了，表示這點造訪過了，想要隨機造訪的話，我們使用 <code>rand_dirs</code>
+            函式取得一組隨機方向，然後從 (x, y) 依序造訪四個方向：</p>
+          <pre class="prettyprint"><code lang="openscad">// 從 (x, y) 位罝走訪迷宮
+function go_maze(x, y, maze, rows, columns) = 
+    // 還有可造訪的方向嗎？
+    len(visitable_dirs_from(x, y, maze, rows, columns)) == 0 ? 
+        set_visited(x, y, maze)      // 沒路了
+        : walk_around_from(          // 從 (x, y) 的隨機方向走走看
+            x, y, 
+            rand_dirs(),             // 隨機方向
+            set_visited(x, y, maze), 
+            rows, columns
+        );
+</code></pre>
+          <p>因為隨機方向有四個，這邊使用索引 <code>i</code> 來計數，從 4 開始，當計數為 0 時，表示四個方向都試過了：</p>
+          <pre class="prettyprint"><code lang="openscad">// 試著探尋四個方向
+function walk_around_from(x, y, dirs, maze, rows, columns, i = 4) =
+    // 四個方向都找完了嗎？
+    i &gt; 0 ? 
+        // 還有方向可以找
+        walk_around_from(x, y, dirs, 
+            // 探尋其中一個方向
+            try_routes_from(x, y, dirs[4 - i], maze, rows, columns),  
+            rows, columns, 
+            i - 1) // 記得找下一個方向（遞迴時 i - 1）
+        : maze;
+</code></pre>
+          <p>其中 <code>try_routes_from</code>
+            會依指定的方向，看看下個區塊位置是否可造訪，如果可以的話，就使用方才的 <code>try_block</code>
+            走走看，這時就得到一個新的迷宮狀態了，接著用下個區塊進行下一次的 <code>go_maze</code>：</p>
+          <pre class="prettyprint"><code lang="openscad">function try_routes_from(x, y, dir, maze, rows, columns) = 
+    // 這個方向可以造訪嗎？
+    visitable(next_x(x, dir), next_y(y, dir), maze, rows, columns) ?     
+        // 可以造訪的話就嘗試一下此方向的區塊
+        go_maze(
+            next_x(x, dir), next_y(y, dir), 
+            try_block(dir, x, y, maze, rows, columns),
+            rows, columns
+        ) 
+        // 不行的話，原區塊資料傳回
+        : maze;  
+</code></pre>
+          <p>也就是說，這邊的分而治之，就是每次試著從 (x, y) 開始找一個方向走訪迷宮，得到一個新的迷宮狀態，然後基於新的區塊位置 (x',
+            y') 開始找一個方向走訪迷宮，又得到一個新的迷宮狀態，一直到最後每個區塊都走訪過為止。</p>
+          <p>那麼，最先一開始的迷宮狀態是什麼呢？就是 <code>starting_maze</code> 產生的迷宮，最先一開始的 (x,
+            y) 就是 (1, 1) 囉！</p>
+          <p>接著，你只要使用以下的程式，就能產生 10 乘 10 的迷宮了：</p>
+          <pre class="prettyprint"><code lang="openscad">block_width = 3;
+wall_thickness = 1;
+maze_rows = 10;
+maze_columns = 10;  
+
+maze_blocks = go_maze(
+    1, 1,   // 入口
+    starting_maze(maze_rows, maze_columns),  
+    maze_rows, maze_columns
+);
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre>
+          <p>我們有重新指定任何一個變數的值嗎？沒有，我們有修改既有向量的元素內容嗎？沒有！我們每次都是指定新的值給函式的參數，每次都是產生一個新的
+            向量，依此記錄程式的狀態。</p>
+          <p>實際上，也正因為只有這樣，才能持續地記錄程式狀態，你不得不使用函式，也不得不一再地將任務分解再分解，從一開始我就說過了，其實迷宮演算法
+            本身不難，難的是將你的腦袋轉換為 Functional programming 思維！</p>
+          <p>Functional programming
+            的好處？習慣了是有許多好處！不過我不在這邊談論了，有興趣可以網路上找找相關文章，如果因此而有愛的話，表示你已經領會它的好處了，如果沒有愛的話，我說再多也是沒有
+            的，不是嗎？</p>
+          <p>來個 30 乘 30 的迷宮吧！</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/RandomMaze-1.JPG"
+                alt="隨機迷宮"></div>
+          </div>
+          <p></p>
+          <p>為了能完整地參考程式碼，底下列出方才談過的全部程式碼內容：</p>
+          <pre class="prettyprint"><code lang="openscad">module line(point1, point2, width = 1, cap_round = true) {
+    angle = 90 - atan((point2[1] - point1[1]) / (point2[0] - point1[0]));
+    offset_x = 0.5 * width * cos(angle);
+    offset_y = 0.5 * width * sin(angle);
+
+    offset1 = [-offset_x, offset_y];
+    offset2 = [offset_x, -offset_y];
+
+    if(cap_round) {
+        translate(point1) circle(d = width, $fn = 24);
+        translate(point2) circle(d = width, $fn = 24);
+    }
+
+    polygon(points=[
+        point1 + offset1, point2 + offset1,  
+        point2 + offset2, point1 + offset2
+    ]);
+}
+
+module polyline(points, width = 1) {
+    module polyline_inner(points, index) {
+        if(index &lt; len(points)) {
+            line(points[index - 1], points[index], width);
+            polyline_inner(points, index + 1);
+        }
+    }
+
+    polyline_inner(points, 1);
+}
+
+// 牆面常數
+
+NO_WALL = 0;       // 無牆
+UP_WALL = 1;       // 上牆
+RIGHT_WALL = 2;    // 右牆
+UP_RIGHT_WALL = 3; // 都有
+
+function block_data(x, y, wall_type, visited) = [x, y, wall_type, visited];
+function get_x(block_data) = block_data[0];
+function get_y(block_data) = block_data[1];
+function get_wall_type(block_data) = block_data[2];
+
+module draw_block(wall_type, block_width, wall_thickness) {
+    if(wall_type == UP_WALL || wall_type == UP_RIGHT_WALL) {
+        // 畫上牆
+        polyline(
+            [[0, block_width], [block_width, block_width]], wall_thickness
+        ); 
+    }
+
+    if(wall_type == RIGHT_WALL || wall_type == UP_RIGHT_WALL) {
+        // 畫右牆
+        polyline(
+            [[block_width, block_width], [block_width, 0]], wall_thickness
+        ); 
+    }
+}
+
+module draw_maze(rows, columns, blocks, block_width, wall_thickness) {
+    for(block = blocks) {
+        // 將每個畫好的區塊移至對應的位置
+        translate([get_x(block) - 1, get_y(block) - 1] * block_width) 
+            draw_block(
+                get_wall_type(block), 
+                block_width, 
+                wall_thickness
+            );
+    }
+
+    // 最底牆
+    polyline(
+        [[0, 0], [block_width * columns, 0]], 
+        wall_thickness);
+    // 最左牆
+    polyline(
+        [[0, block_width], [0, block_width * rows]], 
+        wall_thickness);
+} 
+
+// 建立一個初始的迷宮狀態     
+function starting_maze(rows, columns) =  [
+    for(y = [1:rows]) 
+        for(x = [1:columns]) 
+            block_data(
+                x, y, 
+                // 除了出口只需要上牆外，其他都先建立上牆與右牆
+                y == rows &amp;&amp; x == columns ? UP_WALL : UP_RIGHT_WALL, 
+                // 未造訪狀態
+                false 
+            )
+];
+
+// 找出 (x, y) 位置的區塊資料
+function indexOf(x, y, maze, i = 0) =
+    i &gt; len(maze) ? -1 : (
+        [get_x(maze[i]), get_y(maze[i])] == [x, y] ? i : 
+            indexOf(x, y, maze, i + 1)
+    );
+
+// 查詢 (x, y) 是否造訪過
+function visited(x, y, maze) = maze[indexOf(x, y, maze)][3];
+
+// 查詢 (x, y) 是否可造訪
+function visitable(x, y, maze, rows, columns) = 
+    y &gt; 0 &amp;&amp; y &lt;= rows &amp;&amp;     // y 不超出邊界
+    x &gt; 0 &amp;&amp; x &lt;= columns &amp;&amp;  // x 不超出邊界
+    !visited(x, y, maze);     // 未造訪過
+
+// 設定 (x, y) 位罝為已造訪
+function set_visited(x, y, maze) = [
+    for(b = maze) 
+        [x, y] == [get_x(b), get_y(b)] ? 
+            [x, y, get_wall_type(b), true] : b
+];
+
+// 0（右）、1（上）、2（左）、3（下）
+function rand_dirs() =
+    [
+        [0, 1, 2, 3],
+        [0, 1, 3, 2],
+        [0, 2, 1, 3],
+        [0, 2, 3, 1],
+        [0, 3, 1, 2],
+        [0, 3, 2, 1],
+        [1, 0, 2, 3],
+        [1, 0, 3, 2],
+        [1, 2, 0, 3],
+        [1, 2, 3, 0],
+        [1, 3, 0, 2],
+        [1, 3, 2, 0],
+        [2, 0, 1, 3],
+        [2, 0, 3, 1],
+        [2, 1, 0, 3],
+        [2, 1, 3, 0],
+        [2, 3, 0, 1],
+        [2, 3, 1, 0],
+        [3, 0, 1, 2],
+        [3, 0, 2, 1],
+        [3, 1, 0, 2],
+        [3, 1, 2, 0],
+        [3, 2, 0, 1],
+        [3, 2, 1, 0]
+    ][round(rands(0, 24, 1)[0])]; 
+
+// 根據下一個區塊的方向取得 x 位置
+function next_x(x, dir) = x + [1, 0, -1, 0][dir];
+// 根據下一個區塊的方向取得 y 位置
+function next_y(y, dir) = y + [0, 1, 0, -1][dir];
+
+// 往右走，打掉右牆
+function go_right_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, UP_WALL, visited(x, y, maze)] : 
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+
+// 往上走，打掉上牆    
+function go_up_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, RIGHT_WALL, visited(x, y, maze)] :  
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+
+// 往左走，打掉左方區塊的右牆
+function go_left_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x - 1, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x - 1, y, UP_WALL, visited(x - 1, y, maze)] : 
+            [x - 1, y, NO_WALL, visited(x - 1, y, maze)]
+    ) : b
+]; 
+
+// 往下走，打掉下方區塊的上牆
+function go_down_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y - 1] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y - 1, RIGHT_WALL, visited(x, y - 1, maze)] : 
+            [x, y - 1, NO_WALL, visited(x, y - 1, maze)]
+    ) : b
+]; 
+
+// 0（右）、1（上）、2（左）、3（下）
+function try_block(dir, x, y, maze, rows, columns) =
+    dir == 0 ? go_right_from(x, y, maze) : (
+        dir == 1 ? go_up_from(x, y, maze) : (
+            dir == 2 ? go_left_from(x, y, maze) : 
+                 go_down_from(x, y, maze)   // 這時 dir 一定是 3
+
+        ) 
+    );
+
+
+// 從 (x, y) 出發，找出可造訪的方向
+function visitable_dirs_from(x, y, maze, rows, columns) = [
+    for(dir = [0, 1, 2, 3]) 
+        if(visitable(next_x(x, dir), next_y(y, dir), maze, maze_rows, columns)) 
+            dir
+];  
+
+// 從 (x, y) 位罝走訪迷宮
+function go_maze(x, y, maze, rows, columns) = 
+    // 還有可造訪的方向嗎？
+    len(visitable_dirs_from(x, y, maze, rows, columns)) == 0 ? 
+        set_visited(x, y, maze)      // 沒路了
+        : walk_around_from(          // 從 (x, y) 的隨機方向走走看
+            x, y, 
+            rand_dirs(),             // 隨機方向
+            set_visited(x, y, maze), 
+            rows, columns
+        );
+
+// 試著探尋四個方向
+function walk_around_from(x, y, dirs, maze, rows, columns, i = 4) =
+    // 四個方向都找完了嗎？
+    i &gt; 0 ? 
+        // 還有方向可以找
+        walk_around_from(x, y, dirs, 
+            // 探尋其中一個方向
+            try_routes_from(x, y, dirs[4 - i], maze, rows, columns),  
+            rows, columns, 
+            i - 1) // 記得找下一個方向（遞迴時 i - 1）
+        : maze;
+
+function try_routes_from(x, y, dir, maze, rows, columns) = 
+    // 這個方向可以造訪嗎？
+    visitable(next_x(x, dir), next_y(y, dir), maze, rows, columns) ?     
+        // 可以造訪的話就嘗試一下此方向的區塊
+        go_maze(
+            next_x(x, dir), next_y(y, dir), 
+            try_block(dir, x, y, maze, rows, columns),
+            rows, columns
+        ) 
+        // 不行的話，原區塊資料傳回
+        : maze;   
+
+block_width = 3;
+wall_thickness = 1;
+maze_rows = 30;
+maze_columns = 30;  
+
+maze_blocks = go_maze(
+    1, 1,   // 入口
+    starting_maze(maze_rows, maze_columns),  
+    maze_rows, maze_columns
+);
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre> <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+  
+</html>

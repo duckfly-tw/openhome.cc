@@ -1,0 +1,74 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在定義型態參數時，可以定義可參數化型態的上界（Upper bound）與下界（Low bound）。例如：class Animalclass Human extends Animalclass Toy...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="上界（Upper bound）、下界（Lower bound）、視界（View bound）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/UpperboundLowerboundViewbound.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在定義型態參數時，可以定義可參數化型態的上界（Upper bound）與下界（Low bound）。例如：class Animalclass Human extends Animalclass Toy...">
+
+
+    <title>上界（Upper bound）、下界（Lower bound）、視界（View bound）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="UpperboundLowerboundViewbound.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>上界（Upper bound）、下界（Lower bound）、視界（View bound）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在定義型態參數時，可以定義可參數化型態的上界（Upper bound）與下界（Low bound）。例如：<br><pre class="prettyprint"><code lang="scala">class Animal<br>class Human extends Animal<br>class Toy<br><br>class Duck[<span style="font-weight: bold;">T &lt;: Animal</span>]<br><br>val ad = new Duck[Animal]<br>val hd = new Duck[Human]<br>val td = new Duck[Toy]     // 編譯錯誤，不符型態邊界</code></pre><br>在上例中，使用 &lt;: 定義型態參數化時，必須是Animal的子類（也就是以Animal為上界），你可以使用Animal與Human參數化型態，但不可以使用Toy參數化型態，因為Toy的上界不是Animal（也就是非Animal的子類）。<br><br>一個實際應用可以用 <a href="../AlgorithmGossip/QuickSort3.htm#Scala">快速排序法</a> 中的例子來說明：<br><pre class="prettyprint"><code lang="scala">def quick(list: List[Int]): List[Int] = {<br>    list match {<br>        case Nil =&gt; Nil     <br>        case x::xs =&gt;        <br>        val (before,after) = xs partition (_ <span style="font-weight: bold;">&lt;</span> x)<br>        quick(before) ++ (x :: quick(after))<br>    }<br>}</code></pre><br>在這個例子中，是以Int來示範演算法的實作，如果要讓這個函式更一般化，可以排序任何型態的物件，則該型態必須具備 &lt; 方法，一個方式是要求要排序的物件具有 <a href="http://www.scala-lang.org/docu/files/api/scala/Ordered.html">scala.Ordered[A]</a> 特徵。所以可以修改函式定義如下：<br><pre class="prettyprint"><code lang="scala">def quick[<span style="font-weight: bold;">T &lt;: Ordered[T]</span>](list: List[T]): List[T] = {<br>    list match {<br>        case Nil =&gt; Nil     <br>        case x::xs =&gt;        <br>        val (before,after) = xs partition (_ &lt; x)<br>        quick(before) ++ (x :: quick(after))<br>    }<br>}</code></pre><br>如果你定義了一個類別，具有scala.Ordered[A]特徵，則可以使用這個quick()函式來進行排序，例如：<br><pre class="prettyprint"><code lang="scala">class Ball(val radius: Int) <span style="font-weight: bold;">extends Ordered[Ball]</span> {<br>    def volume = 4 * Math.Pi * Math.pow(radius, 3) / 3<br>    def compare(that: Ball) = this.radius - that.radius<br>    override def equals(a: Any) = a match {<br>        case that: Ball =&gt; this.radius == that.radius;<br>        case _ =&gt; false<br>    }<br>    override def hashCode = 41 * radius<br>    override def toString = "Ball(" + radius + ")"<br>}<br><br>val bs = List(new Ball(3), new Ball(2), new Ball(4), new Ball(1))<br>quick(bs).foreach(println)</code></pre><br>你可以使用 <span style="font-weight: bold;">&lt;:</span> 來定義上界，也可以使用 <span style="font-weight: bold;">&gt;:</span> 來定義下界。例如：<br><pre class="prettyprint"><code lang="scala">class Alien<br>class Kryptonian extends Alien<br><br>class Earthman<br>class Spiderman extends Earthman<br><br>class Superman[<span style="font-weight: bold;">T &gt;: Kryptonian</span>]<br><br>val s1 = new Superman[Kryptonian]<br>val s2 = new Superman[Alien]<br>val s3 = new Superman[Spiderman]  // 編譯錯誤，不符型態邊界</code></pre><br>在這邊先附帶一提的是，如果你試圖在上面所定義quick()函式上使用Int、Double、String等型態，會發生編譯錯誤：<br><pre class="prettyprint"><code lang="scala">def quick[T &lt;: Ordered[T]](list: List[T]): List[T] = {<br>    list match {<br>        case Nil =&gt; Nil     <br>        case x::xs =&gt;        <br>        val (before,after) = xs partition (_ &lt; x)<br>        quick(before) ++ (x :: quick(after))<br>    }<br>}<br><br>val list = List(3, 1, 2, 4)<br>quick(list).foreach(println)</code></pre><br>以上例而言，是因為Int並沒有scala.Ordered
+[A]特徵。你應該記得，當試圖使用如 1 &lt; 2 這樣的比較時，會透過隱式轉換（Implicit
+conversion）將Int的1轉換為RichInt來包裹1，然後使用其&lt;方法來取得比較結果。如果你想要上例也可以作用於具隱式轉換函式的
+型態，則可以改寫為以下：<br><pre class="prettyprint"><code lang="scala">def quick[<span style="font-weight: bold;">T &lt;% Ordered[T]</span>](list: List[T]): List[T] = {<br>    list match {<br>        case Nil =&gt; Nil     <br>        case x::xs =&gt;        <br>        val (before,after) = xs partition (_ &lt; x)<br>        quick(before) ++ (x :: quick(after))<br>    }<br>}<br><br>val list1 = List(3, 1, 2, 4)<br>quick(list1).foreach(println)<br>val list2 = List("xyz", "xab", "abc", "cde")<br>quick(list2).foreach(println)</code></pre><br>注意！粗體字的部份中將原先的&lt;:改為&lt;%，&lt;:是規範上界，&gt;:是規範下界，<span style="font-weight: bold;">&lt;%其實規範視界（View bound）</span>。原先使用 T &lt;: Ordered[T] 的quick()，其型態參數的意義是：「<span style="font-weight: bold;">T 可以是任何Ordered[T]的子型態！</span>」，而使用 T&lt;% Ordered[T] 的quick()，其型態參數讀法是：「<span style="font-weight: bold;">T 可以是任何可被視為Ordered[T]型態的物件！</span>」所以 T&lt;% Ordered[T] 可以表示的型態更廣，除了可以是Ordered[T]的子型態之外，還可以是可隱式轉換至<span style="font-weight: bold;">Ordered[T]的型態。</span>關於隱式轉換，之後還會詳加介紹。<br><br><br>
+     
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

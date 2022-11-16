@@ -1,0 +1,353 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="有
+個事實是，Java中有些型態不是物件。像是int、double、boolean等基本資料型態不是物件，而有些時候，你希望它們以物件的方式存在，例
+如當你需要在Collection中放些整數時，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="要裝箱還是拆封">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JavaEssence/BoxUnBox.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="有
+個事實是，Java中有些型態不是物件。像是int、double、boolean等基本資料型態不是物件，而有些時候，你希望它們以物件的方式存在，例
+如當你需要在Collection中放些整數時，...">
+
+
+    <title>要裝箱還是拆封</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BoxUnBox.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Essence</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>要裝箱還是拆封</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            有
+個事實是，Java中有些型態不是物件。像是int、double、boolean等基本資料型態不是物件，而有些時候，你希望它們以物件的方式存在，例
+如當你需要在Collection中放些整數時，但Collection要持有的都是物件，不是基本型態，這時候你必須將基本型態包裝為物件。<br><br>最基本的作法就是透過包裹類別，例如：<br><div style="margin-left: 40px;">Integer i = new Integer(300);<br></div><br>你也可以透過包裹類別的<span style="font-weight: bold;">valueOf()</span>方法來傳回包裝了基本型態資料的物件，例如：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">Integer i = Integer.valueOf(1);</span><br></div><br>如果打算包裹的資料動作頻繁，而且是在某個小範圍之內，建議使用valueOf()方法，例如Integer的valueOf()方法，在JDK5之前，是這麼寫的：<br><div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public static Integer valueOf(int i) {</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; final int offset = 128;</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if (i &gt;= -128 &amp;&amp; i &lt;= 127) { // must cache </span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return IntegerCache.cache[i + offset];</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new Integer(i);</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+      </div>
+
+      <br><br><span style="font-weight: bold;">也就是在-128到127之間所產生的包裹物件，將會放到快取中重複使用</span>，而在JDK6之後，則是這麼寫的：<br><div style="margin-left: 40px;">public static Integer valueOf(int i) {<br>&nbsp;&nbsp;&nbsp; if(i &gt;= -128 &amp;&amp; i &lt;= IntegerCache.high)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return IntegerCache.cache[i + 128];<br>&nbsp;&nbsp;&nbsp; else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new Integer(i);<br>}<br></div><br><span style="font-weight: bold;">IntegerCache.high預設是127，所以預設是</span><span style="font-weight: bold;">在-128到127之間所產生的包裹物件，將會放到快取中重複使用（可以透過設置屬性java.lang.Integer.IntegerCache.high來設定IntegerCache.high的值）</span>。<br><br>在JDK5之後，增加了自動裝箱語法，您可以這麼寫：<br>
+
+      
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i = 10;</span></div><br>自動裝箱運用的方法還可以如下：<br>
+
+      
+
+
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">int i = 10;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer j = i;</span></div><br>可以自動裝箱，也可以<span style="font-weight: bold;">自動拆箱（Unboxing）</span>，例如下面這樣寫是可以的：<br>
+
+      
+
+
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer foo1 = 10;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">int foo2 = foo1;</span></div><br>在運算時，也可以自動裝箱與拆箱，例如：<br>
+
+      
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i = 10;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">System.out.println(i + 10);</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">System.out.println(i++);</span></div><br>編譯器會自動幫您進行自動裝箱與拆箱，即10會先被裝箱，然後在i + 10時會先拆箱，進行加法運算；i++該行也是先拆箱再進行遞增運算，反組譯以上的程式，就可以看到，<span style="font-weight: bold;">所謂的裝箱，就是透過valueOf()方法，所謂的拆箱，就是透過intValue()</span>：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">Integer integer = Integer.valueOf(10);</span><br><span style="font-weight: bold;">System.out.println(integer.intValue() + 10);</span><br><span style="font-weight: bold;">Integer integer1 = integer;</span><br><span style="font-weight: bold;">Integer integer2 = integer = Integer.valueOf(integer.intValue() + 1);</span><br><span style="font-weight: bold;">System.out.println(integer1);</span><br></div><br>自動裝箱與拆箱語法很方便，但在運行階段您還是瞭解Java的語義，例如下面的程式是可以通過編譯的：<br>
+
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i = null;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">int j = i;</span><br>
+
+
+
+
+      </div>
+
+
+      
+
+&nbsp;<br>
+
+
+
+
+語法是在編譯時期是合法的，但是在運行時期會有錯誤，因為null表示 i 沒有參考至任何的物件實體，它可以合法的指定給物件參考名稱，但null值對於基本型態 j 的指定是不合法的，上面的寫法在運行時會出現NullPointerException的錯誤。<br>
+
+
+
+
+      <br>
+
+
+
+
+再來看一個，先看看程式，你以為結果是如何？<br>
+
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i1 = 100;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i2 = 100;</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">if (i1 == i2) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 == i2");</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">else </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 != i2");</span><br>
+
+
+
+
+      </div>
+
+
+      
+
+&nbsp;<br>
+
+
+
+
+以自動裝箱與拆箱的機制來看，我想你會覺得結果是顯示"i1 == i2"，您是對的！那麼下面這個你覺得結果是什麼？<br>
+
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i1 = 200;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i2 = 200;</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">if (i1 == i2) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 == i2");</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">else </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 != i2");</span><br>
+
+
+
+
+      </div>
+
+
+      
+
+&nbsp;<br>
+
+
+
+
+      預設結果是顯示"i1 != i2"，這有些令人訝異，語法完全一樣，只不過改個數值而已，結果卻相反。<br>
+
+
+
+
+      <br>
+
+
+
+
+這與<span style="font-weight: bold;">'=='運算子</span>的比較有關，'=='可用來比較兩個基本型態的變數值是否相等，事實上'=='也用於判斷兩個物件變數名稱是否參考至同一個物件。所以'=='可以比較兩個基本型態的變數值是否相等，也可以判斷兩個物件變數的參考物件是否相同。先前說過，對於值從<span style="font-weight: bold;">-128到127</span>之間的值，它們被裝箱為Integer物件後，預設會存在記憶體之中被重用，所以當值在100，使用'=='進行比較時，i1 與 i2實際上參考至同一個物件。<br>
+
+
+
+
+      <br>
+如果超過了從-128到127之間的值，預設被裝箱後的Integer物件並不會被重用，即相當於每次都新建一個Integer物件，所以當值在
+200，使用'=='進行比較時，i1與i2參考的是不同的物件。但是如果你啟動程式時，設定了
+java.lang.Integer.IntegerCache.high屬性的話，結果又不同了：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">java -Djava.lang.Integer.IntegerCache.high=300 Main</span><br></div><br>這次又顯示i1 == i2了，因為你藉由java.lang.Integer.IntegerCache.high屬性設定要快取的範圍。<br>
+
+
+
+
+      <br>
+
+
+
+
+所以不要過份依賴自動裝箱與拆箱，您還是必須知道基本型態與物件的差異，上面的程式最好還是依正規的方式來寫，而不是依賴編譯蜜糖（Compiler sugar），例如當值為200時，必須改寫為以下才是正確的。<br>
+
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i1 = 200;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Integer i2 = 200;</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">if (i1.equals(i2)) </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 == i2");</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">else </span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; System.out.println("i1 != i2");</span><br>
+
+
+
+
+      </div>
+
+
+      
+
+&nbsp;<br>
+
+
+
+
+      <br>
+
+
+
+
+結果這次是顯示"i1 == i2"了，使用這樣的寫法，相信您也會比較放心一些。
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

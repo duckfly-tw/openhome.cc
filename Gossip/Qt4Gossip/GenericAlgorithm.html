@@ -1,0 +1,323 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Qt
+的全域函式中，包括了一些適用Qt容器的泛型演算函式，像是qFind()可以指定容器直接進行搜尋，也可以指定起始與結束迭代器位址，進行指定值搜尋，
+若搜尋到則傳回該值的迭代器位址，若沒有找到，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="泛型演算（Generic Algorithms）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/GenericAlgorithm.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Qt
+的全域函式中，包括了一些適用Qt容器的泛型演算函式，像是qFind()可以指定容器直接進行搜尋，也可以指定起始與結束迭代器位址，進行指定值搜尋，
+若搜尋到則傳回該值的迭代器位址，若沒有找到，...">
+
+
+    <title>泛型演算（Generic Algorithms）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GenericAlgorithm.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>泛型演算（Generic Algorithms）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             Qt
+的全域函式中，包括了一些適用Qt容器的泛型演算函式，像是qFind()可以指定容器直接進行搜尋，也可以指定起始與結束迭代器位址，進行指定值搜尋，
+若搜尋到則傳回該值的迭代器位址，若沒有找到，則傳回容器end()方法的迭代器位址。qSort()可以對容器進行排序。qBinaryFind()可
+以以二元搜尋的方式搜尋已遞增排序容器中指定的值。例如：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">QStringList list;<br>
+
+
+      list &lt;&lt; "caterpillar" &lt;&lt; "momor" &lt;&lt; "bush" &lt;&lt; "justin";<br>
+
+
+      <br>
+
+
+// 以下顯示momor、bush、justin &nbsp;&nbsp; <br>
+
+
+      QStringList::iterator i = qFind(list.begin(), list.end(), "momor");<br>
+
+
+      while(i != list.end()) {<br>
+
+
+      &nbsp;&nbsp;&nbsp; cout &lt;&lt; (*i).toAscii().data() &lt;&lt; endl;<br>
+
+
+      &nbsp;&nbsp;&nbsp; ++i;<br>
+
+
+      }<br>
+
+
+      cout &lt;&lt; endl;<br>
+
+
+      <br>
+
+
+// 排序 &nbsp;&nbsp; <br>
+
+
+      qSort(list.begin(), list.end());<br>
+
+
+      <br>
+
+
+// 以下顯示momor<br>
+
+
+      QStringList::iterator j = qBinaryFind(list.begin(), list.end(), "momor");<br>
+
+
+      while(j != list.end()) {<br>
+
+
+      &nbsp; &nbsp;&nbsp;&nbsp; cout &lt;&lt; (*j).toAscii().data() &lt;&lt; endl;<br>
+
+
+      &nbsp;&nbsp;&nbsp; ++j;<br>
+
+
+      }<br>
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+      qSort()預設使用遞增排序，如果要以遞減排序的方式，則可以傳入qGreater&lt;T&gt;()，類似的，qBinaryFind()也可以使用qGreater&lt;T&gt;()指定在遞減排序的容器中進行二元搜尋，例如：<br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QStringList list;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; list &lt;&lt; "caterpillar" &lt;&lt; "momor" &lt;&lt; "bush" &lt;&lt; "justin";</span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold;">&nbsp;<span style="font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; // 遞增排序</span></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; qSort(list.begin(), list.end(), qGreater&lt;QString&gt;());</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"><br>
+
+
+      </span></span><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 以下顯示momor、justin、caterpillar、bush</span></span><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QStringList::const_iterator iterator = list.begin();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; while(iterator != list.end()) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; cout &lt;&lt; (*iterator).toAscii().data() &lt;&lt; endl;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ++iterator;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QStringList::iterator j = qBinaryFind(list.begin(), list.end(), <br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; "caterpillar",
+qGreater&lt;QString&gt;());<br>
+
+
+      </span></span><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 以下顯示caterpillar、bush</span></span><br>
+
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; while(j != list.end()) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; (*j).toAscii().data() &lt;&lt; endl;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ++j;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+      <br>
+
+
+      您也可以自定義排序規則，例如依字串長度進行排序：<br>
+
+
+      </span>
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">bool lengthLessThan(const QString &amp;str1, const QString &amp;str2) {</span></span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; return str1.length() &lt; str2.length();</span></span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+
+
+      </div>
+
+
+      
+      
+      <div style="margin-left: 40px;"><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span></span><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span></span><br>
+
+
+      </div>
+
+
+      <span>然後再指定給qSort()，例如：<br>
+
+
+      </span>
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">QStringList list;<br>
+
+
+list &lt;&lt; "caterpillar" &lt;&lt; "momor" &lt;&lt; "bush" &lt;&lt; "justin";<br>
+
+
+      <br>
+
+
+qSort(list.begin(), list.end(), lengthLessThan);<br>
+
+
+      <br>
+
+
+// 以下顯示bush、momor、justin、caterpillar<br>
+
+
+QStringList::const_iterator iterator = list.begin();<br>
+
+
+while(iterator != list.end()) {<br>
+
+
+&nbsp;&nbsp;&nbsp; cout &lt;&lt; (*iterator).toAscii().data() &lt;&lt; endl;<br>
+
+
+&nbsp;&nbsp;&nbsp; ++iterator;<br>
+
+
+}</span></span><br>
+
+
+      </div>
+
+
+      <span><br>
+
+
+      與qSort()類似的qStableSort()，則是在比較兩個項目相同時，會保留兩個項目原有的先後順序。<br>
+
+
+      <br>
+
+
+      在這邊僅列出幾個泛型演算的例子，更多泛型演算的函式，可以查詢Qt的 <a href="http://doc.trolltech.com/4.3.3/qtalgorithms.html">&lt;QtAlgorithms&gt; - Generic Algorithms</a> 中之介紹。<br>
+
+
+      <br>
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

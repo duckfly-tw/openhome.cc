@@ -1,0 +1,160 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在今日，經常見到有「第三方應用程式」想從社交網站取得使用者的私人資源，例如，有些資訊是你登入之後才能看到，而社交網站有些遊戲，需要你的這些資訊，你應該不會想玩個遊戲，就到處給這些遊戲帳號密碼吧！
+另外...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Client Credentials 核發流程（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/OAuth2ClientGrant1.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在今日，經常見到有「第三方應用程式」想從社交網站取得使用者的私人資源，例如，有些資訊是你登入之後才能看到，而社交網站有些遊戲，需要你的這些資訊，你應該不會想玩個遊戲，就到處給這些遊戲帳號密碼吧！
+另外...">
+
+    <title>Client Credentials 核發流程（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OAuth2ClientGrant1.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Client Credentials 核發流程（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在今日，經常見到有「第三方應用程式」想從社交網站取得使用者的私人資源，例如，有些資訊是你登入之後才能看到，而社交網站有些遊戲，需要你的這些資訊，你應該不會想玩個遊戲，就到處給這些遊戲帳號密碼吧！</p>
+<p>另外，你有些服務只允許登入的使用者操作，而且各設定了不同的權限，使用者可能同時運用多個服務，若使用者在每個服務上，都得進行授權，勢必會造成使用者的困擾，你應該不會想要這麼做！</p>
+<p>在這類場合中，會需要將授權流程獨立出來，而不是「客戶端（Client）」與「資源擁有者（Resource Owner）」之間直接進行授權的動作，被獨立出來授權職責，會由「授權伺服器（Authorization Server）」負責，在採取某個驗證流程無誤之後，授權伺服器發給客戶端 Access Token，客戶端拿著 Access Token 對資源擁有者請求，資源擁有者確認 Access Token 合法性之後，才給予受保護的資源（Protected Resources ）。</p>
+<p>當然，這是個籠統的流程概念，可以有許多做法，在 HTTP 的做法上，OAuth 2 將之標準化，客戶端、資源擁有者、授權伺服器、受保護的資源或者是資源伺服器（Resource Server）等，在 OAuth 2 中都有其角色定義，而取得授權，或更具體地說，核發 Acccess Token 的方式，OAuth 2 規範了四個核發（Grant）類型流程：</p>
+<ul>
+<li>Authorization Code Grant Type Flow</li>
+<li>Implicit Grant Type Flow</li>
+<li>Resource Owner Password Credentials Grant Type Flow</li>
+<li>Client Credentials Grant Type Flow</li>
+</ul>
+<p>英文名稱很長，為了方便，接下來的文件，我會用底下四個來代稱：</p>
+<ul>
+<li>Authorization Code 核發流程</li>
+<li>Implicit 核發流程</li>
+<li>Password Credentials 核發流程</li>
+<li>Client Credentials 核發流程</li>
+</ul>
+<p>實際上，如果你搜尋 OAuth 2，可以找到許許多多關於這四個核發流程的說明，一般都是依以上列點順序來談，實際上，四個核發流程是運用在不同的場合，Authorization Code 核發流程的安全性最高，然而流程最繁複，實作起來的步驟也多，Implicit 核發流程是其簡化版本，然而安全性低了一些（曝露了 Acccess Token），對於密碼在自己控管中的場合，為了統一管理授權可採用 Password Credentials 核發流程，至於不涉及使用者的內部伺服器間授權管理，或者內部完全可信任的客戶端，則採用 Client Credentials 核發流程。</p>
+<p>OAuth 2 規範的核發流程，耐心些看網路上的文件，應該可以看懂，如果你接過社交網站的 API，對於作為第三方應用程式，如何與既有的授權伺服器、資源伺服器互動，應該會有具體的概念。</p>
+<p>然而，如果你同我一樣，好奇於授權伺服器、資源伺服器等具體上怎麼實作，藉由 Spring Cloud 對 OAuth 2 的支援來認識，是個不錯的出發點，這對於社交網站等 API 的核發流程，在掌握上也有幫助。</p>
+<p>只不過，一開始就從 Authorization Code 核發流程開始，由於涉及的流程步驟較多，銜接的環節也多，不如把順序反過來，先從 Client Credentials 核發流程開始實作，逐步探討在什麼樣的需求下，可以進一步採用哪個核發流程。</p>
+<p>Client Credentials 核發流程就像是 BASIC 驗證的延伸，在〈<a href="GatewaySecurity.html">閘道與 Spring Security</a>〉中，曾經看過 BASIC 驗證如何應用在閘道上控管已授權的客戶端，Client Credentials 核發流程也可以應用在這類情境，不過是將授權管理拉出來，由授權伺服器實現，授權管理器核發 Access Token，類似 BASIC 驗證，客戶端可以在 <code>Authorization</code> 標頭中設定 Access Token 來請求閘道，若是合法的 Access Token 就允許通過閘道。</p>
+<p>不過這邊暫時不談怎麼在閘道上設定，先將焦點放在 Client Credentials 的實作本身。</p>
+<p>如果想要實作 Client Credentials 核發流程中的驗證伺服器，使用 Spring Tool Suite 的話，可以建立專案時選擇 Cloud Auth2 以及 Web 的 Starter，然後還要加上點東西在 build.gradle 中：</p>
+<pre class="prettyprint"><code lang="java">implementation('javax.xml.bind:jaxb-api:2.2.11') 
+implementation('com.sun.xml.bind:jaxb-core:2.2.11')     
+implementation('com.sun.xml.bind:jaxb-impl:2.2.11') 
+implementation('javax.activation:activation:1.1.1')  
+
+implementation('org.springframework.boot:spring-boot-starter-web')
+implementation('org.springframework.cloud:spring-cloud-starter-oauth2')
+</code></pre>
+<p>如果 Java 版本比 Java 8 高，要加上 JAXB 等的相依，理由在〈<a href="Eureka.html">服務註冊伺服器</a>〉談過；連接埠就設為 8081 好了，在 application.properties 中加入：</p>
+<pre class="prettyprint"><code lang="java">server.port=8081
+</code></pre>
+<p>接著在啟動的主類別上標註 <code>@EnableAuthorizationServer</code>，並加上驗證服務器相關設定：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...
+
+@SpringBootApplication
+@EnableAuthorizationServer
+public class AuthSvrApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AuthSvrApplication.class, args);
+    }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Bean
+    public AuthorizationServerConfigurerAdapter authorizationServerConfigurer() {
+        return new AuthorizationServerConfigurerAdapter() {
+
+            @Override
+            public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+                clients.inMemory()
+                       .withClient("webclient")
+                       .secret(passwordEncoder.encode("webclient12345678"))
+                       .scopes("account", "message", "email")
+                       .resourceIds("resource")
+                       .authorizedGrantTypes("client_credentials");
+            }
+
+            @Override
+            public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+                oauthServer.checkTokenAccess("isAuthenticated()");    
+            }
+        };
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+</code></pre>
+<p>在這邊要注意，使用的是 <code>AuthorizationServerConfigurer</code>，而不是 <code>WebSecurityConfigurer</code>，為了讓事情簡單一些，先將驗證、授權資訊儲存在記憶體中。</p>
+<p>在 OAuth 2 中，使用者與客戶端的概念是分離的，使用者指的通常是個擁有註冊帳戶的人，客戶端通常是指使用者操作的應用程式（前端網頁、App、Web 程式等），當然，使用者也可能是個機器人自動程式之類，不過就先當沒這回事，比較不會混淆。</p>
+<p>Client Credentials 並不涉及使用者，<code>withClient</code> 中設定的看來像是使用者名稱，不過它實際上指的是已註冊的客戶端名稱，在社交網站上要接 API，不是得先按照它的規定建立個應用程式並給予名稱嗎？大概就是這個東西，至於 <code>secret</code> 看來像是使用者密碼，不過實際上不是，概念上像是 API 密鑰之類的東西。</p>
+<p>（我只說概念上像是，因為實際上應用程式名稱、金鑰等，在社交網站各自真正的實作上，可能並不是這樣直接對比的東西。）</p>
+<p><code>scopes</code> 設定類似於 Java EE/Spring Security 中的角色（Role），不過，角色的概念是基於使用者，而 <code>scopes</code> 的概念是基於客戶端，通常是指定可用操作之名稱或類型，之後就可以像 Java EE/Spring Security 那樣，基於 <code>scopes</code> 來指定哪些資源，必須是擁有哪些 scopes 的客戶端可以存取。</p>
+<p><code>resourceIds</code> 可用來設定核發的 Access Token 適用在哪些資源，如果沒有設定的話，就沒有限制。<code>authorizedGrantTypes</code> 設定可以使用哪些核發流程，可以設定多種，這邊先只設定 <code>client_credentials</code>。</p>
+<p>從 Spring Security 5 開始，強制必須對密碼進行編碼，在整合 OAuth 2 時，密鑰也必須編碼，因此設定了 <code>passwordEncoder</code>。</p>
+<p>被保護的資源可以在驗證伺服器上，也可以在其他獨立的資源伺服器上，這邊打算示範後者，資源伺服器收到 Access Token 時，必須與驗證伺服器核對，為此必須開放端點，這就是 <code>oauthServer.checkTokenAccess("isAuthenticated()")</code> 設定之目的，開放的端點會是 <code>/oauth/check_token</code>。</p>
+<p>這麼一來，一個簡單的驗證伺服器就設定完成了，至於客戶端如何請求 Access Token，如何拿著 Access Token 來請求資源伺服器，而資源伺服器又怎麼跟驗證伺服器核對，以及如何根據 scope 來判斷是否有存取資源的權限，就留在下一篇文件再來談。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

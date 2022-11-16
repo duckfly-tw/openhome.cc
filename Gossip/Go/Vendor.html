@@ -1,0 +1,133 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在只有一個專案的情況下，GOPATH 非常合情合理而且簡單，如果有多個專案，各個專案的原始碼也可以放在同一個 GOPATH 之中，有著各自的套件結構，使用著來自 GOPATH 的非標準套件，此時整個 ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="vendor">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/Vendor.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在只有一個專案的情況下，GOPATH 非常合情合理而且簡單，如果有多個專案，各個專案的原始碼也可以放在同一個 GOPATH 之中，有著各自的套件結構，使用著來自 GOPATH 的非標準套件，此時整個 ...">
+
+    <title>vendor</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Vendor.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>vendor</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在只有一個專案的情況下，<code>GOPATH</code> 非常合情合理而且簡單，如果有多個專案，各個專案的原始碼也可以放在同一個 <code>GOPATH</code> 之中，有著各自的套件結構，使用著來自 <code>GOPATH</code> 的非標準套件，此時整個 <code>GOPATH</code> 目錄就是一個巨大的 repository，具稱 Google 內部就是這樣的場景，才會有 <code>GOPATH</code> 這樣的設計，Go 社群中也有著「如果必須切換 <code>GOPATH</code>，大概有哪些地方不對了」的說法。</p>
+<p>問題在於，這並不是社群或其他公司中使用 Go 的方式，如果個別專案有個別的套件，比較單純的做法是各個專案有個專用的 <code>GOPATH</code>，想要開發哪個專案，就切換至該專案使用的 <code>GOPATH</code>，然而很快地，如果有專案相依在這些個別專案上呢？將它們組織為巨大的 repository 是個做法，或者是令 <code>GOPATH=prj1:prj2:prj3</code>，prjx 是指向各專案原始碼的路徑，也就是說 <code>GOPATH</code> 會是一大串路徑結合後的產物。</p>
+<p>在上述的設定中，維持了一個 <code>GOPATH</code> 不用切換，新專案可以加入至 <code>GOPATH</code> 最前頭，<code>go get</code> 的第三方套件會下載到最前面的路徑中，然而，若需要 prj2 也在開發中，若 prj2 需要新的第三方套件時，<code>go get</code> 卻會下載到新專案之中；在各自不同的情境中，無論怎麼調整 <code>GOPATH</code> 的順序，總是會有各自不同的問題發生。</p>
+<p>另一方面，<code>GOPATH</code> 本身不涉及套件來源的版本問題，因此，若專案依賴的 repository 被修改了，日後建構專案就會受到影響，對依賴於Github之類來源，而且第三方套件本身非常活躍的專案來說，重新建構專案時無法有穩定的結果，這顯然是個大問題。</p>
+<p>例如在〈<a href="Package.html">Go 套件管理</a>〉中看過的例子，使用 <code>go get github.com/JustinSDK/goexample</code>，然後撰寫底下的程式：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "github.com/JustinSDK/goexample"
+
+func main() {
+    goexample.Hi()
+    goexample.Hello()
+}
+</code></pre>
+<p>這簡單的程式被發佈為一個範例了，某年某月的某一天，我修改了 goexample 的內容，讓 <code>Hi</code>、<code>Hello</code> 顯示中文並發佈到 Github 上的檔案庫，有位讀者，依舊照著〈<a href="Package.html">Go 套件管理</a>〉中的說明進行操作，然而看到的不是英文，而是中文的招呼。</p>
+<p>為了避免這個問題，通常會將下載的檔案庫複製出來，例如放到 deps 中：</p>
+<pre class="prettyprint"><code lang="golang">project
+    └─src
+        ├─deps
+        │  └─src
+        │      └─github.com
+        │          └─JustinSDK
+        │              └─goexample
+        │                      .gitignore
+        │                      hello.go
+        │                      hi.go
+        │                      LICENSE
+        │                      README.md
+        │
+        └─main
+                main.go
+</code></pre>
+<p>問題是放到 deps 的檔案庫該怎麼用呢？其中一個方式是修改 <code>import</code>：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "deps/src/github.com/JustinSDK/goexample"
+
+func main() {
+    goexample.Hi()
+    goexample.Hello()
+}
+</code></pre>
+<p>另一個方式是透過工具修改 <code>GOPATH</code> 自動包含 deps 目錄，這類的概念主要成為了 <a href="https://github.com/tools/godep">godep</a> 等工具早期在管理 Go 套件時的思考出發點。</p>
+<p>Go 在 1.5 時實驗性地加入了 vendor，需要透過 <code>GO15VENDOREXPERIMENT="1"</code> 來啟用，1.6 預設 <code>GO15VENDOREXPERIMENT="1"</code>，1.7 拿掉 <code>GO15VENDOREXPERIMENT</code> 環境變數，使得vendor成為正式的內建特性。</p>
+<p>簡單來說，如果你的套件中有個 vendor 資料夾，例如：</p>
+<pre class="prettyprint"><code lang="golang">project
+    └─src
+        └─main
+            │  main.go
+            │
+            └─vender
+                └─github.com
+                    └─JustinSDK
+                        └─goexample
+                                .gitignore
+                                hello.go
+                                hi.go
+                                LICENSE
+                                README.md
+</code></pre>
+<p>對於 <code>import "github.com/JustinSDK/goexample"</code> 來說，尋找相依套件的順序會變成 vendor  -> GOROOT 的 src -> GOPATH 的 src。</p>
+<p>在 vendor 推出後，<code>godep</code> 也改使用 vendor了，而 <a href="https://github.com/Masterminds/glide">glide</a> 等工具，也都基於 vendor 了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

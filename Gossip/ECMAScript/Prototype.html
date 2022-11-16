@@ -1,0 +1,278 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/object/prototype/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈隱藏諸多細節的建構式〉中看過一個例子：
+function toString() {
+    return '[' + this.name + ',' + this.age + ']';
+}
+
+fu...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="函式 prototype 特性">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/Prototype.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈隱藏諸多細節的建構式〉中看過一個例子：
+function toString() {
+    return '[' + this.name + ',' + this.age + ']';
+}
+
+fu...">
+
+    <title>函式 prototype 特性</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Prototype.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>函式 prototype 特性</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Constructor.html">隱藏諸多細節的建構式</a>〉中看過一個例子：</p>
+<pre class="prettyprint"><code lang="javascript">function toString() {
+    return '[' + this.name + ',' + this.age + ']';
+}
+
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+    this.toString = toString;
+}
+</code></pre>
+<p>這可以解決重複建立函式實例的問題，但在全域範圍（物件）上多了個 <code>toString</code> 名稱，雖然可以如下避免這個問題：</p>
+<pre class="prettyprint"><code lang="javascript">function Person(name, age) {
+    this.name = name;
+    this.age = age;
+    this.toString = function() {
+        return '[' + this.name + ', ' + this.age + ']';
+    };
+}
+</code></pre>
+<p><code>Person</code> 函式中使用了函式實字建立了函式實例，並指定給 <code>toString</code> 特性，不過每次呼叫建構式時，都會建立一次函式實例。</p>
+<p>如果你知道函式在定義時，都有個 <code>prototype</code> 特性，則可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+Person.prototype.toString = function() {
+    return '[' + this.name + ', ' + this.age + ']';
+};
+
+var p1 = new Person('Justin', 35);
+var p2 = new Person('Momor', 32);
+
+console.log(p1.toString());   // [Justin, 35]
+console.log(p2.toString());   // [Momor, 32]
+</code></pre>
+<p>使用 <code>new</code> 關鍵字時，JavaScript 會先建立一個空物件，接著設定物件的原型為函式的 <code>prototype</code> 特性所參考的物件，然後呼叫建構式並將所建立的空物件設為 <code>this</code>。</p>
+<p>JavaScript 在尋找特性名稱時，會先在實例上找尋有無特性，以上例而言，<code>p1</code> 上會有 <code>name</code> 與 <code>age</code> 特性，所以可以直接取得對應的值。如果物件上沒有該特性，會到物件的原型上去尋找，以上例而言，<code>p1</code> 上沒有 <code>toString</code> 特性，所以會到 <code>p1</code> 的原型上尋找，而 <code>p1</code> 的原型物件此時也就是 <code>Person.prototype</code> 參考的物件，這個物件上有 <code>toString</code> 特性，所以可以 找到 <code>toString</code> 所參考的函式並執行。</p>
+<p>如果使用 ECMAScript 5，可以透過 <code>Object.getPrototypeOf</code> 來取得實例的原型物件。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+Person.prototype.toString = function() {
+    return '[' + this.name + ', ' + this.age + ']';
+};
+
+var p = new Person('Justin', 35);
+
+console.log(Person.prototype === Object.getPrototypeOf(p));   // true
+</code></pre>
+<p>Node.js、Nashorn 中，物件都有個「非標準」特性 <code>__proto__</code>，許多瀏覽器也支援這個特性，可以設定或取得實例建立時被設定的原型物件，然而在 ECMAScript 6 規範，<code>__proto__</code> 被加入了附錄，規範瀏覽器中必須支援這個特性，然而其他環境中不一定，一般的建議是避免使用這個特性。</p>
+<p>然而，若要用模擬的方式來說明 <code>new Person('Justin', 35)</code> 時作了什麼事，大概像是這樣：</p>
+<pre class="prettyprint"><code lang="javascript">function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+Person.prototype.toString = function() {
+    return '[' + this.name + ', ' + this.age + ']';
+};
+
+var p = {};
+p.__proto__ = Person.prototype;
+Person.call(p, 'Justin', 35);
+
+console.log(p.toString());         // [Justin,35]
+console.log(p instanceof Person);  // true
+</code></pre>
+<p>要注意的是，只有在查找特性，而物件上不具該特性時才會使用原型，如果你對物件設定某個特性，是直接在物件上設定了特性，而不是對原型設定了特性。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function Some() {}
+Some.prototype.data = 10;
+
+var s = new Some();
+console.log(s.data);                 // 10
+
+s.data = 20;
+console.log(s.data);                 // 20
+console.log(Some.prototype.data);    // 10
+</code></pre>
+<p>在上例中可以看到，你對 <code>s</code> 參考的物件設定了 <code>data</code> 特性，但並不影響 <code>Some.prototype.data</code> 的值。</p>
+<p>你可以在任何時間點對函式的 <code>prototype</code> 新增特性，由於原型查找的機制，透過函式而建構的所有實例，都可以找到該特性，即使實例建立之後，特性才被添加到原型中。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function Some() {}
+
+var s = new Some();
+console.log(s.data);       // undefined
+
+Some.prototype.data = 10;
+console.log(s.data);       // 10
+</code></pre>
+<p>先前在談建構式時有提過，每個透過 <code>new</code> 建構的物件，都會有個 <code>constructor</code> 特性，參考至當初建構它的函式。事實上，每個函式實例建立時，都會在函式實例上以空物件建立 <code>prototype</code>，然後在空物件上設定 <code>constructor</code> 特性，也因此每個 <code>new</code> 建構的物件，都可以找到 <code>constructor</code> 特性。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function Some() {}
+console.log(Some.prototype.constructor);  // [Function: Some]
+</code></pre>
+<p>每個函式實例，其 <code>prototype</code> 特性預設參考至 <code>Object</code> 的實例，根據原型尋找原則，查找特性時若 <code>prototype</code> 上找不到，由於 <code>prototype</code> 是 <code>Object</code> 實例，也就是 <code>prototype</code> 的原型物件預設是參考至 <code>Object.prototype</code>，所以又會到 <code>Object.prototype</code> 上尋找，如果找到就使用，如果沒有找到就是 <code>undefined</code>，這就是 JavaScript 的原型鏈尋找特性機制。</p>
+<p>例如：</p>
+<pre class="prettyprint"><code lang="javascript">Object.prototype.xyz = 10;
+
+function Some() {}
+
+var s = new Some();
+console.log(s.xyz); // 10
+
+console.log(Object.getPrototypeOf(s) === Some.prototype);          // true
+
+var protoOfS = Object.getPrototypeOf(s);
+console.log(Object.getPrototypeOf(protoOfS) === Object.prototype); // true
+</code></pre>
+<p>實例的原型物件，預設就是建構式的 <code>prototype</code> 參考的物件。雖然 <code>Some</code> 實例或<code>Some.prototype</code> 都沒有定義 <code>xyz</code>，但根據原型鏈查找，最後在 <code>Object.prototype</code> 可以找到 <code>xyz</code>（並不建議在 <code>Object.prototype</code> 上添加特性，因為這會影響所有JavaScript 的實例，這邊只是為了示範原型鏈查找）。</p>
+<p>你也可以使用 <code>isPrototypeOf</code> 來確定物件是否為另一物件的原型。例如：</p>
+<pre class="prettyprint"><code lang="javascript">console.log(Array.prototype.isPrototypeOf([]));              // true
+console.log(Function.prototype.isPrototypeOf(Array));         // true
+console.log(Object.prototype.isPrototypeOf(Array.prototype)); // true
+</code></pre>
+<p><code>for in</code> 在列舉物件特性時，會循著原型鏈一路找出所有可列舉特性。</p>
+<p>如果要建立一個實例，想要令其循著某個原型鏈查找，例如，想要建立一個類似陣列的物件，但要其可循著 <code>Array</code> 原型鏈查找，以利用 <code>Array</code> 定義的特性，若使用非標準 <code>__proto__</code> 特性的話，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">var arrayLike = {
+    '0' : 10,
+    '1' : 20,
+    '2' : 30,
+    length : 3
+};
+
+arrayLike.__proto__ = [];
+
+arrayLike.map(function(elem) {
+              return elem * 10
+          })
+          .forEach(function(elem) {
+              console.log(elem);
+          });
+</code></pre>
+<p>ES5 或更早前，<code>__proto__</code> 終究是非標準特性，然而，即使是 ECMAScript 5  也只有提供 <code>Object.getPrototypeOf</code>，沒有可設置原型物件的方式，在《JavaScript: The Good Parts》的〈3.5. Prototype〉中提出可自定義一個 <code>Object.beget</code> 函式來解決這個問題：</p>
+<pre class="prettyprint"><code lang="javascript">Object.beget = function (o) {
+    var F = function () {};
+    F.prototype = o;
+    return new F();
+};
+
+var arrayLike = Object.beget(Array.prototype);
+arrayLike[0] = 10;
+arrayLike[1] = 20;
+arrayLike[2] = 30;
+arrayLike.length = 3;
+
+arrayLike.map(function(elem) {
+              return elem * 10
+          })
+          .forEach(function(elem) {
+              console.log(elem);
+          });
+</code></pre>
+<p>ECMAScript 5 中包括了一個 <code>Object.create</code> 函式，可達到相同的目的：</p>
+<pre class="prettyprint"><code lang="javascript">var arrayLike = Object.create(Array.prototype, {
+    '0'    : {value : 10},
+    '1'    : {value : 20},
+    '2'    : {value : 30},
+    length : {value : 3}
+});
+
+arrayLike.map(function(elem) {
+              return elem * 10
+          })
+          .forEach(function(elem) {
+              console.log(elem);
+          });
+</code></pre>
+<p><code>Object.create</code> 第一個參數接受原型物件，第二個參數接受描述器（Descriptor），其內部大致是做了以下這些事（Ben Newman 寫的範例）：</p>
+<pre class="prettyprint"><code lang="javascript">Object.create = function(proto, props) {
+    var ctor = function(ps) {
+        if(ps) {
+            Object.defineProperties( this, ps );
+        }
+    };
+    ctor.prototype = proto;
+    return new ctor(props);
+};
+</code></pre>
+<p>因此，作為一個有趣的練習，先前有個範例使用了 <code>p.__proto__ = Person.prototype</code> 這段程式碼，以下將之改為使用 <code>Object.create</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+Person.prototype.toString = function() {
+    return '[' + this.name + ', ' + this.age + ']';
+};
+
+var p = Object.create(Person.prototype);
+Person.call(p, 'Justin', 35);
+
+console.log(p.toString());         // [Justin,35]
+console.log(p instanceof Person);  // true
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

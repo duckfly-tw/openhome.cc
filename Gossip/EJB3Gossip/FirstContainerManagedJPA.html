@@ -1,0 +1,252 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="若
+您以Java
+EE容器來管理JPA相關資源，則您可以使用資源注入的方式取得EntityManager，並可由容器來為您管理Persistence
+Context，每個EntityManage...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="第一個 JPA（容器管理）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/FirstContainerManagedJPA.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="若
+您以Java
+EE容器來管理JPA相關資源，則您可以使用資源注入的方式取得EntityManager，並可由容器來為您管理Persistence
+Context，每個EntityManage...">
+
+
+    <title>第一個 JPA（容器管理）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstContainerManagedJPA.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>第一個 JPA（容器管理）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            若
+您以Java
+EE容器來管理JPA相關資源，則您可以使用資源注入的方式取得EntityManager，並可由容器來為您管理Persistence
+Context，每個EntityManager會關聯至一個Persistence Context，容器會管理Persistence
+Context的存活範圍，像是Transaction-scoped或Extended-scoped，Persistence
+Context管理一組Entity，這些進階議題之後介紹。<br>
+
+
+
+      <br>
+
+
+
+以下的例子使用Session Facade模式，在一個Stateful Session Bean注入EntityManager，Servlet客戶端利用Session Bean來進行操作，首先定義Stateful Session Bean：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>EntitySessionRemote.java</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.ejb.Remote;<br><br>@Remote<br>public interface EntitySessionRemote {<br>    public void save(User user);<br>    public User findById(Long id);<br>    public void clearup();<br>}</code></pre>
+
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>EntitySessionBean.java</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.ejb.*;<br>import javax.persistence.*;<br><br>@Stateful<br>public class EntitySessionBean implements EntitySessionRemote {<br><span style="font-weight: bold;">    @PersistenceContext(unitName="sample")</span><br><span style="font-weight: bold;">    private EntityManager entityManager;</span><br>    <br>    public void save(User user) {<br>        <span style="font-weight: bold;">entityManager.persist(user);</span><br>    }<br><br>    public User findById(Long id) {<br><span style="font-weight: bold;">        User user = entityManager.find(User.class, id);</span><br>        return user;<br>    }<br><br>    @Remove<br>    public void clearup() {<br>    }<br>}</code></pre>
+
+
+
+      <br>
+
+&nbsp;在這邊使用@PersistenceContext注入EntityManager實例，這樣的方式取得的EntityManager，稱之
+為Container-Managed
+EntityManager，其中unitName屬性指定了persistence.xml中的Persistence Context名稱，Persistence Context預設為Transaction-scoped，也就是在方法開始前會啟始交易，結束後停止交易，Persistence Context的存活範圍在交易之間。<br>
+
+
+
+      <br>
+
+
+
+注意到，EntityManager不是Thread-safe，所以要注意在多執行緒下共用存取的同步問題，在這邊使用Stateful Session Bean，讓每個客戶端取得一個Session Bean實例，並獨自使用一個EntityManager。<br>
+
+
+
+      <br>
+
+
+
+在persistence.xml的部份：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>persistence.xml</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" <br>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" <br>xsi:schemaLocation="http://java.sun.com/xml/ns/persistence <br>http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"&gt;<br><span style="font-weight: bold;">  &lt;persistence-unit name="sample" transaction-type="JTA"&gt;</span><br><span style="font-weight: bold;">    &lt;jta-data-source&gt;jdbc/sample&lt;/jta-data-source&gt;</span><br>    &lt;properties&gt;<br>      &lt;property name="toplink.ddl-generation" <br>                value="drop-and-create-tables"/&gt;<br>    &lt;/properties&gt;<br>  &lt;/persistence-unit&gt;<br>&lt;/persistence&gt;</code></pre>
+
+
+
+      <br>
+
+
+
+      注意到transaction-type屬性為JTA，並透過&lt;jta-data-source&gt;設置容器端管理的Data Source之JNDI名稱，這必須在容器端先定好，JDBC資源與Connection Pool等。<br>
+
+
+
+      <br>
+
+
+
+接著來寫個Servlet客戶端：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>UserAdmin.java</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.*;<br><br>import java.util.logging.*;<br>import javax.naming.*;<br>import javax.rmi.PortableRemoteObject;<br>import javax.servlet.*;<br>import javax.servlet.http.*;<br><br>public class UserAdmin extends HttpServlet {    <br>    protected void processRequest(HttpServletRequest request, <br>                                HttpServletResponse response)<br>                                    throws ServletException, IOException {<br>        <br>        String name = request.getParameter("name");<br>        String age = request.getParameter("age");<br>        <br>        User user = new User();<br>        user.setName(name);<br>        user.setAge(new Long(Long.parseLong(age)));<br>        <br>        response.setContentType("text/html;charset=UTF-8");<br>        PrintWriter out = response.getWriter();<br>        try {<br>            <span style="font-weight: bold;">InitialContext context = new InitialContext();</span><br><span style="font-weight: bold;">            Object obj = context.lookup(</span><br><span style="font-weight: bold;">                    "onlyfun.caterpillar.EntitySessionRemote");</span><br><span style="font-weight: bold;">            EntitySessionRemote entitySession = (EntitySessionRemote) </span><br><span style="font-weight: bold;">               PortableRemoteObject.narrow(obj, EntitySessionRemote.class);</span><br><span style="font-weight: bold;">            </span><br><span style="font-weight: bold;">            entitySession.save(user);</span><br><span style="font-weight: bold;">            user = entitySession.findById(new Long(2));</span><br><span style="font-weight: bold;">            </span><br><span style="font-weight: bold;">            out.println(user.getName() + " saved...");<br><br>            entitySession.clearup();<br></span>        } catch (NamingException ex) {<br>            Logger.getLogger(UserAdmin.class.getName())<br>                    .log(Level.SEVERE, null, ex);<br>        } finally { <br>            out.close();<br>        }<br>    } <br><br>    protected void doGet(HttpServletRequest request, <br>                         HttpServletResponse response)<br>                                  throws ServletException, IOException {<br>        processRequest(request, response);<br>    } <br><br>    protected void doPost(HttpServletRequest request, <br>                          HttpServletResponse response)<br>                                 throws ServletException, IOException {<br>        processRequest(request, response);<br>    }<br>}</code></pre>
+
+
+
+      <br>
+
+
+
+您可以使用請求參數name與age指定要儲存的使用者名稱與年紀，程式中透過JNDI Lookup來查找Stateful Session Bean，並操作對應的方法來儲存或取得使用者的資料。<br>
+
+
+
+      <br>
+
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

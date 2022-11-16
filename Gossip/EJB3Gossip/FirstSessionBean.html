@@ -1,0 +1,393 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在EJB中，Session Bean通常是作為商務邏輯服務的 門戶（Facade），提供服務的存取進入點，Session Bean分為Stateless與Stateful，Stateless Sess...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="第一個 Session Bean（單機客戶端）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/FirstSessionBean.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在EJB中，Session Bean通常是作為商務邏輯服務的 門戶（Facade），提供服務的存取進入點，Session Bean分為Stateless與Stateful，Stateless Sess...">
+
+
+    <title>第一個 Session Bean（單機客戶端）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstSessionBean.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>第一個 Session Bean（單機客戶端）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在EJB中，Session Bean通常是作為商務邏輯服務的 <a href="../DesignPattern/FacadePattern.htm">門戶（Facade）</a>，提供服務的存取進入點，Session Bean分為Stateless與Stateful，Stateless Session Bean對任何客戶端呼叫不保留任何操作階段的狀態，而對於需要數個操作以完成服務的功能，則可採用Stateful Session Bean，它會保留客戶端目前的操作狀態直到服務完成（某個操作完成）。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+在這邊，將介紹如何撰寫您第一個Session Bean，為了簡化，先介紹的是Stateless Session Bean，並用一個遠端客戶透過JNDI取得Session Bean並執行。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+Session Bean的定義首先由服務介面的定義開始，例如您定義一個HelloBean服務，當中有一個doHello()的操作：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li>HelloBean.java</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.ejb.Remote;<br><br>@Remote<br>public interface HelloBean {<br>    public String doHello(String message);<br>}</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+
+@Remote標示出，這是一個可以遠端呼叫的服務介面，另一個相對的Annotation是@Local，當Session
+Bean與客戶端是位於同一個容器（同一個JVM）時，不需要有如遠端呼叫時物件序列化的負擔，則可以直接設定為@Local，這在之後還會看到範例。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+再來您可以實作HelloBean介面，這是實際的Session Bean類別：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li>HelloBeanImpl.java</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.ejb.Stateless;<br><br>@Stateless(name="ejb/HelloFacade",<br>           mappedName="ejb/HelloFacade")<br>public class HelloBeanImpl implements HelloBean {<br>    public String doHello(String message) {<br>        return message + "processed....";<br>    }<br>}</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+
+@Stateless標示出，這是一個Stateless Session Bean，Stateless Session
+Bean不保留狀態，但不表示它不可以有屬性成員，類別內部執行相關方法時所需要的共用資料，是可以設定為屬性成員的。name屬性用來為Session
+Bean命名，這是容器所使用的屬性名稱，而某些Server上，會使用mappedName作為Bean的JNDI映射識別名稱（例如
+Glassfish），不指定的話，則以介面名稱為JNDI名稱，例如onlyfun.caterpillar.HelloBean。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+到這邊，Session Bean就撰寫完成了，將之部署到Server上，接下來就可以撰寫客戶端的部份了，客戶端這邊暫且利用JNDI查找到Session Bean來示範，如下：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li style="width: 705px;">Main.java</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.naming.InitialContext;<br>import javax.naming.NamingException;<br>import javax.rmi.PortableRemoteObject;<br><br>public class Main {<br>    public static void main(String[] args) throws NamingException {<br>        InitialContext context = new InitialContext();<br>        Object obj = context.lookup("ejb/HelloFacade");<br>        HelloBean hello = (HelloBean) PortableRemoteObject.narrow(<br>                obj, HelloBean.class);<br>        String result = hello.doHello("XD...");<br>        System.out.println(result);<br>    }<br>}</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+
+在建立InitialContext之後，指定先前設定的"ejb/HelloFacade"名稱取得Session
+Bean代理物件，並使用PortableRemoteObject將之narrow為HelloBean，在RMI-IIOP雙方都是使用Java序列
+化技術，您可以直接使用Cast而沒有問題，但建議使用PortableRemoteObject的narrow()方法，這是為了與CORBA相容的可能性。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+為了讓InitialContext知道查找的相關資訊，您需要在Classpath中包括一個jndi.properties：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li>jndi.properties</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">java.naming.factory.initial=com.sun.enterprise.naming.SerialInitContextFactory<br>java.naming.factory.url.pkgs=com.sun.enterprise.naming<br>java.naming.factory.state=com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl<br># 選用，如果伺服端不在本機的話<br>org.omg.CORBA.ORBInitialHost=localhost<br># 選用，如果伺服端不是使用3700埠的話<br>org.omg.CORBA.ORBInitialPort=3700</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+
+客戶端必須在Classpath中可以找到HelloBean.class以及javaee.jar、appserv-rt.jar，執行Main類別之後，將看到以下的執行結果：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);">XD...processed....</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,211 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="HTTP是無狀態的通訊協定，對伺服器來說，每次都是新請求，為了要讓伺服器得知上次請求與此次請求的關係，有一些會話管理機制，像是先前介紹過的 隱藏欄位、Cookie 或高階的 session 機制。
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="使用 flash">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/Flash.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="HTTP是無狀態的通訊協定，對伺服器來說，每次都是新請求，為了要讓伺服器得知上次請求與此次請求的關係，有一些會話管理機制，像是先前介紹過的 隱藏欄位、Cookie 或高階的 session 機制。
+...">
+
+
+    <title>使用 flash</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Flash.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 flash</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>HTTP是無狀態的通訊協定，對伺服器來說，每次都是新請求，為了要讓伺服器得知上次請求與此次請求的關係，有一些會話管理機制，像是先前介紹過的 <a
+
+          href="HiddenField.html">隱藏欄位</a>、<a href="Cookie.html">Cookie</a> 或高階的 <a
+
+          href="Session2.html">session</a> 機制。</p>
+      <p>Rails提供的<span class="courier">flash</span>方法，也是一種高階的會話機制，其作用週期僅止於兩次請求之間。如果在此次請求時如下設置：</p>
+      <p style="margin-left: 40px; font-weight: bold;"><span class="courier">flash[:notice] = "Post successfullly created"</span></p>
+      <p>再次瀏覽請求時，可以如下取得訊息（假設是在樣版檔案中）：</p>
+      <p style="margin-left: 40px; font-weight: bold;"><span class="courier">&lt;%= flash[:notice] %&gt;</span></p>
+      <p><span class="courier">這次請求結束後，flash[:notice]設置的訊息就清除了，第三次請求時若嘗試flash[:notice]就不會再取得任何訊息。經常應用的場合是在redirect_to前後，在要求重新導向前使用flash設置訊息，瀏覽器被重新導向後利用flash取得訊息</span>。<br>
+      </p>
+      <p><span class="courier">實際上，flash方法會嘗試使用session方法指定"flash"取得ActionDispatch::Flash::FlashHash實例，如果沒有就建立新的ActionDispatch::Flash::FlashHash實例：</span></p>
+      <p class="courier" style="margin-left: 40px;"><span style="font-weight: bold;"># File actionpack/lib/action_dispatch/middleware/flash.rb, line 6<br>
+          def flash<br>
+          &nbsp; @env[Flash::KEY] ||= (session["flash"] || Flash::FlashHash.new)<br>
+          end</span><br>
+      </p>
+      <p>所以<span class="courier">flash底層是利用session機制來處理，上次請求設定訊息用的ActionDispatch::Flash::FlashHash實例，其實會使用session設定名稱為"flash"加以儲存，下次請求結束後，session中設定的ActionDispatch::Flash::FlashHash實例就會被清除，因此取名為flash，代表的就是訊息在兩個請求間一閃而過</span>。</p>
+      <p>由於使用<span class="courier">flash</span>設定與取得<span class="courier">:notice、:alert</span>是常見需求，因此<span
+
+          class="courier">ActionDispatch::Flash::FlashHash</span>也提供<span
+
+          class="courier">notice與alert</span>方法。例如：</p>
+      <p class="courier" style="margin-left: 40px;"><span style="font-weight: bold;">flash.notice = "Post successfully created" # 可於下次請求使用flash.notice取得訊息<br>
+          flash.alert = "Post failed" # 可於下次請求使用flash.alert取得訊息</span><br>
+      </p>
+      <p>實際上原始碼是：</p>
+      <p class="courier" style="margin-left: 40px; font-weight: bold;"><span># File actionpack/lib/action_dispatch/middleware/flash.rb, line 200<br>
+          def alert<br>
+          &nbsp; self[:alert]<br>
+          end<br>
+          <br>
+          # File actionpack/lib/action_dispatch/middleware/flash.rb, line 205<br>
+          def alert=(message)<br>
+          &nbsp; self[:alert] = message<br>
+          end<br>
+          <br>
+          # File actionpack/lib/action_dispatch/middleware/flash.rb, line 210<br>
+          def notice<br>
+          &nbsp; self[:notice]<br>
+          end<br>
+          <br>
+          # File actionpack/lib/action_dispatch/middleware/flash.rb, line 215<br>
+          def notice=(message)<br>
+          &nbsp; self[:notice] = message<br>
+          end</span></p>
+      <p>有時候，你只想讓<span class="courier">flash</span>設定的訊息，只在此次請求有用。例如：</p>
+      <p class="courier" style="margin-left: 40px;"><span style="font-weight: bold;">def do_some</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ....</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if some_cond?</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flash.alert = "something must be wrong"</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; redirect_to "/test/error"</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; end</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">end</span><br>
+        <br>
+        <span style="font-weight: bold;">def do_other</span><br>
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ...</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if some_cond?</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flash.alert = "shit happens"</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; render "/test/error"</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; end</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">end</span><br>
+      </p>
+      <p>也這"test/error"的樣版是會共用的錯誤處理樣版，都是這麼寫：</p>
+      <p class="courier" style="margin-left: 40px; font-weight: bold;">&lt;%= flash.alert %&gt;</p>
+      <p><span class="courier">在do_some時會要求重新導向，但是在do_other時你想直接呈現，然而以上的寫法，do_other結束後，重新請求還是可以取得上次flash.alert的訊息。你應該使用flash.now。例如</span>：</p>
+      <p class="courier" style="margin-left: 40px;"><span style="font-weight: bold;">def do_other</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ...</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if some_cond?</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; flash.now.alert = "shit happens"</span><br
+
+          style="font-weight: bold;">
+        <strong><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; render "/test/error"</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; end</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">end</span></strong>
+      </p>
+      <p><span class="courier">flash.now會使用ActionDispatch::Flash::FlashNow將原有的ActionDispatch::Flash::FlashHash實例包裹後傳回</span>：<br>
+      </p>
+      <p class="courier" style="margin-left: 40px;"><strong># File actionpack/lib/action_dispatch/middleware/flash.rb, line 158<br>
+          def now<br>
+          &nbsp; @now ||= FlashNow.new(self)<br>
+          end</strong></p>
+      <p><span class="courier">ActionDispatch::Flash::FlashNow實例設定的訊息，會在此次請求之後清除，因此下次請求就取不到訊息了</span>。</p>
+      <p>如果在下次請求使用過<span class="courier">flash設定的訊息後，想要保有某些訊息至第三次請求，其它訊息棄用，則可以使用keep方</span>法。例如第一次請求若為：</p>
+      <p class="courier" style="margin-left: 40px;"><span style="font-weight: bold;">flash[:notice1] = "test1"</span><br
+
+          style="font-weight: bold;">
+        <span style="font-weight: bold;">flash[:notice2] = "test2"</span><br>
+      </p>
+      <p>第二次請求時，若呼叫了：</p>
+      <p class="courier" style="margin-left: 40px; font-weight: bold;">flash.keep(:notice1)</p>
+      <p><span class="courier">則第二次請求結束後，:notice1被保留，:notice2被丟棄，因此第三次請求時，可以取得flash[:notice1]的值，但取不到flash[:notice2]的值</span>。<span
+
+          class="courier">如果呼叫keep時沒有指定保留哪些訊息，則所有訊息保留至下一次請求。discard則是與keep作用相反的方法，被指定的訊息將被丟棄，其它訊息再保留至下一次請求</span>。</p>
+      <p><br>
+      </p>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p> </p>
+      <p></p>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

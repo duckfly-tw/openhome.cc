@@ -1,0 +1,113 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Spring對Hibernate提供宣告式的交易管理，這與 JDBC 宣告式交易管理 類似，先來介紹一下比較簡單的方式，直接從HibernateTemplateDemo專案來進行改寫，事實上您不需要修...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Hibernate 宣告式交易管理">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/HibernateDeclarativeTransaction.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Spring對Hibernate提供宣告式的交易管理，這與 JDBC 宣告式交易管理 類似，先來介紹一下比較簡單的方式，直接從HibernateTemplateDemo專案來進行改寫，事實上您不需要修...">
+
+
+    <title>Hibernate 宣告式交易管理</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HibernateDeclarativeTransaction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Hibernate 宣告式交易管理</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      Spring對Hibernate提供宣告式的交易管理，這與 <a href="JDBCDeclarativeTransaction.html">JDBC 宣告式交易管理</a> 類似，先來介紹一下比較簡單的方式，直接從HibernateTemplateDemo專案來進行改寫，事實上您不需要修改UserDAO類別，而只要在定義檔上設定即可：<br>
+
+      
+      
+      <ul>
+
+        <li>UserDAO.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br> "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br>&lt;beans&gt; <br>    &lt;bean id="dataSource" <br>          class="org.springframework.jdbc.<br>                   &rarr; datasource.DriverManagerDataSource"&gt; <br>        &lt;property name="driverClassName"&gt; <br>            &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="url"&gt; <br>            &lt;value&gt;jdbc:mysql://localhost:3306/demo&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="username"&gt; <br>            &lt;value&gt;caterpillar&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="password"&gt; <br>            &lt;value&gt;123456&lt;/value&gt; <br>        &lt;/property&gt;  <br>    &lt;/bean&gt; <br>    <br>    &lt;bean id="sessionFactory"  <br>          class="org.springframework.orm.<br>                   &rarr; hibernate3.LocalSessionFactoryBean" <br>          destroy-method="destroy"&gt; <br>        &lt;property name="dataSource"&gt; <br>            &lt;ref bean="dataSource"/&gt; <br>        &lt;/property&gt; <br>        &lt;property name="mappingResources"&gt; <br>            &lt;list&gt; <br>                &lt;value&gt;onlyfun/caterpillar/User.hbm.xml&lt;/value&gt; <br>            &lt;/list&gt; <br>        &lt;/property&gt; <br>        &lt;property name="hibernateProperties"&gt; <br>            &lt;props&gt; <br>                &lt;prop key="hibernate.dialect"&gt; <br>                    org.hibernate.dialect.MySQLDialect<br>                &lt;/prop&gt; <br>            &lt;/props&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt; <br><br>    &lt;bean id="userDAO" class="onlyfun.caterpillar.UserDAO"&gt; <br>        &lt;property name="sessionFactory"&gt; <br>            &lt;ref bean="sessionFactory"/&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt; <br><br>    &lt;bean id="transactionManager" <br>          class="org.springframework.orm.<br>                   &rarr; hibernate3.HibernateTransactionManager"&gt; <br>        &lt;property name="sessionFactory"&gt; <br>            &lt;ref bean="sessionFactory"/&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt; <br>        <br>    &lt;bean id="userDAOProxy" <br>          class="org.springframework.transaction.<br>                   &rarr; interceptor.TransactionProxyFactoryBean"&gt; <br>        &lt;property name="transactionManager"&gt; <br>            &lt;ref bean="transactionManager"/&gt; <br>        &lt;/property&gt; <br>        &lt;property name="proxyInterfaces"&gt; <br>            &lt;list&gt;<br>                &lt;value&gt;onlyfun.caterpillar.IUserDAO&lt;/value&gt;<br>            &lt;/list&gt;<br>        &lt;/property&gt; <br>        &lt;property name="target"&gt; <br>            &lt;ref bean="userDAO"/&gt; <br>        &lt;/property&gt; <br>        &lt;property name="transactionAttributes"&gt; <br>            &lt;props&gt; <br>                &lt;prop key="insert"&gt;PROPAGATION_REQUIRED&lt;/prop&gt; <br>            &lt;/props&gt; <br>        &lt;/property&gt;        <br>    &lt;/bean&gt; <br>&lt;/beans&gt;</code></pre>
+
+      <br>
+
+主要的差別在於設定檔中建立了transactionManager與userDAOProxy，由於Spring所提供的一致性的設定模型，所以設定的方式與  <a href="JDBCDeclarativeTransaction.html">JDBC 宣告式交易管理</a> &nbsp;的設定方式是類似的。<br>
+
+      <br>
+
+來寫個程式測試一下，這次取回DAO代理物件來進行操作，如下所示：<br>
+
+      
+      
+      <ul>
+
+        <li>SpringHibernateDemo.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.<br>              support.FileSystemXmlApplicationContext;<br><br>public class SpringHibernateDemo {<br>    public static void main(String[] args) {<br>        ApplicationContext context = <br>            new FileSystemXmlApplicationContext(<br>                    "beans-config.xml");<br>        <br>        // 建立DAO物件<br>        IUserDAO userDAO = <br>            (IUserDAO) context.getBean("userDAOProxy");<br>        <br>        User user = new User();<br>        user.setName("cater");<br>        user.setAge(new Integer(30));<br>        <br>        userDAO.insert(user);<br>        <br>        user = userDAO.find(new Integer(1));<br>        <br>        System.out.println("name: " + user.getName());<br>    }<br>} </code></pre>
+
+      <br>
+
+如果在執行insert()方法時發生了例外，則資料不會被新增至表格中，您可以自行在UserDAO類別中嘗試丟出個例外以測試交易的功能是否正確執行。<br>
+
+      <br>
+
+同樣的，在Spring中對Hibernate進行宣告式交易管理時，使用到Spring AOP的功能，所以您必須在Classpath的路徑設定中加入spring-aop.jar檔案才可以執行專案中的程式。<br>
+
+    
+
+      
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

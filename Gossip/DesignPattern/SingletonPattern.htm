@@ -1,0 +1,237 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/DesignPattern/'https://openhome.cc/zh-tw/pattern/creational/singleton/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Singleton
+的英文意義是獨身，也就是只有一個人，應用在物件導向語言上，通常翻譯作單例：單一個實例（Instance）。Singleton
+模式可以保證一個類別只有一個實例，並提供一個訪問（...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Singleton 模式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/DesignPattern/SingletonPattern.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Singleton
+的英文意義是獨身，也就是只有一個人，應用在物件導向語言上，通常翻譯作單例：單一個實例（Instance）。Singleton
+模式可以保證一個類別只有一個實例，並提供一個訪問（...">
+
+
+    <title>Singleton 模式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SingletonPattern.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/DesignPattern/index.html">回設計模式</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Singleton 模式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            Singleton
+的英文意義是獨身，也就是只有一個人，應用在物件導向語言上，通常翻譯作單例：單一個實例（Instance）。Singleton
+模式可以保證一個類別只有一個實例，並提供一個訪問（visit）這個實例的方法。<br>
+      <br>
+一個Singleton實作即為Java中的java.lang.Runtime類別，每個Java程式執行時都有一個唯一的Runtime物件，可以透
+過它提供的靜態方法getRuntime()方法來取得這個物件，例如： <br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Runtime
+runtime = Runtime.getRuntime();</span><br>
+      </div>
+       <br>
+取得Runtime物件之後，您可以透過它進行一些外部命令的執行、進行垃圾處理等等指令，您可以開啟Runtime.java類別，開頭的幾行是這樣寫
+的：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class Runtime { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private static Runtime currentRuntime = new Runtime(); </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public static Runtime getRuntime() { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return currentRuntime; </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;
+/** Don't let anyone else instantiate this class */ </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;
+private Runtime() {} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+// 以下略 </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+      </div>
+      &nbsp;<br>
+上面結構即採用Singleton模式設計，其結構使用 UML 來表即如下所示：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Singleton" title="Singleton" src="images/Singleton-1.jpg" /></div></div><br>
+      <br>
+如上所示的，Java使用 <a href="SimpleFactory.htm">靜態工廠</a>
+來取得Runtime物件，其中Runtime的<span style="font-weight: bold;">建構式被宣告為private</span>，
+這樣可以阻止其他人使用建構方法來建立實例；使用更一般化的表示單例的UML結構，如下圖所示： <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Singleton" title="Singleton" src="images/Singleton-2.jpg" /></div></div><br>
+      <br>
+      有幾個實作上面結構的方法，可以在第一次需要實例時再建立物件，也就是採用所謂的Lazy
+Initialization：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class Singleton { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private static Singleton instance = null; </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private Singleton() { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// .... </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public static Singleton getInstance() { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (instance == null) {</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+instance = new Singleton(); <br>
+&nbsp; &nbsp; &nbsp; &nbsp; }<br>
+      </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return instance; </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+// .. 其它實作 </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+      </div>
+       <br>
+上面的實作適用於單執行緒的程式，在多執行緒的程式下，以上的寫法在多個執行緒的競爭資源下，將仍有可能產生兩個以上的實例，例如下面的情況：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread1:
+if(instance == null) // true</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread2:
+if(instance == null) // true</span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread1:
+instance = new Singleton(); // 產生一個實例</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread2:
+instance = new Singleton(); // 又產生一個實例</span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread1:
+return instance; // 回傳一個實例</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Thread2:
+return instance; // 又回傳一個實例</span><br>
+      </div>
+       <br>
+在多執行緒的環境下，為了避免資源同時競爭而導致如上產生多個實例的情況，加上同步（synchronized）機制：<br>
+      
+      <pre class="prettyprint"><code>public class Singleton {<br>&nbsp;&nbsp;&nbsp; private static Singleton instance = null;<br>&nbsp;&nbsp;&nbsp; private Singleton(){}<br>&nbsp;&nbsp;&nbsp; synchronized static public Singleton getInstance() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (instance == null) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; instance = new Singleton();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return instance;<br>&nbsp;&nbsp;&nbsp; }<br>}</code></pre>
+      <br>
+不過這種簡單的寫法不適合用於像伺服器這種服務很多執行緒的程式上，同步機制會造成相當的效能低落，為了顧及Singleton、Lazy
+Initialization與效能問題，因而有了Double-check Locking的模式：<br>
+      
+      <pre class="prettyprint"><code>public class Singleton {<br>&nbsp;&nbsp;&nbsp; private static Singleton instance = null;<br>&nbsp;&nbsp;&nbsp; private Singleton(){}<br>&nbsp;&nbsp;&nbsp; public static Singleton getInstance() {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (instance == null){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; synchronized(Singleton.class){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(instance == null) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; instance = new Singleton();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return instance;<br>&nbsp;&nbsp;&nbsp; }<br>}</code></pre>
+      <br>
+也就是只有在第一次建立實例時才會進入同步區，之後由於實例已建立，也就不用進入同步區進行鎖定。Java中Runtime類別的作法簡單的多，它捨棄了
+Lazy Initialization，如果您要取得單例的機會不是很多，可以用這種方式：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class Singleton { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private static Singleton instance = new Singleton(); </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private Singleton() { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// .... </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public static Singleton getInstance() { </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return instance; </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+} </span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+// 其它實作 </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+      </div>
+      &nbsp;<br>
+Singleton本身的觀念簡單但應用很廣，因而很多時候必須對實際環境作一些考量與調整，建議您也看看有關於Singleton的這篇 <a href="http://www.javaworld.com.tw/jute/post/view?bid=44&amp;id=3939&amp;sty=1&amp;tpg=2&amp;age=0">討
+論</a>。<br>
+      <br>
+如果是Python的話，由於Python是個直譯式語言，也沒有private修飾，所以沒有編譯時期檢查，實作Singleton的方式之一，就是想
+辦法於執行時期阻止單一類別實例化兩次，一個例子可能像是：<br>
+      
+      <pre class="prettyprint"><code>class Singleton:<br>    __single = None<br>    def __init__(self):<br>        if Singleton.__single:<br>            raise Singleton.__single<br>        Singleton.__single = self<br>    def getSingleton():<br>        if not Singleton.__single:<br>            Singleton.__single = Singleton()<br>        return Singleton.__single<br>    def doSomething(self):<br>        print("do something...XD")<br><br>singleton = Singleton.getSingleton()<br>singleton.doSomething()</code></pre>
+      <br>
+&nbsp;如果Singleton.__single已經存在，再次實例化並執行__init__初始函式時，將會導致直譯失敗（您也許想更正式地繼承
+BaseException來引發一個真正的例外）。不過，這個程式基本上還是可以有這樣的實例方式：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">x
+= Singleton() # 雖然只能作一次</span><br>
+      </div>
+      <br>
+如果您真的在乎這個不一致性，可以思考一下，其實類別名稱只是個名稱空間，由於Python是動態語言，真正的型態資訊是在物件上，基本上您回的物件只要
+有符合的公開定義即可，所以您可以稍微修改一下：<br>
+      
+      <pre class="prettyprint"><code>class Singleton:<br>    __single = None<br>    class __OnlyOne:<br>        def doSomething(self):<br>            print("do something...XD")<br><br>    def __init__(self):<br>        raise Singleton.__single<br>        <br>    def getSingleton():<br>        if not Singleton.__single:<br>            Singleton.__single = Singleton.__OnlyOne()<br>        return Singleton.__single<br>        <br>singleton = Singleton.getSingleton()<br>singleton.doSomething()</code></pre>
+      <br>
+這麼一來，若試圖實例化Singleton，就一定會直譯失敗，您也可以進一步利用Python的特性，定義__new__()方法來達到需求：<br>
+      
+      <pre class="prettyprint"><code>class Singleton:<br>    __single = None<br>    def __new__(clz):<br>        if not Singleton.__single:<br>            Singleton.__single = object.__new__(clz)<br>        return Singleton.__single<br>        <br>    def doSomething(self):<br>        print("do something...XD")<br><br>singleton = Singleton()<br>singleton.doSomething()<br></code></pre>
+      <br>
+在上例中，一旦已建立了實例，則之後__new__()傳回的都是同一個實例。<br>
+      <br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'G-QVQQYFSC8J', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</div>

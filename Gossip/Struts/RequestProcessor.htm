@@ -1,0 +1,589 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在Struts中，擔任 MVC / Model 2
+中Front Controller角色的是ActionServlet，所有的請求都必須先通過它，然而在Struts
+1.1後，有關於請求的處理大...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="簡介 RequestProcessor">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Struts/RequestProcessor.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在Struts中，擔任 MVC / Model 2
+中Front Controller角色的是ActionServlet，所有的請求都必須先通過它，然而在Struts
+1.1後，有關於請求的處理大...">
+
+
+    <title>簡介 RequestProcessor</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RequestProcessor.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Struts 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 RequestProcessor</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+
+
+
+
+
+
+
+
+在Struts中，擔任 <a href="https://openhome.cc/Gossip/Struts/MVCPattern.htm">MVC</a> / <a href="https://openhome.cc/Gossip/Struts/Model2Pattern.htm">Model 2</a>
+中Front Controller角色的是ActionServlet，所有的請求都必須先通過它，然而在Struts
+1.1後，有關於請求的處理大部份已交由RequestProcessor，當ActionServlet收到GET或POST的請求，其doGet()
+或doPost()會呼叫process()方法來處理請求：<br>
+
+      
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">protected void process(HttpServletRequest request, </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+HttpServletResponse response) </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+throws IOException, ServletException { </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; RequestUtils.selectApplication(request, </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+getServletContext());</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; getApplicationConfig(</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; request).getProcessor().process(request, response); </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+      </div>
+
+      
+
+&nbsp;<br>
+
+
+
+RequestUtils是個工具類，ActionServlet呼叫其selectApplication()方法，藉由
+request.getServletPath()來取得請求路徑以選擇應用程式模塊來處理請求，之後從ApplicationConfig物件取得
+RequestProcessor物件，將使用者的請求委託它來進行處理。<br>
+
+      <br>
+
+
+
+通常是將ActionServlet當作黑盒子，您只要使用它，然而您也可以繼承ActionServlet來定義自己的控制器，但由於在Struts
+1.1中大部份的請求已經委託RequestProcessor來處理，繼承ActionServlet來定義自己的控制器請求處理意義已經不大，通常的
+目的是重新定義ActionServlet的init()方法，增加自己的初始化動作：<br>
+
+      
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public class CustomActionServlet extends ActionServlet { </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void init() throws ServletException { </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.init(); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 增加自己的初始化動作 </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+      </div>
+
+      
+
+&nbsp;<br>
+
+
+
+預設的RequestProcessor物件是<span style="font-weight: bold;">org.apache.struts.action.RequestProcessor</span>，您可以藉由觀看 process()方法的原始碼來瞭解它作了哪些事情：<br>
+
+      
+
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public void process(HttpServletRequest request, </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+HttpServletResponse response) </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+throws IOException, ServletException {</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 處理 contentType 為 multipart/form-data 的 POST 請求 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; request = processMultipart(request); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 取得 URI 路徑 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; String path = processPath(request, response); </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(path == null) </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ..... </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 確定客戶端的位置</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 是否要將一個Locale物件儲存在 session 中 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 配合 &lt;controller&gt; 的 locale 屬性使用 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; processLocale(request, response); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 確定contentType，預設是 text/html </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; processContent(request, response); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 判斷&lt;controller&gt;屬性nocache是否被設定 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 若是，在 response 中加入防止快取的header </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; processNoCache(request, response); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 前置處理，預設返回 true</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; //子類可以重新定義它以決定要不要繼續處理 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(!processPreProcess(request, response)) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 從URI路徑確定ActionMapping </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ActionMapping mapping = </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+processMapping(request, response, path); </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(mapping == null) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 處理ActionForm</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 如果沒有就新增一個，之後一直使用它 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ActionForm form = </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; processActionForm(request, response, mapping); </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 將表單的欄位值填入ActionForm </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; processPopulate(request, response, form, mapping); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 判斷是否執行ActionForm的validate()方法 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(!processValidate(request, response, form, mapping)) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 判斷 &lt;action&gt; 標籤的 forward 或 include 標籤</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 是不是被設定，這兩個標籤在設定一個路徑</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 其與 type 屬性是互斥的，當設定其中一個屬性時</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 調用 RequestDispatcher 的 forward() 或 include()</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 其作用與設定ForwardAction或IncludeAction相同 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 直接繞送而不再使用Action物件進行接下來的處理 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(!processForward(request, response, mapping)) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(processInclude(request, response, mapping)) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 處理Action，如果沒有就生成一個，之後一直使用它 </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Action action = </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; processActionCreate(request, response, mapping); </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(action == null) { </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 呼叫Action的execute()或perform()方法</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 並返回ActionForward </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ActionForward forward = </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+processActionPerform(request, </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+response,</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+action, </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for, mapping); </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 處理ActionForward </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; processActionForward(request, response, forward); </span><br>
+
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+
+      </div>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">
+&nbsp;</span><br>
+
+      <br>
+
+
+
+您可以繼承RequestProcessor，並改寫其中的processXXXXX()方法來自定義請求的處理方式，如果您要使用自己的
+RequestProcessor，要在struts-config.xml中使用&lt;controller&gt;標籤來定義，例如：
+
+      <br>
+
+
+
+      
+      <ul>
+
+        <li>struts-config.xml</li>
+
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">...<br> &lt;controller <br>    contentType="text/html;charset=Big5" <br>    locale="true" <br>    nocache="true"<br>    processorClass="caterpillar.CustomRequestProcessor"/&gt; <br>...</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+      
+
+在Struts 1.1後，新增了&lt;controller&gt;標籤，它可以用於指定ActionServlet的一些參數，在Struts
+1.1之前，這些參數是在&lt;init-params&gt;中加以指定，使用&lt;controller&gt;標籤，應用程式中不同的模組也可
+以指定各自的參數給ActionServlet。  
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

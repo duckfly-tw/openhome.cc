@@ -1,0 +1,179 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果是現實的世界，想要看到物件的另一面，觀察者只要移動自身到另一邊就可以了：
+
+然而在 3D 繪圖時，觀察者總是在螢幕前方看著繪製出來的 3D 物件，螢幕是平面的，是要怎麼繞到另一邊觀看啦！
+在 3D...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="觀察矩陣">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/LookAt.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果是現實的世界，想要看到物件的另一面，觀察者只要移動自身到另一邊就可以了：
+
+然而在 3D 繪圖時，觀察者總是在螢幕前方看著繪製出來的 3D 物件，螢幕是平面的，是要怎麼繞到另一邊觀看啦！
+在 3D...">
+
+    <title>觀察矩陣</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="LookAt.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>觀察矩陣</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果是現實的世界，想要看到物件的另一面，觀察者只要移動自身到另一邊就可以了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-1.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>然而在 3D 繪圖時，觀察者總是在螢幕前方看著繪製出來的 3D 物件，螢幕是平面的，是要怎麼繞到另一邊觀看啦！</p>
+<p>在 3D 繪製時想要實作出觀察者移動的效果，實際上移動的是物件，只要令物件做出相對於觀察者的移動，看起來就會像是觀察者在移動了，其實在〈<a href="CubeMapping2.html">動態反射、天空盒</a>〉中談到，如何製作 720 度景像觀看時，就做過這件事了，當時就說到，實際上在轉動的是裁剪空間中的一個矩形。</p>
+<p>也就是說，如果想做出觀察者往前走的效果，實際上就是物件往觀察者的方向移動，如果想要做出觀察者繞著物件順時針走動，就是令物件逆時針轉動，也就是說，物件的每個頂點，都要做出相反的轉換運算。</p>
+<p>為了要能對頂點做出相對應的轉換運算，必須決定觀察者的位置，觀察者看向哪個點，以及觀察者頭頂的方向，因為觀察者可能會歪著頭看，許多文件會以相機作比擬，這時指的就是相機的上面朝向哪個方向，然而有的程式庫中有個相機之類的物件，而這類物件往往包含了投影的效果在裏頭，為了避免混淆，這邊就還是用觀察者來說明。</p>
+<p>到目前為止，文件都是以裁剪空間為基礎在定義頂點，而觀察者的位置，觀察者看向哪個點，以及觀察者頭頂的方向，決定了一個以觀察者為中心的座標系統，以裁剪空間為基礎定義的頂點，必須轉換為觀察者的觀點下看到的頂點座標。</p>
+<p>例如，以下為基於觀察者的座標系統：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-2.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>如果想要繪製出觀察者順時針走動到另一面的效果，全部的物件就必須以觀察者看向的點逆時針轉動：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-3.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>如果想做出觀察者向物件走近的效果（而看向的點不變），就要令全部的物件往觀察者所在位置移動：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-4.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>在〈<a href="../ComputerGraphics/index.html">電腦圖學入門</a>〉的〈<a href="../ComputerGraphics/ShuttleDimension.htm">太空船座標旋轉</a>〉中，我談過 2D 的情況下，如何導出座標轉換公式，不過，在 3D 的情況下，使用向量來思考會比較方便，也可以結合矩陣運算。</p>
+<p>觀察者的座標系統中三個軸，可以使用向量 (x0, x1, x2)、(y0, y1, y2)、(z0, z1, z2) 來表示，x0, x1, x2、y0、y1&hellip; 等值，目前具體來說，就是基於裁剪空間座標而訂，不過實際上，是基於一個不變的世界空間而定，只不過目前裁剪空間與世界空間是直接對應的，之後會談到世界空間。</p>
+<p>不過，因為撰寫程式時，要同時指定三個向量有點麻煩，因此只會指定觀察者頭頂方向的向量，z 軸向量會由觀察者位置、觀察者看向哪個點計算得到，而 x 軸向量，會使用觀察者頭頂方向的向量與 z 軸向量的外積得到，最後 y 軸向量會使用 x 與 z 的外積得到，三個軸的向量，會規範為長度為 1。</p>
+<p>因此，如果有個 <code>normalize</code> 函式：</p>
+<pre class="prettyprint"><code lang="javascript">normalize(v) {
+    const len = Math.hypot(v[0], v[1], v[2]);
+    if (!len) {
+        return [0, 0, 0];
+    }
+    return [v[0] / len, v[1] / len, v[2] / len];
+}
+</code></pre>
+<p>若 <code>eye</code>、<code>center</code>、<code>up</code> 分別為觀察者位置、看向的中心、頭頂方向的向量，哪麼就可以寫個 <code>lookAt</code> 函式：</p>
+<pre class="prettyprint"><code lang="javascript">lookAt(eye, center, up) {
+    const [eyex, eyey, eyez] = eye;
+    const [upx, upy, upz] = up;
+    const [centerx, centery, centerz] = center;
+
+    const [z0, z1, z2] = this.normalize([
+        centerx - eyex, 
+        centery - eyey, 
+        centerz - eyez
+    ]);
+    const [x0, x1, x2] = this.normalize([
+        upy * z2 - upz * z1,
+        upz * z0 - upx * z2,
+        upx * z1 - upy * z0
+    ]);
+    const [y0, y1, y2] = this.normalize([
+        z1 * x2 - z2 * x1,
+        z2 * x0 - z0 * x2,
+        z0 * x1 - z1 * x0
+    ]);   
+
+    ... 建立觀察矩陣
+}
+</code></pre>
+<p>現在已經有了 (x0, x1, x2)、(y0, y1, y2)、(z0, z1, z2) 了，來看看怎麼轉換物件的座標，首先把觀察者位置作為原點，觀察者 x、y、z 三個軸方向先與世界空間（目前等同於裁剪空間）相同，物件相對於觀察者的座標就會原本的座標分別減去 <code>eyex</code>、<code>eyey</code>、<code>eyez</code>，也就是轉換矩陣會是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-5.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>接下來要處理觀察者 x、y、z 實際的三個軸方向，假設這需要一個矩陣 M，因為是這個矩陣若遇到點 (x0, x1, x2)，必須得到 (1, 0, 0) 的值，遇到點 (y0, y1, y2)，必須得到 (0, 1, 0) 的值，遇到點 (z0, z1, z2)，必須得到 (0, 0, 1) 的值（因為這三點分別就是在觀察者座標軸的 x、y、z 軸上，而這三個點原本代表三個向量，長度為 1）。</p>
+<p>也就是說 M 會有這個關係：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-6.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>因為乘號右邊是個<a href="https://en.wikipedia.org/wiki/Orthogonal_matrix">正交矩陣（Orthogonal matrix）</a>，正交矩陣的反矩陣就是轉置矩陣，如果乘上這個反矩陣：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-7.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>最後就是得到：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-8.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>因此，觀察者矩陣就是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/LookAt-9.JPG" alt="觀察矩陣"  /></div></div></p>
+<p>現在就可以把方才的 <code>lookAt</code> 實作完成了：</p>
+<pre class="prettyprint"><code lang="javascript">lookAt(eye, center, up) {
+    const [eyex, eyey, eyez] = eye;
+    const [upx, upy, upz] = up;
+    const [centerx, centery, centerz] = center;
+
+    const [z0, z1, z2] = this.normalize([
+        centerx - eyex, 
+        centery - eyey, 
+        centerz - eyez
+    ]);
+    const [x0, x1, x2] = this.normalize([
+        upy * z2 - upz * z1,
+        upz * z0 - upx * z2,
+        upx * z1 - upy * z0
+    ]);
+    const [y0, y1, y2] = this.normalize([
+        z1 * x2 - z2 * x1,
+        z2 * x0 - z0 * x2,
+        z0 * x1 - z1 * x0
+    ]);                    
+
+    return [
+        x0, y0, z0, 0,
+        x1, y1, z1, 0,
+        x2, y2, z2, 0,
+        -(x0 * eyex + x1 * eyey + x2 * eyez), -(y0 * eyex + y1 * eyey + y2 * eyez), -(z0 * eyex + z1 * eyey + z2 * eyez), 1
+    ];
+}  
+</code></pre>
+<p>可以這麼使用 <code>lookAt</code> 函式：</p>
+<pre class="prettyprint"><code lang="javascript">let lookTrans = mat4.lookAt([0, 0, 0], [0, 0, 1], [0, 1, 0]);
+</code></pre>
+<p>得到觀察矩陣後，之後就可以進行各種轉換了，例如：</p>
+<pre class="prettyprint"><code lang="javascript">let transformation = mat4.zRotate(lookTrans, 0.025);
+transformation = mat4.translate(transformation, 0.25, 0, 0);
+transformation = mat4.xRotate(transformation, 0.5);
+transformation = mat4.yRotate(transformation, 0.5);
+renderer.uniformMatrix4fv('transformation', transformation);
+</code></pre>
+<p>我提供了個<a href="https://openhome.cc/Gossip/WebGL/samples/LookAt-1.html">範例網頁</a>，可以點選滑鼠左鍵來變換觀察者的位置 y 座標，值會在 0.5 與 -0.5 之間變換，在 0.5 時，因為是在高處看，方塊會在畫面下方旋轉，-0.5 的時候就是在畫面上方旋轉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

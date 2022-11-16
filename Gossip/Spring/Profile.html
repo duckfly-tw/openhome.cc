@@ -1,0 +1,179 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="應用程式在開發時會設定自己的相關資源，例如開發用的資料庫，測試的環境中也會使用自己的資源，上線之後又會是另一個，雖然說，轉移至不同情境時，修改一下設定檔也可以應付，然而，如果必須修改的項目很多，也是蠻...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="設定 Profile">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/Profile.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="應用程式在開發時會設定自己的相關資源，例如開發用的資料庫，測試的環境中也會使用自己的資源，上線之後又會是另一個，雖然說，轉移至不同情境時，修改一下設定檔也可以應付，然而，如果必須修改的項目很多，也是蠻...">
+
+    <title>設定 Profile</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Profile.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>設定 Profile</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>應用程式在開發時會設定自己的相關資源，例如開發用的資料庫，測試的環境中也會使用自己的資源，上線之後又會是另一個，雖然說，轉移至不同情境時，修改一下設定檔也可以應付，然而，如果必須修改的項目很多，也是蠻麻煩的。</p>
+<p>為了要能使用記憶體內嵌資料庫，以及稍後可以進行單元測試，可以在 build.gradle 中加入 <code>org.springframework:spring-jdbc</code> 與 <code>org.springframework:spring-test</code>：</p>
+<pre class="prettyprint"><code lang="java">apply plugin: 'java-library'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.springframework:spring-test:5.1.2.RELEASE'
+
+    compile 'com.h2database:h2:1.4.196'
+
+    compile 'org.springframework:spring-context:5.1.2.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.1.2.RELEASE'
+}
+</code></pre>
+<p>你可以使用 <code>@Profile</code> 來標註 Bean 的使用環境，例如，在測試時使用記憶體內嵌資料庫：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.sql.DataSource;
+
+import org.h2.jdbcx.JdbcDataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+@Configuration
+@ComponentScan
+@PropertySource("classpath:jdbc.properties")
+public class AppConfig { 
+    @Value("${cc.openhome.jdbcUrl}")
+    private String jdbcUrl;
+
+    @Value("${cc.openhome.user}")
+    private String user;
+
+    @Value("${cc.openhome.password}")
+    private String password;
+
+    @Profile("dev")
+    @Bean
+    public DataSource getDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL(jdbcUrl);
+        dataSource.setUser(user);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    @Profile("test")
+    @Bean(destroyMethod="shutdown")
+    public DataSource dataSource(){
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("classpath:schema.sql")
+                .addScript("classpath:testData.sql")
+                .build();
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer
+                       propertySourcesPlaceholderConfigurer() {
+       return new PropertySourcesPlaceholderConfigurer();
+    }    
+}
+</code></pre>
+<p>在這邊看到兩個 Bean 都傳回 <code>DataSource</code>，而這兩個 Bean 分別標示為 <code>"dev"</code> 與 <code>"test"</code>，可以藉由在執行 JVM 時加上 <code>-Dspring.profiles.active=test</code>（或者是設定環境變數 <code>JAVA_OPTIONS="-Dspring.profiles.active=test"</code>）來選擇使用哪個 Bean。</p>
+<p>在進行單元測試時，可以使用 <code>@ActiveProfiles</code> 來指定要使用的 Profile。例如：</p>
+<pre class="prettyprint"><code lang="java">package test.cc.openhome;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import cc.openhome.AppConfig;
+import cc.openhome.model.UserService;
+
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = AppConfig.class)
+@ActiveProfiles("test")
+public class MainTest {
+    @Autowired
+    private UserService userService;
+
+    @Test public void testMain() {
+        userService.messages("caterpillar")
+                   .forEach(message -&gt; {
+                        assertEquals("username should return 'caterpillar'", 
+                                      "caterpillar", message.getUsername());
+                   });
+    }
+}
+</code></pre>
+<p>單元測試時，可以使用 <code>@RunWith</code> 指定使用 Spring 實作的 Runner，<code>@ContextConfiguration</code> 指定設定檔來源，如此 Spring 就可以自動綁定想要的 Bean 元件，而 <code>@ActiveProfiles</code> 可以指定要使用的 Profile。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Core/SpringDI3">SpringDI3</a> 找到上面這個範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Transformation matrix</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+
+            uniform mat4 rotation;
+            uniform mat4 scaling;
+            uniform mat4 translation;
+
+            attribute vec3 position;
+            attribute vec4 color;
+
+            varying vec4 fColor;
+    
+            void main(void) {
+                vec4 pos = translation * scaling * rotation * vec4(position.x, position.y, position.z, 1.0);
+                gl_Position = vec4(pos.x, pos.y * aspect, pos.z, 1.0);
+                fColor = color;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            varying vec4 fColor;
+
+            void main(void) {
+                gl_FragColor = fColor;
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {GL, shaderSourceById, Renderer, CubeGeometry, BasicMaterial, Mesh} from './js/gl-comm-2.js';
+            
+            const mat4 = {
+                translation(tx, ty, tz) {
+                    return [
+                        1, 0, 0, 0,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        tx, ty, tz, 1
+                    ];
+                },
+
+                scaling(sx, sy, sz) {
+                    return [
+                        sx, 0,  0,  0,
+                        0, sy,  0,  0,
+                        0,  0, sz,  0,
+                        0,  0,  0,  1,
+                    ];
+                },
+                
+                xRotation(radians) {
+                    const c = Math.cos(radians);
+                    const s = Math.sin(radians);
+                    return [
+                        1, 0, 0, 0,
+                        0, c, s, 0,
+                        0, -s, c, 0,
+                        0, 0, 0, 1,
+                    ];
+                },
+
+                yRotation(radians) {
+                    const c = Math.cos(radians);
+                    const s = Math.sin(radians);
+                    return [
+                        c, 0, -s, 0,
+                        0, 1, 0, 0,
+                        s, 0, c, 0,
+                        0, 0, 0, 1,
+                    ];
+                },
+
+                zRotation(radians) {
+                    const c = Math.cos(radians);
+                    const s = Math.sin(radians);
+                    return [
+                        c, s, 0, 0,
+                        -s, c, 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1
+                    ];
+                }                     
+            };
+
+            const canvas = document.getElementById('glCanvas');
+            const renderer = new Renderer(
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader'),
+                canvas);
+            
+            renderer.uniform1f('aspect', canvas.clientWidth / canvas.clientHeight);
+            renderer.setClearColor(0, 0, 0, 1);
+
+            const geometry = new CubeGeometry(0.2);
+
+            const faceColors = [];
+            for(let i = 0; i < 6; i++) {
+                faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+            }
+            const material = new BasicMaterial(4, faceColors);
+            const cube = new Mesh(geometry, material);
+
+            renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+            
+            const colorBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.vertexColors(), GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(colorBuffer, 'color', 4);
+
+            const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(vertBuffer, 'position', 3);
+
+            renderer.uniformMatrix4fv('rotation', mat4.xRotation(0.5));
+            renderer.uniformMatrix4fv('scaling', mat4.scaling(1.5, 1, 1));
+            renderer.uniformMatrix4fv('translation', mat4.translation(0.25, 0.25, 0.25));
+
+            renderer.clear();
+            renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+            renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+            renderer.render(cube);
+        </script>
+    </body>
+</html>

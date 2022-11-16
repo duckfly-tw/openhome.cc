@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+        <script type="text/javascript" src="js/json2.js"></script>
+        <script type="text/javascript">
+            window.onload = function() {
+                function param(obj) {
+                    var pairs = [];
+                    for(var name in obj) {
+                        var pair = encodeURIComponent(name) + '=' + 
+                                   encodeURIComponent(obj[name]);
+                        pairs.push(pair.replace('/%20/g', '+'));
+                    }
+                    return pairs.join('&');
+                }
+                
+                function getScript(url, callback) {
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = url;
+                    
+                    // Cross-browser processing events when download script is completed
+                    script.onload = script.onreadystatechange = function() {
+                        if (!this.readyState ||
+                            this.readyState === "loaded" || 
+                            this.readyState === "complete") {
+                            this.onload = this.onreadystatechange = null;
+                            document.getElementsByTagName('head')[0]
+                                    .removeChild(this);
+                            callback();
+                        }
+                    };
+                    
+                    document.getElementsByTagName('head')[0]
+                            .appendChild(script);
+                }
+                
+                function jsonp(option, callbackName) {
+                    if(!option.url || !callbackName) {
+                        return;
+                    }
+                    var data = option.data || {};
+                    
+                    // create a temporary function
+                    data[callbackName] = 'XD' + jsonp.jsc++;
+                    window[data[callbackName]] = function(json) {
+                        option.callback(json);
+                    };
+                    var url = option.url + '?' + param(data);
+                    
+                    // download the script
+                    getScript(url, function() {
+                         // remove the temporary function 
+                         // when the script is downloaded and executed
+                         window[data[callbackName]] = undefined;
+                         try {
+                             delete window[data[callbackName]];
+                         }
+                         catch(e) {}
+                    });
+                }
+                jsonp.jsc = new Date().getTime();
+                
+                document.getElementById('test').onclick = function() {
+                    jsonp({
+                        url      : 'https://openhome.cc/eGossip/' +
+                                   'JavaScript/samples/JSONP-1.php',
+                        data     : {
+                            id   : document.getElementById('id').value,
+                        },
+                        callback : function(person) {
+                            document.getElementById('result').innerHTML = 
+                                person.name + ',' + person.age;
+                        }
+                    }, 'jsoncallback');
+                };
+            };
+        </script>        
+    <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+    <body>
+        ID：<input id="id">
+        <button id="test">Test JSONP</button>
+        <span id="result"></span>
+    </body>
+</html>

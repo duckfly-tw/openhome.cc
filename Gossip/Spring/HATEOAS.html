@@ -1,0 +1,205 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈簡介 RestTemplate〉中，為了介紹怎麼使用 RestTemplate，設置了一個簡單的 REST 網站，這些網站透過 HTTP 動詞，結合 URI，使用 JSON 作為交換媒介，JSON...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="聊聊 Spring HATEOAS">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/HATEOAS.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈簡介 RestTemplate〉中，為了介紹怎麼使用 RestTemplate，設置了一個簡單的 REST 網站，這些網站透過 HTTP 動詞，結合 URI，使用 JSON 作為交換媒介，JSON...">
+
+    <title>聊聊 Spring HATEOAS</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HATEOAS.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>聊聊 Spring HATEOAS</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="RestTemplate.html">簡介 RestTemplate</a>〉中，為了介紹怎麼使用 <code>RestTemplate</code>，設置了一個簡單的 REST 網站，這些網站透過 HTTP 動詞，結合 URI，使用 JSON 作為交換媒介，JSON 的格式非常單純，例如請求 <code>http://localhost:8080/messages/1</code> 的話會傳回：</p>
+<pre class="prettyprint"><code lang="java">{
+    "text": "msg1"
+}
+</code></pre>
+<p>如果請求 <code>http://localhost:8080/messages</code> 的話會傳回：</p>
+<pre class="prettyprint"><code lang="java">[
+    {
+        "text": "msg1"
+    },
+    {
+        "text": "msg2"
+    }
+]
+</code></pre>
+<p>容易理解又單純的格式，除了資料本身的資訊之外，也沒別的了，也正因為沒別的資訊，你得在文件上記錄有哪些端點、互動的方式、API 之間的關係等，API 消費者若依文件來編寫了服務的請求等，哪天 API 變動，消費者也得跟著作出因應的修改，API 消費者與提供者之間有著緊密的關係。</p>
+<p>還記得在〈<a href="RepositoryRestResource.html">@RepositoryRestResource</a>〉中看到的 JSON 回應嗎？你怎麼知道有哪些 API 可以使用呢？因為 JSON 回應本身就包含了鏈結、參數等 API 相關的資訊，有了這些資訊，我們可以從這個 API 探尋到另一個 API，從而理解到怎麼使用網站上提供的服務。</p>
+<p>而且，API 消費者可以編寫程式，自動導覽至相關 API，若 API 供應者變動了服務介面，由於 JSON 回應有著一致的格式，API 消費者可以自動因應變化。</p>
+<p>那麼〈<a href="RepositoryRestResource.html">@RepositoryRestResource</a>〉中的 JSON 回應有什麼規範嗎？若你察看回應標頭，會發現它的內容類型為 <code>application/hal+json</code>，而不是 <code>application/json</code>，當然，<code>application/hal+json</code> 還是一種 <code>application/json</code>，只不過在 JSON 加上了 <a href="http://stateless.co/hal_specification.html">HAL - Hypertext Application Language</a> 約束，也就是不再是隨意地 JSON 結構了。</p>
+<p>Spring Data REST 實際上是透過 <a href="https://spring.io/projects/spring-hateoas">Spring HATEOAS</a>，自動建立對應於 Repository 的相關 API&hellip;嗯？又多了一個名詞&hellip;HATEOAS？</p>
+<p>這就得來聊聊 Leonard Richardson 在 <a href="https://www.crummy.com/writing/speaking/2008-QCon/act3.html">QCon Talk</a> 談到的 REST 成熟度模型了，這是個用來檢視、思考 REST 應用程度與方向的模型，它將 REST 的應用成熟度分為四個階段。</p>
+<p><strong>LEVEL 0</strong> 使用一個 URI 與一個 HTTP 方法，基本上就是單純使用 HTTP 作為傳輸協定，服務使用的 URI 只是個接收請求進行回應的端點，HTTP 方法只是用來發起請求，至於請求的相關細節，例如想進行的動作、必須提供的資料等，全部包含在發送過去的文件之中，像是 XML、JSON 等其他（自訂）格式，回應使用某個文件格式傳回，當中包含了請求操作後的結果。</p>
+<p>你可以想像只使用一個 <code>/messages</code>，它接受 <code>POST</code> 請求，想要查詢某個訊息、全部訊息、刪除訊息、修改訊息等，都在 <code>POST</code> 本體中使用某個格式的文件指定。</p>
+<p>簡單來說，這個階段的應用就想像成是個連線程式，有指定的連線位置，傳送指定格式的封包，SOAP、XML-RPC 等是屬於這個階段的代表。</p>
+<p><strong>Level 1</strong> 使用多個 URI 與一個 HTTP 方法，URI 代表了資源，像是 <code>/show_message</code>、<code>/create_message</code>、<code>/update_message</code>、<code>/delete_message</code> 都是資源，HTTP 方法只是用來發起請求，至於請求的細節由請求本體來提供，例如，在請求 <code>/show_message</code> 這項資源時，若包含 <code>all</code> 請求參數，表示顯示全部的訊息，若是 <code>"id=1"</code> 這類請求參數，表示顯示指定的訊息。</p>
+<p><strong>Level 2</strong> 使用多個 URI、多個 HTTP 方法，並善用 HTTP 回應狀態碼，URI 用來代表資源，像是 <code>/messages</code>、<code>/messages/1</code>，HTTP 方法用來表示想進行的操作，例如 <code>GET /messages</code> 表示取得全部訊息，<code>GET /messages/1</code> 表示取得指定訊息，<code>POST /messages</code> 表示新增訊息、<code>DELETE /messages/1</code> 表示刪除指定訊息等，〈<a href="RestTemplate.html">簡介 RestTemplate</a>〉的簡單應用程式就是此類。</p>
+<p><strong>Level 3</strong> 更進一步地，支援 HATEOAS（Hypermedia As The Engine Of Application State）的概念，就類似 HTML 頁面鏈結，你可以從這個頁面得知可通往哪些頁面，在 REST 的 Level 3 模型中，客戶端可以從某個資源，知道還有哪些其他相關的資源，以及如何對它進行操作，〈<a href="RepositoryRestResource.html">@RepositoryRestResource</a>〉的範例專案，就是這一類。</p>
+<p>HATEOAS 是個概念，實際上如何從一個資源得知其他的資源，該採用哪個格式，格式中該採用哪些識別名稱，需要有實作規範，HAL 就是實作規範之一，採用 JSON 格式、<a href="https://tools.ietf.org/html/rfc4287">ATOM (RFC 4287)</a> 鏈結語法等，也就是你在〈<a href="RepositoryRestResource.html">@RepositoryRestResource</a>〉看到的格式。</p>
+<p>Martin Fowler 在〈<a href="https://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model</a>〉中，也有對 REST 成熟度模型作了詮譯，有興趣可以進一步閱讀。</p>
+<p>如果你想要實作出可以支援 HATEOAS 概念的 REST 服務，可以使用 Spring HATEOAS，例如，要將〈<a href="RestTemplate.html">簡介 RestTemplate</a>〉中的專案，實作為支援 HATEOAS 概念，可以在 build.gradle 中加入：</p>
+<pre class="prettyprint"><code lang="java">implementation('org.springframework.boot:spring-boot-starter-hateoas')
+</code></pre>
+<p>想讓 <code>Message</code> 能轉換為 HAL 格式的方式之一，是繼承 <code>ResourceSupport</code>，如此 <code>Message</code> 會有個可以加入 <code>Link</code> 實例的 <code>add</code> 方法可以使用，另一個方式是建構 <code>Resource</code> 時指定 <code>Message</code> 以及 <code>Link</code> 實例。</p>
+<p>建立 Link 實例時，可以直接指定鏈結：</p>
+<pre class="prettyprint"><code lang="java">Link link = new Link("http://localhost:8080/messages/1");
+</code></pre>
+<p>因此，若 <code>message</code> 參考了 <code>Message</code> 實例，可以令控制器的處理方法傳回：</p>
+<pre class="prettyprint"><code lang="java">new Resource&lt;Message&gt;(message, new Link("http://localhost:8080/messages/1"));
+</code></pre>
+<p>不過，更有彈性的方式之一，可以在控制器標註 <code>@RequestMapping</code> 並指明根對應，然後透過 <code>ControllerLinkBuilder</code> 來建構 <code>Link</code>，它有個 <code>linkTo</code> 方法，可以自省控制器類別找出資源的 URI 根對應，進一步地，還可以建構帶有 <code>self</code> 等資訊的 <code>Link</code> 實例，例如：</p>
+<pre class="prettyprint"><code lang="java">new Resource&lt;Message&gt;(
+    message, 
+    linkTo(RestTmplApplication.class).slash("1").withSelfRel()
+);
+</code></pre>
+<p>如果處理器傳回了以上實例，那麼最後的得到 JSON 格式會是：</p>
+<pre class="prettyprint"><code lang="java">{
+    "text": "msg1",
+    "_links": {
+        "self": {
+            "href": "http://localhost:8080/messages/1"
+        }
+    }
+}
+</code></pre>
+<p>內容類型回應標頭也會自動變成 <code>application/hal+json</code>，因此，可以將 <code>RestTmplApplication</code> 重構為：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...略
+
+@SpringBootApplication
+@RestController
+@RequestMapping("messages")
+public class RestTmplApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RestTmplApplication.class, args);
+    }
+
+    List&lt;Message&gt; messages = new ArrayList&lt;Message&gt;() {{
+        add(new Message("msg1"));
+        add(new Message("msg2"));
+    }};
+
+    @GetMapping("/")
+    public Resources&lt;Resource&lt;Message&gt;&gt; index() {
+        List&lt;Resource&lt;Message&gt;&gt; reslt = 
+                IntStream.range(0, messages.size())
+                         .mapToObj(idx -&gt; new Resource&lt;&gt;(messages.get(idx), link(String.valueOf(idx + 1))))
+                         .collect(toList());
+
+        return new Resources&lt;&gt;(reslt, linkTo(RestTmplApplication.class).withSelfRel());
+    }
+
+    @GetMapping("/{id}")
+    public Resource&lt;Message&gt; show(@PathVariable("id") String id) {
+        return new Resource&lt;&gt;(messages.get(Integer.parseInt(id) - 1), link(id));
+    }
+
+    @PostMapping("/")
+    public Resource&lt;Message&gt; create(@RequestBody Message message) {
+        messages.add(message);
+        return new Resource&lt;&gt;(message);
+    }
+
+    @DeleteMapping("/{id}")
+    public Resource&lt;Message&gt; delete(@PathVariable("id") String id) {
+        return new Resource&lt;&gt;(messages.remove(Integer.parseInt(id) - 1));
+    }
+
+    private Link link(String id) {
+        return linkTo(RestTmplApplication.class).slash(id).withSelfRel();
+    }
+}
+</code></pre>
+<p>在這邊留意到 <code>Resources</code>，這可以用來包含多個 <code>Message</code> 與 <code>Link</code> 實例，傳回的 JSON 會像是：</p>
+<pre class="prettyprint"><code lang="java">{
+    "_embedded": {
+        "messageList": [
+            {
+                "text": "msg1",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8080/messages/1"
+                    }
+                }
+            },
+            {
+                "text": "msg2",
+                "_links": {
+                    "self": {
+                        "href": "http://localhost:8080/messages/2"
+                    }
+                }
+            }
+        ]
+    },
+    "_links": {
+        "self": {
+            "href": "http://localhost:8080/messages"
+        }
+    }
+}
+</code></pre>
+<p>當然，傳回的 JSON 變得複雜多了，若想用 <code>RestTemplate</code> 來消費這個 JSON，會需要 HAL 轉換器，這就在下篇文件來談了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

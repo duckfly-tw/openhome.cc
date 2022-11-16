@@ -1,0 +1,102 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Arduino 的 I/O 腳位可供給的電壓、電流有限，只能用於 LED 這類小元件，對於需要更高電壓或電流的設備，像是直流馬達、大型電器等就沒辦法負擔，對於小型直流馬達等元件，可以使用電晶體（Tra...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（15）認識電晶體與繼電器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino15.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Arduino 的 I/O 腳位可供給的電壓、電流有限，只能用於 LED 這類小元件，對於需要更高電壓或電流的設備，像是直流馬達、大型電器等就沒辦法負擔，對於小型直流馬達等元件，可以使用電晶體（Tra...">
+
+    <title>mBlock &amp; Arduino（15）認識電晶體與繼電器</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino15.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（15）認識電晶體與繼電器</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>Arduino 的 I/O 腳位可供給的電壓、電流有限，只能用於 LED 這類小元件，對於需要更高電壓或電流的設備，像是直流馬達、大型電器等就沒辦法負擔，對於小型直流馬達等元件，可以使用電晶體（Transistor）來供給較大量的電流，對於大型電器，可以透過繼電器（Relay）來控制。</p>
+<h1>認識電晶體</h1>
+<p>實際上，提到電晶體時，多半是指雙接面電晶體（Bipolar junction transistor, BJT），依組合的半導體材料，可以分為 NPN 與 PNP 兩大類，以 NPN 電晶體為例，是由 N 型半導體與 P 型半導體組合而成：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-1.jpg" alt="雙極性電晶體"  /></div></div></p>
+<p>電晶體有兩接面、三個端點，端點分別為集極（Collector）、基極（Base）與射極（Emitter），NPN 電晶體的基本特性是，射極電流 Ie 為基極電流 Ib 與集極電流 Ic 之和，而增益 α = Ic / Ie，β = Ic / Ib，Ib 通常遠小於 Ic。</p>
+<p>當三個端點施加之偏壓不同時，電晶體會處於不同狀態：</p>
+<ul>
+<li>B-E 為順向偏壓，且 B-C 為順向偏壓時，此時電晶體狀態處於飽和區（Saturation region），此時 C 與 E 可視為短路，依電路實際連接情況，Ic 會處於一個飽和電流值。</li>
+<li>B-E 為逆向偏壓，且 B-C 為逆向偏壓時，此時電晶體狀態處於截止區（Cutoff region），此時 C 與 E 可視為開路，不過，實際上還是會有少量電流通過，這個現象稱為「漏電」（Leakage）。</li>
+<li>B-E 為順向偏壓，且 B-C 為逆向偏壓時，此時電晶體狀態處於動作區（Active region），此時可用於信號放大。</li>
+</ul>
+<p>各區實際的偏壓，以及 α、β 等值，需要查詢電晶體的規格書而定，如果想將電晶體作為開關使用，基本電路之一如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-2.jpg" alt="雙極性電晶體"  /></div></div></p>
+<p>如果 Vi 處於高電位狀態，那麼流經基極的電流 Ib 就是 (Vi - Vbe) / Rb，而流經集極的電流就是 Ic = β * Ib，因此，可以用 Rb 來控制流經 Rl 的電流。</p>
+<p>舉個例子來說，以下的電路連接，可以讓我手邊的 2N3904 電晶體驅動一個直流小馬達（不過會很燙，不要通電太久&hellip;XD）：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-3.jpg" alt="雙極性電晶體"  /></div></div></p>
+<p>你可以透過一個小程式來測試一下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-4.jpg" alt="雙極性電晶體"  /></div></div></p>
+<p>執行程式的話，你就會看到直流馬達每轉動一秒就停一秒，如果你直接將直流馬達一端接到腳位 D8，一端接 GND，在腳位為高電位時，會因為電流不足，無法驅動直流小馬達。</p>
+<p>如果想驅動 9V 或 12V 以上的馬達，可以如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-5.jpg" alt="雙極性電晶體"  /></div></div></p>
+<p>由於馬達是電力產生磁力，而磁力與馬達內部磁鐵作用而產生轉動，為了避免馬達停止供電瞬間而產生的反動電壓，會加上一個二極體加以保護。</p>
+<p>（如果想運用電晶體提供更大的電流來驅動馬達，可以使用兩個或多個電晶體的組合，像是 <a href="http://zh.wikipedia.org/wiki/%E8%BE%BE%E7%81%B5%E9%A1%BF%E6%99%B6%E4%BD%93%E7%AE%A1">達靈頓電晶體</a>；有些 Arduino 相容板，像是 <a href="http://www.motoduino.com/">Motoduino</a>，本身就內建了可驅動馬達的電路，想做馬達驅動相關產品時很方便。）</p>
+<h1>認識繼電器</h1>
+<p>如果要控制電力需求更大的電器，那麼可以使用繼電器，若是常見的電磁式繼電器，其運作原理可使用下圖來表示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-6.jpg" alt="繼電器"  /></div></div></p>
+<p>當腳位 D8 送出高電位時，電晶體會導通而使得線圈通過電流，因而產生磁力將開關吸合，因而導通電路，腳位 D8 送出低電位時，電流停止通過線圈，磁力消失而開關回到原位，為了避免反動電壓，會加上一個二極體保護。</p>
+<p>市面上有一些繼電器模組，本身已經將相關電阻、二極體與電晶體兜好，例如我手邊這顆 Keyes_SRly，還有 LED 顯示繼電器是否作動：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-7.jpg" alt="繼電器"  /></div></div></p>
+<p>如果你買的繼電器，只是上頭藍色的元件，那麼就必須如先前介紹，自行將相關電阻、二極體與電晶體兜好，如果是繼電器模組，就只可以直接使用。</p>
+<p>首先要注意的是繼電器本身的規格，例如上頭 SRD-05VDC-SL-C 這個繼電器，適用於 10A 的 250V 與 125V 交流電源，以及 10A 的 30V 與 28V 直流電源。</p>
+<p>繼電器模組上有三個接點，中間那個是共用接點（COMMON），相當於先前概要圖中的第 2 個接點，NO 表示常開（Normal Open），也就是平時與共用接點保持開路，相當於先前概要圖中第 3 個接點，NC 表示常關（Normal Close），表示平時與共用接點處於接通狀態。</p>
+<p>繼電器的接腳有三個，也就是會有 Vcc、GND 以及開關三個接腳，為了安全起見，這邊還是使用繼電器控制直流小馬達來試試看：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino15-8.jpg" alt="繼電器"  /></div></div></p>
+<p>同樣只要使用上頭撰寫的小程式，測試看看直流小馬達是否如預期般運作（你還可以聽見繼電器吸合時滴答滴答的聲音）。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="如果你是初學 Haskell，且能一路看到這篇文章，應該算是步入 Haskell，或說是步入了函數式程式設計的大門了，往後還有更多的東西等著發掘">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::發掘具有組合性的行為" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/composability/" />
+    <meta property="og:description" content="如果你是初學 Haskell，且能一路看到這篇文章，應該算是步入 Haskell，或說是步入了函數式程式設計的大門了，往後還有更多的東西等著發掘" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::發掘具有組合性的行為" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/composability/" />
+    <meta name="twitter:description" content="如果你是初學 Haskell，且能一路看到這篇文章，應該算是步入 Haskell，或說是步入了函數式程式設計的大門了，往後還有更多的東西等著發掘" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443679" type="image/x-icon">
+    <title> Haskell  :: 發掘具有組合性的行為</title>
+    <link href="../../../css/nucleus.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443679.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443679"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/advanced-typeclass/composability/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item parent"><a href="../index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item active"><a href="index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">高階行為</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">發掘具有組合性的行為</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#實作-tree-型態">實作 Tree 型態</a></li>
+    <li><a href="index.html#foldable-型態類別">Foldable 型態類別</a></li>
+    <li><a href="index.html#monoid-型態類別">Monoid 型態類別</a></li>
+    <li><a href="index.html#sum-與-product">Sum 與 Product</a></li>
+    <li><a href="index.html#monoid-的組合">Monoid 的組合</a></li>
+    <li><a href="index.html#繼續前進">繼續前進</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/pattern/index.html">pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/foldable/">Foldable</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/monoid/">Monoid</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>發掘具有組合性的行為</h1>
+
+ <i class="space fa fa-calendar"> February 12, 2022</i> 
+<p>如果你是初學 Haskell，且能一路看到這篇文章，應該算是步入 Haskell，或說是步入了函數式程式設計的大門了，往後還有更多的東西等著發掘，為此，這邊以〈發掘更具組合性的抽象〉為題，作為這系列文件的結束。</p>
+<h2 id="實作-tree-型態">實作 Tree 型態</h2>
+<p>來試著實作一個 <code>Tree</code> 型態，並提供 <code>fromList</code> 函式可從 list 建立樹、<code>insert</code> 函式可將指定數值插入樹、<code>node</code> 函式可測試某節點是否在樹中、<code>toList</code> 可將樹轉為 list：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let tree = fromList [1, 2, 3, 4, 5]
+</span></span><span style="display:flex;"><span>ghci&gt; tree
+</span></span><span style="display:flex;"><span>fromList [5,4,3,2,1]
+</span></span><span style="display:flex;"><span>ghci&gt; node 3 tree
+</span></span><span style="display:flex;"><span>True
+</span></span><span style="display:flex;"><span>ghci&gt; insert 6 tree
+</span></span><span style="display:flex;"><span>fromList [6,5,4,3,2,1]
+</span></span><span style="display:flex;"><span>ghci&gt; toList tree
+</span></span><span style="display:flex;"><span>[5,4,3,2,1]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>你會怎麼實現呢？以下是個簡單的版本：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">data</span> <span style="color:#66d9ef">Tree</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Node</span> a (<span style="color:#66d9ef">Tree</span> a) (<span style="color:#66d9ef">Tree</span> a)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">singleNode</span> <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">singleNode</span> x <span style="color:#f92672">=</span> <span style="color:#66d9ef">Node</span> x <span style="color:#66d9ef">EmptyTree</span> <span style="color:#66d9ef">EmptyTree</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">insert</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Ord</span> a) <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">insert</span> x <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> singleNode x
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">insert</span> x (<span style="color:#66d9ef">Node</span> a l r)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|</span> x <span style="color:#f92672">==</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">Node</span> x l r
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;</span> a  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Node</span> a (insert x l) r
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|</span> x <span style="color:#f92672">&gt;</span> a  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Node</span> a l (insert x r)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fromList</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ord</span> a <span style="color:#f92672">=&gt;</span> [a] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fromList</span> <span style="color:#66d9ef">[]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">EmptyTree</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fromList</span> (x<span style="color:#66d9ef">:</span>xs) <span style="color:#f92672">=</span> insert x <span style="color:#f92672">$</span> fromList xs
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">node</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Ord</span> a) <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">node</span> x <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">node</span> x (<span style="color:#66d9ef">Node</span> a l r)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> x <span style="color:#f92672">==</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;</span> a  <span style="color:#f92672">=</span> node x l
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> x <span style="color:#f92672">&gt;</span> a  <span style="color:#f92672">=</span> node x r
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">toList</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Tree</span> a <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">toList</span> <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">[]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">toList</span> tree <span style="color:#f92672">=</span> con <span style="color:#66d9ef">[]</span> tree
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>        con lt <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> lt
+</span></span><span style="display:flex;"><span>        con lt (<span style="color:#66d9ef">Node</span> a l r) <span style="color:#f92672">=</span> con (a <span style="color:#66d9ef">:</span> (con lt l)) r
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Show</span> a <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Show</span> (<span style="color:#66d9ef">Tree</span> a) <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>    show tree <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;fromList &#34;</span> <span style="color:#f92672">++</span> (show <span style="color:#f92672">.</span> toList) tree
+</span></span></code></pre></div><p>現在將重點放在 <code>toList</code> 的實作，我做了什麼？我從 <code>[]</code> 開始，在呼叫內部的 <code>con</code> 函式過程中，如果到達了左子樹的葉節點，就拆下葉節點放到 list 前端（也就是使用 <code>:</code> 函式），左子樹訪問完就訪問右子樹，每次也是拆下葉節點放到 list 前端。</p>
+<p>如果使用動畫來顯示這個過程的話，就可以清楚地看到，就像是在折疊一顆樹：</p>
+<p><img src="images/composability-1.gif" alt="發掘具有組合性的行為"></p>
+<p>假設現在有一顆樹，節點值都是整數，想將所有節點值加總該怎麼做呢？可以使用上頭的 <code>toList</code> 將樹轉為 list，然後再使用 <code>sum</code> 求得加總，不過，我們自己來寫一個：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">sumTree</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Tree</span> <span style="color:#66d9ef">Integer</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Integer</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">sumTree</span> tree <span style="color:#f92672">=</span> sumIt <span style="color:#ae81ff">0</span> tree 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>        sumIt init <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> init
+</span></span><span style="display:flex;"><span>        sumIt init (<span style="color:#66d9ef">Node</span> a l r) <span style="color:#f92672">=</span> sumIt (a <span style="color:#f92672">+</span> (sumIt init l)) r
+</span></span></code></pre></div><p>如何？仔細一看，這跟上頭的 <code>toList</code> 根本就是差不多的東西，只是一個用了 <code>:</code>，而另一個用了 <code>+</code>，如果這些函式是被當成引數傳入的話，那我們可以寫個 <code>foldTree</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">foldTree</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Tree</span> b <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">foldTree</span> <span style="color:#66d9ef">_</span> z <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> z
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">foldTree</span> f z (<span style="color:#66d9ef">Node</span> a l r) <span style="color:#f92672">=</span> foldTree f (f preZ a) r
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> preZ <span style="color:#f92672">=</span> foldTree f z l
+</span></span></code></pre></div><p>那麼，<code>toList</code> 與 <code>sumTree</code> 就可以分別如下使用 <code>foldTree</code> 實作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">toList</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Tree</span> a <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">toList</span> tree <span style="color:#f92672">=</span> foldTree (<span style="color:#a6e22e">\</span>z a <span style="color:#f92672">-&gt;</span> a <span style="color:#66d9ef">:</span> z) <span style="color:#66d9ef">[]</span> tree
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">sumTree</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Tree</span> <span style="color:#66d9ef">Integer</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Integer</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">sumTree</span> tree <span style="color:#f92672">=</span> foldTree (<span style="color:#f92672">+</span>) <span style="color:#ae81ff">0</span> tree
+</span></span></code></pre></div><h2 id="foldable-型態類別">Foldable 型態類別</h2>
+<p><code>foldTree</code> 看起來很像可以處理 list 的 <code>foldl</code>，實際上，如果折疊樹時是從右子樹開始，實作出來的就像是可處理 list 的 <code>foldr</code> 了，看來可以折疊的並不只有 list，對於可折疊的行為，Haskell 在 <code>Data.Foldable</code> 模組定義了 <code>Foldable</code> 型態類別。</p>
+<p>在 <code>Data.Foldable</code> 模組也有定義 <code>foldl</code> 等函式，先來看看看它們的型態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; import qualified Data.Foldable as F
+</span></span><span style="display:flex;"><span>ghci&gt; :t F.foldl
+</span></span><span style="display:flex;"><span>F.foldl :: Foldable t =&gt; (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>相對於只能處理 list 的 <code>foldl :: (a -&gt; b -&gt; a) -&gt; a -&gt; [b] -&gt; a</code>，<code>Data.Foldable</code> 模組中的 <code>foldl</code> 函式，第三個可接受的引數必須具有 <code>Foldable</code> 的行為，最直覺的就是先試試看 list：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; F.foldl (+) 0 [1 .. 10]
+</span></span><span style="display:flex;"><span>55
+</span></span><span style="display:flex;"><span>ghci&gt; F.foldr ((:) . (*10)) [] [1 .. 10]
+</span></span><span style="display:flex;"><span>[10,20,30,40,50,60,70,80,90,100]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>想要實現 <code>Foldable</code>，可以實作它的 <code>foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b</code> 或 <code>foldMap :: Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m</code>，對於 list，實作 <code>Foldable</code> 的 <code>foldr</code>，只要令其等於 <code>Data.List</code> 的 <code>foldr</code> 函式就可以了，如果想要讓上頭的 <code>Tree</code> 也成為 <code>Foldable</code>，可以如下實作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Prelude <span style="color:#66d9ef">hiding</span> (<span style="color:#a6e22e">foldr</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Data.Foldable <span style="color:#66d9ef">hiding</span> (<span style="color:#a6e22e">toList</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Foldable</span> <span style="color:#66d9ef">Tree</span> <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>    foldr <span style="color:#66d9ef">_</span> z <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> z
+</span></span><span style="display:flex;"><span>    foldr f z (<span style="color:#66d9ef">Node</span> a l r) <span style="color:#f92672">=</span> foldr f (f a preZ) l
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">where</span> preZ <span style="color:#f92672">=</span> foldr f z r
+</span></span></code></pre></div><p>這麼一來，我們自定義的 <code>Tree</code> 也可以直接使用 <code>Data.Foldable</code> 模組的 <code>foldr</code>、<code>foldl</code> 等函式了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let tree = fromList [1..10]
+</span></span><span style="display:flex;"><span>ghci&gt; F.foldr (+) 0 tree
+</span></span><span style="display:flex;"><span>55
+</span></span><span style="display:flex;"><span>ghci&gt; F.foldl (+) 0 tree
+</span></span><span style="display:flex;"><span>55
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><h2 id="monoid-型態類別">Monoid 型態類別</h2>
+<p>另一個實作 <code>Foldable</code> 的方式，是實作它的 <code>foldMap :: Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m</code>，不過受到了 <code>Monoid</code> 的限制，這是什麼？你可以先思考一下，如果想要實作一個通用的 <code>foldr</code> 會需要哪些條件？</p>
+<p>你能接受的函式必須是二元函式，它要將兩個型態相同的運算元結合，成為一個相同型態的值，例如，list 的 <code>++</code>，可以將 <code>[1, 2, 3]</code> 與 <code>[4, 5, 6]</code> 結合為 <code>[1, 2, 3, 4, 5, 6]</code>，<code>+</code> 可以將 <code>2</code> 與 <code>3</code> 結合為 <code>5</code>，<code>*</code> 可以將 <code>2</code> 與 <code>3</code> 結合為 <code>6</code>，而且該二元函式必須具有<strong>結合律（Associativity）</strong>，例如，<code>(1 + 2) + 3</code> 的結果會與 <code>1 + (2 + 3)</code> 相同，因此 <code>+</code> 具有結合律，這是因為事先無法預料可以折疊的資料型態會是什麼樣的結構，被丟進函式處理的兩個值，可能是從結構中任意處取得，如果函式不具備結合律，使用通用的 <code>foldr</code> 結果就可能不正確。</p>
+<p>另外，你的函式必須具有<strong>恒等值（Identity）</strong>，函式套用恒等值與某值，結果還會是該值，例如，<code>0</code> 對 <code>+</code> 是個恒等值，因為任何數與 <code>0</code> 相加都會是該數，<code>1 + 0</code> 還是 <code>1</code>、<code>2 + 0</code> 還是 <code>2</code>，類似地，<code>1</code> 對 <code>*</code> 是個恒等值，因為任何數與 <code>1</code> 相乘，結果還是該值，<code>2 * 1</code> 還是 <code>2</code>、<code>3 * 1</code> 還是 <code>3</code>。</p>
+<p>這個考量同樣是因為，事先無法預料可以折疊的資料型態會是什麼樣的結構，因此通用的 <code>foldr</code> 首次執行時，必須有個初始的恒等值才能作為開始。</p>
+<p>具有結合律以及恒等值的行為被 Haskell 定義為 <code>Data.Monoid</code> 的 <code>Monoid</code> 型態類別：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#66d9ef">Monoid</span> a <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>    mempty <span style="color:#f92672">::</span> a             <span style="color:#75715e">-- 定義恒等值</span>
+</span></span><span style="display:flex;"><span>    mappend <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> a <span style="color:#f92672">-&gt;</span> a  <span style="color:#75715e">-- 定義結合律的函式</span>
+</span></span><span style="display:flex;"><span>    mconcat <span style="color:#f92672">::</span> [a] <span style="color:#f92672">-&gt;</span> a     <span style="color:#75715e">-- 積累（accumulate）運算</span>
+</span></span><span style="display:flex;"><span>    mconcat <span style="color:#f92672">=</span> foldr mappend mempty
+</span></span></code></pre></div><p>要實作的行為是 <code>mempty :: m</code> 與 <code>mappend :: m -&gt; m -&gt; m</code>，<code>mconcat</code> 規範了如何將 list 積累為一個值，積累是比折疊更抽象的觀念，預設是透過右折疊，也就是 <code>foldr</code> 實現，看看 list 怎麼實作 <code>Monoid</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Monoid</span> [a] <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>    mempty  <span style="color:#f92672">=</span> <span style="color:#66d9ef">[]</span>
+</span></span><span style="display:flex;"><span>    mappend <span style="color:#f92672">=</span> (<span style="color:#f92672">++</span>) 
+</span></span></code></pre></div><p>對於 list 來說，<code>++</code> 是個具有結合律的函式，因為 <code>([1, 2] ++ [3, 4]) ++ [5, 6]</code> 結果與 <code>[1, 2] ++ ([3, 4] ++ [5, 6])</code> 同樣是 <code>[1,2,3,4,5,6]</code>，而對於 <code>++</code> 來說，<code>[]</code> 就是恒等值，因為 <code>[1, 2] ++ []</code> 還是 <code>[1, 2]</code>，<code>[3, 4] + []</code> 還是 <code>[3, 4]</code>。</p>
+<p>那麼，該怎麼實作 <code>foldMap</code>？重新來看一下它的型態 <code>Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m</code>，<code>foldMap</code> 接受 <code>a -&gt; m</code> 函式，一個 <code>f a</code>，最後傳回 <code>m</code>，接受的函式之傳回值與 <code>foldMap</code> 的傳回值，都是 <code>Monoid</code> 實例。</p>
+<p>對於一個 list，是這樣想的，可以看成是 <code>x:xs</code>，實作 <code>foldMap</code> 時，<code>foldMap mapper xs</code> 會得到一個 list（一個 <code>Monoid</code>），而 <code>mapper x</code> 也會得到一個 list（一個 <code>Monoid</code>），結果就是 <code>(mapper x) ++ (foldMap mapper xs)</code>，也可以寫成 <code>(mapper x) `mappend` (foldMap mapper xs)</code>。</p>
+<p>來個更白話的說法好了，記得〈<a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a>〉的 map 與 fold 嗎？你可以用 map 來轉換 list 的元素，後續進行 fold 得到一個結果，其實 map 目的之一，是將 list 的元素都轉換為 <code>Monoid</code>，之後才進行 fold，<code>foldMap</code> 就只是將 map/fold 結合起來。</p>
+<p>那麼樹的話，就可以看成是 <code>mapper</code> 套用到目前的節點值得到一個 <code>Monoid</code>，<code>foldMap</code> 套用到左子樹得到一個 <code>Monoid</code>，<code>foldMap</code> 套用到右子樹得到一個 <code>Monoid</code>，然後，你使用 <code>mappend</code> 將這三個 <code>Monoid</code> 結合運算：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Foldable</span> <span style="color:#66d9ef">Tree</span> <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>    foldMap mapper <span style="color:#66d9ef">EmptyTree</span> <span style="color:#f92672">=</span> mempty
+</span></span><span style="display:flex;"><span>    foldMap mapper (<span style="color:#66d9ef">Node</span> x l r) <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>        (foldMap mapper l) `mappend` (mapper x) `mappend` (foldMap mapper r)
+</span></span></code></pre></div><p>簡單來說，如果是 list，想著可以從首元素得到一個 <code>Monoid</code>，尾清單得到一個 <code>Monoid</code>，如果是樹，可以想著從左子樹、節點、右子樹分別得到一個 <code>Monoid</code>，而這些 <code>Monoid</code> 又該如何結合就對了。</p>
+<h2 id="sum-與-product">Sum 與 Product</h2>
+<p>方才談到數字的 <code>+</code> 與 <code>*</code> 具有結合律，那麼具有數字行為的型態，可以是個 <code>Monoid</code> 嗎？可以！<code>+</code> 對應的恒等值是 <code>0</code>，<code>*</code> 對應的恒等值是 <code>1</code>，該怎麼區別呢？記得 <code>newtype</code> 嗎？<code>Data.Monoid</code> 定義了 <code>Sum</code> 與 <code>Product</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">newtype</span> <span style="color:#66d9ef">Sum</span> a <span style="color:#f92672">=</span>  <span style="color:#66d9ef">Sum</span> { getSum <span style="color:#f92672">::</span> a }  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Eq</span>, <span style="color:#66d9ef">Ord</span>, <span style="color:#66d9ef">Read</span>, <span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Bounded</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">newtype</span> <span style="color:#66d9ef">Product</span> a <span style="color:#f92672">=</span>  <span style="color:#66d9ef">Product</span> { getProduct <span style="color:#f92672">::</span> a }  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Eq</span>, <span style="color:#66d9ef">Ord</span>, <span style="color:#66d9ef">Read</span>, <span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Bounded</span>)
+</span></span></code></pre></div><p>並且基於 <code>Sum</code> 與 <code>Product</code> 實現了 <code>Monoid</code> 的行為，因此你可以這麼操作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (Sum 1) `mappend` (Sum 2)
+</span></span><span style="display:flex;"><span>Sum {getSum = 3}
+</span></span><span style="display:flex;"><span>ghci&gt; (Product 1) `mappend` (Product 2)
+</span></span><span style="display:flex;"><span>Product {getProduct = 2}
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>只不過明明直接寫 <code>1 + 2</code> 或 <code>1 * 2</code> 就可以，必須還要寫 <code>(Sum 1) `mappend` (Sum 2)</code> 或 <code>(Product 1) `mappend` (Product 2)</code> 形式呢？是不會啦！要也是這麼寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let r = 1 `mappend` 2
+</span></span><span style="display:flex;"><span>ghci&gt; let (Sum s) = r      
+</span></span><span style="display:flex;"><span>ghci&gt; let (Product p) = r
+</span></span><span style="display:flex;"><span>ghci&gt; s
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>ghci&gt; p
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>同樣是 <code>r</code>，遇到 <code>Sum</code> 可以取得 <code>+</code> 的結果，配合 <code>Product</code> 可以取得 <code>*</code> 的結果，蠻有趣的不是嗎？</p>
+<h2 id="monoid-的組合">Monoid 的組合</h2>
+<p>來看看 <code>Maybe</code> 好了，它也實現了 <code>Monoid</code>，對兩個 <code>Maybe</code> 進行 <code>mappend</code>，它會對內含的值做 <code>mappend</code>，來看看裡頭裝 list 時會如何：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (Just [1, 2, 3]) `mappend` (Just [4, 5, 6])
+</span></span><span style="display:flex;"><span>Just [1,2,3,4,5,6]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>也就是說，<code>Monoid</code> 可以不斷地組合，如果裡頭裝數字呢？<code>(Just 1) `mappend` (Just 2)</code>？你是要哪個？<code>+</code> 還是 <code>-</code>？記得可以使用 <code>Sum</code> 與 <code>Product</code> 明確指定：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let Just r = (Just 1) `mappend` (Just 2)
+</span></span><span style="display:flex;"><span>ghci&gt; let Sum s = r
+</span></span><span style="display:flex;"><span>ghci&gt; s                
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>ghci&gt; let Product p = r
+</span></span><span style="display:flex;"><span>ghci&gt; p
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><h2 id="繼續前進">繼續前進</h2>
+<p>如果你直接看 <code>Monoid</code>，大概會摸不著頭緒，為什麼一個恒等值，一個具結合律的二元函式，要合起來定義為一個型態類別，然而，如果從折疊資料結構這類的例子來想，試著抽取出共同行為，讓它通用化，就會發現這樣的考量有其道理。</p>
+<p>重點是，當這樣的共同行為被抽取出來、通用化之後，就可以將既有的函式等組合進來使用，而不用重新實作類似的行為，就像 list 在實作 <code>Fordable</code> 時，就不要令 <code>Data.List</code> 的 <code>foldr</code> 為 <code>Foldable</code> 就可以了。</p>
+<p>這類具有組合性且可抽取的行為還有很多，就如這篇一開始說的，你已經進入了大門，不過，後續還有很多可以探索的！至少，對我來說，還有很多可以玩的呢！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/advanced-typeclass/composability/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/advanced-typeclass/composability/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e7%99%bc%e6%8e%98%e5%85%b7%e6%9c%89%e7%b5%84%e5%90%88%e6%80%a7%e7%9a%84%e8%a1%8c%e7%82%ba&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fadvanced-typeclass%2fcomposability%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../do-block/index.html" title="do 區塊與 &lt;- 綁定"><i class="fa fa-chevron-left"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443679"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443679"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443679"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443679"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443679"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443679"></script>
+  </body>
+</html>

@@ -1,0 +1,207 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於有相同簽署的函式，在編譯時會自動產生對應的函式型態，既然函式有型態，那麼它是個值嗎？可以儲存嗎？
+在〈Hello 模組〉中看過，Wat 有 type 可以定義 Type 區段，不過 Type 部份...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="函式表">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Table.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於有相同簽署的函式，在編譯時會自動產生對應的函式型態，既然函式有型態，那麼它是個值嗎？可以儲存嗎？
+在〈Hello 模組〉中看過，Wat 有 type 可以定義 Type 區段，不過 Type 部份...">
+
+    <title>函式表</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Table.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>函式表</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+<p>在〈<a href="Module.html">Hello 模組</a>〉中看過，Wat 有 <code>type</code> 可以定義 Type 區段，不過 Type 部份通常會自動根據 Wat 內容產生，例如，一個簡單的函式：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main)
+)
+</code></pre>
+<p>使用 <code>wasm2wat</code> 將產生的 .wasm 轉為 .wat，可以看到：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (type (;0;) (func))
+  (func (;0;) (type 0)))
+</code></pre>
+<p>對於有相同簽署的函式，在編譯時會自動產生對應的函式型態，既然函式有型態，那麼它是個值嗎？可以儲存嗎？</p>
+<p>堆疊上不能存放函式，變數也不行，若要能儲存函式，必須使用 <code>table</code> 定義表格，就撰寫本文的這個時間點來說，WebAssembly 每個模組只能定義一個表格：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (table $tb 2 anyfunc)
+    ...
+)
+</code></pre>
+<p>在這邊，2 表示表格的初始長度，也就是可以儲存兩個函式，可以在這個數字後選擇性地增加另一個數字，表示表格最大長度；<code>anyfunc</code> 表示可以是任何簽署的函式，目前也只支援這個值，未來可能會支援其他值。</p>
+<p>想將函式儲存至表格，要使用 <code>elem</code>，例如：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (table $tb 2 anyfunc)
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+    ...
+)
+</code></pre>
+<p><code>(i32.const 0)</code> 是偏移量，因此在這邊，函式會從索引 0 開始儲存，若必要也可以將表格匯出，例如：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (table $tb 2 anyfunc)
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+    (export "tb" (table $tb))
+)
+</code></pre>
+<p>被匯出的表格，在 JavaScript 中會是個 <code>WebAssembly.Table</code> 實例，可以使用其 <code>get</code> 方法指定索引，取得對應的函式，例如：</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+    const importObj = {
+        env: {
+            log(n) {
+                console.log(n);
+            }
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj)
+               .then(prog =&gt; {
+                   const f1 = prog.instance.exports.tb.get(0);
+                   const f2 = prog.instance.exports.tb.get(1);
+                   f1(10);
+                   f2(10);
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>你也可以在 JavaScript 中建立 <code>WebAssembly.Table</code> 實例，設定函式之後，匯入模組之中：</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+
+    const tb = new WebAssembly.Table({initial:2, element:"anyfunc"});
+    const importObj = {
+        env: {
+            log(n) {
+                console.log(n);
+            },
+            tb : tb
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj)
+               .then(_ =&gt; {
+                   let f1 = tb.get(0);
+                   let f2 = tb.get(1);
+                   f1(10);
+                   f2(10);
+
+                   tb.set(0, f2); // 必須是 WebAssembly 中定義的函式才可以使用 set 
+                   tb.set(1, f1);
+
+                   f1 = tb.get(0);
+                   f2 = tb.get(1);
+                   f1(10);
+                   f2(10);
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>這個 HTML 中的 JavaScript，建立了 <code>WebAssembly.Table</code> 實例並作為匯入物件的特性，在 WebAssembly 模組裏對表格儲存函式之後，於 JavaScript 呼叫執行。</p>
+<p>在這邊也看到，可以透過 <code>WebAssembly.Table</code> 的 <code>set</code> 方法設定函式，然而函式必須是在 WebAssembly 模組中定義之函式。</p>
+<p>在 Wat 的部份，可以如下撰寫匯入表格：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (import "env" "tb" (table $tb 2 anyfunc))
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+)
+</code></pre>
+<p>既然可以透過 <code>WebAssembly.Table</code> 的 <code>set</code> 方法設定函式，這表示，若某模組中呼叫的函式來自表格，就可以動態地改變表格的函式內容，從而令該某模組呼叫的函式也隨之不同。</p>
+<p>至於該如何於模組中呼叫表格中儲存之函式，這會在下一篇文件中討論。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

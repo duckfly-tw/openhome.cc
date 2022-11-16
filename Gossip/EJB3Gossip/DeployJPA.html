@@ -1,0 +1,151 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="部署JPA時，必須存在persistence.xml設定檔，其必須位於類別路徑中META-INF資料夾之中，也就是說，若是封裝為EJB-JAR，則persistence.xml必須在EJB-JAR根目...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="部署 JPA">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/DeployJPA.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="部署JPA時，必須存在persistence.xml設定檔，其必須位於類別路徑中META-INF資料夾之中，也就是說，若是封裝為EJB-JAR，則persistence.xml必須在EJB-JAR根目...">
+
+
+    <title>部署 JPA</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DeployJPA.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>部署 JPA</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            部署JPA時，必須存在persistence.xml設定檔，其必須位於類別路徑中META-INF資料夾之中，也就是說，若是封裝為EJB-JAR，則persistence.xml必須在EJB-JAR根目錄的META-INF資料夾中，若是封裝為WAR，則persistence.xml必須在WEB-INF/classes/META-INF資料夾中，若是封裝為EAR，則persistence.xml必須在EAR根目錄的META-INF資料夾中。<br>
+
+      <br>
+
+在Java EE模組中，Persistence Unit會有個獨一無二名稱，容器會以該名稱建立EntityManagerFactory，並用其建立EntityManager，一個persistence.xml中可以定義多個Persistence Unit，以名稱作為區隔。<br>
+
+      <br>
+
+若您是將Persistence Unit定義在EJB-JAR或WAR模組中，則Persistence Unit的可見範圍僅在該模組之中，若您是將之定義在EAR中，則Persistence Unit的可見範圍為整個應用程式。<br>
+
+      <br>
+
+以EJB-JAR為例，若要部署JPA，則其JAR檔案中的結構應類似以下黃色區塊部份：<br>
+
+      <br>
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/DeployJPA-1.jpg" /></div></div><br>
+
+      <br>
+
+orm.xml是選擇性使用，若您不使用Annotation來標註Entity類別，則可以將對應關係定義在orm.xml中，例如 <a href="https://openhome.cc/Gossip/EJB3Gossip/FirstContainManagedJPA.html">第一個 JPA（容器管理）</a> 的例子中，可以將User.java中所有的Annotation移除，在META-INF下建立一個orm.xml，程式亦可執行：<br>
+
+      
+      
+      <ul>
+
+        <li>orm.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;entity-mappings <br>  version="1.0" xmlns="http://java.sun.com/xml/ns/persistence/orm"<br>  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<br>  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_1_0.xsd"&gt;<br>   <br>   &lt;entity class="onlyfun.caterpillar.User" access="PROPERTY"&gt;<br>     &lt;table name="T_USER"/&gt;<br>      &lt;attributes&gt;<br>         &lt;id name="id"&gt;<br>             &lt;generated-value strategy="AUTO"/&gt;<br>         &lt;/id&gt;<br>      &lt;/attributes&gt;<br>   &lt;/entity&gt;<br>&lt;/entity-mappings&gt;</code></pre>
+
+      <br>
+
+orm.xml中可以定義多個&lt;entity&gt;，您也可以在persistence.xml中，使用&lt;mapping-
+file&gt;指定對應的XML檔案名稱，或是使用&lt;jar-file&gt;、&lt;class&gt;等來指定JAR或類別檔案以取得對應
+之訊息，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+
+      &lt;persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" <br>
+
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" <br>
+
+      xsi:schemaLocation="http://java.sun.com/xml/ns/persistence <br>
+
+      http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"&gt;<br>
+
+      &nbsp; &lt;persistence-unit name="sample" transaction-type="JTA"&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;jta-data-source&gt;jdbc/sample&lt;/jta-data-source&gt;<br>
+
+      &nbsp; &nbsp; &lt;mapping-file&gt;user.xml&lt;/mapping-file&gt;<br>
+
+      &nbsp; &nbsp; &lt;mapping-file&gt;room.xml&lt;/mapping-file&gt;<br>
+
+      &nbsp; &nbsp; &lt;exclude-unlisted-classes/&gt;<br>
+
+      &nbsp; &nbsp; &lt;jar-file&gt;some.jar&lt;/jar-file&gt;<br>
+
+      &nbsp; &nbsp; &lt;class&gt;onlyfun.caterpillar.Some&lt;/class&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;properties&gt;<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="toplink.ddl-generation" <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; value="drop-and-create-tables"/&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;/properties&gt;<br>
+
+      &nbsp; &lt;/persistence-unit&gt;<br>
+
+      &lt;/persistence&gt;<br>
+
+      </div>
+
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

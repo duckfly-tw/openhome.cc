@@ -1,0 +1,109 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spring 5 包含了 Reactor，專案官方網站上寫著第四代 Reactive 程式庫，世代的區隔之說來自於〈Advanced Reactive Java〉，其實不用太在意世代劃分，重要的是知道...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Functional Reactive Programming">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/FRP.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Spring 5 包含了 Reactor，專案官方網站上寫著第四代 Reactive 程式庫，世代的區隔之說來自於〈Advanced Reactive Java〉，其實不用太在意世代劃分，重要的是知道...">
+
+    <title>Functional Reactive Programming</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FRP.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Functional Reactive Programming</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Spring 5 包含了 <a href="https://projectreactor.io/">Reactor</a>，專案官方網站上寫著第四代 Reactive 程式庫，世代的區隔之說來自於〈<a href="https://akarnokd.blogspot.com/2016/03/operator-fusion-part-1.html">Advanced Reactive Java</a>〉，其實不用太在意世代劃分，重要的是知道，Reactor 支援 Functional Reactive Programming。</p>
+<p>對於 Reactive Programming 一般常看到的定義是：</p>
+<blockquote><p><strong>可以自動傳播資料流變化的程式設計典範。</strong></p>
+</blockquote>
+<p>在一般設計典範中，如果寫下了 c = b + 5，在該程式碼運算過後，變數 c 的值就固定了，若有其他流程導致變數 b 改變，c 的值並不會自動變化，然而在 Reactive Programming 的概念中，c 的值必須對 b 的值作出反應，這對多數開發者而言，似乎是有點陌生的功能概念。</p>
+<p>實際上若用過試算表軟體，應該知道這類軟體的功能之一：可以在欄位 C1 輸入 =B1+5，如此就會將欄位 B1 的值加 5 後作為 C1 的值，如果使用者變動了 B1 的值，那麼變化會傳播，C1 的值也會自動反應變化；另外像是聯級（Cascade）表單、搜尋框自動提示等功能，某些程度都可以算是 Reactive 概念的實現。</p>
+<p>想要實作出試算表欄位、聯級表單、搜尋框自動提示之類的功能，方式之一基於發佈訂閱模式，可以訂閱某事件，並在事件發生時獲得通知以執行對應的變化操作，當任務不複雜時，這個方式也沒什麼問題。</p>
+<p>然而，如果事情變得複雜的話，例如，本來實作的流程是「欄位失焦時發出請求，請求完成後更新表單，表單欄位更新後顯示提示訊息」，現在若想「欄位失焦時發出請求，而請求完成後」另外發出一個請求呢？你得將新請求按插在相對的處理器之中，若另外想在「欄位失焦時發出請求，請求完成後更新表單，表單欄位更新後顯示提示訊息」後又做其他的任務呢？你得又找出對應的處理器，將原始碼安插進去。</p>
+<p>也就是說你想要的是，能夠基於某個「事件流程」來做些組合與銜接，可想而知的，在事件間關係複雜之時，這種做法就會令程式碼流程變得錯綜複雜。</p>
+<p>既然談到了「事件流程」，來想想，事件發生時不是會有事件相關的資料嗎？像是鍵盤事件會有按上哪個鍵的訊息，這些資料是在「事件流程」中流動，談到資料流動，就會讓人想到 Java 8 的 Stream API：</p>
+<pre class="prettyprint"><code lang="java">source.filter(n -&gt; n &gt; 10)
+      .map(n -&gt; n * 5)
+      .forEach(out::println);
+</code></pre>
+<p>如果在「事件流程」中流動的事件資料，也能像上頭這樣處理就好了，例如底下的概念程式碼：</p>
+<pre class="prettyprint"><code lang="java">fromEvent("blur", field).flatMap(evt -&gt; fromEvent('load', request(evt.text)))
+                        .flatMap(evt -&gt; fromEvent('change', changeName(evt.responseText)))
+                        .subscribe(message::pop);
+</code></pre>
+<p>與 Stream API 不同的是，Stream 的資料來源是被動地提取，而事件這類資料是主動地發送，這樣就仍然可以處理先前談到的事件流程，若也能進一步銜接與組合：</p>
+<pre class="prettyprint"><code lang="java">var keywordLoaded = fromEvent("blur", field).flatMap(evt -&gt; fromEvent('load', request(evt.text)));
+var fieldChanged = keywordLoaded.flatMap(evt -&gt; fromEvent('change', changeName(evt.responseText)));
+</code></pre>
+<p>那麼對 <code>keywordLoaded</code> 這個事件流有興趣的開發者，可以直接再銜接想進行的流程，對 <code>fieldChanged</code> 有興趣的開發者，也可以組合出自己的事件流，這些事件流也可以進一步再被組合，那就可以避免程式碼流程變得錯綜複雜了！</p>
+<blockquote><p><strong>Reactive 在於辨識出可銜接與組合的資料流。</strong></p>
+</blockquote>
+<p>實際上要實作出程式庫來支援資料流的銜接、組合，必須得付出一番功夫，而且還得保持關切點清楚明白，也就是資料流清晰，銜接與組合也容易，這就是為什麼採用 Functional Programming 風格的原因，因為資料流的處理細節，被隱藏在各個高階操作之下，採用 Functional Programming 的 Reactive 設計，就被稱為 Reactive Functional Programming 了。</p>
+<p>在 Reactive Functional Programming 的概念逐漸成形之際，由於各技術生態圈都有這方面的需求與實現，為了避免各搞各的，造成日後相容性的問題，因而催生了 <a href="http://www.reactive-streams.org/">Reactive Streams</a>，在 <a href="https://github.com/ReactiveX">ReactiveX</a> 中有著各個技術生態圈的實現。</p>
+<p>就 Java 這部份具體來說，規格在 <code>org.reactivestreams</code> 套件下定義了 <code>Publisher</code>、<code>Subscriber</code>、 <code>Subscription</code> 與 <code>Processor</code> 四個介面（詳細方法簽署等可參考 <a href="https://www.reactive-streams.org/reactive-streams-1.0.0-javadoc/">JavaDoc</a>）。</p>
+<p><code>Publisher</code> 實例會發佈資料串流，接受 <code>Subscriber</code> 的訂閱，並建立一個 <code>Subscription</code> 實例代表該次訂閱，在訂閱成功事件發生時，會呼叫 <code>Subscriber</code> 的 <code>onSubscribe</code> 並傳入 <code>Subscription</code> 實例。</p>
+<p><code>Subscription</code> 是 <code>Publisher</code>、<code>Subscriber</code> 之間溝通的橋樑，可以進行流量控制，這是為了避免訂閱者來不及消化資料流來源產 生的資料，而引發事件的持續堆積而造成記憶體的滿溢，<code>Subscriber</code> 可以透過傳入的 <code>Subscription</code>，使用 <code>request(n)</code> 向 <code>Publisher</code> 請求 <code>n</code> 筆資料，或者是透過 <code>cancel</code> 要求 <code>Publisher</code> 停止傳送資料並清除資源。</p>
+<p>資料流可能被轉換，<code>Processor</code> 同時扮演著 <code>Publisher</code> 與 <code>Subscriber</code>（<code>Processor</code> 繼承了這兩個介面），在最前端的 <code>Subscriber</code> 與最末端的 <code>Subscriber</code> 之間，可以串接多個 <code>Processor</code>，每個 <code>Processor</code> 代表著整個資料流串的一個階段。</p>
+<p>在 Java 的領域，早期就有 RxJava 可以用來支援 Reactive Functional Programming，後來為了符合 Reactive Streams 規範，而重寫為 RxJava 2，目前的 <a href="https://github.com/ReactiveX/RxJava">RxJava</a> 庫，就是 RxJava 2 的實現。</p>
+<p>在 Java 標準平台這塊是在 Java 9 引入，具體來說，是在 <code>java.util.concurrent.Flow</code> 類別中定義了四個介面，它們遵守 Reactive Streams 的規範，因此各介面下實際的方法簽署與 <code>org.reactivestreams</code> 套件下的定義是一樣的，不過，Flow API 還是個空殼，還需等待實作品。</p>
+<p>至於 Spring 的 Reactor，也實現了 Reactive Streams 規範，主要是用來支援 Reactive 堆疊，像是 <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html">Web Flux</a>，問題來了，Spring 為何不直接基於 RxJava 2，而是打造專屬的 Reactive Streams 實作呢？</p>
+<p>就技術而言，Reactor 是在 Java 8 的基礎上開發，並全面擁抱 Java 8 之後的新 API，像是 Lambda 相關介面、新日期與時間 API 等，這意謂著，專案如果還是基於 Java 7 或更早版本，就無法使用 Reactor。</p>
+<p>在 API 層面，RxJava 2 有著因為歷史發展脈絡的原因，不得不保留一些令人容易困惑或混淆的型態或操作，而 Reactor 在這方面，都有著明確的對應 API 來取代。</p>
+<p>另一方面，Reactor 較直覺易用，例如之後會介紹的 <code>Mono</code> 與 <code>Flux</code>，實現了 Reactive Streams 的 <code>Publisher</code> 介面，並簡化了訊息發布，讓開發者在許多場合，不用處理 <code>Subscriber</code> 和 <code>Subscription</code> 的細節（想想剛剛速談那幾個介面時，是不是有點頭暈？），在 Web Flux 中，<code>Mono</code> 與 <code>Flux</code> 也是主要的操作對象。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

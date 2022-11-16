@@ -1,0 +1,248 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="該是來正式談談 WebAssembly 文字格式的時候了，因為其副檔名通常都會是 .wat，接下來就簡稱 Wat 吧！
+WebAssembly 是模組為單位，一個最簡單的 Wat 可以是：
+(modu...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Hello 模組">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Module.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="該是來正式談談 WebAssembly 文字格式的時候了，因為其副檔名通常都會是 .wat，接下來就簡稱 Wat 吧！
+WebAssembly 是模組為單位，一個最簡單的 Wat 可以是：
+(modu...">
+
+    <title>Hello 模組</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Module.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Hello 模組</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>該是來正式談談 WebAssembly 文字格式的時候了，因為其副檔名通常都會是 .wat，接下來就簡稱 Wat 吧！</p>
+<p>WebAssembly 是模組為單位，一個最簡單的 Wat 可以是：</p>
+<pre class="prettyprint"><code lang="wat">(module)
+</code></pre>
+<p>這是一個合法的模組，在編譯過後可以載入瀏覽器而不會發生任何錯誤，當然它什麼事都不做，編譯產生的 .wasm 檔案，基本上會有以下內容（透過 <a href="https://github.com/WebAssembly/wabt">WABT</a> 的 <code>wat2wasm</code> 時加上 <code>-v</code> 引數可得到）：</p>
+<pre class="prettyprint"><code lang="wat">0000000: 0061 736d                                 ; WASM_BINARY_MAGIC
+0000004: 0100 0000                                 ; WASM_BINARY_VERSION
+</code></pre>
+<p>一開始的 0061736D 魔法數字，其實代表著 \0asm，接下來的 01000000 是版本號碼，WebAssembly 採用 Little-endian，低位元組排列在前，因此版本號目前是 1。</p>
+<p>一個 WebAssembly 模組可以包含許多區段（Section），就 Wat 撰寫時會用到的語法來說，主要有以下幾個區段：</p>
+<ul>
+<li><code>import</code></li>
+<li><code>export</code></li>
+<li><code>start</code></li>
+<li><code>global</code></li>
+<li><code>memory</code></li>
+<li><code>data</code></li>
+<li><code>table</code></li>
+<li><code>elements</code></li>
+<li><code>function 與 code</code></li>
+</ul>
+<p>一下子要認識全部的區段沒有意義，這會是日後逐一說明的課題，底下先來增加幾個基本常用的區段，認識一下基本的模組概念，首先，來增加一個 <code>main</code> 函式區段：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main)
+)
+</code></pre>
+<p>這個函式沒有定義參數與結果型態，也沒有定義要執行的程式碼，編譯產生的 .wasm 會有以下內容：</p>
+<pre class="prettyprint"><code lang="wat">0000000: 0061 736d                                 ; WASM_BINARY_MAGIC
+0000004: 0100 0000                                 ; WASM_BINARY_VERSION
+; section "Type" (1)
+0000008: 01                                        ; section code
+0000009: 00                                        ; section size (guess)
+000000a: 01                                        ; num types
+; type 0
+000000b: 60                                        ; func
+000000c: 00                                        ; num params
+000000d: 00                                        ; num results
+0000009: 04                                        ; FIXUP section size
+; section "Function" (3)
+000000e: 03                                        ; section code
+000000f: 00                                        ; section size (guess)
+0000010: 01                                        ; num functions
+0000011: 00                                        ; function 0 signature index
+000000f: 02                                        ; FIXUP section size
+; section "Code" (10)
+0000012: 0a                                        ; section code
+0000013: 00                                        ; section size (guess)
+0000014: 01                                        ; num functions
+; function body 0
+0000015: 00                                        ; func body size (guess)
+0000016: 00                                        ; local decl count
+0000017: 0b                                        ; end
+0000015: 02                                        ; FIXUP func body size
+0000013: 04                                        ; FIXUP section size
+</code></pre>
+<p>在這邊可以看到 Type、Function、Code 等區段，各區段下還有各自的欄位。</p>
+<p>實際上，Wat 有 <code>type</code> 可以定義 Type 區段，不過 Type 部份通常會自動根據 Wat 內容產生，可以使用 <code>wasm2wat</code> 將產生的 .wasm 轉為 .wat：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (type (;0;) (func))
+  (func (;0;) (type 0)))
+</code></pre>
+<p>在這邊可以看到 <code>(;0;)</code>，這是註解，夾在 <code>(;</code> 與 <code>;)</code> 之間的文字是會被忽略的，兩個註解的意思都是索引 0。</p>
+<p><code>(type (;0;) (func))</code> 表示函式的型態，沒有傳回，每個型態會有個索引，從 0 開始，在 .wasm 中就是底下這個部份：</p>
+<pre class="prettyprint"><code lang="wat">; type 0
+000000b: 60                                        ; func
+000000c: 00                                        ; num params
+000000d: 00                                        ; num results
+0000009: 04                                        ; FIXUP section size
+</code></pre>
+<p><code>(func (;0;) (type 0))</code> 表示函式，每個函式會有個索引，從 0 開始，在 <code>(func (;0;) (type 0))</code> 中的 <code>(type 0)</code> 表示，這個函式的型態是方才索引 0，也就是 <code>(type (;0;) (func))</code> 定義之型態。</p>
+<p>也就是說，Wat 中的 <code>$main</code> 這類名稱，只是開發者撰寫 Wat 時方便，在編譯過後實際上是透過索引來指定。</p>
+<p>目前只有一個函式，因此型態與函式索引都是 0，現在來加個 <code>import</code>：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "helloworld" (func $helloworld))
+    (func $main)
+)
+</code></pre>
+<p>.wasm 的內容會是：</p>
+<pre class="prettyprint"><code lang="wat">0000000: 0061 736d                                 ; WASM_BINARY_MAGIC
+0000004: 0100 0000                                 ; WASM_BINARY_VERSION
+; section "Type" (1)
+0000008: 01                                        ; section code
+0000009: 00                                        ; section size (guess)
+000000a: 01                                        ; num types
+; type 0
+000000b: 60                                        ; func
+000000c: 00                                        ; num params
+000000d: 00                                        ; num results
+0000009: 04                                        ; FIXUP section size
+; section "Import" (2)
+000000e: 02                                        ; section code
+000000f: 00                                        ; section size (guess)
+0000010: 01                                        ; num imports
+; import header 0
+0000011: 03                                        ; string length
+0000012: 656e 76                                  env  ; import module name
+0000015: 0a                                        ; string length
+0000016: 6865 6c6c 6f77 6f72 6c64                 helloworld  ; import field name
+0000020: 00                                        ; import kind
+0000021: 00                                        ; import signature index
+000000f: 12                                        ; FIXUP section size
+; section "Function" (3)
+0000022: 03                                        ; section code
+0000023: 00                                        ; section size (guess)
+0000024: 01                                        ; num functions
+0000025: 00                                        ; function 0 signature index
+0000023: 02                                        ; FIXUP section size
+; section "Code" (10)
+0000026: 0a                                        ; section code
+0000027: 00                                        ; section size (guess)
+0000028: 01                                        ; num functions
+; function body 0
+0000029: 00                                        ; func body size (guess)
+000002a: 00                                        ; local decl count
+000002b: 0b                                        ; end
+0000029: 02                                        ; FIXUP func body size
+0000027: 04                                        ; FIXUP section size
+</code></pre>
+<p>可以看到有了 type 0 與 type 1 的欄位，相同型態只會使用定義一個 type x，type 0 是 <code>helloworld</code> 函式之型態，type 1 是 <code>main</code> 函式之型態，</p>
+<p>然後上面也出現了 Import 區段以及相關欄位，因為被匯入的函式會是索引 0，因此 <code>main</code> 函式的部份就成了索引 1，來將 .wasm 轉為 .wat 看看：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (type (;0;) (func (param i32)))
+  (type (;1;) (func))
+  (import "env" "log" (func (;0;) (type 0)))
+  (func (;1;) (type 1)))
+</code></pre>
+<p>透過這個方式，可以逐漸認識區段以及 .wasm 的二進位結構，二進位結構的說明，可以參考官方〈<a href="https://webassembly.org/docs/binary-encoding/">Binary Encoding</a>〉的內容。</p>
+<p>進一步地，來定義函式本體，以及 <code>start</code> 區段：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "helloworld" (func $helloworld))
+    (func $main
+        call $helloworld
+    )
+    (start $main)
+)
+</code></pre>
+<p><code>call</code> 用來呼叫函式，可以指定名稱（如果有定義的話）或索引，因此 <code>call 0</code> 也是相同的；<code>start</code> 呼叫的函式，會在模組載入、初始化之後執行，也就是說上面的程式，在模組載入之後，就會呼叫 <code>main</code> 函式，而 <code>main</code> 進一步呼叫匯入的 <code>helloworld</code> 函式，<code>start</code> 之後也可以接上索引。</p>
+<p>上面的程式編譯過後轉回 .wat，會有以下內容：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (type (;0;) (func))
+  (import "env" "helloworld" (func (;0;) (type 0)))
+  (func (;1;) (type 0)
+    call 0)
+  (start 1))
+</code></pre>
+<p>以上認識的基本的模組結構，更多的說明會是之後文件的課題，最後，搭配以上的程式，假設 .wasm 的主檔名是 helloworld，來個 Hello World 吧！</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="console"&gt;&lt;/div&gt;
+
+    &lt;script&gt;
+
+    const console = document.getElementById('console');
+    const importObj = {
+        env: {
+            helloworld() {
+                console.innerHTML = 'Hello World';
+            }
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('helloworld.wasm'), importObj);
+
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>要匯入函式，必須建立匯入物件來組織，由於 .wat 中使用 <code>(import "env" "helloworld" (func $helloworld))</code>，因此物件上必須有 <code>env</code> 特性，參考著一個物件作為名稱空間，被匯入的函式名稱要與 <code>env</code> 上組織的函式名稱相同。</p>
+<p>在上例，<code>helloworld</code> 函式會將 <code>&lt;div id="console"&gt;&lt;/div&gt;</code> 的 <code>innerHTML</code> 設定為 <code>'Hello World'</code>，因此可以直接看到網頁上出現了 Hello World 的字樣。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="Promise 解決了非同步任務回呼地獄的問題，然而是屬於 API 層面的方案，基本上還是需要搭配回呼函式，而且本質上還是非同步的，總是沒那麼方便；ES8 以後有 a">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="JavaScript::async、await" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-function/async-await/" />
+    <meta property="og:description" content="Promise 解決了非同步任務回呼地獄的問題，然而是屬於 API 層面的方案，基本上還是需要搭配回呼函式，而且本質上還是非同步的，總是沒那麼方便；ES8 以後有 a" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="JavaScript::async、await" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-function/async-await/" />
+    <meta name="twitter:description" content="Promise 解決了非同步任務回呼地獄的問題，然而是屬於 API 層面的方案，基本上還是需要搭配回呼函式，而且本質上還是非同步的，總是沒那麼方便；ES8 以後有 a" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443687" type="image/x-icon">
+    <title> JavaScript  :: async、await</title>
+    <link href="../../../css/nucleus.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443687.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443687"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/javascript/es-function/async-await/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/javascript/" title="JavaScript" class="dd-item parent"><a href="../../index.html">JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/" title="這些東西不簡單" class="dd-item"><a href="../../basics/index.html">| 這些東西不簡單</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/es5/" title="從 ECMAScript 5 開始" class="dd-item"><a href="../../basics/es5/index.html">從 ECMAScript 5 開始</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/var/" title="使用 var 宣告變數" class="dd-item"><a href="../../basics/var/index.html">使用 var 宣告變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/type/" title="與眾不同的資料型態" class="dd-item"><a href="../../basics/type/index.html">與眾不同的資料型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/wat/" title="弱型別的代價 – WAT！" class="dd-item"><a href="../../basics/wat/index.html">弱型別的代價 – WAT！</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/operator/" title="操弄數值的運算子" class="dd-item"><a href="../../basics/operator/index.html">操弄數值的運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object/" title="鍵值聚合體的物件" class="dd-item"><a href="../../basics/object/index.html">鍵值聚合體的物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object-api/" title="物件特性 API" class="dd-item"><a href="../../basics/object-api/index.html">物件特性 API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/array/" title="數字為特性的陣列" class="dd-item"><a href="../../basics/array/index.html">數字為特性的陣列</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/" title="一切都與函式有關" class="dd-item"><a href="../../function/index.html">| 一切都與函式有關</a><ul>
+          <li data-nav-id="/zh-tw/javascript/function/abc/" title="不可輕忽的函式基礎" class="dd-item"><a href="../../function/abc/index.html">不可輕忽的函式基礎</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/first-class/" title="初探一級函式" class="dd-item"><a href="../../function/first-class/index.html">初探一級函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/this/" title="this 是什麼？" class="dd-item"><a href="../../function/this/index.html">this 是什麼？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/closure/" title="Closure 與一級函式" class="dd-item"><a href="../../function/closure/index.html">Closure 與一級函式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/" title="定義物件" class="dd-item"><a href="../../object/index.html">| 定義物件</a><ul>
+          <li data-nav-id="/zh-tw/javascript/object/constructor/" title="隱藏諸多細節的建構式" class="dd-item"><a href="../../object/constructor/index.html">隱藏諸多細節的建構式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/prototype/" title="函式 prototype 特性" class="dd-item"><a href="../../object/prototype/index.html">函式 prototype 特性</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/introspection/" title="檢驗物件" class="dd-item"><a href="../../object/introspection/index.html">檢驗物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/namespace/" title="名稱空間管理" class="dd-item"><a href="../../object/namespace/index.html">名稱空間管理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/json/" title="輕量資料格式 JSON" class="dd-item"><a href="../../object/json/index.html">輕量資料格式 JSON</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/" title="這些東西簡單了嗎？" class="dd-item"><a href="../../es-basics/index.html">| 這些東西簡單了嗎？</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-basics/let-const/" title="let 與 const" class="dd-item"><a href="../../es-basics/let-const/index.html">let 與 const</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/number-string/" title="增強的數值與字串" class="dd-item"><a href="../../es-basics/number-string/index.html">增強的數值與字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/symbol/" title="作為協定的符號" class="dd-item"><a href="../../es-basics/symbol/index.html">作為協定的符號</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/bigint/" title="大整數 bigint" class="dd-item"><a href="../../es-basics/bigint/index.html">大整數 bigint</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/object-literal/" title="物件實字簡化與增強" class="dd-item"><a href="../../es-basics/object-literal/index.html">物件實字簡化與增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/iterator/" title="for/of 與迭代器" class="dd-item"><a href="../../es-basics/iterator/index.html">for/of 與迭代器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/data-pattern/" title="Destructuring、Rest 與 Spread" class="dd-item"><a href="../../es-basics/data-pattern/index.html">Destructuring、Rest 與 Spread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/collection/" title="Array、Set、Map 與 ArrayBuffer" class="dd-item"><a href="../../es-basics/collection/index.html">Array、Set、Map 與 ArrayBuffer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/sameness/" title="JavaScript 的相等性" class="dd-item"><a href="../../es-basics/sameness/index.html">JavaScript 的相等性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/" title="不再只是 function 了" class="dd-item parent"><a href="../index.html">| 不再只是 function 了</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-function/enhanced/" title="函式的增強" class="dd-item"><a href="../enhanced/index.html">函式的增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/arrow/" title="箭號函式" class="dd-item"><a href="../arrow/index.html">箭號函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/generator/" title="產生器函式" class="dd-item"><a href="../generator/index.html">產生器函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/promise/" title="非同步與 Promise" class="dd-item"><a href="../promise/index.html">非同步與 Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/async-await/" title="async、await" class="dd-item active"><a href="index.html">async、await</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/" title="類別與模組" class="dd-item"><a href="../../class-module/index.html">| 類別與模組</a><ul>
+          <li data-nav-id="/zh-tw/javascript/class-module/class/" title="類別語法" class="dd-item"><a href="../../class-module/class/index.html">類別語法</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/inheritance/" title="實作繼承" class="dd-item"><a href="../../class-module/inheritance/index.html">實作繼承</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/module/" title="模組入門" class="dd-item"><a href="../../class-module/module/index.html">模組入門</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/" title="瀏覽器與 JavaScript" class="dd-item"><a href="../../script/index.html">| 瀏覽器與 JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/script/tag/" title="初探 script 標籤" class="dd-item"><a href="../../script/tag/index.html">初探 script 標籤</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/module/" title="script 標籤與模組" class="dd-item"><a href="../../script/module/index.html">script 標籤與模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/security/" title="script 標籤的安全性" class="dd-item"><a href="../../script/security/index.html">script 標籤的安全性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/" title="關於 DOM" class="dd-item"><a href="../../dom/index.html">| 關於 DOM</a><ul>
+          <li data-nav-id="/zh-tw/javascript/dom/abc/" title="DOM 簡介" class="dd-item"><a href="../../dom/abc/index.html">DOM 簡介</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/traversing/" title="走訪 DOM 樹" class="dd-item"><a href="../../dom/traversing/index.html">走訪 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/modification/" title="修改 DOM 樹" class="dd-item"><a href="../../dom/modification/index.html">修改 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/event/" title="事件模型" class="dd-item"><a href="../../dom/event/index.html">事件模型</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/" title="樣式處理" class="dd-item"><a href="../../style/index.html">| 樣式處理</a><ul>
+          <li data-nav-id="/zh-tw/javascript/style/abc/" title="存取樣式資訊" class="dd-item"><a href="../../style/abc/index.html">存取樣式資訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/display-visibility-opacity/" title="顯示、可見與不透明" class="dd-item"><a href="../../style/display-visibility-opacity/index.html">顯示、可見與不透明</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/class/" title="操作 class 屬性" class="dd-item"><a href="../../style/class/index.html">操作 class 屬性</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">JavaScript</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">不再只是 function 了</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">async、await</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#async-函式">async 函式</a></li>
+    <li><a href="index.html#await-與-promise">await 與 Promise</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/asynchronous/">asynchronous</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/promise/">promise</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>async、await</h1>
+
+ <i class="space fa fa-calendar"> August 16, 2022</i> 
+<p><code>Promise</code> 解決了非同步任務回呼地獄的問題，然而是屬於 API 層面的方案，基本上還是需要搭配回呼函式，而且本質上還是非同步的，總是沒那麼方便；ES8 以後有 <code>async</code>、<code>await</code>，從語法層面上支援非同步任務的程式碼撰寫，更易於與同步任務的程式碼結合運用。</p>
+<h2 id="async-函式">async 函式</h2>
+<p>就語義上，<code>async</code> 用來標示函式執行時是非同步，也就是函式中定義了獨立於程式主流程的任務，若呼叫 <code>async</code> 函式的話，會傳回一個 <code>Promise</code> 物件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; async <span style="color:#66d9ef">function</span> foo<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...     return &#39;foo&#39;;
+</span></span><span style="display:flex;"><span>... }
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; foo<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>Promise { &#39;foo&#39; }
+</span></span><span style="display:flex;"><span>&gt; foo<span style="color:#f92672">()</span>.then<span style="color:#f92672">(</span>console.log<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Promise { &lt;pending&gt; }
+</span></span><span style="display:flex;"><span>&gt; foo
+</span></span><span style="display:flex;"><span>[AsyncFunction: foo]
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>async</code> 函式是 <code>AsyncFunction</code> 的實例，型態為 <code>Function</code> 的子類型，雖然函式中定義了 <code>return</code> 傳回字串 <code>'foo'</code>，實際上這代表了 <code>async</code> 函式傳回的 <code>Promise</code> 達成任務後的結果，若要取得結果，方式之一就是使用 <code>Promise</code> 的 <code>then</code> 方法，另一個方式是使用稍後會介紹的 <code>await</code> 來取得。</p>
+<p><code>async</code> 函式中 <code>return</code> 的結果，若是 <code>Promise</code> 或 thenable 物件，可以取得該物件達成任務後的結果，因此可用來銜接其他傳回 <code>Promise</code> 的非同步函式。例如，底下範例會在 1 秒之後顯示數字的結果（而不是顯示 <code>Promise</code> 實例）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">n</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">setTimeout</span>(
+</span></span><span style="display:flex;"><span>            () =&gt; <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">random</span>()), 
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>(<span style="color:#a6e22e">n</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">n</span>); 
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">foo</span>(<span style="color:#ae81ff">10</span>).<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">v</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">v</span>));
+</span></span></code></pre></div><p>如果 <code>async</code> 函式執行之後，無法達成任務呢？可以使用 <code>throw</code>，例如：</p>
+<pre tabindex="0"><code class="language-javascripts" data-lang="javascripts">async function randomDivided(divisor) {
+    let n = Math.floor(Math.random() * 10);
+    if(n !== 0) {
+        return divisor / n;
+    } 
+    throw new Error(&#39;Shit happens: divided by zero&#39;);
+}
+
+randomDivided(10)
+    .then(
+        n   =&gt; console.log(n),
+        err =&gt; console.log(err)
+    );
+</code></pre><p>在 <code>async</code> 函式中若 <code>throw</code>，表示任務無法達成，也就可以使用 <code>Promise</code> 的 <code>then</code> 的第二個回呼函式來處理。</p>
+<h2 id="await-與-promise">await 與 Promise</h2>
+<p>ES8 以後與 <code>async</code> 搭配的是 <code>await</code>，就語義上，若想等待 <code>async</code> 函式執行完後，再執行後續的流程，可以使用 <code>await</code>。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;foo&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">foo</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r</span>); <span style="color:#75715e">// 顯示 foo
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span>();
+</span></span></code></pre></div><p><code>await</code> 必須撰寫在 <code>async</code> 函式之中，若不想撰寫 <code>main</code> 函式，另一個方案是使用 IIFE：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;foo&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">foo</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r</span>);
+</span></span><span style="display:flex;"><span>})();
+</span></span></code></pre></div><p>ES13 以後，可以在頂層直接撰寫 <code>await</code>，如果你的環境已經實現該特性，就可以這麼寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;foo&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">foo</span>();
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r</span>);
+</span></span></code></pre></div><p>實際上，<code>await</code> 可以接上任何值，不一定要搭配 <code>async</code> 函式，只不過若是接上 <code>Promise</code> 實例，會在任務達成時，取得達成值作為 <code>await</code> 的結果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">n</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">setTimeout</span>(
+</span></span><span style="display:flex;"><span>            () =&gt; <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">random</span>()), 
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2000</span>
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r1</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r2</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r3</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>);
+</span></span><span style="display:flex;"><span>})();   
+</span></span></code></pre></div><p><code>await</code>  時 <code>Promise</code> 若還沒達成任務，只是不會執行 <code>async</code> 函式中定義的後續流程，然而底層的事件迴圈並沒有被阻斷，若檢查到事件佇列中有新事件，還是會執行對應的任務；例如若在上例中加段程式碼：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">…</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">setTimeout</span>(
+</span></span><span style="display:flex;"><span>    () =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">random</span>()), 
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>);
+</span></span><span style="display:flex;"><span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r1</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r2</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">r3</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>);
+</span></span><span style="display:flex;"><span>})();   
+</span></span></code></pre></div><p>在程式碼執行 <code>await asyncFoo(10)</code> 後，需要 2 秒的時間才能取得任務達成值，然而 1 秒時間到時，<code>setTimeout</code> 設定的回呼函式還是會執行。</p>
+<p>有些開發者會熟悉支援執行緒的語言，在 JavaScript 中會想尋找 <code>sleep</code> 之類、令執行緒停止指定時間的功能；然而，JavaScript 不支援多執行緒，若令唯一的執行緒停止指定時間，結果會像在櫃台前排隊時，令櫃台人員發呆指定的時間，什麼事都不做，想想看隊伍後頭的人會怎樣？</p>
+<p>然而基於方才的描述，<code>await</code> 時 <code>Promise</code> 若還沒達成任務，底層的事件迴圈並沒有被阻斷，因而透過 <code>await</code> 與 <code>Promise</code>，倒是可以模擬 <code>sleep</code> 的功能，例如底下的程式片段，就流程來說確實是間隔了一秒：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">sleep</span>(<span style="color:#a6e22e">millis</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">millis</span>));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#66d9ef">new</span> Date());
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">sleep</span>(<span style="color:#ae81ff">1000</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#66d9ef">new</span> Date());
+</span></span><span style="display:flex;"><span>})();
+</span></span></code></pre></div><p>並不是有了 <code>async</code>、<code>await</code>，就不需要 <code>Promise</code> 了，理由之一是 <code>async</code> 函式執行後也是傳回 <code>Promise</code>；另一個理由是在某些場合，必須使用 <code>Promise</code> 來銜接回呼風格的 API。例如，Node.js 的 <code>fs</code> 模組中 <code>readFile</code> 函式，就可以自訂個 <code>readTxtFile</code> 如下傳回 <code>Promise</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;fs&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">readTxtFile</span>(<span style="color:#a6e22e">filename</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#a6e22e">filename</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">content</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">content</span>.<span style="color:#a6e22e">toString</span>());
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">readTxtFile</span>(<span style="color:#e6db74">&#39;foo.js&#39;</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>);
+</span></span></code></pre></div><p>使用 <code>Promise</code> 來銜接回呼風格的API之後，進一步地就可以搭配 <code>async</code>、<code>await</code> 來使用了。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">content</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">readTxtFile</span>(<span style="color:#e6db74">&#39;foo.js&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">content</span>);
+</span></span><span style="display:flex;"><span>})();
+</span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/javascript/es-function/async-await/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/javascript/es-function/async-await/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=JavaScript%3a%3aasync%e3%80%81await&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjavascript%2fes-function%2fasync-await%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../promise/index.html" title="非同步與 Promise"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../../class-module/index.html" title="類別與模組"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443687"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443687"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443687"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443687"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443687"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443687"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443687"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443687"></script>
+  </body>
+</html>

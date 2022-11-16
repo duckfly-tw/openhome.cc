@@ -1,0 +1,244 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java Tutorial 第四堂（1）使用 spring-webmvc 框架&nbsp;&lt;&lt; 前情
+      
+      
+      在&nbsp;Java Tutorial...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Java Tutorial 第四堂（2）使用 spring 相依注入">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaTutorial/SpringDI.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Java Tutorial 第四堂（1）使用 spring-webmvc 框架&nbsp;&lt;&lt; 前情
+      
+      
+      在&nbsp;Java Tutorial...">
+
+
+    <title>Java Tutorial 第四堂（2）使用 spring 相依注入</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SpringDI.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Java Tutorial 第四堂（2）使用 spring 相依注入</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+      <br>
+      <br>
+      在&nbsp;<a href="SpringJdbc.html">Java Tutorial 第三堂（2）使用 spring-jdbc 存取資料庫</a> 中看過，為了能夠使用 <code>DvdDaoJdbcImpl</code>，我們必須建立 <code>DataSource</code> 實例並進行相關設定：
+      <pre class="prettyprint"><code lang="java">JDBCDataSource dataSource = new JDBCDataSource();
+dataSource.setUrl("jdbc:hsqldb:file:src/main/resources/db/dvd_library");
+dataSource.setUser("codedata");
+dataSource.setPassword("123456");</code></pre>
+      <br>
+      接著 <code>DataSource</code> 實例用來建立 <code>JdbcTemplate</code> 實例：
+      <pre class="prettyprint"><code lang="java">JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);</code></pre>
+      <br>
+      然後 <code>JdbcTemplate</code> 實例用來建立 <code>DvdDao</code> 實例：
+      <pre class="prettyprint"><code lang="java">DvdDao dvdDao = new DvdDaoJdbcImpl(jdbcTemplate);</code></pre>
+      <h1>物件建立與相依注入</h1>
+      物件的建立與<span style="color: #ff0000;"><strong>相依注入（Dependency Injection）</strong></span>是我們所關心的，只不過當過程太過冗長，模糊了商務流程之時，應該適當地將之分離，也許建立一個<strong>工廠方法</strong>會比較好：
+      <pre class="prettyprint"><code lang="java">public class DaoHelper {
+    public static DvdDao createDvdDao() {
+        JDBCDataSource dataSource = new JDBCDataSource();
+        dataSource.setUrl("jdbc:hsqldb:file:src/main/resources/db/dvd_library");
+        dataSource.setUser("codedata");
+        dataSource.setPassword("123456");
+        return new DvdDaoJdbcImpl(new JdbcTemplate(dataSource));
+    }
+}</code></pre>
+      <br>
+      那麼要取得 <code>DvdDao</code> 實例，就只要如下撰寫：
+      <pre class="prettyprint"><code lang="java">DvdDao dvdDao = DaoHelper.createDvdDao();</code></pre>
+      <br>
+      如此之來，程式碼的流程清晰了，而且即使是不懂 JDBC 或 <code>JdbcTemplate</code> 等的開發者，只要透過這樣的方式，也可以直接取得 <code>DvdDao</code> 進行操作。
+      <br>
+      <br>
+      這個 <code>DaoHelper</code> 當然是特定用途，隨著你打算開始整合各種程式庫或方案，你會遇到各種物件建立與相依設定需求，為此，你可能會重構 <code>DaoHelper</code> ，使之越來越通用，像是可透過組態檔來進行相依設定，甚至成為一個通用於各式物件建立與相依設定的容器（Container），實際上，這類容器，在 Java 的世界中早已存在，且有多樣性的選擇，你可以調查看看有哪些可以使用，避免直接重新打造輪子。
+      <h1>Spring 相依注入</h1>
+      先前的課程中已經使用過 Spring 中的一些方案，實際上，Spring 本身的核心就是一個相依注入容器，而且功能強大，事實上，在 <a
+
+        href="SpringWebMVC.html">Java Tutorial 第四堂（1）使用 spring-webmvc 框架</a> 中，就已經使用這個功能了，例如，當你在 dispatcher-servlet.xml 中如下設定時：
+      <pre class="prettyprint"><code lang="java">...
+    &lt;bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+          p:prefix="/"
+          p:suffix=".jsp"/&gt;
+...</code></pre>
+      <br>
+      因為 <span style="color: #ff0000;"><strong>spring-webmvc 本身就是基於 Spring 相依注入容器而建立起來的</strong></span>，就是在告知 Spring 為你建立 <code>InternalResourceViewResolver</code> 實例並完成相關設定。
+      <br>
+      <br>
+      Spring 的相依注入容器，英文上也常簡稱為 <span style="color: #ff0000;"><strong>DI（Dependency Injection）容器</strong></span> ，實際上，更早前 Spring 採用 IoC（Inversion of Control）容器這個名詞，不過這邊的 IoC 與&nbsp;Java Tutorial 第四堂（1）使用 spring-webmvc 框架 中談到的 IoC 有所不同，<strong>Spring 的 IoC 指的是物件建立與相依設定的控制權，由開發者手中轉換至容器身上，而 Web 框架之類的 IoC，指的是對流程的控制權，從開發者手中轉換至框架身上</strong>。
+      <br>
+      <br>
+      簡單來說，Spring 談到的 IoC 容器比較狹義，<strong>為了避免名詞混淆，Spring 建立使用 DI 容器來稱呼其核心容器</strong>。
+      <strong><span style="color: #ff0000;"><br>
+          <br>
+          練習 12：使用 Spring 相依注入</span></strong>
+      <br>
+      <br>
+      這個練習要將練習 10 與練習 11 整合在一起，建立一個簡單的 DVD 管理頁面。在 Lab 檔案的 exercises/exercise12 中有個 DVDLibrary 目錄，已經事先將練習 10 與練習 11 中可重用的程式碼（像是 Dvd.java、DvdDao.java 等）與設定檔（像是 web.xml、dispatcher-servlet.xml 等）準備好。
+      <br>
+      <br>
+      請開啟 DVDLibrary 目錄中的 build.gradle，在其中的 <code>dependencies</code> 中加上 <code>runtime 'jstl:jstl:1.2'</code>：
+      <pre class="prettyprint"><code lang="java">dependencies {
+    runtime 'jstl:jstl:1.2'
+    ...
+}</code></pre>
+      <br>
+      這是因為要顯示所有 DVD 清單時，必須得用迴圈之類的語法，不過不建議直接在 JSP 上撰寫 Java 程式碼，<strong>JSTL（JavaServer Pages Standard Tag Library）是標準方案，可提供像 HTML 語法的流程標籤，可避免 JSP 頁面中混雜著 Java 程式碼</strong>。
+      <br>
+      <br>
+      接著請開啟 src/main/webapp/WEB-INF 中的 dispatcher-servlet.xml，加入以下設定：
+      <pre class="prettyprint"><code lang="java">&lt;bean class="org.hsqldb.jdbc.JDBCDataSource"
+    p:url="jdbc:hsqldb:file:src/main/resources/db/dvd_library"
+    p:user="codedata"
+    p:password="123456"/&gt;</code></pre>
+      <br>
+      顯然地，這告訴 Spring 的 DI 容器，要建立 <code>JDBCDataSource</code> 實例，並設定使用者、密碼等相關資訊。
+      <br>
+      <br>
+      在 src/main/java/tw/codedata 目錄中建立 DvdController.java，內容撰寫如下：
+      <pre class="prettyprint"><code lang="java">package tw.codedata;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class DvdController {
+    private DvdDao DvdDao;
+
+    @Autowired
+    public void setDvdDao(DvdDao DvdDao) {
+        this.DvdDao = DvdDao;
+    }
+
+    public DvdDao getDvdDao() {
+        return DvdDao;
+    }
+
+    @RequestMapping("list")
+    public String list(Model m) {
+        m.addAttribute("dvds", getDvdDao().allDvds());
+        return "list";
+    }
+
+    @RequestMapping("add")
+    public String add(
+            @RequestParam("title") String title, 
+            @RequestParam("year") Integer year,
+            @RequestParam("duration") Integer duration,
+            @RequestParam("director") String director,
+            Model m) {
+        Dvd dvd = new Dvd(title, year, duration, director);
+        getDvdDao().saveDvd(dvd);
+        m.addAttribute("dvd", dvd);
+        return "success";
+    }
+}</code></pre>
+      <br>
+      注意到 <code>setDvdDao</code> 方法上有個 <code>@Autowired</code> 標註，這告訴 Spring，自動從 DI 容器中找到個型態相符之實例，並透過該方法注入給 <code>DvdController</code>，而根據 <code>@RequestMapping</code> 設定，請求 <code>"/list"</code> 時會由 <code>list</code> 方法處理，而請求 <code>"/add"</code> 時，會由 <code>add</code> 方法處理，兩個方法分別傳回 <code>"list"</code> 與 <code>"success"</code>，根據 dispatcher-servlet.xml 的設定，這會分別由 list.jsp 與 success.jsp 處理。
+      <br>
+      <br>
+      請在 src/main/webapp 目錄中，建立一個 success.jsp：
+      <pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+     &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+     &lt;title&gt;Success&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    You add a DVD.
+    &lt;ul&gt;
+       &lt;li&gt;Title: ${dvd.title}&lt;/li&gt;
+       &lt;li&gt;Year: ${dvd.year}&lt;/li&gt;
+       &lt;li&gt;Duration: ${dvd.duration}&lt;/li&gt;
+       &lt;li&gt;Director: ${dvd.director}&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      這個很簡單，再來建立一個 list.jsp：
+      <pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+    &lt;title&gt;All DVDs&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;c:forEach var="dvd" items="${dvds}"&gt;
+      &lt;h1&gt;${dvd.title}&lt;/h1&gt;
+      &lt;ul&gt;
+        &lt;li&gt;Year: ${dvd.year}&lt;/li&gt;
+        &lt;li&gt;Duration: ${dvd.duration}&lt;/li&gt;
+        &lt;li&gt;Director: ${dvd.director}&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;hr&gt;
+    &lt;/c:forEach&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <code><br>
+        @taglib</code> 宣告，這個 JSP 頁面會用到標籤庫，前置名稱為 <code>c</code>，<code>uri</code> 代表著 JSTL 獨一無二的識別，因此之後就可以使用 <code>&lt;c:forEach&gt;</code> 來顯示 DVD 清單。
+      <br>
+      <br>
+      DVDLibrary 中還為你建立了 index.jsp、add.jsp，分別是首頁與表單。執行 gradle tomcatRunWar 後，使用瀏覽器連接 http://localhost:8080/DVDLibrary/，就可以進行操作。以下是顯示 DVD 清單的一個頁面示範：
+      <br>
+      <br>
+      <a href="images/java-tutorial-the-4th-class-2-1.png"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" class="alignnone size-full wp-image-4234"
+
+          alt="java-tutorial-the-4th-class-2-1" src="images/java-tutorial-the-4th-class-2-1.png"
+
+          height="505" width="699" /></div></div></a>
+      <br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

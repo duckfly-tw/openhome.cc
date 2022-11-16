@@ -1,0 +1,281 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ActionMessages是Struts 1.1後所新增的類別，它變成了ActionErrors的父類別，同樣的，ActionMessage也是Struts 1.1新增的類別，ActionError...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="&lt;html:messages&gt;">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Struts/ActionMessage.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="ActionMessages是Struts 1.1後所新增的類別，它變成了ActionErrors的父類別，同樣的，ActionMessage也是Struts 1.1新增的類別，ActionError...">
+
+
+    <title>&lt;html:messages&gt;</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ActionMessage.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Struts 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>&lt;html:messages&gt;</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+
+
+
+
+
+
+
+
+
+ActionMessages是Struts 1.1後所新增的類別，它變成了ActionErrors的父類別，同樣的，ActionMessage也是Struts 1.1新增的類別，ActionError則已經不建議使用。<br>
+
+      <br>
+
+
+
+ActionMessages搭配Struts的&lt;html:messages&gt;標籤，在管理訊息時就更為簡易，以 <a href="ServerSideValidate.htm">伺服端表單驗證</a> 這篇為例，如果能使用ActionMessages搭配&lt;html:messages&gt;標籤，那麼訊息管理會很方便，例如 UserForm.java可以改為：
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>UserForm.java</li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br> <br>import javax.servlet.http.*; <br>import org.apache.struts.action.*;<br>import org.apache.struts.Globals;<br>import org.apache.struts.util.MessageResources;<br> <br>public class UserForm extends ActionForm {<br>    private String username;<br>    private String password;<br>    <br>    public void setUsername(String username) { <br>        this.username = username; <br>    } <br>    <br>    public void setPassword(String password) { <br>        this.password = password; <br>    } <br>    <br>    public String getUsername() { <br>        return username; <br>    }<br>    <br>    public String getPassword() {<br>        return password;<br>    } <br>    <br>    public void reset(ActionMapping mapping, <br>                      HttpServletRequest req) {<br>        username = null;<br>        password = null;<br>    }<br>    <br>    public ActionErrors validate(ActionMapping mapping, <br>                                HttpServletRequest request) {<br><br>        ActionErrors errors = new ActionErrors();<br>        if(getUsername() == null || <br>                getUsername().length() &lt; 1) {<br><br>            errors.add(ActionMessages.GLOBAL_MESSAGE, <br>                new ActionMessage("error.invalidUsername")); <br>        }<br>        <br>        if(getPassword() == null || <br>                getPassword().length() &lt; 1) {<br><br>            errors.add(ActionMessages.GLOBAL_MESSAGE, <br>                new ActionMessage("error.invalidPassword"));<br>        }<br>        <br>        return errors;<br>    }<br>}</code></pre>
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+      ActionMessage中的字串（例如 error.invalidUsername）對應於訊息檔案中的鍵值。LoginAction.java可以修改如下：<br>
+
+
+
+      
+      <ul>
+
+        <li>LoginAction.java</li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br> import javax.servlet.http.*; <br> import org.apache.struts.action.*; <br> import org.apache.commons.beanutils.PropertyUtils;<br> <br> public class LoginAction extends Action {<br>    public ActionForward execute(ActionMapping mapping,<br>                               ActionForm form,<br>                               HttpServletRequest request, <br>                               HttpServletResponse response) <br>                                  throws Exception { <br>        <br>        String username = (String) <br>          PropertyUtils.getSimpleProperty(form, "username"); <br>        String password = (String) <br>          PropertyUtils.getSimpleProperty(form, "password"); <br>        <br>        request.setAttribute("username", username);<br>        <br>        if(username.equals("caterpillar") &amp;&amp; <br>                  password.equals("1234")) {<br>            return mapping.findForward("helloUser"); <br>        }<br>        <br>        ActionMessages messages = new ActionMessages();<br>        messages.add(ActionMessages.GLOBAL_MESSAGE, <br>          new ActionMessage("message.namePasswordMismatched")<br>          );<br><br>        addMessages(request, messages);<br>        <br>        return mapping.findForward("loginFail"); <br>    }<br>}</code></pre>
+
+
+
+      <br>
+
+      
+
+最後配合&lt;html:messages&gt;標籤，可以輸出ActionMessages的內容，來修改一下fail.jsp：<br>
+
+
+
+      
+      <ul>
+
+        <li>fail.jsp</li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@ taglib uri="/tags/struts-html" prefix="html" %&gt;<br>&lt;%@ taglib uri="/tags/struts-bean" prefix="bean" %&gt;<br>&lt;html&gt;<br>&lt;head&gt; <br>&lt;title&gt;Sorry!&lt;/title&gt; <br>&lt;/head&gt; <br> &lt;body&gt;<br>    &lt;H1&gt;<br><br>    &lt;html:messages id="error"&gt; <br>        &lt;bean:write name="error"/&gt; <br>    &lt;/html:messages&gt;<br><br>    &lt;html:messages id="message" message="true"&gt; <br>        &lt;bean:write name="message"/&gt; <br>    &lt;/html:messages&gt;<br>    <br>    &lt;/H1&gt;<br>    &lt;p&gt;<br>    &lt;a href='/strutsapp/html/form.htm'&gt;Login&lt;/a&gt;<br> &lt;/body&gt; <br><br>&lt;/html&gt;</code></pre>
+
+
+
+      <br>
+
+      
+
+&lt;html:messages&gt;的message屬性如果不設定為true，會輸出ActionErrors中所儲存的訊息，Error代表的是一個操作方面的錯誤，例如錯誤操作導致使用者名稱或密碼為空（當然也許也是故意的）。<br>
+
+      <br>
+
+
+
+&lt;html:messages&gt;的message屬性如果設定為true，會輸出ActionMessages中所儲存的訊息，
+Message表示一個提示訊息，也許使用者輸入了不正確的資訊，例如在輸入名稱與密碼時打錯了字，程式要提示使用者他們輸入了不正確的訊息。<br>
+
+      <br>
+
+
+
+在國際化訊息方面，&lt;html:messages&gt;標籤是根據session中的Locale物件來決定要顯示區域訊息，您可以在 Action中使用setLocale()方法來改變Locale物件，例如：<br>
+
+      
+
+
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Locale locale = new Locale("zh", "CN");</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">setLocale(request, locale);</span><br>
+
+
+
+      </div>
+
+      
+
+&nbsp;<br>
+
+
+
+如上設定，&lt;html:messages&gt;會找messages_zh_CN.properties中的簡體中文訊息來顯示。現在的問題是，那ActionForm中的訊息呢？來看一下setLocale()中的原始碼您就知道怎麼作了：<br>
+
+      
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">protected void setLocale(HttpServletRequest request, </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Locale locale) {</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; HttpSession session = request.getSession();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (locale == null) {</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; locale = Locale.getDefault();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; session.setAttribute(Globals.LOCALE_KEY, locale);</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+      </div>
+
+      
+
+&nbsp;<br>
+
+
+
+所以如果您要一開始進行 ActionForm 驗證時就使用區域化訊息，則可以在reset()或validate()方法中加入：<br>
+
+      
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">HttpSession session = request.getSession();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.setAttribute(Globals.LOCALE_KEY, locale);</span><br>
+
+
+
+      </div>
+
+      
+
+&nbsp;<br>
+
+
+
+或者您可以在必要的地方加入以上這段訊息，像是Servlet Filter等地方，這就看您的需求而定了。 
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

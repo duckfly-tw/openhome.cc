@@ -1,0 +1,169 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Java/'https://openhome.cc/zh-tw/java/exception/throw/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="假設今天你受命開發一個程式庫，其中有個功能是讀取純文字檔案，並以字串傳回所有檔案中所有文字，你也許會這麼撰寫：
+      public class FileUtil {
+          &n...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="要抓還是要拋？">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Java/Throw.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="假設今天你受命開發一個程式庫，其中有個功能是讀取純文字檔案，並以字串傳回所有檔案中所有文字，你也許會這麼撰寫：
+      public class FileUtil {
+          &n...">
+
+
+    <title>要抓還是要拋？</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Throw.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>要抓還是要拋？</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>假設今天你受命開發一個程式庫，其中有個功能是讀取純文字檔案，並以字串傳回所有檔案中所有文字，你也許會這麼撰寫：</p>
+      <p style="margin-left: 40px;"><code>public class FileUtil {<br>
+          &nbsp;&nbsp;&nbsp; public static String readFile(String name) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; StringBuilder builder = new StringBuilder();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scanner scanner = new Scanner(new FileInputStream(name));<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(scanner.hasNext()) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.append(scanner.nextLine());<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.append('\n');<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } catch (FileNotFoundException ex) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ex.printStackTrace();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return builder.toString();<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }</code></p>
+      <p>雖然還沒正式介紹到Java中如何存取檔案，不過<code>Scanner</code>建構時可以給予<code>InputStream</code>實例，而<code>FileInputStream</code>可指定檔名來開啟與讀取檔案內容，是<code>InputStream</code>的子類別，因此可作為<code>Scanner</code>建構之用。由於建構<code>FileInputStream</code>時，API設計者聲明方法實作中會拋出<code>FileNotFoundException</code>，根據目前你學到的例外處理語法，於是你捕捉<code>FileNotFoundException</code>並在主控台中顯示錯誤訊息。</p>
+      <p>主控台？等一下！老闆有說這個程式庫會用在文字模式中嗎？如果這個程式庫是用在Web網站上，發生錯誤時顯示在主控台上，Web使用者怎麼會看得到？你開發的是程式庫，例外發生時如何處理，是程式庫使用者才知道，直接在<code>catch</code>中寫死處理例外或輸出錯誤訊息的方式，並不符合需求。</p>
+      <p>如果方法設計流程中可能引發例外，而你設計時並沒有充足的資訊知道該如何處理（例如不知道程式庫會用在什麼環境），那麼可以拋出例外，讓呼叫方法的客戶端來處理。例如：</p>
+      <p style="margin-left: 40px;"><code>public class FileUtil {<br>
+          &nbsp;&nbsp;&nbsp; public static String readFile(String name)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throws FileNotFoundException {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; StringBuilder builder = new StringBuilder();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scanner scanner = new Scanner(new FileInputStream(name));<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while(scanner.hasNext()) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.append(scanner.nextLine());<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.append('\n');<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return builder.toString();<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }</code></p>
+      <p>操作物件的過程中如果會拋出受檢例外，但目前環境資訊不足以處理例外，所以無法使用<code>try</code>、<code>catch</code>處理時，可由方法的客戶端依當時呼叫的環境資訊進行處理。為了告訴編譯器這件事實，必須在方法上使用<code>throws</code>宣告此方法會拋出的例外類型或父類型，編譯器才會讓你通過編譯。</p>
+      <p>拋出受檢例外，表示你認為呼叫方法的客戶端有能力且應該處理例外，<code>throws</code>宣告部份，會是API操作介面的一部份，客戶端不用察看原始碼，從API文件上就能直接得知，該方法可能拋出哪些例外。</p>
+      <p>如果你認為客戶端呼叫方法的時機不當引發了某個錯誤，希望客戶端準備好前置條件，再來呼叫方法，這時可以拋出非受檢例外讓客戶端得知此情況，如果是非受檢例外，編譯器不會要求明確使用<code>try</code>、<code>catch</code>或在方法上使用<code>throws</code>宣告，因為Java的設計上認為，非受檢例外是程式設計不當引發的臭蟲，例外應自動往外傳播，不應使用<code>try</code>、<code>catch</code>處理，而應改善程式邏輯來避免引發錯誤。</p>
+      <p>實際上在例外發生時，可使用<code>try</code>、<code>catch</code>處理當時環境可進行的例外處理，當時環境下無法決定如何處理的部份，可以拋出由呼叫方法的客戶端處理。如果想先處理部份事項再拋出，可以如下：</p>
+      <pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class FileUtil {
+    public static String readFile(String name) throws FileNotFoundException {
+        StringBuilder builder = new StringBuilder();
+        try {
+            Scanner scanner = new Scanner(new FileInputStream(name));
+            while(scanner.hasNext()) {
+                builder.append(scanner.nextLine());
+                builder.append('\n');
+            }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+        return builder.toString();
+    }
+}
+</code></pre>
+      <p>範例在<code>catch</code>區塊進行完部份錯誤處理之後，可以使用<code>throw</code>（注意不是<code>throws</code>）將例外再拋出，實際上，你可以在任何流程中拋出例外，不一定要在<code>catch</code>區塊中，在流程中拋出例外，就直接跳離原有的流程，可以拋出受檢或非受檢例外，記得！如果拋出的是受檢例外，表示你認為客戶端有能力且應處理例外，此時必須在方法上使用<code>throws</code>宣告，如果拋出的例外是非受檢例外，表示你認為客戶端呼叫方法的時機出錯了，拋出例外是要求客戶端修正這個臭蟲再來呼叫方法，此時也就不用使用<code>throws</code>宣告。</p>
+      <p>如果原先有個方法實作是這樣的：</p>
+      <p style="margin-left: 40px;"><code>public static void doSome(String arg) <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throws FileNotFoundException, EOFException {<br>
+          &nbsp;&nbsp;&nbsp; try {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if("one".equals(arg)) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new FileNotFoundException();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new EOFException();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp; } catch(FileNotFoundException ex) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ex.printStackTrace();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw ex;<br>
+          &nbsp;&nbsp;&nbsp; } catch(EOFException ex) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ex.printStackTrace();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw ex;<br>
+          &nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; <br>
+          }</code></p>
+      <p>你發現到<code>FileNotFoundException</code>與<code>EOFException</code>都是一種<code>IOException</code>，而且<code>catch</code>後都作相同的事，於是想要使用<code>IOException</code>來<code>catch</code>這兩種類型的例外，以下的寫法在JDK6之前都會出錯：</p>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" title="多重捕捉時也得注意例外繼承架構" alt="多重捕捉時也得注意例外繼承架構" src="images/Throw-1.PNG" /></div></div><br>
+      <br>
+      在這個程式片段中，雖然實際上捕捉到的一定是<code>FileNotFoundException</code>與<code>EOFException</code>實例，方法上也使用<code>throws</code>予以宣告了，但JDK6之前的編譯器沒那麼聰明，因而出現編譯錯誤。在JDK7中，編譯器對於重新拋出的例外型態可以更精準判斷（more-precise-rethrow），因此上面的程式片段，在JDK7中不會再出現編譯錯誤。<br>
+      <br>
+      如果使用繼承時，父類別某個方法宣告<code>throws</code>某些例外，子類別重新定義該方法時可以：<br>
+      <ul>
+        <li>不宣告<code>throws</code>任何例外</li>
+        <li>可<code>throws</code>父類別該方法中宣告的某些例外</li>
+        <li>可<code>throws</code>父類別該方法中宣告例外之子類別</li>
+      </ul>
+      但是不可以：<br>
+      <ul>
+        <li><code>throws</code>父類別方法中未宣告的其它例外</li>
+        <li><code>throws</code>父類別方法中宣告例外之父類別</li>
+      </ul>
+      <br>
+      <br>
+      <br>
+      <p> </p>
+      <br>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

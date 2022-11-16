@@ -1,0 +1,262 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="無論如何，總是會有需要將 NumPy 陣列中的元素取出的時候，NumPy 的陣列基本上與 Python 內建的 list 具有相同的索引方式，隨便舉幾個例子：
+&gt;&gt;&gt; import ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="NumPy 陣列索引">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/Indexing.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="無論如何，總是會有需要將 NumPy 陣列中的元素取出的時候，NumPy 的陣列基本上與 Python 內建的 list 具有相同的索引方式，隨便舉幾個例子：
+&gt;&gt;&gt; import ...">
+
+    <title>NumPy 陣列索引</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Indexing.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>NumPy 陣列索引</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>無論如何，總是會有需要將 NumPy 陣列中的元素取出的時候，NumPy 的陣列基本上與 Python 內建的 <code>list</code> 具有相同的索引方式，隨便舉幾個例子：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; a = np.array([1, 2, 3, 4, 5])
+&gt;&gt;&gt; a[0]
+1
+&gt;&gt;&gt; a[2:3]
+array([3])
+&gt;&gt;&gt; a[3:]
+array([4, 5])
+&gt;&gt;&gt; a[:3]
+array([1, 2, 3])
+&gt;&gt;&gt; a[:]
+array([1, 2, 3, 4, 5])
+&gt;&gt;&gt;
+</code></pre>
+<p>就效能而言，<code>a[2:3]</code> 這類指定索引範圍的操作，會比 <code>list</code> 來得快，因此對於這類任務，應該避免使用 <code>for</code> 逐一索引每個元素實現。</p>
+<p>對於連續範圍，NumPy 有 <strong>View</strong> 的概念，基於效能上的考量，傳回的 NumPy 陣列不會逐一複製元素參考，而會是對原陣列的一個觀點，修改新陣列，來源陣列也會被修改，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; b = a[3:]
+&gt;&gt;&gt; b[0] = 10
+&gt;&gt;&gt; a
+array([ 1,  2,  3, 10,  5])
+&gt;&gt;&gt;
+</code></pre>
+<p>這行為顯然跟 <code>list</code> 不同，必須留意，例如 <code>list</code> 是這樣的：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; c = [1, 2, 3]
+&gt;&gt;&gt; c = [1, 2, 3, 4, 5]
+&gt;&gt;&gt; d = c[3:]
+&gt;&gt;&gt; d[0] = 10
+&gt;&gt;&gt; c
+[1, 2, 3, 4, 5]
+&gt;&gt;&gt;
+</code></pre>
+<p>在效能上的考量方面，對於多維陣列，NumPy 有個特別的寫法，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; e = np.arange(9).reshape((3, 3))
+&gt;&gt;&gt; e1 = e[1][1:3]
+&gt;&gt;&gt; e2 = e[1,1:3]
+&gt;&gt;&gt; e1
+array([4, 5])
+&gt;&gt;&gt; e2
+array([4, 5])
+&gt;&gt;&gt;
+</code></pre>
+<p>就上例來說，<code>e[1][1:3]</code> 與 <code>e[1,1:3]</code> 的結果相同，然而 <code>e[1][1:3]</code> 是取得 <code>e[1]</code> 後，再依索引範圍取得結果陣列；<code>e[1,1:3]</code> 是指 axis 0 索引 1（如下圖藍色）與 axis 1 索引範圍 1 到 3（如下圖綠色）交叉的部份（也就是叉積），可以看看下圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Indexing-1.JPG" alt="NumPy 陣列索引"  /></div></div></p>
+<p>因此 <code>e[1,1:3]</code> 與 <code>e[1][1:3]</code> 正好得到相同結果，然而前者在內部運算上，不另外建立列的 NumPy 陣列，效能會比較好。</p>
+<p>這類取法的逗號就是 axis 的分隔，可以推廣至多維陣列，每個逗號間的範圍寫法，與 <code>list</code> 相同，單純指定索引也可以，因此，對於 <code>e[1][2]</code>，你也可以寫為 <code>e[1, 2]</code>，不過別誤會，<code>[,]</code> 並不是 <code>[][]</code> 的簡略寫法，<code>[,]</code> 這種寫法會得到軸交叉的部份。</p>
+<p>例如，底下的程式碼， <code>e3</code>、<code>e4</code> 為什麼結果不一樣呢？</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; e3 = e[0:2][1]
+&gt;&gt;&gt; e4 = e[0:2,1]
+&gt;&gt;&gt; e3
+array([3, 4, 5])
+&gt;&gt;&gt; e4
+array([1, 4])
+&gt;&gt;&gt;
+</code></pre>
+<p><code>e3</code> 應該沒問題，<code>e[0:2]</code> 取得一個二維陣列，再取它的索引 1，<code>e4</code> 呢？<code>e[0:2,1]</code> 的寫法，是指 axis 0 索引範圍 0 到 2（如下圖藍色）與 axis 1 索引 1 到 2 交叉的部份（如下圖綠色），看看下圖，就會知道為何結果會是 <code>[1, 4]</code>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Indexing-2.JPG" alt="NumPy 陣列索引"  /></div></div></p>
+<p>範圍的指定，是可以避免使用 <code>for</code> 逐一索引每個元素，那麼其他索引需求呢？例如，底下的 <code>list</code> 需求該如何用 NumPy 實現？</p>
+<pre class="prettyprint"><code lang="python">a = [1, 2, 3, 4, 5]
+b = []
+for i in range(len(a)):
+    if i in [0, 1, 4]:
+        b.append(a[i])
+</code></pre>
+<p>NumPy 的 <code>[]</code> 可以指定索引陣列，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(1, 6)
+&gt;&gt;&gt; a[[0, 1, 4]]
+array([1, 2, 5])
+&gt;&gt;&gt;
+</code></pre>
+<p>指定索引陣列的話，傳回的 NumPy 陣列包含了對應的元素，這樣的索引指定方式稱為 Fancy indexing，多維陣列時，可以有多個索引陣列，使用逗號區隔，表示 axis 的分隔，例如，對於一個二維陣列 <code>a</code>，想取得索引 <code>a[0][0]</code>、<code>a[1][3]</code>、<code>a[4][4]</code>，axis 0 上各索引是 <code>[0, 1, 4]</code>，axis 1 上各索引是 <code>[0, 3, 4]</code>：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(25).reshape((5, 5))
+&gt;&gt;&gt; a[[0, 1, 4], [0, 3, 4]]
+array([ 0,  8, 24])
+&gt;&gt;&gt;
+</code></pre>
+<p>因為並非連續範圍，指定索引陣列的方式不會建立 View，傳回的 NumPy 陣列會複製參考，修改傳回的陣列，不會對原陣列造成影響：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(25).reshape((5, 5))
+&gt;&gt;&gt; b = a[[0, 1, 4], [0, 3, 4]]
+&gt;&gt;&gt; a
+array([[ 0,  1,  2,  3,  4],
+       [ 5,  6,  7,  8,  9],
+       [10, 11, 12, 13, 14],
+       [15, 16, 17, 18, 19],
+       [20, 21, 22, 23, 24]])
+&gt;&gt;&gt; b
+array([ 0,  8, 24])
+&gt;&gt;&gt; b[1] = 10
+&gt;&gt;&gt; b
+array([ 0, 10, 24])
+&gt;&gt;&gt; a
+array([[ 0,  1,  2,  3,  4],
+       [ 5,  6,  7,  8,  9],
+       [10, 11, 12, 13, 14],
+       [15, 16, 17, 18, 19],
+       [20, 21, 22, 23, 24]])
+&gt;&gt;&gt;
+</code></pre>
+<p>不過你可能會問，如果想要 axis 0 索引 0、1、4 與 axis 1 索引 0、3、4 交叉的部份呢？也就是你想要以下的結果：</p>
+<pre class="prettyprint"><code lang="python">[[ 0  3  4]
+ [ 5  8  9]
+ [20 23 24]]
+</code></pre>
+<p>這可以透過 <code>ix_</code> 函式完成，ix 這名稱代表索引的叉積（cross product）：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(25).reshape((5, 5))
+&gt;&gt;&gt; a[np.ix_([0, 1, 4], [0, 3, 4])]
+array([[ 0,  3,  4],
+       [ 5,  8,  9],
+       [20, 23, 24]])
+&gt;&gt;&gt;
+</code></pre>
+<p>進一步地，索引陣列也可以是布林值組成：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(1, 6)
+&gt;&gt;&gt; a[[True, True, False, False, True]]
+array([1, 2, 5])
+&gt;&gt;&gt;
+</code></pre>
+<p>也就是說，這可以用來實作濾元素之類的任務，對於多維陣列，也是使用逗號區隔，表示 axis 的分隔，各 axis 索引陣列的 and 運算結果為 <code>True</code> 之元素會保留。例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.arange(25).reshape((5, 5))
+&gt;&gt;&gt; a[(
+...     [True, True, False, False, True],
+...     [True, False, True, False, True]
+... )]
+array([ 0,  7, 24])
+&gt;&gt;&gt;
+</code></pre>
+<p>類似地，如果想要從 <code>a</code> 取得這樣的結果：</p>
+<pre class="prettyprint"><code lang="python">[
+    [ 0,  2, 4],
+    [ 5, 7, 9],
+    [20, 22, 24]
+]
+</code></pre>
+<p>也可以透過 <code>ix_</code> 函式完成：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a[np.ix_(
+...     [True, True, False, False, True],
+...     [True, False, True, False, True]
+... )]
+array([[ 0,  2,  4],
+       [ 5,  7,  9],
+       [20, 22, 24]])
+&gt;&gt;&gt;
+</code></pre>
+<p>除了用於取值之外，NumPy 的索引技巧也可用於設值，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; a = np.array([1, 2, 3, 4, 5])
+&gt;&gt;&gt; a[[1, 2, 3]] = 10
+&gt;&gt;&gt; a
+array([ 1, 10, 10, 10,  5])
+&gt;&gt;&gt; a[[1, 2, 3]] = [100, 200, 300]
+&gt;&gt;&gt; a
+array([  1, 100, 200, 300,   5])
+&gt;&gt;&gt;
+</code></pre>
+<p>Python 3 以後，有個 <code>...</code> 語法可以使用，代表 <code>Ellipsis</code> 物件：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; ...
+Ellipsis
+&gt;&gt;&gt; Ellipsis
+Ellipsis
+&gt;&gt;&gt;
+</code></pre>
+<p><code>...</code> 代表省略之意，在 NumPy 的實作中，可以使用 <code>Ellipsis</code> 物件來進行切片，代表略過某些維度，例如，若有個陣列代表圖片像素：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; img = np.array([
+...     [[255, 255, 255], [255, 255, 255], [255, 255, 255]],
+...     [[124, 255, 23], [245, 222, 255], [255, 232, 255]],
+...     [[135, 255, 23], [245, 123, 255], [255, 23, 35]]
+... ])
+&gt;&gt;&gt; img.shape
+(3, 3, 3)
+&gt;&gt;&gt;
+</code></pre>
+<p>如果想取得 <code>img</code> 中第三個維度的第二個元素，雖然可以這麼撰寫：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt; img[:,:,0]
+array([[255, 255, 255],
+       [124, 245, 255],
+       [135, 245, 255]])
+&gt;&gt;&gt;
+</code></pre>
+<p>不過，透過 <code>Ellipsis</code> 物件，可以直接省略先前的維度：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; img[...,0]
+array([[255, 255, 255],
+       [124, 245, 255],
+       [135, 245, 255]])
+&gt;&gt;&gt;
+</code></pre>
+<p>有許多維度時，省略前面的維度是常見的應用，不過 <code>Ellipsis</code> 物件在 NumPy 中，可以用在前、中、後，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; img[1,...,1]
+array([255, 222, 232])
+&gt;&gt;&gt;
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

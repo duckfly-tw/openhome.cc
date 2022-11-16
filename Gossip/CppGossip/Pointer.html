@@ -1,0 +1,250 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈變數〉談過，變數提供一個有名稱的記憶體儲存空間，變數可包含的資訊包含變數資料型態、變數記憶體位址與變數儲存值。
+如果想知道變數的位址為何，可以使用 &amp; 取址運算子（Address-of o...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="指標與位址">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Pointer.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈變數〉談過，變數提供一個有名稱的記憶體儲存空間，變數可包含的資訊包含變數資料型態、變數記憶體位址與變數儲存值。
+如果想知道變數的位址為何，可以使用 &amp; 取址運算子（Address-of o...">
+
+    <title>指標與位址</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Pointer.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>指標與位址</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Variable.html">變數</a>〉談過，變數提供一個有名稱的記憶體儲存空間，變數可包含的資訊包含變數資料型態、變數記憶體位址與變數儲存值。</p>
+<p>如果想知道變數的位址為何，可以使用 <code>&amp;</code> 取址運算子（Address-of operator），例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int n = 10; 
+
+    cout &lt;&lt; "n 的值：" &lt;&lt; n &lt;&lt; endl
+         &lt;&lt; "n 位址：" &lt;&lt; &amp;n &lt;&lt; endl; 
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">n 的值：10
+n 位址：0x61febc
+</code></pre>
+<p>這個程式中，宣告了一個 <code>int</code> 整數變數 <code>n</code>，<code>n</code> 的位址是 <code>0x61febc</code>，使用 16 進位表示法，若 <code>int</code> 長度為 4 個位元組，從  <code>0x61febc</code> 後 4 個位元組都是配置給 <code>n</code> 的空間，現在這個空間中儲存值為 10。</p>
+<p>直接存取變數會對分配到的空間作存取，指標（Pointer）是一種變數，指標可儲存特定的記憶體位址，要宣告指標，使用以下的語法：</p>
+<pre class="prettyprint"><code lang="c++">type *ptr;
+</code></pre>
+<p><code>ptr</code> 可儲存位址，而 <code>type</code> 為該位址儲存值的型態，實際宣告的方式如下：</p>
+<pre class="prettyprint"><code lang="c++">int *n;
+float *s;
+char *c;
+</code></pre>
+<p>雖然宣告指標時，C++ 習慣將 <code>*</code> 前置在變數名稱前，不過 <code>n</code> 的型態是 <code>int*</code>，<code>s</code> 的型態是 <code>float*</code>，而 <code>c</code> 的型態是 <code>char*</code>，指標的型態決定了位址上的資料如何解釋，以及如何進行指標運算（Pointer arithmetic）。</p>
+<p>可以使用 <code>&amp;</code> 運算子取得變數位址並指定給指標，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int n = 10; 
+    int *p = &amp;n ; 
+
+    cout &lt;&lt; "n 變數的位址：" &lt;&lt; &amp;n &lt;&lt; endl
+         &lt;&lt; "p 儲存的位址：" &lt;&lt; p &lt;&lt; endl; 
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">n 變數的位址：0x61feb8
+p 儲存的位址：0x61feb8
+</code></pre>
+<p>以上的程式使用 <code>&amp;</code> 來取得變數 <code>n</code> 儲存的位址，然後指定給指標 <code>p</code>，因此 <code>p</code> 儲存的值就與 <code>&amp;n</code> 取出的值相同。</p>
+<p>可以使用提取 （Dereference）運算子 <code>*</code> 來提取指標儲存位址處的物件。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int n = 10; 
+    int *p = &amp;n;
+
+    cout &lt;&lt; "指標 p 儲存的位址：" &lt;&lt; p &lt;&lt; endl
+         &lt;&lt; "提取 p 儲存位址處的物件：" &lt;&lt; *p &lt;&lt; endl;
+
+    return 0; 
+}
+</code></pre>
+<p><code>*p</code> 提取了 <code>p</code> 儲存的位址處之物件，這個物件就是 <code>n</code> 變數，因此執行結果如下：</p>
+<pre class="prettyprint"><code lang="c++">指標 p 儲存的位址：0x61feb8
+提取 p 儲存位址處的物件：10
+</code></pre>
+<p><code>*p</code> 提取了變數 <code>n</code>，將值指定給 <code>*p</code> 時，就是指定給變數 <code>n</code>，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int n = 10; 
+    int *p = &amp;n ; 
+
+    cout &lt;&lt; "n = " &lt;&lt; n &lt;&lt; endl
+         &lt;&lt; "*p = " &lt;&lt; *p &lt;&lt; endl; 
+
+    *p = 20; 
+
+    cout &lt;&lt; "n = " &lt;&lt; n &lt;&lt; endl
+         &lt;&lt; "*p = " &lt;&lt; *p &lt;&lt; endl;
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">n = 10
+*p = 10
+n = 20
+*p = 20
+</code></pre>
+<p>如果宣告指標但不指定初值，指標儲存的位址是未知的，存取未知位址的記憶體內容是危險的，例如：</p>
+<pre class="prettyprint"><code lang="c++">int *p;
+*p = 10;
+</code></pre>
+<p>這會造成不可預知的結果，最好為指標設定初值，如果指標一開始不儲存任何位址，可設定初值為 0，或者是使用 <code>nullptr</code>，例如：</p>
+<pre class="prettyprint"><code lang="c++">int *p = nullptr;
+</code></pre>
+<p>在指標宣告時，可以靠在變數旁邊，也可以靠在型態關鍵字旁邊，或者是置中，例如：</p>
+<pre class="prettyprint"><code lang="c++">int *p1;
+int* p2;
+int * p3;
+</code></pre>
+<p>這三個宣告方式都是可允許的，C++ 開發者傾向用第一個，因為可以避免以下的錯誤：</p>
+<pre class="prettyprint"><code lang="c++">int* p1, p2;
+</code></pre>
+<p>這樣的宣告方式，初學者可能以為 <code>p2</code> 也是指標，但事實上並不是，以下的宣告 <code>p1</code> 與 <code>p2</code> 才都是指標：</p>
+<pre class="prettyprint"><code lang="c++">int *p1, *p2;
+</code></pre>
+<p>有時只希望儲存位址而不關心型態，可以使用 <code>void*</code> 來宣告指標，例如：</p>
+<pre class="prettyprint"><code lang="c++">void* p;
+</code></pre>
+<p>由於 <code>void*</code> 型態的指標沒有任何型態資訊，只用來持有位址，不可以使用 <code>*</code> 運算子對 <code>void*</code> 型態指標提取值，編譯器也不會允許將 <code>void*</code> 指標直接指定給具有型態資訊的指標，必須使用 <code>reinterpret_cast</code> 明確告知編譯器，這個動作是你允許的，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int n = 10; 
+    void *p = &amp;n ; 
+
+    int *iptr = reinterpret_cast&lt;int*&gt;(p);
+    cout &lt;&lt; *iptr &lt;&lt; endl; // 顯示 10
+
+    return 0; 
+}
+</code></pre>
+<p><code>reinterpret_cast</code> 用於指標，它告訴編譯器，你就是要以指定型態重新解釋 <code>p</code> 位址處的資料。</p>
+<p>被 <code>const</code> 宣告的變數指定值後，就不能再改變變數值，也無法對該變數取址：</p>
+<pre class="prettyprint"><code lang="c++">const int n = 10;
+int *p = &amp;n; // error,  invalid conversion from `const int*' to `int*'
+</code></pre>
+<p>用 <code>const</code> 宣告的變數，必須使用對應的 <code>const</code> 型態指標才可以：</p>
+<pre class="prettyprint"><code lang="c++">const int n = 10;
+const int *p = &amp;n;
+</code></pre>
+<p>同樣地，也就不能如下試圖改變位址處的資料：</p>
+<pre class="prettyprint"><code lang="c++">*p = 20; // error: assignment of read-only location '* p'
+</code></pre>
+<p>被 <code>const</code> 宣告的變數指定值後，就不能再改變變數值，也無法對該變數取址，編譯會不通過，不過必要時，可以用 <code>const_cast</code> 叫編譯器住嘴：</p>
+<pre class="prettyprint"><code lang="c++">const int n = 10;
+int *p = const_cast&lt;int*&gt;(&amp;n); 
+</code></pre>
+<p>在〈<a href="Pointer.html">算術運算、型態轉換</a>〉最後也提到過 <code>const_cast</code>，這只是叫編譯器住嘴罷了，後續程式碼也是別對 pi 位址處的資料做變動，以避免執行時期不可預期的結果。</p>
+<p>要留意的是，<code>const int *p</code> 宣告的 <code>p</code> 並不是常數，可以儲存不同的位址。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    const int n = 10;
+    const int m = 20;
+
+    const int *p = &amp;n;
+    cout &lt;&lt; p &lt;&lt; endl;
+
+    p = &amp;m;
+    cout &lt;&lt; p &lt;&lt; endl;
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">0x61feb8
+0x61feb4
+</code></pre>
+<p>如果想令指標儲存的值無法變動，必須建立指標常數，先來看看來源變數沒有 <code>const</code> 的情況：</p>
+<pre class="prettyprint"><code lang="c++">int n = 10;
+int m = 20;
+
+int* const p = &amp;n;
+p = &amp;m;  //  error: assignment of read-only variable 'p'
+</code></pre>
+<p>如果 <code>n</code>、<code>m</code> 被 <code>const</code> 修飾，那麼就必須如下建立指標常數：</p>
+<pre class="prettyprint"><code lang="c++">const int n = 10;
+const int m = 20;
+
+const int* const p = &amp;n;
+p = &amp;m; // error: assignment of read-only variable 'p'
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

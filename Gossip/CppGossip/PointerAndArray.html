@@ -1,0 +1,214 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在宣告陣列之後，使用到陣列變數時，會取得首元素的位址，例如在下面的程式中將指出，陣列 arr 與 &amp;arr[0] 的值是相同的：
+#include &lt;iostream&gt; 
+usin...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="指標與陣列">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/PointerAndArray.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在宣告陣列之後，使用到陣列變數時，會取得首元素的位址，例如在下面的程式中將指出，陣列 arr 與 &amp;arr[0] 的值是相同的：
+#include &lt;iostream&gt; 
+usin...">
+
+    <title>指標與陣列</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PointerAndArray.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>指標與陣列</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在宣告陣列之後，使用到陣列變數時，會取得首元素的位址，例如在下面的程式中將指出，陣列 <code>arr</code> 與 <code>&amp;arr[0]</code> 的值是相同的：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() { 
+    int arr[10] = {0}; 
+    cout &lt;&lt; "arr：\t\t" &lt;&lt; arr &lt;&lt; endl
+         &lt;&lt; "&amp;arr[0]：\t" &lt;&lt; &amp;arr[0] &lt;&lt; endl; 
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">arr：           0x61fe98
+&amp;arr[0]：       0x61fe98
+</code></pre>
+<p>之前也曾經談過，陣列索引其實是相對於首元素位址的位移量，下面這個程式以指標運算與陣列索引操作，顯示出相同的對應位址值：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() {
+    constexpr int LENGTH = 10;
+    int arr[LENGTH] = {0}; 
+    int *p = arr; 
+
+    for(int i = 0; i &lt; LENGTH; i++) { 
+        cout &lt;&lt; "&amp;arr[" &lt;&lt; i &lt;&lt; "]: " &lt;&lt; &amp;arr[i] 
+             &lt;&lt; "\tp+" &lt;&lt; i &lt;&lt; ": " &lt;&lt; p + i &lt;&lt; endl; 
+    } 
+
+    return 0; 
+}
+</code></pre>
+<p>每個元素的位址型態是 <code>int*</code>，執行結果如下：</p>
+<pre class="prettyprint"><code lang="c++">&amp;arr[0]: 0x61fe8c       p+0: 0x61fe8c
+&amp;arr[1]: 0x61fe90       p+1: 0x61fe90
+&amp;arr[2]: 0x61fe94       p+2: 0x61fe94
+&amp;arr[3]: 0x61fe98       p+3: 0x61fe98
+&amp;arr[4]: 0x61fe9c       p+4: 0x61fe9c
+&amp;arr[5]: 0x61fea0       p+5: 0x61fea0
+&amp;arr[6]: 0x61fea4       p+6: 0x61fea4
+&amp;arr[7]: 0x61fea8       p+7: 0x61fea8
+&amp;arr[8]: 0x61feac       p+8: 0x61feac
+&amp;arr[9]: 0x61feb0       p+9: 0x61feb0
+</code></pre>
+<p>在這個程式中，將陣列的首元素位址指定給 <code>p</code>，然後對 <code>p</code> 遞增運算，每遞增一個單位，陣列相對應索引的元素之位址都相同。</p>
+<p>也可以利用指標運算來取出陣列的元素值，如以下的程式所示：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() {
+    constexpr int LENGTH = 5;
+    int arr[LENGTH] = {10, 20, 30, 40, 50}; 
+    int *p = arr; 
+
+    // 以指標方式存取
+    for(int i = 0; i &lt; LENGTH; i++) {
+        cout &lt;&lt; "*(p + " &lt;&lt; i &lt;&lt; "): " &lt;&lt; *(p + i) &lt;&lt; endl;
+    }
+    cout &lt;&lt; endl;
+
+    // 以指標方式存取資料 
+    for(int i = 0; i &lt; LENGTH; i++) {
+        cout &lt;&lt; "*(arr + " &lt;&lt; i &lt;&lt; "): " &lt;&lt; *(arr+i) &lt;&lt; endl;
+    }
+    cout &lt;&lt; endl;
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">*(p + 0): 10
+*(p + 1): 20
+*(p + 2): 30
+*(p + 3): 40
+*(p + 4): 50
+
+*(arr + 0): 10
+*(arr + 1): 20
+*(arr + 2): 30
+*(arr + 3): 40
+*(arr + 4): 50
+</code></pre>
+<p>在〈<a href="OneDimArray.html">陣列</a>〉中談過，可以使用 <code>sizeof</code> 來計算陣列長度，在認識指標及其運算後，可以知道透過 C++ 11 提供的 <code>begin</code> 與 <code>end</code> 函式，也可以計算陣列長度：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() {
+    constexpr int LENGTH = 5;
+    int arr[LENGTH] = {10, 20, 30, 40, 50}; 
+
+    cout &lt;&lt; sizeof(arr)/sizeof(*arr) &lt;&lt; endl;  // 顯示 5
+    cout &lt;&lt; end(arr) - begin(arr) &lt;&lt; endl;     // 顯示 5
+
+    return 0; 
+}
+</code></pre>
+<p>實際上，透過以下也可以計算出陣列長度：</p>
+<pre class="prettyprint"><code lang="c++">constexpr int LENGTH = 5;
+int arr[LENGTH] = {10, 20, 30, 40, 50}; 
+int len = *(&amp;arr + 1) - arr;
+</code></pre>
+<p>來解釋一下為什麼這行得通，如果使用 <code>&amp;arr</code> 會取得 <code>arr</code> 變數的位址值，也就是陣列資料儲存的位址，與首元素位址是相同的值：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() {
+    constexpr int LENGTH = 5;
+    int arr[LENGTH] = {10, 20, 30, 40, 50}; 
+
+    cout &lt;&lt; arr &lt;&lt; endl;  // 顯示 0x61fea8
+    cout &lt;&lt; &amp;arr &lt;&lt; endl; // 顯示 0x61fea8
+
+    return 0; 
+}
+</code></pre>
+<p>每個陣列元素的位址型態是 <code>int*</code>，這表示對它進行運算時，是以 <code>int</code> 長度為單位，而 <code>arr</code> 變數的位址處就是陣列資料的開端，<code>&amp;arr</code> 型態會是…呃…<code>int (*)[LENGTH]</code>，如果想宣告相對應的變數，可以如下：</p>
+<pre class="prettyprint"><code lang="c++">int (*p)[LENGTH] = &amp;arr;
+</code></pre>
+<p><code>int (*)[LENGTH]</code> 表示，對它進行運算時，是以 <code>LENGTH</code> 個 <code>int</code> 長度為單位，因此 <code>&amp;arr + 1</code> 的結果，會是陣列使用的空間後之位址，而 <code>*(&amp;arr + 1)</code> 的值型態會回到 <code>int*</code>，也就是最後一個元素後之位址，這時就可以與 <code>int*</code> 的 <code>arr</code> 進行相減，也就是與第一個元素之位址相減，就可以得到陣列長度了。</p>
+<p>舉這個例子的重點之一是，對於同一個位址，指標的型態決定了該怎麼看得相對應相加、相減計算；另一個重點是，透過陣列變數會取得首元素的位址，將陣列變數指定給指標 <code>p</code>，就只是取得首元素位址並儲存在 <code>p</code>，如果將 <code>p</code> 傳給 <code>sizeof</code>，那使用的會是指標 <code>p</code> 的型態，而不是原陣列的型態，這會令 <code>sizeof</code>、以及方才那神奇計算長度的方式失效，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int main() {
+    constexpr int LENGTH = 5;
+    int arr[LENGTH] = {10, 20, 30, 40, 50}; 
+    int *p = arr;
+
+    cout &lt;&lt; p &lt;&lt; endl;  // 顯示 0x61fea8
+    cout &lt;&lt; &amp;p &lt;&lt; endl; // 顯示 0x61fea4
+
+    cout &lt;&lt; sizeof(p)/sizeof(*p) &lt;&lt; endl;  // 顯示 1
+    cout &lt;&lt; *(&amp;p + 1) - p &lt;&lt; endl;         // 顯示 -1605544
+
+    return 0; 
+}
+</code></pre>
+<p>以上的程式若試圖使用 <code>begin(p)</code> 或 <code>end(p)</code>，會編譯失敗，因此試著對 <code>p</code> 進行 for range 語法，也會導致編譯失敗。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

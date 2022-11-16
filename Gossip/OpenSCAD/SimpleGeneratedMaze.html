@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/maze/square/'">
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈手動迷宮〉中，我們制定了區塊的資料結構，並據以繪製方形迷宮，在繪製方法不變的情況下，只要能自動產生區塊資料，就能生成不同的迷宮，生成迷宮的方式很多種，這邊會說明最簡單的二元樹演算法（Binary ...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="簡易自動迷宮">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/SimpleGeneratedMaze.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈手動迷宮〉中，我們制定了區塊的資料結構，並據以繪製方形迷宮，在繪製方法不變的情況下，只要能自動產生區塊資料，就能生成不同的迷宮，生成迷宮的方式很多種，這邊會說明最簡單的二元樹演算法（Binary ...">
+    <title>簡易自動迷宮</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="SimpleGeneratedMaze.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回
+            OpenSCAD 目錄</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+                <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../images/facebook.png"></a>
+                </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>簡易自動迷宮</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>在〈<a href="ManualMaze.html">手動迷宮</a>〉中，我們制定了區塊的資料結構，並據以繪製方形迷宮，在繪製方法
+            不變的情況下，只要能自動產生區塊資料，就能生成不同的迷宮，生成迷宮的方式很多種，這邊會說明最簡單的二元樹演算法（Binary Tree
+            Algorithm）。</p>
+          <h1>二元樹演算法</h1>
+          <p>二元樹演算法概念很簡單，然而稍後馬上就能察覺，缺點也是顯而易見，不過，用它來理解為什麼可以自動生成迷宮，而且可以生成完美迷宮
+            （Perfect maze），也就是任兩格只有一條路徑可以互動的迷宮，是個不錯的開始。</p>
+          <p>我們以 4 乘 4 迷宮的生成作為例子，首先，想像一下迷宮還沒開始製作，也就是每個牆都還沒打穿，而最左下的位置作為起點：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-1.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>現在來丟硬幣吧！如果是正面，就打掉右邊的牆，反面的話就打掉上面的牆，然後移到下一格，例如，如果硬幣丟出了反面，而我們往右一格移動，那麼
+            狀態會變成：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-2.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>注意，打掉哪面牆跟移到哪一格沒有關係，對二元樹演算法來說，下一格是哪格都無所謂，為了便於說明，下一個就都往右吧！假設現在又依序丟出了
+            正、反，狀態就會變成：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-3.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>到達最右邊的區塊了，現在該怎麼辦呢？我們不能打掉右邊的牆了，因為那是迷宮的邊界，因此只能打掉上面的牆，既然這樣，就表示最右邊一排都不用
+            丟硬幣了，只要打掉上面的牆，那麼我們就一次處理吧！</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-4.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>類似地，如果是最上一排，都不能打掉上面的牆，因此也不同丟硬幣，一律打掉右邊的牆：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-5.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>現在還剩底下算來第二排與第三排還沒處理，我們回到左下二排：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-6.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>假設硬幣丟出了正、反，並持續往右移動，接著又丟出了反面：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-7.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>現在只剩一排還沒處理了了，我們從該排最左邊開始，並丟了正、正、正好了：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-8.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>YA！我們的迷宮完成了，接著只要任選一個入口、一個出口就可以完成迷宮了。</p>
+          <h1>為什麼是二元樹？</h1>
+          <p>我們來為每個區塊設個中心點，然後把有互通的中心點連接起來：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-9.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>接著不看牆，只看連接中心點的線段，然後稍微轉個角度：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-10.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>這不就成了二元樹了嗎？每次我們選擇打掉一個牆，其實就是在選擇與上層中的一個節點作為父節點，反過來看，作為父節點的，最多只會有兩個子節點
+            與之相連，因此構成了二元樹，你也可以看到，最右上的區塊就是樹根，而二元樹的任兩個節點只會有一個路徑相通，無論是哪種迷宮演算法，若要生成完
+            美迷宮，基本上就是形成某種樹狀結構，從而保證路徑不會形成迴圈。</p>
+          <p>而你也可能發現了，就二元樹演算法來說，樹的結構形成了偏差（Bias），也就是從根節點開始，往左一直連接子節點，往右也會一直連接子節點，
+            就生成的迷宮來看，這表示最右邊一定是往上連通的，最上排一定是往右連通的，例如：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-11.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <p>如果入口是左下，而出口是右上，走迷宮的人若知道這迷宮是二元樹演算法生成的，只要一直往上或往右走，就一定可以走到出口。</p>
+          <p>我們可以加入更多隨機性或變化，來改進這個偏差，例如，之後我會示範上下左右隨機行進，行進的過程遇牆打牆，而走過的區塊不重複走的方式，不同
+            的變化會帶來不同的迷宮，想要瞭解更多這方面的變化，可以參考《<a href="https://pragprog.com/book/jbmaze/mazes-for-programmers">Mazes
+              for Programmers</a>》。</p>
+          <h1>實作二元樹演算迷宮</h1>
+          <p>想使用 OpenSCAD 來實作迷宮的話，首先要有個方式模擬硬幣，這可以使用以下的函式：</p>
+          <pre class="prettyprint"><code lang="openscad">function flip_coin() = round(rands(0, 1, 1)[0]) + 1;
+</code></pre>
+          <p><code>rands</code> 函式是 OpenSCAD 內建的隨機函式，可以指定亂數的範圍與個數，例如 <code>rands(n,
+              m, x)</code> 表示產生 <code>n</code> 到 <code>m</code> 之間的亂數 <code>x</code>
+            個，這會傳回一個向量，因此了，<code>rands(0, 1, 1)[0]</code> 就表示產生 0 到 1 的亂數 1
+            個，由於只有一個，因此取索引 0 就可以得到一個亂數了。</p>
+          <p><code>round</code> 函式可以進行四捨五入，因此 <code>round(rands(0, 1, 1)[0])</code>
+            取得的，要不就是 0，要不就是 1，加上 1 的話，<code>flip_coin</code> 結果要不就是 1，要不就是
+            2，這對應至我們的牆面常數，1 表示有上牆，2 表示有右牆。</p>
+          <p>接著只要針對每個區塊來丟硬幣就可以了，記得最右邊與最上排不用丟硬幣：</p>
+          <pre class="prettyprint"><code lang="openscad">function binary_tree_block(x, y, rows, columns) = 
+    y == rows ? block_data(x, y, 1) : (        // 最上排
+        x == columns ? block_data(x, y, 2) :   // 最右邊
+            block_data(x, y, flip_coin())      // 丟硬幣決定
+    );
+</code></pre>
+          <p>接著，我們從左而右，從下而上來產生每個區塊：</p>
+          <pre class="prettyprint"><code lang="openscad">function binary_tree_algorithm(rows, columns) = 
+    [
+        for(y = [1:rows]) 
+            for(x = [1:columns]) 
+                binary_tree_block(x, y, rows, columns)
+    ];
+</code></pre>
+          <p>底下是個可產生二元樹迷宮的完整程式，繪圖的部份完全沒有變動，只不過 <code>maze_blocks</code>
+            的產生使用了二元樹演算：</p>
+          <pre class="prettyprint"><code lang="openscad">module line(point1, point2, width = 1, cap_round = true) {
+    angle = 90 - atan((point2[1] - point1[1]) / (point2[0] - point1[0]));
+    offset_x = 0.5 * width * cos(angle);
+    offset_y = 0.5 * width * sin(angle);
+
+    offset1 = [-offset_x, offset_y];
+    offset2 = [offset_x, -offset_y];
+
+    if(cap_round) {
+        translate(point1) circle(d = width, $fn = 24);
+        translate(point2) circle(d = width, $fn = 24);
+    }
+
+    polygon(points=[
+        point1 + offset1, point2 + offset1,  
+        point2 + offset2, point1 + offset2
+    ]);
+}
+
+module polyline(points, width = 1) {
+    module polyline_inner(points, index) {
+        if(index &lt; len(points)) {
+            line(points[index - 1], points[index], width);
+            polyline_inner(points, index + 1);
+        }
+    }
+
+    polyline_inner(points, 1);
+}
+
+// 牆面常數
+
+NO_WALL = 0;       // 無牆
+UP_WALL = 1;       // 上牆
+RIGHT_WALL = 2;    // 右牆
+UP_RIGHT_WALL = 3; // 都有
+
+function block_data(x, y, wall_type) = [x, y, wall_type];
+function get_x(block_data) = block_data[0];
+function get_y(block_data) = block_data[1];
+function get_wall_type(block_data) = block_data[2];
+
+module draw_block(wall_type, block_width, wall_thickness) {
+    if(wall_type == UP_WALL || wall_type == UP_RIGHT_WALL) {
+        // 畫上牆
+        polyline(
+            [[0, block_width], [block_width, block_width]], wall_thickness
+        ); 
+    }
+
+    if(wall_type == RIGHT_WALL || wall_type == UP_RIGHT_WALL) {
+        // 畫右牆
+        polyline(
+            [[block_width, block_width], [block_width, 0]], wall_thickness
+        ); 
+    }
+}
+
+module draw_maze(rows, columns, blocks, block_width, wall_thickness) {
+    for(block = blocks) {
+        // 將每個畫好的區塊移至對應的位置
+        translate([get_x(block) - 1, get_y(block) - 1] * block_width) 
+            draw_block(
+                get_wall_type(block), 
+                block_width, 
+                wall_thickness
+            );
+    }
+
+    // 最底牆
+    polyline(
+        [[0, 0], [block_width * columns, 0]], 
+        wall_thickness);
+    // 最左牆
+    polyline(
+        [[0, block_width], [0, block_width * rows]], 
+        wall_thickness);
+} 
+
+block_width = 3;
+wall_thickness = 1;
+maze_rows = 10;
+maze_columns = 10; 
+
+function flip_coin() = round(rands(0, 1, 1)[0]) + 1;
+
+function binary_tree_block(x, y, rows, columns) = 
+    y == rows ? block_data(x, y, 1) : (        // 最上排
+        x == columns ? block_data(x, y, 2) :   // 最右邊
+            block_data(x, y, flip_coin())      // 丟硬幣決定
+    );
+
+function binary_tree_algorithm(rows, columns) = 
+    [
+        for(y = [1:rows]) 
+            for(x = [1:columns]) 
+                binary_tree_block(x, y, rows, columns)
+    ];
+
+maze_blocks = binary_tree_algorithm(maze_rows, maze_columns);
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre>
+          <p>現在，你可以改變 <code>maze_rows</code> 與 <code>maze_columns</code>，產生更大的
+            迷宮，如果你的朋友不知道二元樹演算法的話，其實也足夠唬他了…XD</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/SimpleGeneratedMaze-12.JPG"
+                alt="簡易自動迷宮"></div>
+          </div>
+          <p></p>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+  
+</html>

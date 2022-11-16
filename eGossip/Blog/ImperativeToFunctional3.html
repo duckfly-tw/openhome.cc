@@ -1,0 +1,225 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The key point of functional programming is to decompose problems. An example to calculate the length...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Notes: Imperative to Functional, Part 3">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/ImperativeToFunctional3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="The key point of functional programming is to decompose problems. An example to calculate the length...">
+
+
+    <title>Notes: Imperative to Functional, Part 3</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImperativeToFunctional3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Notes: Imperative to Functional, Part 3</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+
+      <br>
+      The key point of functional programming is to decompose problems. An example to calculate the length of a list imperatively is as follows:<br>
+      <br>
+      <pre class="prettyprint"><code>def length(list):
+    c = 0
+    for i in list:
+        c += 1
+    return c</code></pre>
+      <br>
+      It's a common example to rewrite it functionally in articles talking about functional programming:<br>
+      <br>
+      <pre class="prettyprint"><code>def length(list):
+    return 0 if list == [] else 1 + length(list[1:])</code></pre>
+      <br>
+      You can pass a list to <span class="courier">length</span>. The concept here is very simple. If it's an empty list, <span
+
+        class="courier">length</span> returns 0. If a list is not empty, <span
+
+        class="courier">length</span> will plus 1 and the length of the tail list. This processing will continue until an empty list is reached. Similarly, how to sum up a list of integers? If it's written imperatively, it can be defined as follows:<br>
+      <br>
+      <pre class="prettyprint"><code>def sum(list):
+    acct = list[0]
+    for i in range(1, len(list)):
+        acct += list[i]
+    return acct</code></pre>
+      <br>
+      As '<a href="ImperativeToFunctional2.html">Notes: From Imperative to functional (2)</a>' mentioned, if you are using loops to process list elements sequentially, you can basically solve them by a recursive solution. You don't need counters. The previous <span
+
+        class="courier">length</span> is an example, while the above <span
+
+        class="courier">sum</span> can be changed as follows:<br>
+      <br>
+      <pre class="prettyprint"><code>def sum(list):
+    def rsum(lt, at):
+        return at if lt == [] else rsum(lt[1:], at + lt[0])
+    return rsum(list, 0)</code></pre>
+      <br>
+      Here, <span class="courier">rsum</span> feels like <span class="courier">length</span>. If you rewrite <span
+
+        class="courier">length</span> as follows:<br>
+      <br>
+      <pre class="prettyprint"><code>def length(list):
+    def rlen(lt, at):
+        return at if lt == [] else rlen(lt[1:], at + 1)
+    return rlen(list, 0)</code></pre>
+      <br>
+      Now, <span class="courier">rsum</span> and <span class="courier">rlen</span> has exactly the same structure. The differences are function names and ways to deal with the second argument before <span
+
+        class="courier">rsum</span> and <span class="courier">rlen</span> are called again. Why don't you write a generic <span
+
+        class="courier">foldLeft</span>?<br>
+      <br>
+      <pre class="prettyprint"><code>def foldLeft(lt, func, at):
+    return at if lt == [] else foldLeft(lt[1:], func, func(at, lt[0]))</code></pre>
+      <br>
+      Then <span class="courier">length</span> can be written as:<br>
+      <br>
+      <pre class="prettyprint"><code>def length(list):
+    return foldLeft([1, 2, 3], lambda at, elem: at + 1, 0)</code></pre>
+      <br>
+      And <span class="courier">sum</span> can be written as:<br>
+      <br>
+      <pre class="prettyprint"><code>def sum(list):
+    return foldLeft([1, 2, 3], lambda at, elem: at + elem, 0)</code></pre>
+      <br>
+      <span class="courier">foldLeft</span> is a really versatile function that can be used in millions of different ways. In Python, there's a <span
+
+        class="courier">functools.reduce</span> function, it's a function implemented in <span
+
+        class="courier">foldLeft</span> concepts<span class="courier"></span>. We've seen an example in '<a
+
+        href="ImperativeToFunctional1.html">Notes: From Imperative to functional (1)</a>'. If you want to calculate a value from a list by an iterative loop, you can try <span
+
+        class="courier">foldLeft</span>. But sometimes, the scenario is not as simple as <span
+
+        class="courier">sum</span> or <span class="courier">length</span>. As '<a
+
+        href="ImperativeToFunctional1.html">Notes: From Imperative to Functional (1)</a>' mentioned, to change imperative code into functional style, you need cleaner code and sensitivity of control flows, such as:<br>
+      <br>
+      <pre class="prettyprint"><code>def eval(expr):
+    stack = []
+    for c in toPostfix(expr):
+        if c in "+-*/":
+            p2 = stack.pop()
+            p1 = stack.pop()
+            stack.append({'+': float.__add__,
+                          '-': float.__sub__,
+                          '*': float.__mul__,
+                          '/': float.__floordiv__}[c](p1, p2))
+        else:
+            stack.append(float(c))
+            
+    return stack[-1]</code></pre>
+      <br>
+      <span class="courier">eval</span> is implemented imperatively. Can you figure out where <span
+
+        class="courier">foldLeft</span> can be applied? They are in <span
+
+        class="courier">for c in toPostfix(expr)</span> and <span class="courier">return stack[-1]</span>. Simply speaking, iterates <span
+
+        class="courier">expr</span>, and then takes the latest value of <span
+
+        class="courier">stack</span>. If you've a beginner of functional programming, I believe it's difficult to tell it out. I recommend you to start from simple examples, such as <span
+
+        class="courier">length</span> and <span class="courier">sum</span>. These examples have simple control flows. After enough exercises, you'll have feeling with complex flows. <br>
+      <br>
+      So, how to modify the above <span class="courier">eval</span> by <span
+
+        class="courier">foldLeft</span>? The beginning <span class="courier">stack</span> has told you. The initial state of <span
+
+        class="courier">stack</span> is empty. Huh? But, <span class="courier">expr</span> is not a list! The initial value should be an list element, isn't it? Or at least, its type should be the same as that of list elements. Who said that? Not true. The initial and return value of <span
+
+        class="courier">foldLeft</span> can have different types from list elements. Here, the initial and return type would be <span
+
+        class="courier">list</span>. The next step is to pull out the function passed in:<br>
+      <br>
+      <pre class="prettyprint"><code>from functools import reduce
+def eval(expr):
+    def doStack(stack, c):
+        if c in "+-*/":
+            return stack[0:-2] + [
+                {'+': float.__add__,
+                 '-': float.__sub__,
+                 '*': float.__mul__,
+                 '/': float.__floordiv__}[c](stack[-2], stack[-1])]
+        else:
+            return stack + [float(c)]
+    return reduce(doStack, toPostfix(expr), [])[-1]</code></pre>
+      <br>
+      The above example is modified directly by <span class="courier">reduce</span>, Python's <span
+
+        class="courier">foldLeft</span> implementation. As mentioned previously, if you use an iterative loop to calculate a value, you can rewrite it with <span
+
+        class="courier">foldLeft</span>. But it's not recommended that everything is solved by <span
+
+        class="courier">foldLeft</span>. Actually, <span class="courier">procExpr</span> in '<a
+
+        href="ImperativeToFunctional2.html">Notes: From Imperative to functional (2)</a>' could be implemented by <span
+
+        class="courier">foldLeft</span>, but readability is not good. <span
+
+        class="courier">foldLeft</span> is good to reuse control flows about getting a value from one iteration. But to some extent, it would have poor readability. Deliberate upon reusability and readability while considering <span
+
+        class="courier">foldLeft</span>. <br>
+      <br>
+      Of course, if there is <span class="courier">foldLeft</span>, there's also <span
+
+        class="courier">foldRight</span>. You can implement it by yourself. <span
+
+        class="courier">foldLeft</span> and <span class="courier">foldRight</span> are interchangeable if there's no consideration for associations. The other consideration is whether the type of lists is an algebraic data type. If you're concatenating two lists with <span
+
+        class="courier">+</span> while calling <span class="courier">foldLeft</span>, and their type is an algebraic data type, you'll find performance issue while the right list of <span
+
+        class="courier">+</span> is long. If you try <span class="courier">foldRight</span> and <span
+
+        class="courier">cons(:)</span>, it will have better performance. I'll talk about this afterward.<br>
+      <br>
+ <div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

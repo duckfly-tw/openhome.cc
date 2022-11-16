@@ -1,0 +1,119 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果你想要在多台機器上，同時啟動多個瀏覽器對Web應用程式作測試，那麼你可以試試 Selenium Grid，
+其原理是將一台機器作為Selenium hub，其它台機器對Selenium hub註...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="使用 Selenium Grid 並行測試">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/SeleniumGrid.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果你想要在多台機器上，同時啟動多個瀏覽器對Web應用程式作測試，那麼你可以試試 Selenium Grid，
+其原理是將一台機器作為Selenium hub，其它台機器對Selenium hub註...">
+
+
+    <title>使用 Selenium Grid 並行測試</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SeleniumGrid.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Selenium Grid 並行測試</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            如果你想要在多台機器上，同時啟動多個瀏覽器對Web應用程式作測試，那麼你可以試試 <a href="http://selenium-grid.seleniumhq.org/">Selenium Grid</a>，
+其原理是將一台機器作為Selenium hub，其它台機器對Selenium hub註冊Selenium RC，當你對Selenium
+hub發出測試請求時，由Selenium hub對已註冊的其它機器發出請求，由各台機器啟動瀏覽器進行測試，你可以參考Selenium
+Grid的 <a href="http://selenium-grid.seleniumhq.org/run_the_demo.html">Run the Demo</a> 說明。<br>
+      <br>
+以下作個簡單範例，想要使用Selenium Grid，在擔任Selenium hub的機器上，進入已下載解開的Selenium Grid目錄，執行ant指令：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">ant launch-hub</span><br>
+      </div>
+      <br>
+啟動成功之後，你可以用瀏覽器連結：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">http://localhost:4444/console</span><br>
+      </div>
+      <br>
+這是個簡易控制台，可以看到接下來已註冊的Selenium RC，在擔任Selenium RC的其它台機器上，可以如下執行ant指令：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">ant -Dport=&lt;rcPort&gt; <br>
+&nbsp;&nbsp;&nbsp; -Dhost=&lt;rcHost&gt; <br>
+&nbsp;&nbsp;&nbsp; -DhubURL=http://&lt;hubHost&gt;:4444 <br>
+&nbsp;&nbsp;&nbsp; -Denvironment="*firefox" <br>
+&nbsp;&nbsp;&nbsp; launch-remote-control</span><br>
+      </div>
+      <br>
+例如，假設你的Selenium hub是在ooo.com，而你要註冊的Selenium RC是在xxx.com，RC的port是5555，則可以如下：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">ant -Dport=5555 </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+&nbsp;&nbsp;&nbsp; -Dhost=xxx.com</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+&nbsp;&nbsp;&nbsp; -DhubURL=http://ooo.com:4444 </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+&nbsp;&nbsp;&nbsp; -Denvironment="*firefox" </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+&nbsp;&nbsp;&nbsp; launch-remote-control</span><br>
+      </div>
+      <br>
+如果你想在本機上同時運行Selenium hub與註冊Selenium RC，則可以省略host、hubURL，指定Selenium RC的埠號即可。例如：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">ant -Dport=5555 </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">-Denvironment="*firefox" </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">launch-remote-control</span><br>
+      </div>
+
+      <br>
+在註冊多個Selenium RC之後，Selenium hub的控制台會看到已註冊的RC：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" style="border: 1px solid ; width: 541px; height: 227px;" alt="" src="images/SeleniumGrid-1.png" /></div></div><br>
+      <br>
+接著你可以使用<span style="font-family: Courier New,Courier,monospace;">ThreadSafeSeleniumSessionStorage</span>來進行測試，以
+       <a href="SeleniumRC.html">結合 Selenium RC</a> 中的例子，改用<span style="font-family: Courier New,Courier,monospace;">ThreadSafeSeleniumSessionStorage的話，如下所示：<br>
+</span>
+      <pre class="prettyprint"><code lang="java">package test.cc.openhome;<br><br><span style="font-weight: bold;">import static com.thoughtworks.selenium.</span><br><span style="font-weight: bold;">                  grid.tools.ThreadSafeSeleniumSessionStorage.*;</span><br><br>import static org.junit.Assert.assertTrue;<br><br>import org.junit.AfterClass;<br>import org.junit.BeforeClass;<br>import org.junit.Test;<br><br>public class AddJSPTest {<br>    @BeforeClass<br>    public static void setUpClass() throws Exception {<br>        <span style="font-weight: bold;">startSeleniumSession("localhost", 4444, </span><br><span style="font-weight: bold;">                "*firefox", "http://localhost:8080/BookmarkOnline/");</span><br><span style="font-weight: bold;">        session().setTimeout("120000");</span><br>    }<br>    <br>    @AfterClass<br>    public static void tearDownClass() throws Exception {<br><span style="font-weight: bold;">        closeSeleniumSession();</span><br>    }<br>   <br>    @Test<br>    public void testAddJSP() throws Exception {<br>        session().open("/BookmarkOnline/add.jsp");<br>        session().click("//input[@value='送出']");<br>        session().waitForPageToLoad("30000");<br><br>        assertTrue(session().isTextPresent("新增書籤失敗"));<br>        assertTrue(session().isTextPresent("網址不能空白"));<br>        assertTrue(session().isTextPresent("請輸入網頁標題"));<br><br>        session().type("url", "www.javaworld.com.tw");<br>        session().click("//input[@value='送出']");<br>        session().waitForPageToLoad("30000");<br><br>        assertTrue(session().isTextPresent("新增書籤失敗"));<br>        assertTrue(session().isTextPresent("請輸入網頁標題"));<br><br>        session().type("url", "www.javaworld.com.tw");<br>        session().type("title", "JavaWorld@TW");<br>        session().type("category", "程式設計");<br>        session().click("//input[@value='送出']");<br>        session().waitForPageToLoad("30000");<br><br>        assertTrue(session().isTextPresent("新增書籤成功"));<br>        assertTrue(session().isTextPresent("http://www.javaworld.com.tw"));<br>        assertTrue(session().isTextPresent("JavaWorld@TW"));<br>        assertTrue(session().isTextPresent("程式設計"));<br>    }<br>}	<br></code></pre>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

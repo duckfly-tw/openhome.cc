@@ -1,0 +1,271 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果您已經設計好資料表格，您可以使用Hibernate Tool自動從表格中生成映射文件或POJO，甚至是標上了Annotation的實體類別，您需要Hibernate Core、Hibernate ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="從資料表生成映射文件與POJO">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/TableToHbmPOJO.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果您已經設計好資料表格，您可以使用Hibernate Tool自動從表格中生成映射文件或POJO，甚至是標上了Annotation的實體類別，您需要Hibernate Core、Hibernate ...">
+
+
+    <title>從資料表生成映射文件與POJO</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TableToHbmPOJO.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>從資料表生成映射文件與POJO</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             如果您已經設計好資料表格，您可以使用Hibernate Tool自動從表格中生成映射文件或POJO，甚至是標上了Annotation的實體類別，您需要Hibernate Core、Hibernate Annotation、Freemaker、jTidy的JAR檔案，請將之存放至專案的lib資料夾中，並假設產生的相關xml與.java將放在src資料夾中。<br>
+
+
+
+      <br>
+
+
+
+首先，請建立一個example.db.properties，當中包括了資料庫的連接訊息：<br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>example.db.properties</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">hibernate.dialect = org.hibernate.dialect.MySQLDialect<br>hibernate.connection.driver_class = com.mysql.jdbc.Driver<br>hibernate.connection.url = jdbc:mysql://localhost/demo<br>hibernate.connection.username = caterpillar<br>hibernate.connection.password = 123456</code></pre>
+
+
+
+      <br>
+
+
+
+      接著撰寫Ant建構檔案，相關的註解標示於其中：<br>
+
+
+      
+      
+      <ul>
+
+
+        <li>build.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;project name="Hello World Reverse" default="compile" basedir="."&gt;<br><br>    &lt;property name="proj.name"      value="Reverse example"/&gt;<br>    &lt;property name="proj.shortname" value="example-reverse"/&gt;<br>    &lt;property name="version"        value="1.0"/&gt;<br><br>    &lt;property name="src.java.dir"           value="src/java"/&gt;<br>    &lt;property name="lib.dir"                value="lib"/&gt;<br><br>    &lt;path id="project.classpath"&gt;<br>        &lt;fileset dir="\${lib.dir}"&gt;<br>            &lt;include name="**/*.jar"/&gt;<br>            &lt;include name="**/*.zip"/&gt;<br>        &lt;/fileset&gt;<br>    &lt;/path&gt;<br><br>    &lt;!-- 使用HibernateToolTask --&gt;<br>    &lt;taskdef name="hibernatetool"<br>             classname="org.hibernate.tool.ant.HibernateToolTask"<br>             classpathref="project.classpath"/&gt;<br><br>    &lt;!-- 從資料庫產生HBM、Hibernate設定檔等XML --&gt;<br>    &lt;target name="reveng.hbmxml"<br>            description="Read database, generate XML mapping files"&gt;<br><br>        &lt;hibernatetool destdir="\${src.java.dir}"&gt;<br>            &lt;jdbcconfiguration<br>                propertyfile="\${basedir}/example.db.properties"<br>                revengfile="\${basedir}/example.reveng.xml"/&gt;<br>            &lt;hbm2hbmxml/&gt; &lt;!-- 從資料表產生HBM --&gt;<br>            &lt;hbm2cfgxml/&gt; &lt;!-- 產生hibernate.cfg.xml --&gt;<br>        &lt;/hibernatetool&gt;<br><br>    &lt;/target&gt;<br><br>    &lt;!-- 從HBM產生POJO --&gt;<br>    &lt;target name="reveng.pojos"<br>            description="Read XML mapping files, generate POJOs"&gt;<br><br>        &lt;hibernatetool destdir="\${src.java.dir}"&gt;<br>            &lt;configuration&gt;<br>                &lt;fileset dir="\${src.java.dir}"&gt;<br>                    &lt;include name="**/*.hbm.xml"/&gt;<br>                &lt;/fileset&gt;<br>            &lt;/configuration&gt;<br>            &lt;hbm2java/&gt; &lt;!-- 產生POJO --&gt;<br>        &lt;/hibernatetool&gt;<br><br>    &lt;/target&gt;<br><br>    &lt;!-- 從資料表產生Annotation的實體類別 --&gt;<br>    &lt;target name="reveng.entities"<br>            description="Read database, generate Java entity beans"&gt;<br><br>        &lt;hibernatetool destdir="\${src.java.dir}"&gt;<br>            &lt;jdbcconfiguration<br>                propertyfile="\${basedir}/example.db.properties"<br>                revengfile="\${basedir}/example.reveng.xml"/&gt;<br>            &lt;hbm2java jdk5="true" ejb3="true"/&gt;<br>            &lt;hbm2cfgxml ejb3="true"/&gt;<br>        &lt;/hibernatetool&gt;<br><br>    &lt;/target&gt;<br><br>&lt;/project&gt;</code></pre>
+
+
+      <br>
+
+
+      按照上列內容，可以看到，還需要一個example.reveng.xml：<br>
+
+
+      
+      
+      <ul>
+
+
+        <li>example.reveng.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;!DOCTYPE hibernate-reverse-engineering<br>SYSTEM "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd"&gt;<br><br>&lt;hibernate-reverse-engineering&gt;<br>    &lt;table-filter match-name=".*" <br>                  package="onlyfun.caterpillar"/&gt;<br>&lt;/hibernate-reverse-engineering&gt;</code></pre>
+
+
+      <br>
+
+
+      在這邊簡單的設定&lt;table-filter&gt;，match-name用regression expression來設定所要match的表格名稱，package設定Java的套件名稱。<br>
+
+
+      <br>
+
+
+      如果建構時指定target為reveng.hbmxml，則會產生以下的TUser.hbm.xml及hibernate.cfg.xml：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>TUser.hbm.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0"?&gt;<br>&lt;!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"<br>"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt;<br>&lt;!-- Generated 2007/6/26 ?U?? 12:26:43 by Hibernate Tools 3.2.0.beta8 --&gt;<br>&lt;hibernate-mapping&gt;<br>    &lt;class name="onlyfun.caterpillar.TUser" table="t_user" catalog="demo"&gt;<br>        &lt;comment&gt;&lt;/comment&gt;<br>        &lt;id name="id" type="long"&gt;<br>            &lt;column name="id" /&gt;<br>            &lt;generator class="assigned" /&gt;<br>        &lt;/id&gt;<br>        &lt;property name="name" type="string"&gt;<br>            &lt;column name="name"&gt;<br>                &lt;comment&gt;&lt;/comment&gt;<br>            &lt;/column&gt;<br>        &lt;/property&gt;<br>        &lt;property name="age" type="java.lang.Long"&gt;<br>            &lt;column name="age"&gt;<br>                &lt;comment&gt;&lt;/comment&gt;<br>            &lt;/column&gt;<br>        &lt;/property&gt;<br>    &lt;/class&gt;<br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+      <br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>hibernate.cfg.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt;<br>&lt;!DOCTYPE hibernate-configuration PUBLIC<br>"-//Hibernate/Hibernate Configuration DTD 3.0//EN"<br>"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd"&gt;<br>&lt;hibernate-configuration&gt;<br>    &lt;session-factory&gt;<br>        &lt;property <br>         name="hibernate.connection.driver_class"&gt;com.mysql.jdbc.Driver&lt;/property&gt;<br>        &lt;property <br>          name="hibernate.connection.password"&gt;123456&lt;/property&gt;<br>        &lt;property <br>          name="hibernate.connection.url"&gt;jdbc:mysql://localhost/demo&lt;/property&gt;<br>        &lt;property <br>          name="hibernate.connection.username"&gt;caterpillar&lt;/property&gt;<br>        &lt;property <br>         name="hibernate.dialect"&gt;org.hibernate.dialect.MySQLDialect&lt;/property&gt;<br>        &lt;mapping resource="onlyfun/caterpillar/TUser.hbm.xml" /&gt;<br>    &lt;/session-factory&gt;<br>&lt;/hibernate-configuration&gt;</code></pre>
+
+
+      <br>
+
+
+如果進一步執行reveng.pojos這個target，則會產生以下的POJO：<br>
+
+
+      
+      
+      <ul>
+
+
+        <li>TUser.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br>// Generated 2007/6/26 下午 01:00:39 by Hibernate Tools 3.2.0.beta8<br><br>/**<br> * TUser generated by hbm2java<br> */<br>public class TUser  implements java.io.Serializable {<br><br>    // Fields    <br><br>     private long id;<br>     private String name;<br>     private Long age;<br><br>     // Constructors<br><br>    /** default constructor */<br>    public TUser() {<br>    }<br><br>	/** minimal constructor */<br>    public TUser(long id) {<br>        this.id = id;<br>    }<br>    /** full constructor */<br>    public TUser(long id, String name, Long age) {<br>       this.id = id;<br>       this.name = name;<br>       this.age = age;<br>    }<br>   <br>    // Property accessors<br>    public long getId() {<br>        return this.id;<br>    }<br>    <br>    public void setId(long id) {<br>        this.id = id;<br>    }<br>    public String getName() {<br>        return this.name;<br>    }<br>    <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>    public Long getAge() {<br>        return this.age;<br>    }<br>    <br>    public void setAge(Long age) {<br>        this.age = age;<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+      如果進一步執行reveng.entities這個target，則會產生以下的實體類別：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>TUser.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br>// Generated 2007/6/26 下午 01:02:01 by Hibernate Tools 3.2.0.beta8<br><br>import javax.persistence.Column;<br>import javax.persistence.Entity;<br>import javax.persistence.Id;<br>import javax.persistence.Table;<br><br>/**<br> * TUser generated by hbm2java<br> */<br>@Entity<br>@Table(name="t_user"<br>    ,catalog="demo"<br>    , uniqueConstraints = {  }<br>)<br>public class TUser  implements java.io.Serializable {<br><br>    // Fields    <br><br>     private long id;<br>     private String name;<br>     private Long age;<br><br>     // Constructors<br><br>    /** default constructor */<br>    public TUser() {<br>    }<br><br>	/** minimal constructor */<br>    public TUser(long id) {<br>        this.id = id;<br>    }<br>    /** full constructor */<br>    public TUser(long id, String name, Long age) {<br>       this.id = id;<br>       this.name = name;<br>       this.age = age;<br>    }<br>   <br>    // Property accessors<br>     @Id<br>    <br>    @Column(name="id", unique=true, <br>            nullable=false, insertable=true, updatable=true)<br>    public long getId() {<br>        return this.id;<br>    }<br>    <br>    public void setId(long id) {<br>        this.id = id;<br>    }<br>    <br>    @Column(name="name", unique=false, <br>            nullable=true, insertable=true, updatable=true)<br>    public String getName() {<br>        return this.name;<br>    }<br>    <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>    <br>    @Column(name="age", unique=false, <br>            nullable=true, insertable=true, updatable=true)<br>    public Long getAge() {<br>        return this.age;<br>    }<br>    <br>    public void setAge(Long age) {<br>        this.age = age;<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+      <br>
+
+
+      
+      <br>
+
+
+
+      
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

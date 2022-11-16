@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="你有玩過生命遊戲嗎？沒玩過的話可以看一下〈康威生命遊戲〉，根據其中的描述，生命遊戲可簡化為三個規則： 某位置之細胞鄰居數為 0、1、4、5、6、">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::State" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/state/" />
+    <meta property="og:description" content="你有玩過生命遊戲嗎？沒玩過的話可以看一下〈康威生命遊戲〉，根據其中的描述，生命遊戲可簡化為三個規則： 某位置之細胞鄰居數為 0、1、4、5、6、" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::State" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/state/" />
+    <meta name="twitter:description" content="你有玩過生命遊戲嗎？沒玩過的話可以看一下〈康威生命遊戲〉，根據其中的描述，生命遊戲可簡化為三個規則： 某位置之細胞鄰居數為 0、1、4、5、6、" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443692" type="image/x-icon">
+    <title> 漫談模式  :: State</title>
+    <link href="../../../css/nucleus.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443692.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443692.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443692"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/behavioral/state/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item parent"><a href="../index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item active"><a href="index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item"><a href="../../functional/index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../../functional/immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../../functional/pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../../functional/map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../../functional/filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../../functional/reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../../functional/flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">行為式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">State</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#規則狀態">規則／狀態</a></li>
+    <li><a href="index.html#瀑布化的流程">瀑布化的流程？</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/state/">state</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/gof/">Gof</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/design-pattern/">design pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/game-of-life/">game of life</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/polymorphism/">polymorphism</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/subtype-polymorphism/">subtype polymorphism</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/automata/">automata</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>State</h1>
+
+ <i class="space fa fa-calendar"> January 5, 2022</i> 
+<p>你有玩過生命遊戲嗎？沒玩過的話可以看一下〈<a href="../../../algorithm/basics/life/index.html">康威生命遊戲</a>〉，根據其中的描述，生命遊戲可簡化為三個規則：</p>
+<ul>
+<li>某位置之細胞鄰居數為 0、1、4、5、6、7、8 時，該位置下次狀態必無細胞存活。</li>
+<li>某位置之細胞鄰居數為 2 時，該位置下次狀態保持不變（有細胞就有細胞，無細胞就無細胞）。</li>
+<li>某位置之細胞鄰居數為 3 時，該位置下次狀態必有細胞存活。</li>
+</ul>
+<p>這三個規則可以命名為致命（Fatal）、穩定（Stable）、可復活（Revivable），在這邊使用列舉來代表：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> Rule <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Fatal<span style="color:#f92672">,</span> Stable<span style="color:#f92672">,</span> Revivable<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> Rule<span style="color:#f92672">&gt;</span> envs <span style="color:#f92672">=</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> Stable<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> Revivable<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Rule <span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">,</span> Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 計算鄰居數
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> dirs <span style="color:#f92672">=</span> <span style="color:#f92672">{{-</span>1<span style="color:#f92672">,</span> 0<span style="color:#f92672">},</span> <span style="color:#f92672">{-</span>1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> 0<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">},</span> <span style="color:#f92672">{-</span>1<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">}};</span>
+</span></span><span style="display:flex;"><span>        var count <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 8 <span style="color:#f92672">&amp;&amp;</span> count <span style="color:#f92672">&lt;</span> 4<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            var r <span style="color:#f92672">=</span> cell<span style="color:#f92672">.</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>0<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>            var c <span style="color:#f92672">=</span> cell<span style="color:#f92672">.</span><span style="color:#a6e22e">j</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>1<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> 
+</span></span><span style="display:flex;"><span>               cells<span style="color:#f92672">[</span>0<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> cells<span style="color:#f92672">[</span>r<span style="color:#f92672">][</span>c<span style="color:#f92672">].</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                count<span style="color:#f92672">++;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Rule<span style="color:#f92672">.</span><span style="color:#a6e22e">envs</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getOrDefault</span><span style="color:#f92672">(</span>count<span style="color:#f92672">,</span> Fatal<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>細胞會根據這三個規則，決定接下來是處於死亡或是存活狀態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> isAlive<span style="color:#f92672">;</span> <span style="color:#75715e">// 位置 i, j 與是否存活
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    Cell<span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> j<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> isAlive<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> i<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">j</span> <span style="color:#f92672">=</span> j<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> isAlive<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextGen</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>Rule<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>cells<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> Fatal<span style="color:#f92672">:</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> Revivable<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> Stable<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// nope
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>這沒什麼問題，生命遊戲最後歸結為三個規則，使用 <code>switch</code>（或 <code>if/else</code>）來判斷接下來要套用哪個規則，進行對應的狀態轉移，簡單而直覺；然而有時候在更複雜的遊戲裡，你可能會有更多的規則，並根據規則對角色進行對應的狀態轉移，若單純只用 <code>switch</code>（或 <code>if/else</code>）來處理，你可能會有&hellip;呃&hellip;很長很長&hellip;很長的判斷清單&hellip;</p>
+<p>這或許還不打緊，如果日後你要變更規則對應的狀態轉移，你得在&hellip;很長很長&hellip;很長的清單裡進行維護與修改&hellip;XD</p>
+<h2 id="規則狀態">規則／狀態</h2>
+<p>可以考慮將狀態轉移的職責由代表規則的物件執行，例如，Java 的列舉可以有各自實作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.function.Consumer<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> Rule <span style="color:#66d9ef">implements</span> Consumer<span style="color:#f92672">&lt;</span>Cell<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Fatal  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            cell<span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Stable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// nope
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Revivable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            cell<span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> Rule<span style="color:#f92672">&gt;</span> envs <span style="color:#f92672">=</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> Stable<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> Revivable<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Rule <span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">,</span> Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">...</span><span style="color:#a6e22e">根據</span> cells 與 cell 來取得 Rule 實例
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">...</span><span style="color:#a6e22e">詳細參考本文一開始的</span><span style="color:#960050;background-color:#1e0010">〈</span>康威生命遊戲<span style="color:#960050;background-color:#1e0010">〉</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>然後，<code>Cell</code> 就不用管什麼哪個規則要做什麼樣的狀態轉移，只要呼叫 <code>Rule</code> 列舉實例的 <code>accept</code> 就可以了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> isAlive<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Cell<span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> j<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> isAlive<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> i<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">j</span> <span style="color:#f92672">=</span> j<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> isAlive<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextGen</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Rule<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>cells<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">).</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Cell <span style="color:#a6e22e">copy</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Cell<span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> isAlive<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Gof 將這類實現稱為 State 模式，與其讓物件負責哪個規則要進行哪種狀態轉移，不如讓各個規則各自負責要進行的狀態轉移。</p>
+<p>雖然這邊使用了 Java 的列舉，不過其實透過繼承關係，定義 <code>Rule</code> 作為 <code>Fatal</code>、<code>Stable</code> 與 <code>Revivable</code> 的父類別，也可以實現以上的概念。</p>
+<h2 id="瀑布化的流程">瀑布化的流程？</h2>
+<p>要不要這麼做，其實還是取決於需求，歸結後只有三個規則的生命遊戲，這麼做是稍微小題大作了；然而，若規則數量多而且對應的狀態轉移複雜（或者甚至日後有可能增長），最後你發現瀑布化的流程難以處理時，可以考慮 State 模式的實現方式。</p>
+<p>在要求不可變動（immutable）的場合，若要朝著 State 模式的方向實現，物件狀態無法改變下，會是生成新物件來封裝新狀態，例如〈<a href="../../../computation/automata/index.html">圖靈隨想</a>〉的 Brainfuck 等機器，基本上就是狀態機，它們實現了 State 模式的概念，並採取了不可變動的特性。</p>
+<p>現代一些前端程式庫或框架，為了處理前端複雜的規則與狀態，也常隱含了 State 模式的實現，而為了便於管理狀態，也常採用不可變動特性。</p>
+<p>有時識別這個狀態不容易，就生命遊戲來說，提取規則用的狀態，其實是鄰居數量，而不是細胞本身的狀態，套用規則時改變了細胞狀態，然而最後其實也改變了整個盤面，也就是細胞鄰居數也被改變了，下一代就是根據新的鄰居數作為狀態，來取得對應的規則。</p>
+<p>在實際的應用程式設計時，若規則與狀態的對應，因需求（增加）而（逐漸）構成瀑布化的流程，有時用來提取規則的狀態，可能與型態是對應的，而狀態轉移可能是某個流程，例如，你可能用了一串 <code>instanceof</code> 判斷物件的型態，然後做出對應的動作，在物件導向程式語言的入門文件中，應該會解釋這麼做不明智，或許你該考慮次型態多型（subtype polymorphism），將各個動作定義在子類別。</p>
+<p>有時用來提取規則的狀態，不是那麼明顯，例如生命遊戲的鄰居數為 0、1、4、5、6、7、8 乍看是一組規則，其實鄰居數為 0、1、4、5、6、7、8 的狀態時，都用來提取同一個規則；有時提取規則用的狀態，會是一組條件的組合，像是投資組合、保險條款組合等，你可能使用了 <code>&amp;&amp;</code>、<code>||</code> 等邏輯運算，將數個條件組合出某個成立狀況，這時可能就是隱含著這些條件組合，構成提取某個規則的狀態。</p>
+<p>因為有時提取規則用的狀態不是那麼明顯，開發者就常採用直覺而簡單的做法，也就是不斷地增加新的 <code>switch</code>、<code>if/else</code>，然後流程變成小瀑布，久而久之就構成了大瀑布&hellip;你也許也親眼見過那壯闊的景像吧！</p>
+<p>State 模式這時可能是解決瀑布化流程的一種思考方向，如果你不是要改變狀態，而是要執行某個動作，用物件封裝動作，以某值對應物件，這時採用字典之類的結構可以建立對應表，可能也是個解決的方式。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>actions<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>caseValue<span style="color:#f92672">).</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>context<span style="color:#f92672">);</span> <span style="color:#75715e">// actions 是個 `Map`
+</span></span></span></code></pre></div><p>這時該怎麼封裝動作？案例值如何對應至動作？就是你要思考的&hellip;這其實也是 State 模式想表達的，面對瀑布化的流程，你應該想到的是&hellip;可以這樣繼續下去嗎？</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/behavioral/state/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/behavioral/state/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aState&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2fbehavioral%2fstate%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../observer/index.html" title="Observer"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../visitor/index.html" title="Visitor"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443692"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443692"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443692"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443692"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443692"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443692"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443692"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443692"></script>
+  </body>
+</html>

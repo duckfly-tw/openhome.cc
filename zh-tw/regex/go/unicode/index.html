@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="其實在 Go 裡要處理文字，開發者一開始就必須了解 Unicode、UTF 的差別，一開始就會面對「字串持有的就是位元組」這個事實，len(&quot">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Regular Expression::Go 與 Unicode 規則表示式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/regex/go/unicode/" />
+    <meta property="og:description" content="其實在 Go 裡要處理文字，開發者一開始就必須了解 Unicode、UTF 的差別，一開始就會面對「字串持有的就是位元組」這個事實，len(&quot" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Regular Expression::Go 與 Unicode 規則表示式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/regex/go/unicode/" />
+    <meta name="twitter:description" content="其實在 Go 裡要處理文字，開發者一開始就必須了解 Unicode、UTF 的差別，一開始就會面對「字串持有的就是位元組」這個事實，len(&quot" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443699" type="image/x-icon">
+    <title> Regular Expression  :: Go 與 Unicode 規則表示式</title>
+    <link href="../../../css/nucleus.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443699.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443699"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/regex/go/unicode/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/regex/" title="Regular Expression" class="dd-item parent"><a href="../../index.html">Regular Expression</a><ul>
+          <li data-nav-id="/zh-tw/regex/syntax/" title="語法" class="dd-item"><a href="../../syntax/index.html">| 語法</a><ul>
+          <li data-nav-id="/zh-tw/regex/syntax/basic/" title="簡介規則表示式" class="dd-item"><a href="../../syntax/basic/index.html">簡介規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/character/" title="字元表示、字元類" class="dd-item"><a href="../../syntax/character/index.html">字元表示、字元類</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/quantifier-anchor/" title="量詞、錨點" class="dd-item"><a href="../../syntax/quantifier-anchor/index.html">量詞、錨點</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/group/" title="分組捕捉" class="dd-item"><a href="../../syntax/group/index.html">分組捕捉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/unicode/" title="認識 Unicode" class="dd-item"><a href="../../syntax/unicode/index.html">認識 Unicode</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/" title="Java" class="dd-item"><a href="../../java/index.html">| Java</a><ul>
+          <li data-nav-id="/zh-tw/regex/java/string-regex/" title="Java 字串與規則表示式" class="dd-item"><a href="../../java/string-regex/index.html">Java 字串與規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/matcher/" title="Matcher 物件" class="dd-item"><a href="../../java/matcher/index.html">Matcher 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/pattern/" title="Pattern 物件" class="dd-item"><a href="../../java/pattern/index.html">Pattern 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/unicode/" title="Java 與 Unicode 規則表示式" class="dd-item"><a href="../../java/unicode/index.html">Java 與 Unicode 規則表示式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/" title="Python" class="dd-item"><a href="../../python/index.html">| Python</a><ul>
+          <li data-nav-id="/zh-tw/regex/python/re/" title="re 模組" class="dd-item"><a href="../../python/re/index.html">re 模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/pattern/" title="Pattern 物件" class="dd-item"><a href="../../python/pattern/index.html">Pattern 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/unicode/" title="Python 與 Unicode 規則表示式" class="dd-item"><a href="../../python/unicode/index.html">Python 與 Unicode 規則表示式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/" title="JavaScript" class="dd-item"><a href="../../javascript/index.html">| JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/regex/javascript/regex-literal/" title="JavaScript 字串與規則表示式" class="dd-item"><a href="../../javascript/regex-literal/index.html">JavaScript 字串與規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/unicode/" title="JavaScript 與 Unicode 規則表示式" class="dd-item"><a href="../../javascript/unicode/index.html">JavaScript 與 Unicode 規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/regexp/" title="RegExp 實例" class="dd-item"><a href="../../javascript/regexp/index.html">RegExp 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/symbol/" title="RegExp 的 Symbol 協定" class="dd-item"><a href="../../javascript/symbol/index.html">RegExp 的 Symbol 協定</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/" title="Go" class="dd-item parent"><a href="../index.html">| Go</a><ul>
+          <li data-nav-id="/zh-tw/regex/go/match/" title="Go 的 Match 比對" class="dd-item"><a href="../match/index.html">Go 的 Match 比對</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/regexp/" title="Go 的 Regexp 實例" class="dd-item"><a href="../regexp/index.html">Go 的 Regexp 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/unicode/" title="Go 與 Unicode 規則表示式" class="dd-item active"><a href="index.html">Go 與 Unicode 規則表示式</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Regular Expression</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">Go</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Go 與 Unicode 規則表示式</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#go-的字串碼點">Go 的字串／碼點</a></li>
+    <li><a href="index.html#unicode-與規則表示式">Unicode 與規則表示式</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/go/">Go</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/unicode/">Unicode</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/encoding/">encoding</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Go 與 Unicode 規則表示式</h1>
+
+ <i class="space fa fa-calendar"> July 13, 2022</i> 
+<p>其實在 Go 裡要處理文字，開發者一開始就必須了解 Unicode、UTF 的差別，一開始就會面對「字串持有的就是位元組」這個事實，<code>len(&quot;Go語言&quot;)</code> 的結果會是8，也是因為實際上 <code>&quot;Go語言&quot;</code> 就是長度為 8 的 <code>[]byte</code>，也就是 UTF-8 編碼。</p>
+<h2 id="go-的字串碼點">Go 的字串／碼點</h2>
+<p>在〈<a href="https://go.dev/blog/strings">Strings, bytes, runes and characters in Go</a>〉談到，「字元」的定義本身就很模糊，而在這模糊的定義上，各語言又去定義「字串」是由字元組成這件事，就更令人搞不清楚了，因此衍生出許多文字處理方面的問題。</p>
+<p>為了避免這些問題，Go 的字串從一開始，就以 UTF-8 為設計的中心，開發者在指定索引時，就是指定 UTF-8 碼元（code unit）的位置，當下所取得的結果會是 <code>byte</code>；此時，我們可以使用 <code>byte[](&quot;Go語言&quot;)</code> 取得儲存的編碼位元組，切片操作的結果也會是 <code>[]byte</code>。</p>
+<p>許多與字串索引相關的 API 操作，傳回索引值時，指的都是字串持有的 <code>[]byte</code> 之位置。例如，<code>strings</code> 套件有不少字串處理 API，名稱有 Index 的字樣，例如，<code>strings.Index</code> 傳回的整數。指的就是 <code>[]byte</code> 的索引位置；<code>regex.Regexp</code> 實例上具有 Index 字樣方法，也是如此。</p>
+<p>為了避免「字元」定義的模糊問題，Go 沒有所謂的字元對應型態，只有碼點的概念。使用 <code>for range</code> 走訪 <code>&quot;Go語言&quot;</code> 時：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">cp</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#e6db74">&#34;Go語言&#34;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%d %q\n&#34;</span>, <span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">cp</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>最後一個 <code>i</code> 會是 5，原因是：UTF-8 在編碼時，中文字會使用三個碼元（也就是三個位元組），<code>for range</code> 會試著識別一組碼元，確認是否對應至 Unicode 碼點（code point），若是指定給 <code>cp</code>，而 <code>cp</code> 的型態是 <code>rune</code>。</p>
+<p><code>rune</code> 為 <code>int32</code> 的別名，可用來儲存 Unicode 碼點，如果將方才範例 <code>%q</code> 改為 <code>%d</code>，就會看到「語」、「言」的碼點的十進位數字，分別是 35486、35328，在 Go 也可以用 <code>[]rune(&quot;Go語言&quot;)</code> 來取得 <code>[]rune</code>，每個索引位置儲存的都是碼點。</p>
+<p>Go 的 <code>rune</code>，儲存的就是文字的碼點號碼，其型態名稱不使用 codepoint 的原因在於，<code>rune</code> 這個名稱比較簡短，並且來自一類已滅絕的盧恩字母（Runes）（https://en.wikipedia.org/wiki/Runes）。</p>
+<p>Go 主要使用 UTF-8 位元組格式，作為字串的底層儲存，不過，也提供了 <code>unicode</code> 套件來協助 Unicode 碼點特性判斷。</p>
+<p>例如，<code>unicode/utf8</code> 可用來進行 <code>rune</code> 與 UTF-8 之間的驗證、轉換，<code>unicode/utf16</code> 套件用來進行 <code>rune</code> 與 UTF-16 編碼之間的處理。</p>
+<p>如果察看 <code>unicode/utf8</code>，會發現處理的資料是 <code>[]byte</code>，這是因為 UTF-8 的碼元是八個位元，Go 使用 <code>byte</code>（也就是<code>uint8</code>）儲存；UTF-16 編碼的碼元會是十六個位元，Go 使用 <code>uint16</code> 來儲存，因此 <code>unicode/utf16</code> 處理的資料是 <code>[]uint16</code>。</p>
+<h2 id="unicode-與規則表示式">Unicode 與規則表示式</h2>
+<p>在撰寫 Go 的字串時，可以使用 <code>\Uhhhh</code> 或 <code>\Uhhhhhhhh</code> 來指定碼點，不過在撰寫規則表示式時，是使用 <code>\x{...}</code> 來指定碼點。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;regexp&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 比對高音譜記號
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">matched</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\x{1D11E}`</span>, <span style="color:#e6db74">&#34;\U0001D11E&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">matched</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>在 <a href="http://www.unicode.org/reports/tr18/#Categories">Unicode 特性</a>的支援上，使用 <code>\p</code>、<code>\P</code> 的方式，表示具有或不具有指定的特性，<code>\pN</code>、<code>\PN</code> 的 <code>N</code> 是單一字母，若要多個字母組合，可以使用 <code>\p{...}</code>、<code>\P{...}</code>。</p>
+<p>例如〈<a href="https://www.unicode.org/reports/tr18/#General_Category_Property">一般分類特性</a>〉，<code>\pL</code> 表示字母（Letter），<code>\pN</code> 表示數字（Number）等，若要進一步指定子特性，例如 <code>\p{Lu}</code> 表示大寫字母、<code>\p{Ll}</code> 表示小寫字母：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-golang" data-lang="golang"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{Ll}`</span>, <span style="color:#e6db74">&#34;a&#34;</span>)) <span style="color:#75715e">// true &lt;nil&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{Lu}`</span>, <span style="color:#e6db74">&#34;a&#34;</span>)) <span style="color:#75715e">// false &lt;nil&gt;
+</span></span></span></code></pre></div><p>來個有趣的比對吧！<code>𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼</code> 都是十進位數字：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-golang" data-lang="golang"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{Nd}`</span>, <span style="color:#e6db74">&#34;𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼&#34;</span>)) <span style="color:#75715e">// true &lt;nil&gt;
+</span></span></span></code></pre></div><p>數字呢？<code>²³¹¼½¾𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼㉛㉜㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ</code> 都是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-golang" data-lang="golang"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{N}`</span>, <span style="color:#e6db74">&#34;²³¹¼½¾𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼㉛㉜㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ&#34;</span>)) <span style="color:#75715e">// true &lt;nil&gt;
+</span></span></span></code></pre></div><p>有的語言可能會使用多種文字來書寫，例如日語就包含了漢字、平假名、片假名等文字，有的語言只使用一種文字，例如泰文。Unicode 將碼點群組為文字（script）特性上，測試時只要寫上文字特性名稱就可以了，例如測試漢字、希臘文：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-golang" data-lang="golang"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{Han}`</span>, <span style="color:#e6db74">&#34;林&#34;</span>))  <span style="color:#75715e">// true &lt;nil&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">regexp</span>.<span style="color:#a6e22e">MatchString</span>(<span style="color:#e6db74">`\p{Greek}`</span>, <span style="color:#e6db74">&#34;α&#34;</span>)) <span style="color:#75715e">// true &lt;nil&gt;
+</span></span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/regex/go/unicode/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/regex/go/unicode/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Regular%20Expression%3a%3aGo%20%e8%88%87%20Unicode%20%e8%a6%8f%e5%89%87%e8%a1%a8%e7%a4%ba%e5%bc%8f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fregex%2fgo%2funicode%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../regexp/index.html" title="Go 的 Regexp 實例"><i class="fa fa-chevron-left"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443699"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443699"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443699"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443699"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443699"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443699"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443699"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443699"></script>
+  </body>
+</html>

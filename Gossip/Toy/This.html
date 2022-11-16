@@ -1,0 +1,208 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Toy/'https://openhome.cc/zh-tw/toy-lang/obj/this/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈定義類別〉中談到，ToyLang 中的方法，本質上就是個函式，事實上對函式來說，類別不過是個…呃…類似名稱空間般東西，這意謂著，方法也可以指定給變數。例如：
+class Account {
+   ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="this 是啥？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Toy/This.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈定義類別〉中談到，ToyLang 中的方法，本質上就是個函式，事實上對函式來說，類別不過是個…呃…類似名稱空間般東西，這意謂著，方法也可以指定給變數。例如：
+class Account {
+   ...">
+
+    <title>this 是啥？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="This.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Toy/index.html"><< Toy</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>this 是啥？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Class.html">定義類別</a>〉中談到，ToyLang 中的方法，本質上就是個函式，事實上對函式來說，類別不過是個…呃…類似名稱空間般東西，這意謂著，方法也可以指定給變數。例如：</p>
+<pre class="prettyprint"><code lang="toy">class Account {
+    balance = 0 
+
+    def init(number, name) {
+        this.number = number
+        this.name = name
+    }
+
+    def deposit(amount) {
+        if amount &lt;= 0 {
+            throw new Exception('must be positive')
+        }
+
+        this.balance += amount
+    }
+}
+
+acct = new Account('123', 'Justin')
+deposit = acct.deposit
+println(deposit) # 顯示 &lt;Function deposit&gt;
+</code></pre>
+<p>既然如此，這就出現一個有趣的問題了，<code>deposit</code> 變數參考的函式中，<code>this</code> 代表誰呢？如果直接呼叫 <code>deposit(100)</code> 會出現錯誤，因為 <code>this</code> 沒有可指定的值！</p>
+<p>如果函式中存在 <code>this</code>，想要令它有指定的值，方法之一是使用 <code>.</code> 運算子，這是個二元運算子，左運算元必須是類別實例，右運算元必須是函式呼叫，<code>.</code> 運算子會將左運算元指定為右運算元函式中的 <code>this</code> 的值。</p>
+<p>在 ToyLang 中，支援物件個體化（Object individuation），也就是類別的實例建立之後，還可以動態地增減其特性，不一定只能有類別上規範之行為，因此上面的程式範例，可以進一步地：</p>
+<pre class="prettyprint"><code lang="toy">def toString() {
+    return '{0}, {1}, {2}'.format(this.number, this.name, this.balance)
+}
+
+acct.toString = toString
+println(acct.toString())  # 顯示 123, Justin, 0
+</code></pre>
+<p>由於 <code>.</code> 運算子會將左運算元指定為右運算元函式中的 <code>this</code> 的值，因此上例中，<code>this</code> 與 <code>acct</code> 參考的是同一實例。</p>
+<p>另一個指定 <code>this</code> 值的方式，是透過函式的 <code>apply</code> 方法，例如可以進一步在上面的範例加上：</p>
+<pre class="prettyprint"><code lang="toy">deposit.apply(acct, [100])
+println(acct.toString())    # 顯示 123, Justin, 100
+</code></pre>
+<p>每個函式都是 <code>Function</code> 類別的實例，而 <code>Function</code> 定義了 <code>apply</code> 方法，第一個參數會是 <code>this</code> 的指定值，第二個參數要是個 <code>List</code>，其中的值會依序被指定為函式上參數的值。</p>
+<hr />
+<p>當方法被指定給變數時，是否綁定 <code>this</code>，主要看你的實作而定，Python 就會綁定，然而，JavaScript 不會，而 ToyLang 的作法，顯然就是學 JavaScript，就連 <code>apply</code> 也是。</p>
+<p>為了模仿 JavaScript 的特性，<code>.</code> 被設計為運算子，<code>acct.deposit(100)</code>，實際上可以寫成 <code>acct . deposit(100)</code>，也就是方才談到的「左運算元必須是類別實例，右運算元必須是函式呼叫」。</p>
+<p>更具體地來看到 <code>.</code> 運算子的實作，這可以在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/ast/operator.js">operator.js</a> 中找到：</p>
+<pre class="prettyprint"><code lang="toy">class DotOperator {
+    constructor(receiver, message) {
+        this.receiver = receiver;
+        this.message = message;
+    }
+
+    evaluate(context) {
+        const maybeContext = this.receiver.evaluate(context);
+        return maybeContext.notThrown(
+            receiver =&gt; this.message.send(context, receiver.box(context))
+        );
+    }
+}
+</code></pre>
+<p><code>receiver</code> 是個類別實例，也就是實作中的 <code>Instance</code> 節點（也就是左運算元），<code>message</code> 會是個函式呼叫（也就是右運算元），也就是 <code>FunCall</code> 節點，依 <code>DotOperator</code> 的定義，在執行時，更具體的說法是，將右運算元作為訊息，傳送給左運算元，這個時候，<code>FunCall</code> 會轉換為 <code>MethodCall</code>，這實現在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/ast/callable.js">callable.js</a> 中：</p>
+<pre class="prettyprint"><code lang="toy">class FunCall {
+    constructor(func, argsList) {
+        this.func = func;
+        this.argsList = argsList;
+    } 
+
+    ...
+
+    send(context, instance) {
+        const methodName = this.func.name;
+        return new MethodCall(instance, methodName, this.argsList).evaluate(context);
+    }
+}
+
+class MethodCall {
+    constructor(instance, methodName, argsList = []) {
+        this.instance = instance;
+        this.methodName = methodName;
+        this.argsList = argsList;
+    }
+
+    evaluate(context) {
+        return methodBodyStmt(context, this.instance, this.methodName, this.argsList[0])
+                        .evaluate(methodContextFrom(context, this.instance, this.methodName))
+                        .notThrown(c =&gt; {
+                            if(this.argsList.length &gt; 1) {
+                                return callChain(context, c.returnedValue.internalNode, this.argsList.slice(1));
+                            }
+                            return c.returnedValue === null ? Void : c.returnedValue; 
+                        });
+    }
+}
+
+function methodBodyStmt(context, instance, methodName, args = []) {
+    const f = instance.hasOwnProperty(methodName) ? 
+                  instance.getOwnProperty(methodName).internalNode : 
+                  instance.clzNodeOfLang().getMethod(context, methodName);
+    const bodyStmt = f.bodyStmt(context, args.map(arg =&gt; arg.evaluate(context)));
+    return new StmtSequence(
+        new VariableAssign(Variable.of('this'), instance),  
+        bodyStmt,
+        bodyStmt.lineNumber
+    );
+}
+</code></pre>
+<p>在這邊可以注意到 <code>methodBodyStmt</code>，其中有個 <code>new VariableAssign(Variable.of('this'), instance)</code>，這就是指定 <code>this</code> 為 <code>instance</code> 的地方。</p>
+<p>至於 <code>Function</code> 的 <code>apply</code> 就單純許多了，就純綷是在進行函式呼叫時，將 <code>this</code> 作為環境物件的變數之一，值則是指定的類別實例，雖然還沒正式介紹如何實作內建類別，不過可以偷看一下 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/builtin/classes/func.js">func.js</a> 中的內容：</p>
+<pre class="prettyprint"><code lang="toy">FunctionClass.methods = new Map([
+    ...略
+    ,
+    ['apply', func2('apply', {
+        evaluate(context) {
+            const funcInstance = self(context);            
+            const targetObject = PARAM1.evaluate(context); 
+            const args = PARAM2.evaluate(context);         // List instance
+            const jsArray = args === Null ? [] : args.nativeValue();
+            const bodyStmt = funcInstance.internalNode
+                                         .bodyStmt(context, jsArray.map(arg =&gt; arg.evaluate(context)));
+
+            return bodyStmt.evaluate(context.assign('this', targetObject));
+        }    
+    })]
+]);
+</code></pre>
+<p><code>targetObject</code> 會是第一個參數指定的值，<code>bodyStmt.evaluate(context.assign('this', targetObject))</code> 該行，就是指定 <code>this</code> 的地方。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'G-QVQQYFSC8J', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</div>

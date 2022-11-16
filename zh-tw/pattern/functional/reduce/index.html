@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈Pattern matching〉看過這個範例： def leng(lt): match lt: case []: return 0 case [_, *tail]: return 1 &#43; leng(tail) reduce 歸納 如果想對一個 list 計數，可以使用這個 leng 函式，如果想計算 list 中">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Reduce" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/reduce/" />
+    <meta property="og:description" content="在〈Pattern matching〉看過這個範例： def leng(lt): match lt: case []: return 0 case [_, *tail]: return 1 &#43; leng(tail) reduce 歸納 如果想對一個 list 計數，可以使用這個 leng 函式，如果想計算 list 中" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Reduce" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/reduce/" />
+    <meta name="twitter:description" content="在〈Pattern matching〉看過這個範例： def leng(lt): match lt: case []: return 0 case [_, *tail]: return 1 &#43; leng(tail) reduce 歸納 如果想對一個 list 計數，可以使用這個 leng 函式，如果想計算 list 中" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443694" type="image/x-icon">
+    <title> 漫談模式  :: Reduce</title>
+    <link href="../../../css/nucleus.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443694.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443694.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443694"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/functional/reduce/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item"><a href="../../behavioral/index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../../behavioral/template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../../behavioral/chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../../behavioral/command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../../behavioral/iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../../behavioral/strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../../behavioral/observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../../behavioral/state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../../behavioral/visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../../behavioral/interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../../behavioral/memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../../behavioral/mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item parent"><a href="../index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item active"><a href="index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">函數式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Reduce</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#reduce-歸納">reduce 歸納</a></li>
+    <li><a href="index.html#回到命令式">回到命令式</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/functional-programming/index.html">functional programming</a>
+  <a class="tag-link" href="../../../tags/python/index.html">Python</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/foldable/">Foldable</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/monoid/">Monoid</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Reduce</h1>
+
+ <i class="space fa fa-calendar"> January 23, 2022</i> 
+<p>在〈<a href="../pattern-matching/index.html">Pattern matching</a>〉看過這個範例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">leng</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        case [_, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> leng(tail)
+</span></span></code></pre></div><h2 id="reduce-歸納">reduce 歸納</h2>
+<p>如果想對一個 <code>list</code> 計數，可以使用這個 <code>leng</code> 函式，如果想計算 <code>list</code> 中的數值乘積呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">product</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> head <span style="color:#f92672">*</span> product(tail)
+</span></span></code></pre></div><p>流程上感覺有重複性，然而又好像比較難抽取出來？把遞迴函式用 f，而流程中不同的部份用 _xxx 表示呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">f</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> init_xxx
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> head opt_xxx f(tail)
+</span></span></code></pre></div><p>init_xxx 是 <code>[]</code> 的傳回值，head 與 f(tail) 是 opt_xxx 運算的運算元（<code>leng</code> 中看來沒使用 <code>head</code>，不過可視為給 <code>head</code> 而不理會罷了），如果 opt_xxx 可以使用函式指定，那麼會變成：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">reduce_right</span>(reducer, lt, initializer):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> initializer
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            acc <span style="color:#f92672">=</span> reduce_right(reducer, tail, initializer) <span style="color:#75715e"># f(tail) 部份</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> reducer(head, acc)
+</span></span></code></pre></div><p>這麼一來，<code>leng</code> 與 <code>product</code> 可以這麼計算：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>leng <span style="color:#f92672">=</span> reduce_right(<span style="color:#66d9ef">lambda</span> elem, acc: <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> acc, lt, <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>product <span style="color:#f92672">=</span> reduce_right(<span style="color:#66d9ef">lambda</span> elem, acc: elem <span style="color:#f92672">*</span> acc, lt, <span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>簡單來說，<code>reduce_right</code> 是個流程的高階抽象，當你面對一組資料，想將其歸納為一個結果，可以考量歸納的初值、歸納過程的運算方式，而不是想著迴圈該怎麼做，這類抽象有時也稱為 fold，因為就像折紙一樣，一邊折紙，一邊進行運算，例如，若想對 <code>[1, 2, 3, 4, 5]</code> 加總：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>sum <span style="color:#f92672">=</span> reduce_right(<span style="color:#66d9ef">lambda</span> elem, acc: elem <span style="color:#f92672">+</span> acc, lt, <span style="color:#ae81ff">0</span>)
+</span></span></code></pre></div><p>根據方才的 <code>reduce_right</code> 實作，過程就像是以下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>1 + (2 + (3 + (4 + (5 + 0)))
+</span></span><span style="display:flex;"><span>1 + (2 + (3 + (4 + 5)))
+</span></span><span style="display:flex;"><span>1 + (2 + (3 + 9))
+</span></span><span style="display:flex;"><span>1 + (2 + 12)
+</span></span><span style="display:flex;"><span>1 + 14
+</span></span><span style="display:flex;"><span>15
+</span></span></code></pre></div><p>這就是為什麼它會被稱為 <code>reduce_right</code> 的原因，從右開始往左折；相對地，也可以從左開始往右折：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">reduce</span>(reducer, lt, initializer):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> initializer
+</span></span><span style="display:flex;"><span>        case [<span style="color:#f92672">*</span>init, last]:
+</span></span><span style="display:flex;"><span>            acc <span style="color:#f92672">=</span> reduce(reducer, init, initializer) 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> reducer(acc, last)
+</span></span></code></pre></div><p>若想對 <code>[1, 2, 3, 4, 5]</code> 加總：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>sum <span style="color:#f92672">=</span> reduce(<span style="color:#66d9ef">lambda</span> acct, elem: acct <span style="color:#f92672">+</span> elem, lt, <span style="color:#ae81ff">0</span>)
+</span></span></code></pre></div><p>可以留意到 <code>lambda</code> 接受的參數，與方才的 <code>reduce_right</code> 是相反的，目的在反映折疊（或歸納）的方向；根據方才的 <code>reduce</code> 實作，過程就像是以下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>((((0 + 1) + 2) + 3) + 4) + 5
+</span></span><span style="display:flex;"><span>(((1 + 2) + 3) + 4) + 5
+</span></span><span style="display:flex;"><span>((3 + 3) + 4) + 5
+</span></span><span style="display:flex;"><span>(6 + 4) + 5
+</span></span><span style="display:flex;"><span>10 + 5
+</span></span><span style="display:flex;"><span>15
+</span></span></code></pre></div><h2 id="回到命令式">回到命令式</h2>
+<p>Python 就內建了 <code>functools.reduce</code>，例如求乘積可以如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> reduce
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>product <span style="color:#f92672">=</span> reduce(<span style="color:#66d9ef">lambda</span> acc, elem: acc <span style="color:#f92672">*</span> elem, lt, <span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>就命令式的角度來看，API 文件上是說，類似以下的實作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">reduce</span>(function, iterable, initializer<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>    it <span style="color:#f92672">=</span> iter(iterable)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> initializer <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        value <span style="color:#f92672">=</span> next(it)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        value <span style="color:#f92672">=</span> initializer
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> element <span style="color:#f92672">in</span> it:
+</span></span><span style="display:flex;"><span>        value <span style="color:#f92672">=</span> function(value, element)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> value
+</span></span></code></pre></div><p>也就是說，指定的函式第一個參數，會接收累計結果，第二個參數會接受元素值，有提供 reduce 這類概念的語言或程式庫，通常會採用這種慣例，以反映折疊（或歸納）的方向。</p>
+<p>例如 JavaScript：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">product</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">reduce</span>((<span style="color:#a6e22e">acc</span>, <span style="color:#a6e22e">elem</span>) =&gt; <span style="color:#a6e22e">acc</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">elem</span>, <span style="color:#ae81ff">1</span>);
+</span></span></code></pre></div><p>不過還是要查文件，以上範例由左而右最後走訪的會是 5，以下範例由右而左最後走訪的會是 1，然而 <code>reduceRight</code> 接受的箭號函式在參數上，與 <code>reduce</code> 接受的箭號函式相同：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">product</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>                    .<span style="color:#a6e22e">reduceRight</span>((<span style="color:#a6e22e">acc</span>, <span style="color:#a6e22e">elem</span>) =&gt; <span style="color:#a6e22e">acc</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">elem</span>, <span style="color:#ae81ff">1</span>);
+</span></span></code></pre></div><p>另外要留意初值怎麼指定，例如，Java 的 Stream API，<code>reduce</code> 的初值是在第一個參數指定：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var product <span style="color:#f92672">=</span> List<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 2<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> 4<span style="color:#f92672">,</span> 5<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">.</span><span style="color:#a6e22e">reduce</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> <span style="color:#f92672">(</span>acc<span style="color:#f92672">,</span> elem<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> acc <span style="color:#f92672">*</span> elem<span style="color:#f92672">);</span>
+</span></span></code></pre></div>
+<div class="notices info">
+    <div class="label"></div><p>如果 API 沒有明確地指出是往右還是往左折，或者可以從非特定來源取得元素進行 reduce，指定的函式要具有結合律（Associativity），指定的初值必須是該函式的恒等值（Identity），原因可以參考 <a href="../../../haskell/advanced-typeclass/composability/index.html#monoid-%E5%9E%8B%E6%85%8B%E9%A1%9E%E5%88%A5">Monoid</a>。</p>
+
+</div>
+<p>方才談過了，reduce 這類概念是流程的高階抽象，當你面對一組資料，想將其歸納為一個結果，可以考量歸納的初值、歸納過程的運算方式，甚至是想把一個二維結構的 <code>list</code>，展平為一維的 <code>list</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> reduce
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>], [<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>], [<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>]]
+</span></span><span style="display:flex;"><span>flatten <span style="color:#f92672">=</span> reduce(<span style="color:#66d9ef">lambda</span> acc, elem: acc <span style="color:#f92672">+</span> elem, lt, [])
+</span></span><span style="display:flex;"><span>print(flatten) <span style="color:#75715e"># [1, 3, 2, 5, 8, 9]</span>
+</span></span></code></pre></div><p>Python 將 <code>reduce</code> 歸到 <code>functools</code> 模組，是因為社群認為，這個高階抽象相對於 <code>map</code>、<code>filter</code> 來說，比較不好懂一些，用也不是不行，然而建議封裝為一個比較具體的名稱。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> reduce
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">flatten</span>(lt):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> reduce(<span style="color:#66d9ef">lambda</span> acc, elem: acc <span style="color:#f92672">+</span> elem, lt, [])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>], [<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>], [<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>]]
+</span></span><span style="display:flex;"><span>print(flatten(lt)) <span style="color:#75715e"># [1, 3, 2, 5, 8, 9]</span>
+</span></span></code></pre></div><p>當然，這是看開發者，如果開發者熟悉函數式，應該是不會覺得不好懂啦！當你面對一組資料，想將其歸納為一個結果，可以考量歸納的初值、歸納過程的運算方式，而不是考慮迴圈。</p>
+<p>畢竟，就 <code>sum</code>、<code>leng</code>、<code>product</code>、<code>flatten</code> 等操作而言，寫成迴圈，就算任務精簡，其實本身也比較難看出流程中的共用部份了，如果你又想順便在迴圈中做東做西的，就更難重構出可重用的抽象了。</p>
+
+<div class="notices info">
+    <div class="label"></div><p>可以 <code>reduce</code> 的來源並不限於 <code>list</code>，也可能是樹狀結構等其他類型，例如，Java 的 <code>Collection</code> 具有 <code>stream</code> 方法可以建立 <code>Stream</code>，後續可以進行 <code>reduce</code> 操作，這表示 <code>TreeSet</code> 等結構，也是作為 <code>reduce</code> 來源，因此 <code>reduce</code> 可以再抽象化為指定 <code>b -&gt; a -&gt; b</code> 函式與 <code>b</code>，將 <code>f a</code> 轉換為 <code>b</code>（<code>f</code> 代表 <code>list</code>、樹狀等類型），這種再度抽象化後的概念，在 Haskell 使用型態類別 <a href="../../../haskell/advanced-typeclass/composability/index.html">Foldable</a> 規範。</p>
+
+</div>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/functional/reduce/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/functional/reduce/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aReduce&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2ffunctional%2freduce%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../filter/index.html" title="Filter"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../flatmap.html" title="FlatMap"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443694"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443694"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443694"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443694"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443694"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443694"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443694"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443694"></script>
+  </body>
+</html>

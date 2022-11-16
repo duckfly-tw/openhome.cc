@@ -1,0 +1,254 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Regex/'https://openhome.cc/zh-tw/regex/go/regexp/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 Go 中要使用規則表示式取得比對成功的部份、取代等任務，都得將規則表示式編譯為 Regexp 才可以：
+func Compile(expr string) (*Regexp, error)
+fun...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Regexp 實例">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Regex/RegexpGo.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 Go 中要使用規則表示式取得比對成功的部份、取代等任務，都得將規則表示式編譯為 Regexp 才可以：
+func Compile(expr string) (*Regexp, error)
+fun...">
+
+    <title>Regexp 實例</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RegexpGo.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">迴 Regex</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Regexp 實例</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 Go 中要使用規則表示式取得比對成功的部份、取代等任務，都得將規則表示式編譯為 <code>Regexp</code> 才可以：</p>
+<pre class="prettyprint"><code lang="golang">func Compile(expr string) (*Regexp, error)
+func CompilePOSIX(expr string) (*Regexp, error)
+func MustCompile(str string) *Regexp
+func MustCompilePOSIX(str string) *Regexp
+</code></pre>
+<p>POSIX 結尾的函式，表示規則表示式必須符合 POSIX ERE (egrep) 語法，Must 開頭的函式，表示剖析錯誤的話會 panic。</p>
+<p>剖析成功的話，傳回 <code>*Regexp</code>，之後就是比對任務了，不用再處理錯誤。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re, err := regexp.Compile(`\d{4}-\d{6}`)
+    fmt.Println(re, err)
+
+    matched := re.MatchString("0970-168168")
+    fmt.Println(matched)
+    matched = re.MatchString("Phone: 0970-168168")
+    fmt.Println(matched)
+}
+</code></pre>
+<h1>尋找符合項目</h1>
+<p>如果想找出最左邊第一個符合項目，可以使用 Find 開頭的方法版本：</p>
+<pre class="prettyprint"><code lang="golang">func (re *Regexp) Find(b []byte) []byte
+func (re *Regexp) FindIndex(b []byte) (loc []int)
+func (re *Regexp) FindReaderIndex(r io.RuneReader) (loc []int)
+func (re *Regexp) FindReaderSubmatchIndex(r io.RuneReader) []int
+func (re *Regexp) FindString(s string) string
+func (re *Regexp) FindStringIndex(s string) (loc []int)
+func (re *Regexp) FindStringSubmatch(s string) []string
+func (re *Regexp) FindStringSubmatchIndex(s string) []int
+func (re *Regexp) FindSubmatch(b []byte) [][]byte
+func (re *Regexp) FindSubmatchIndex(b []byte) []int
+</code></pre>
+<p>有 Index 字樣的版本，傳回的 <code>[]int</code> 中會有兩個元素，分別是符合項目的<strong>位元組</strong>開頭與結尾索引位置，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`foo.?`)
+    fmt.Printf("%q\n", re.FindString("seafood fool"))      // "food"
+    fmt.Printf("%v\n", re.FindStringIndex("seafood fool")) // [3 7]
+}
+</code></pre>
+<p>有 Submatch 字樣的方法，是用來支援分組。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(\d{4})-(\d{6})`)
+    // ["0970-666888" "0970" "666888"]
+    fmt.Printf("%q\n", re.FindStringSubmatch("0970-666888"))
+}
+</code></pre>
+<p>如果要找出全部的符合項目呢？在這之前來看看如何用規則表示式來切割子字串，這可以使用 <code>Regexp</code> 的 <code>Split</code> 方法，它的第二個參數可以指定至少切割幾個子字串，若指定小於 0 的數，會切出全部的子字串：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re, _ := regexp.Compile(`\d`)
+    fmt.Println(re.Split("Justin1Monica2Irene", 1))   // [Justin1Monica2Irene]
+    fmt.Println(re.Split("Justin1Monica2Irene", 2))   // [Justin Monica2Irene]
+    fmt.Println(re.Split("Justin1Monica2Irene", 3))   // [Justin Monica Irene]
+    fmt.Println(re.Split("Justin1Monica2Irene", -1))  // [Justin Monica Irene]
+}
+</code></pre>
+<p><code>Regexp</code> 提供的 Find 開頭的方法，有不少是這種指定模式，例如：</p>
+<pre class="prettyprint"><code lang="golang">func (re *Regexp) FindAll(b []byte, n int) [][]byte
+func (re *Regexp) FindAllIndex(b []byte, n int) [][]int
+func (re *Regexp) FindAllString(s string, n int) []string
+func (re *Regexp) FindAllStringIndex(s string, n int) [][]int
+func (re *Regexp) FindAllStringSubmatch(s string, n int) [][]string
+func (re *Regexp) FindAllStringSubmatchIndex(s string, n int) [][]int
+func (re *Regexp) FindAllSubmatch(b []byte, n int) [][][]byte
+func (re *Regexp) FindAllSubmatchIndex(b []byte, n int) [][]int
+</code></pre>
+<p>因此，要找出全部的符合項目，一個例子如下：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(\d{4})-(\d{6})`)
+
+    // 分行顯示 "0970-666888" 與 "0970-168168"
+    for _, submatch := range re.FindAllString("0970-666888, 0970-168168", -1) {
+        fmt.Printf("%q\n", submatch)
+    }
+}
+</code></pre>
+<p>底下則是捕捉分組的版本：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(\d{4})-(\d{6})`)
+
+    // 分行顯示 "0970-666888" 與 "0970-168168"
+    for _, submatch := range re.FindAllStringSubmatch("0970-666888, 0970-168168", -1) {
+        fmt.Printf("%q\n", submatch)
+    }
+}
+</code></pre>
+<h1>取代相符項目</h1>
+<p>若要進行取代，使用的是 Replace 開頭的方法：</p>
+<pre class="prettyprint"><code lang="golang">func (re *Regexp) ReplaceAll(src, repl []byte) []byte
+func (re *Regexp) ReplaceAllFunc(src []byte, repl func([]byte) []byte) []byte
+func (re *Regexp) ReplaceAllLiteral(src, repl []byte) []byte
+func (re *Regexp) ReplaceAllLiteralString(src, repl string) string
+func (re *Regexp) ReplaceAllString(src, repl string) string
+func (re *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) string
+</code></pre>
+<p>有 Func 結尾的方法，表示可以指定函式，該函式接收符合的項目，由函式決定用什麼取代。沒有 Literal 字樣的方法，<code>repl</code> 的部份支援分組捕捉，分組計數表示方式是 <code>${n}</code>，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(^[a-zA-Z]+\d*)@([a-z]+?.)com`)
+    // 顯示 caterpillar@openhome.cc
+    fmt.Println(re.ReplaceAllString("caterpillar@openhome.com", "${1}@${2}cc"))
+}
+</code></pre>
+<p>如果使用了 <code>(?P&lt;name&gt;…)</code> 為分組命名，可以使用 <code>${name}</code>，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(?P&lt;user&gt;^[a-zA-Z]+\d*)@(?P&lt;preCom&gt;[a-z]+?.)com`)
+    // 顯示 caterpillar@openhome.cc
+    fmt.Println(re.ReplaceAllString("caterpillar@openhome.com", "${user}@${preCom}cc"))
+}
+</code></pre>
+<p>雖然說方才的 <code>${2}</code> 也可以寫為 <code>$2</code>，然而之後接上其他文字的話，例如 <code>$2cc</code>，就會被認為是分組命名，類似地，方才的 <code>${preCom}</code> 寫成 <code>$preCom</code> 也可以，不過之後接上其他文字的話，例如 <code>$preComcc</code> 就會被認為名稱是 preComcc，建議還是加上 <code>{}</code>。</p>
+<p>Replace 方法中具有 Literal 字樣的，就是直接把 <code>$</code> 當成字面文字來解釋：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    re := regexp.MustCompile(`(?P&lt;user&gt;^[a-zA-Z]+\d*)@(?P&lt;preCom&gt;[a-z]+?.)com`)
+    // $user@${preCom}cc
+    fmt.Println(re.ReplaceAllLiteralString("caterpillar@openhome.com", "$user@${preCom}cc"))
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

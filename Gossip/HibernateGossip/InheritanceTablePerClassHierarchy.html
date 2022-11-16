@@ -1,0 +1,647 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="接續 上一個主題，Table
+per
+concrete
+class的繼承映射方式是最簡單，但沒有效率（例如查詢同為User類型時，需要兩次SQL）且不易管理的映射方式，來看看繼承關係映射至關聯式...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="繼承 - Table per class hierarchy">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/InheritanceTablePerClassHierarchy.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="接續 上一個主題，Table
+per
+concrete
+class的繼承映射方式是最簡單，但沒有效率（例如查詢同為User類型時，需要兩次SQL）且不易管理的映射方式，來看看繼承關係映射至關聯式...">
+
+
+    <title>繼承 - Table per class hierarchy</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InheritanceTablePerClassHierarchy.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>繼承 - Table per class hierarchy</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+接續 <a href="InheritanceTablePerConcreteClass.html">上一個主題</a>，Table
+per
+concrete
+class的繼承映射方式是最簡單，但沒有效率（例如查詢同為User類型時，需要兩次SQL）且不易管理的映射方式，來看看繼承關係映射至關聯式資料庫
+的第二種方式：Table per class
+hierarchy。這種方式使用一個表格儲存同一個繼承階層的所有類別，並使用額外的欄位來表示所記錄的是哪一個子類別的資料。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+具體來說，對於繼承User類別的DefaultUser及PowerUser，可以設計以下的表格來儲存資料：
+      <br>
+
+
+
+
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Table per class hierarchy" title="Table per class hierarchy" src="images/InheritanceTablePerClassHierarchy-1.jpg" /></div></div><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+      
+可以使用以下的SQL來建立表格：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">create table T_USER (<br>
+
+
+
+&nbsp;&nbsp;&nbsp; id bigint not null auto_increment,<br>
+
+
+
+      <span style="color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp; userType varchar(255) not null,</span><br>
+
+
+
+&nbsp;&nbsp;&nbsp; name varchar(255),<br>
+
+
+
+&nbsp;&nbsp;&nbsp; someProperty varchar(255),<br>
+
+
+
+&nbsp;&nbsp;&nbsp; otherProperty varchar(255),<br>
+
+
+
+&nbsp;&nbsp;&nbsp; primary key (id)<br>
+
+
+
+)</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+現在所決定的是，如果要儲存的資料是來自DefalutUser，則在userType記下"Default"，如果儲存的資料來PowerUser，則
+在userType記下"Power"，由userType就可以在資料從資料庫取回時，決定其該封裝為DefaultUser或是PowerUser，
+在使用Hibernate的話，這要在映射文件中使用&lt;discriminator&gt;等相關標籤來定義，例如：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping package="onlyfun.caterpillar"&gt; <br><br>    &lt;class name="User" table="T_USER"&gt; <br><br>        &lt;id name="id" column="id"&gt; <br>            &lt;generator class="native"/&gt; <br>        &lt;/id&gt; <br><br><span style="font-weight: bold;">        &lt;discriminator column="userType"/&gt; </span><br> <br>        &lt;property name="name" column="name"/&gt; <br><br><span style="font-weight: bold;">        &lt;subclass name="DefaultUser" </span><br><span style="font-weight: bold;">                  discriminator-value="Default"&gt; </span><br><span style="font-weight: bold;">            &lt;property name="someProperty" column="someProperty" /&gt; </span><br><span style="font-weight: bold;">        &lt;/subclass&gt; </span><br><span style="font-weight: bold;"> </span><br><span style="font-weight: bold;">        &lt;subclass name="PowerUser" </span><br><span style="font-weight: bold;">                  discriminator-value="Power"&gt; </span><br><span style="font-weight: bold;">            &lt;property name="otherProperty" column="otherProperty"/&gt; </span><br><span style="font-weight: bold;">        &lt;/subclass&gt;  </span><br><br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+      
+當然，別忘了在hibernate.cfg.xml 中指定映射文件：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+        <li>hibernate.cfg.xml</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-configuration PUBLIC<br>	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"<br>	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd"&gt;<br>	<br>&lt;hibernate-configuration&gt; <br><br>    &lt;session-factory&gt; <br>        ....<br><br>        &lt;!-- 物件與資料庫表格映射文件 --&gt; <br>        <span style="font-weight: bold;">&lt;mapping resource="onlyfun/caterpillar/User.hbm.xml"/&gt; </span><br><br>    &lt;/session-factory&gt; <br><br>&lt;/hibernate-configuration&gt;</code></pre>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+      
+使用 <a href="InheritanceTablePerConcreteClass.html">上一個主題</a>
+中的儲存程式的話，則Hibernate會使用以下的SQL來儲存資料：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">Hibernate: <br>
+
+
+
+&nbsp;&nbsp;&nbsp; insert <br>
+
+
+
+&nbsp;&nbsp;&nbsp; into<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, otherProperty, userType) <br>
+
+
+
+&nbsp;&nbsp;&nbsp; values<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?, 'Power')<br>
+
+
+
+Hibernate: <br>
+
+
+
+&nbsp;&nbsp;&nbsp; insert <br>
+
+
+
+&nbsp;&nbsp;&nbsp; into<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, someProperty, userType) <br>
+
+
+
+&nbsp;&nbsp;&nbsp; values<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?, 'Default')</span><span style="font-weight: bold;"></span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+而實際上資料表會儲存以下的內容：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);">+----+-------------+-------------+-------------------+------------------+<br>
+
+
+
+
+
+
+| id&nbsp;| userType &nbsp; &nbsp;|
+name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+| someProperty &nbsp; &nbsp; &nbsp;| otherProperty &nbsp; &nbsp;|<br>
+
+
+
+
+
+
++----+-------------+-------------+-------------------+------------------+<br>
+
+
+
+
+
+
+|&nbsp; 1&nbsp;| Power&nbsp; &nbsp;
+&nbsp;&nbsp; | caterpillar
+| NULL&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Bla...Bla... &nbsp; &nbsp;&nbsp;|<br>
+
+
+
+
+
+
+|&nbsp; 2&nbsp;| Default &nbsp; &nbsp; |
+Bush&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; | hu....hu... &nbsp; &nbsp;
+&nbsp;&nbsp;|
+NULL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp;|<br>
+
+
+
+
+
+
++----+-------------+-------------+-------------------+-------------------+</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+      <br>
+
+
+
+      缺點就是，因子類別屬性的不同，對映儲存時會有許多欄位沒有資料，但查詢效率較好，例如查詢User類型的資料時，只需一次SQL，如使用 <a href="InheritanceTablePerConcreteClass.html">上一個主題</a>
+中的查詢程式時，Hibernate會使用以下的SQL進行查詢：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.id as id0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.someProperty as someProp4_0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.otherProperty as otherPro5_0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.userType as userType0_ </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER user0_</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+      另一種方式是不使用一個欄位來記錄子類別的類型，這適用於您在使用一個舊資料庫，您無法新增欄位來記錄子類別類型，資料表格也許是這麼建立的：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">create table T_USER (<br>
+
+
+      &nbsp;&nbsp;&nbsp; id bigint not null auto_increment,<br>
+
+
+      &nbsp;&nbsp;&nbsp; name varchar(255),<br>
+
+
+      &nbsp;&nbsp;&nbsp; someProperty varchar(255),<br>
+
+
+      &nbsp;&nbsp;&nbsp; otherProperty varchar(255),<br>
+
+
+      &nbsp;&nbsp;&nbsp; primary key (id)<br>
+
+
+      )<br>
+
+
+      </div>
+
+
+      <br>
+
+
+      則您可以這麼撰寫映射文件：<br>
+
+
+      
+      
+      <ul>
+
+
+        <li>User.hbm.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping package="onlyfun.caterpillar"&gt; <br><br>    &lt;class name="User" table="T_USER"&gt; <br><br>        &lt;id name="id" column="id"&gt; <br>            &lt;generator class="native"/&gt; <br>        &lt;/id&gt; <br><br><span style="font-weight: bold;">        &lt;discriminator </span><br><span style="font-weight: bold;">formula="case when someProperty is not null then 'Default' else 'Power' end"/&gt; </span><br> <br>        &lt;property name="name" column="name"/&gt; <br><br>        &lt;subclass name="DefaultUser" <br>                  <span style="font-weight: bold;">discriminator-value="Default"</span>&gt; <br>            &lt;property name="someProperty" column="someProperty" /&gt; <br>        &lt;/subclass&gt; <br> <br>        &lt;subclass name="PowerUser" <br><span style="font-weight: bold;">                  discriminator-value="Power"</span>&gt; <br>            &lt;property name="otherProperty" column="otherProperty"/&gt; <br>        &lt;/subclass&gt;  <br><br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+      <br>
+
+
+      無論是DefaultUser或PowerUser，儲存時直接儲存至表格，一個儲存的例子如下：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, otherProperty) </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?)</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, someProperty) </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?)</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+在&lt;discriminator&gt;上，設定foumula屬性，根據傳回值為Default或Power，決定資料查詢回來後，該封裝為哪個類別的實例，一個查詢的例子如下：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.id as id0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.someProperty as someProp3_0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.otherProperty as otherPro4_0_,</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; when user0_.someProperty is not null then 'Default' </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else 'Power' </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"><span style="color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end</span> as clazz_ </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER user0_</span><br>
+
+
+      </div>
+
+
+      <br>
+
+      如果您需要多型查詢，而子類別屬性相對比較少時，可以使用這種映射方式。<br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

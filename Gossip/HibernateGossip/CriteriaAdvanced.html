@@ -1,0 +1,436 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="使用Criteria進行查詢時，不僅僅能組合出SQL中where子句的功能，還可以組合出如排序、統計、分組等的查詢功能。
+
+      
+      
+      
+
+        排序...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Criteria 進階查詢">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/CriteriaAdvanced.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="使用Criteria進行查詢時，不僅僅能組合出SQL中where子句的功能，還可以組合出如排序、統計、分組等的查詢功能。
+
+      
+      
+      
+
+        排序...">
+
+
+    <title>Criteria 進階查詢</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CriteriaAdvanced.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Criteria 進階查詢</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             使用Criteria進行查詢時，不僅僅能組合出SQL中where子句的功能，還可以組合出如排序、統計、分組等的查詢功能。<br>
+
+      
+      
+      <ul>
+
+        <li>排序</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">您可以使用Criteria進行查詢，並使用org.hibernate.criterion.Order對結果進行排序，例如使用Oder.asc()，指定根據&rdquo;age&rdquo;由小到大排序（反之則使用desc()）：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.addOrder(Order.asc("age"));<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">注意在加入Order條件時，使用的是addOrder()方法，而不是add()方法，在產生SQL語句時，會使用order by與asc（desc）來進行排序指定：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ <span style="font-weight: bold;">order by this_.age asc</span><br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>限定查詢筆數</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">Criteria的setMaxResults()方法可以限定查詢回來的筆數，如果配合setFirstResult()設定傳回查詢結果第一筆資料的位置，就可以實現簡單的分頁，例如傳回第51筆之後的50筆資料（如果有的話）：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.setFirstResult(51);<br>
+
+      criteria.setMaxResults(50);<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">根據您所指定得資料庫，Hibernate將自動產生與資料庫相依的限定筆數查詢子句，例如在MySQL中，將使用limit產生以下的SQL語句：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ <span style="font-weight: bold;">limit</span> ?, ?<br>
+
+      <br>
+
+      </div>
+
+      
+      <ul>
+
+        <li>統計動作</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">您可以對查詢結果進行統計動作，使用
+org.hibernate.criterion.Projections的avg()、rowCount()、count()、max()、min
+()、
+countDistinct()等方法，再搭配Criteria的setProjection()方法加入條件設定，例如對查詢結果的"age"作平均：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.setProjection(Projections.avg("age"));<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">上面的程式將由Hibernate自動產生SQL的avg函數進行平均計算：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select <span style="font-weight: bold;">avg(this_.age)</span> as y0_ from T_USER this_<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>分組</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">還可以配合Projections的groupProperty()來對結果進行分組，例如以"age"進行分組，也就是如果資料中"age"如果有 20、20、25、30，則以下會顯示20、25、30：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.setProjection(Projections.groupProperty("age"));<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">上面的程式將由Hibernate自動產生SQL的group by子句進行分組計算：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.age as y0_ from T_USER this_ <span style="font-weight: bold;">group by</span> this_.age<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">如果想同時結合統計與分組功能，則可以使用org.hibernate.criterion.ProjectionList，例如下面的程式會計算每個年齡各有多少個人：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">ProjectionList projectionList = Projections.projectionList();<br>
+
+      projectionList.add(Projections.groupProperty("age"));<br>
+
+      projectionList.add(Projections.rowCount());<br>
+
+      <br>
+
+      Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.setProjection(projectionList);<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">觀察所產生的SQL語句，將使用group by先進行分組，再針對每個分組進行count函數的計數，<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.age as y0_, <span style="font-weight: bold;">count(*)</span> as y1_ from T_USER this_ <span style="font-weight: bold;">group by</span> this_.age<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>根據已知物件進行查詢</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">設定查詢條件並非一定要使用Restrictions，如果屬性條件很多，使用Restrictions也不方便，如果有一個已知的物件，則可以根據這個物件作為查詢的依據，看看是否有屬性與之類似的物件，例如：<br>
+
+      </div>
+
+      
+      <div style="margin-left: 80px;">User user = new User();<br>
+
+      user.setAge(new Integer(30));<br>
+
+      <br>
+
+      Criteria criteria = session.createCriteria(User.class);<br>
+
+      criteria.add(<span style="font-weight: bold;">Example.create(user)</span>);<br>
+
+      <br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">您可以透過
+org.hibernate.criterion.Example的create()方法來建立Example實例，Example實作了
+Criteria介面，因此可以使用add()方法加入至Criteria條件設定之中，Hibernate將自動過濾掉空屬性，根據已知物件上已設定的
+屬性，判定是否產生於where子句之中：<br>
+
+      <br>
+
+      </div>
+
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ <span style="font-weight: bold;">where (this_.age=?)</span><br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>設定SQL範本</li>
+
+      
+      </ul>
+
+      
+      <div style="margin-left: 40px;">如果您了解如何撰寫SQL語句，想要設定一些Hibernate產生SQL時的範本，您也可以使用Restrictions的sqlRestriction()方法，提供SQL語法範本作限定查詢，例如查詢name以cater開頭的資料：<br>
+
+      </div>
+
+      
+      <div style="margin-left: 40px;">
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace;">Criteria criteria = session.createCriteria(User.class)<span style="font-weight: bold;">;</span><br>
+
+      criteria.add(Restrictions.sqlRestriction(<br>
+
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; "{alias}.name LIKE (?)", "cater%", Hibernate.STRING));<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      </div>
+
+      
+      <div style="margin-left: 40px;">其中alias將被替換為與User類別相關的名稱，而?
+將被替換為cater%，也就是第二個參數所提供的值，sqlRestriction()方法第一個參數所設定的是where子句的部份，所以在SQL撰
+寫時，不必再寫where，觀察所產生的SQL語句，將使用您所設定的SQL範本作為基礎，來完成SQL的條件查詢：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ where <span style="font-weight: bold;">this_.name LIKE (?)</span><br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">如果有多個查詢條件，例如between子句的查詢，則可以如下：<br>
+
+      </div>
+
+      
+      
+      <div style="margin-left: 80px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+      Integer[] ages = {new Integer(20), new Integer(40)};<br>
+
+      Type[] types = {Hibernate.INTEGER, Hibernate.INTEGER};<br>
+
+      criteria.add(Restrictions.sqlRestriction(<br>
+
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"{alias}.age BETWEEN (?) AND (?)", ages, types));<br>
+
+      List users = criteria.list();<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px;">觀察所產生的SQL語句如下：<br>
+
+      </div>
+
+      <br>
+
+      
+      
+      <div style="margin-left: 80px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ where <span style="font-weight: bold;">this_.age BETWEEN (?) AND (?)</span><br>
+
+      </div>
+
+      <br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

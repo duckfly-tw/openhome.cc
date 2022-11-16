@@ -1,0 +1,198 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果你有一張圖，其中的點代表著某些資料的散佈，例如，底下是個 50 x 50 的圖：
+
+目前看來，這張圖有呈現某個線性的趨勢，可以找出該線性的方程式嗎？這可以透過迴歸（Regression）來求，簡單...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="多項式迴歸">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/PolynomialRegression.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果你有一張圖，其中的點代表著某些資料的散佈，例如，底下是個 50 x 50 的圖：
+
+目前看來，這張圖有呈現某個線性的趨勢，可以找出該線性的方程式嗎？這可以透過迴歸（Regression）來求，簡單...">
+
+    <title>多項式迴歸</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PolynomialRegression.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多項式迴歸</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果你有一張圖，其中的點代表著某些資料的散佈，例如，底下是個 50 x 50 的圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolynomialRegression-1.JPG" alt="多項式迴歸"  /></div></div></p>
+<p>目前看來，這張圖有呈現某個線性的趨勢，可以找出該線性的方程式嗎？這可以透過迴歸（Regression）來求，簡單來說，你想要求得 f<sub>Θ</sub>(x) = Θ<sub>0</sub> + Θ<sub>1</sub> * x 的 Θ<sub>0</sub> 與 Θ<sub>1</sub>，然後畫出下圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolynomialRegression-2.JPG" alt="多項式迴歸"  /></div></div></p>
+<p>這邊使用圖上的點來代表資料散佈，純綷就是我個人很懶得收集或建些假資料，用圖可以隨便在上面點一點，就拿來計算罷了。</p>
+<p>對於這個需求，第一個要實現的就是從圖中取得點的座標並用 Matplotlib 畫為散佈圖，這並不難，唯一要注意的是，圖片座標與 Matplotlib 的座標，在 y 軸方向是相反的：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+
+plt.show()
+</code></pre>
+<p>這可以畫出以下的圖形：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolynomialRegression-3.JPG" alt="多項式迴歸"  /></div></div></p>
+<p>對於多項式方面的需求，NumPy 從 1.4 以後，建議使用 <code>numpy.polynomial</code> 模組，若要求多項式迴歸，可以透過子模組 <code>numpy.polynomial.polynomial</code> 的 <code>polyfit</code> 函式，名稱代表多項式擬合，<code>polyfit</code> 指定資料 x、y 以及多項式級數，函式會傳回多項式的係數，例如：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+import numpy.polynomial.polynomial as p
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)               # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0]         # 反轉 y 軸
+
+t0, t1 = p.polyfit(data_x, data_y, 1)   # 求係數
+
+x = np.array([0, 50])
+y = t0  + t1 * x
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+plt.plot(x, y)
+
+plt.show()
+</code></pre>
+<p>這就可以畫出方才的線性迴歸圖，當然，資料不一定是線性趨勢，視不同的資料而定，需要指定不同的級數，例如這張圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolynomialRegression-4.JPG" alt="多項式迴歸"  /></div></div></p>
+<p>看來有二次曲線的趨勢，這時可以使用：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+import numpy.polynomial.polynomial as p
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+
+t0, t1, t2 = p.polyfit(data_x, data_y, 2) # 求二次多項式的係數
+
+x = np.linspace(0, 50, 50)
+y = t0  + t1 * x + t2 * (x ** 2)
+
+plt.plot(x, y)
+
+plt.show()
+</code></pre>
+<p>這可以畫出這張圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolynomialRegression-5.JPG" alt="多項式迴歸"  /></div></div></p>
+<p>簡單來說，觀察資料分佈的趨勢，採用適當的級數來進行函式的擬合。</p>
+<p>如果想控制更多選項，可以透過 <code>numpy.polynomial.Polynomial</code> 的類別方法 <code>fit</code>，方法名稱，表示它可用來進行多項式擬合，<code>fit</code> 可以指定資料 x、y、多項式級數、<code>domain</code>、<code>window</code> 等參數，傳回 <a href="https://numpy.org/doc/stable/reference/generated/numpy.polynomial.polynomial.Polynomial.html"><code>Polynomial</code></a> 實例，例如，若只是需要繪圖：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from numpy.polynomial import Polynomial as P
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+
+p = P.fit(data_x, data_y, 2)    # 傳回 `Polynomial` 實例
+x, y = p.linspace()             # 傳回 domain 範圍內的 x 與對應的 y
+
+plt.plot(x, y)
+plt.show()
+</code></pre>
+<p><code>Polynomial</code> 實例代表一個多項式，以上例來說，傳回的 <code>Polynomial</code> 實例，其 <code>domain</code> 會是 <code>[0, 49]</code>，也就是以給定的 <code>data_x</code> 為 <code>domain</code> 範圍，也就是資料的定義域，<code>linspace</code> 方法會傳回 <code>domain</code> 範圍內的 x 與對應的 y。</p>
+<p>如果想要透過 <code>Polynomial</code> 實例取多項式係數，可以透過 <code>coef</code> 特性，不過要注意，係數是受到 <code>domain</code>、<code>window</code> 影響，<code>domain</code> 範圍會對應至 <code>window</code>，也就是便於你平移或縮放定義域，在不指定 <code>window</code> 的情況下，<code>window</code> 預設是 <code>[-1, 1]</code>。</p>
+<p>就上例來說，就是將 <code>domain</code> 的 <code>[0, 49]</code> 預設對應至 <code>window</code> 的 <code>[-1, 1]</code>，這邊並不打算平移或縮放定義域，因此必須指定 <code>window</code> 與 <code>domain</code> 相同。例如：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from numpy.polynomial import Polynomial as P
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+
+p = P.fit(data_x, data_y, 2, window = [0, img.shape[1]]) # 指定 window
+t0, t1, t2 = p.coef  # 取得係數
+
+x = np.linspace(0, 50, 50)
+y = t0  + t1 * x + t2 * (x ** 2)
+
+plt.plot(x, y)
+plt.show()
+</code></pre>
+<p>如此與來，取得的係數用來繪圖，就會與上圖相同。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

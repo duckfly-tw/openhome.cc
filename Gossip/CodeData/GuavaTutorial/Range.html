@@ -1,0 +1,209 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="【Guava 教學】（7）Multiset、Multimap 與 BiMap&nbsp;&lt;&lt; 前情
+      如果想要建立一個包括 1 到 5 的數列，你會怎麼做？手寫一個 Array...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【Guava 教學】（8）你需要的其實是範圍（Range）？">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/GuavaTutorial/Range.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="【Guava 教學】（7）Multiset、Multimap 與 BiMap&nbsp;&lt;&lt; 前情
+      如果想要建立一個包括 1 到 5 的數列，你會怎麼做？手寫一個 Array...">
+
+
+    <title>【Guava 教學】（8）你需要的其實是範圍（Range）？</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Range.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/GuavaTutorial/">回 Guava Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Guava 教學】（8）你需要的其實是範圍（Range）？</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      如果想要建立一個包括 1 到 5 的數列，你會怎麼做？手寫一個 <code>Arrays.asList(1, 2, 3, 4, 5)</code>？如果是 1 到 20 呢？手寫一個看來就有點笨了，至少用個迴圈 ...
+      <pre class="prettyprint"><code lang="java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(20);
+for(int i = 1; i &lt;= 20; i++) {
+    list.add(i);
+}</code></pre>
+      那如果要建立一個數列，包括字元 'a' 到 'z' 呢？也許是這樣寫：
+      <pre class="prettyprint"><code lang="java">List&lt;Character&gt; list = new ArrayList&lt;&gt;(26);
+for(char c = 'a'; c &lt;= 'z'; c++) {
+    list.add(c);
+}</code></pre>
+      如果你需要一個無限長的自然數列呢？實際上不可能在電腦上產生無限長的數列，所以得撰寫個產生器（Generator），只是在 Java 中撰寫產生器有點麻煩。如果使用 Guava 的 <code>Range</code>，則只需要撰寫 <code>Range.atLeast(1)</code>，就代表著 1 到 +∞ 的自然數範圍，如果要建立 1 到 20 的範圍，則可以撰寫為 <code>Range.closed(1, 20)</code>，如果要建立包括字元 'a' 到 'z' 的範圍，則可以撰寫為 <code>Range.closed('a', 'z')</code>。<code>Range</code> 的一些 <code>static</code> 方法與範圍的對照為：
+      <table>
+        <tbody>
+          <tr>
+            <td><code>(a..b)</code></td>
+            <td><code>{x | a &lt; x &lt; b}</code></td>
+            <td><code>open</code></td>
+          </tr>
+          <tr>
+            <td><code>[a..b]</code></td>
+            <td><code>{x | a &lt;= x &lt;= b}</code></td>
+            <td><code>closed</code></td>
+          </tr>
+          <tr>
+            <td><code>(a..b]</code></td>
+            <td><code>{x | a &lt; x &lt;= b}</code></td>
+            <td><code>openClosed</code></td>
+          </tr>
+          <tr>
+            <td><code>[a..b)</code></td>
+            <td><code>{x | a &lt;= x &lt; b}</code></td>
+            <td><code>closedOpen</code></td>
+          </tr>
+          <tr>
+            <td><code>(a..+∞)</code></td>
+            <td><code>{x | x &gt; a}</code></td>
+            <td><code>greaterThan</code></td>
+          </tr>
+          <tr>
+            <td><code>[a..+∞)</code></td>
+            <td><code>{x | x &gt;= a}</code></td>
+            <td><code>atLeast</code></td>
+          </tr>
+          <tr>
+            <td><code>(-∞..b)</code></td>
+            <td><code>{x | x &lt; b}</code></td>
+            <td><code>lessThan</code></td>
+          </tr>
+          <tr>
+            <td><code>(-∞..b]</code></td>
+            <td><code>{x | x &lt;= b}</code></td>
+            <td><code>atMost</code></td>
+          </tr>
+          <tr>
+            <td><code>(-∞..+∞)</code></td>
+            <td><code>{x}</code></td>
+            <td><code>all</code></td>
+          </tr>
+        </tbody>
+      </table>
+      你也可以使用字串建立範圍，例如 <code>Range.closed("abc", "abz")</code>。實際上，任何物件只要與生俱有順序，也就是任何物件只要實作了 <code>Comparable</code>，都可以使用 <code>Range</code> 來建立範圍。一旦有了 <code>Range</code>，你就可以作一些基本的查詢動作，像是使用 <code>contains<code> 或 <code>containAll</code> 來察看某元素或某些元素是否包括在建立的範圍內。<br>
+        </code></code><code>Range</code> 與 <code>Range</code> 之間也可以進行範圍的相關測試或操作，像是使用 <code>enclose</code> 方法測試某範圍是否包括另一範圍，使用 <code>isConnected</code> 測試某範圍是否連接至另一範圍，使用 <code>intersection</code> 取得兩個範圍的交集，使用 <code>span</code> 來建立橫跨兩個範圍的範圍，你可以在 RangeExplained 的 <a
+
+        href="https://code.google.com/p/guava-libraries/wiki/RangesExplained#Operations">Operations</a>&nbsp;察看相關範例程式碼。<br>
+      實際上，<strong>範圍不是數列</strong>，也就是像 <code>Range.closed(1, 20)</code> 並沒有實際產生 <code>1、2 ... 20</code> 的整數數列，它就僅僅只是個…呃…範圍！如果想要取得的是範圍中的數字，那麼可以透過 <code>ContiguousSet</code> 類別 <code>static</code> 的 <code>create<code> 方法，呼叫時必須指定 <code>Range</code> 物件及一個 <code>DiscreteDomain</code> 物件，<code>DiscreteDomain</code> 物件定義了指定的範圍中，不連續元素間的關係以及 <code>DiscreteDomain</code>&nbsp;的邊界。<br>
+        </code></code><code><code>由於經常打算取得的是整數，因此 <code>DiscreteDomain</code> 提供了 <code>integers</code> 、 <code>longs</code> 以及支援大數的 <code>bigIntegers</code> 三個 <code>static</code> 方法。</code></code>例如，結合 <code>Range</code> 與 <code>DiscreteDomain</code> 來迭代 1 到 20 的數字，可以如下撰寫：
+      <pre class="prettyprint"><code lang="java">for(int i : create(Range.closed(1, 20), integers())) {
+    // 做些事 ...            
+}</code></pre>
+      <code>create</code> 方法不會傳回整個數列，它傳回的是 <code>Set</code>，因此實際上 <code>for</code> 迴圈是運用其 <code>iterator</code> 方法傳回的 <code>Iterator</code> 物件進行迭代，也就是這讓你有實現惰性（Laziness）的可能性。例如，如果你要找的某 <code>int</code> 數是在自然數列中，但不確定其範圍，那麼就可以如下撰寫：
+      <pre class="prettyprint"><code lang="java">for(int i : create(Range.atLeast(1), integers())) {
+    // 做些運算
+    if(某些條件) { break; }
+}</code></pre>
+      比起一開始就建立一個包括 <code>Integer.MIN_VALUE</code> 至 <code>Integer.MAX_VALUE</code> 的 <code>List</code>，以上方法顯然經濟多了。你可以建立自己的 <code>DiscreteDomain</code>，例如，建立小寫字母的 <code>LowerCaseDomain</code> 話，可以如下定義：
+      <pre class="prettyprint"><code lang="java">class LowerCaseDomain extends DiscreteDomain&lt;Character&gt; {
+    private static LowerCaseDomain domain = new LowerCaseDomain();
+
+    public static DiscreteDomain letters() {
+        return domain;
+    }
+
+    @Override
+    public Character next(Character c) {
+        return (char) (c + 1);
+    }
+
+    @Override
+    public Character previous(Character c) {
+        return (char) (c - 1);
+    }
+
+    @Override
+    public long distance(Character start, Character end) {
+        return end - start;
+    }
+
+    @Override
+    public Character maxValue() {
+        return 'z';
+    }
+
+    @Override
+    public Character minValue() {
+        return 'a';
+    }
+}</code></pre>
+      在繼承 <code>DiscreteDomain</code> 後，一定要實作的三個方法是 <code>next</code>、<code>previous</code> 與 <code>distance</code>，當你建立的範圍是有界時，若要取得下一個不連續元素，會呼叫 <code>next</code> 方法，若要取得前一個不連續元素，則會呼叫 <code>previous</code>，<code>distance</code> 則指出，從範圍的 <code>start</code> 至 <code>end</code> 間，必須呼叫幾次 <code>next</code> 才能達到。<br>
+      如果你指定的範圍是無界的，像是指定 <code>Range.atLeast('a')</code> 時，則必須定義 <code>DiscreteDomain</code> 的 <code>maxValue</code> 與 <code>minValue</code>，這兩個方法指出在&nbsp;<code>DiscreteDomain</code> 中最大值與最小值為何，這很重要，範圍可以是無界，但 <code>DiscreteDomain</code> 會是有界的。例如 <code>DiscreteDomain</code> 的 <code>integers</code> 方法傳回的是 <code>IntegerDomain</code> 其邊界是 <code>Integer.MIN_VALUE</code> 與 <code>Integer.MAX_VALUE</code>，這是受限於 <code>int</code> 的位元組長度，因而其是有界的：
+      <pre class="prettyprint"><code lang="java">  private static final class IntegerDomain extends DiscreteDomain&lt;Integer&gt;
+      implements Serializable {
+    ...
+    @Override public Integer minValue() {
+      return Integer.MIN_VALUE;
+    }
+
+    @Override public Integer maxValue() {
+      return Integer.MAX_VALUE;
+    }
+    ...
+  }</code></pre>
+      同理，<code>DiscreteDomain</code> 的 <code>longs</code> 方法傳回的是 <code>LongDomain</code> 其邊界是 <code>Long.MIN_VALUE</code> 與 <code>Long.MAX_VALUE</code>，這是受限於 <code>long</code> 的位元組長度：
+      <pre class="prettyprint"><code lang="java">  private static final class LongDomain extends DiscreteDomain&lt;Long&gt;
+      implements Serializable {
+    ...
+    @Override public Long minValue() {
+      return Long.MIN_VALUE;
+    }
+
+    @Override public Long maxValue() {
+      return Long.MAX_VALUE;
+    }
+    ...
+  }</code></pre>
+      先前定義的 <code>LowerCaseDomain</code> 是有界的，也就是 'a' 到 'z'，你可以這麼使用：
+      <pre class="prettyprint"><code lang="java">for(char i : create(Range.closed('a', 'z'), LowerCaseDomain.letters())) {
+    // 做些事 ...
+}
+for(char i : create(Range.atLeast('m'), LowerCaseDomain.letters())) {
+    // 做些事 ...
+}</code></pre>
+      實際上，你需要的或許只是範圍，那麼用 <code>Range</code> 就足夠了，如果真的需要逐一取得範圍中的不連續元素，搭配 <code>DiscreteDomain</code> 就可以達到目的，而且不用一開始就建立所有的元素，只需在必要的時候取用即可。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

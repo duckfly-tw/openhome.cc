@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="給你一組點，建立可以包裹這組點的凸多邊形或凸多面體，這稱為建立 Convex hull，常翻譯為建立凸包，而這個功能在 3D 建模中意外地好用。 如果你想打造程式">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="CadQuery::建立 Convex hull" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/scipy/hull/" />
+    <meta property="og:description" content="給你一組點，建立可以包裹這組點的凸多邊形或凸多面體，這稱為建立 Convex hull，常翻譯為建立凸包，而這個功能在 3D 建模中意外地好用。 如果你想打造程式" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="CadQuery::建立 Convex hull" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/scipy/hull/" />
+    <meta name="twitter:description" content="給你一組點，建立可以包裹這組點的凸多邊形或凸多面體，這稱為建立 Convex hull，常翻譯為建立凸包，而這個功能在 3D 建模中意外地好用。 如果你想打造程式" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443676" type="image/x-icon">
+    <title> CadQuery  :: 建立 Convex hull</title>
+    <link href="../../../css/nucleus.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443676.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443676"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/cadquery/scipy/hull/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/cadquery/" title="CadQuery" class="dd-item parent"><a href="../../index.html">CadQuery</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/" title="CadQuery 入門" class="dd-item"><a href="../../basics/index.html">| CadQuery 入門</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/hello/" title="Hello, CadQuery" class="dd-item"><a href="../../basics/hello/index.html">Hello, CadQuery</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/conda/" title="使用 conda 安裝" class="dd-item"><a href="../../basics/conda/index.html">使用 conda 安裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/workplane/" title="Workplane 入門" class="dd-item"><a href="../../basics/workplane/index.html">Workplane 入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/boolop/" title="實體布林操作" class="dd-item"><a href="../../basics/boolop/index.html">實體布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/2dop/" title="基本 2D 操作" class="dd-item"><a href="../../basics/2dop/index.html">基本 2D 操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/brep/" title="認識 BREP" class="dd-item"><a href="../../basics/brep/index.html">認識 BREP</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/stksel/" title="堆疊與選擇器" class="dd-item"><a href="../../basics/stksel/index.html">堆疊與選擇器</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/" title="使用 Workplane" class="dd-item"><a href="../../workplane/index.html">| 使用 Workplane</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/workplane/holecut/" title="挖洞與切除" class="dd-item"><a href="../../workplane/holecut/index.html">挖洞與切除</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/shell/" title="殼的建立" class="dd-item"><a href="../../workplane/shell/index.html">殼的建立</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/sweeploft/" title="sweep 與 loft" class="dd-item"><a href="../../workplane/sweeploft/index.html">sweep 與 loft</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/arc/" title="圓弧" class="dd-item"><a href="../../workplane/arc/index.html">圓弧</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/curvesurface/" title="曲線與曲面" class="dd-item"><a href="../../workplane/curvesurface/index.html">曲線與曲面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/mirror/" title="鏡像" class="dd-item"><a href="../../workplane/mirror/index.html">鏡像</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/filletchamfer/" title="fillet 與 chamfer" class="dd-item"><a href="../../workplane/filletchamfer/index.html">fillet 與 chamfer</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/" title="CadQuery 類別" class="dd-item"><a href="../../classes/index.html">| CadQuery 類別</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/classes/brep/" title="操作 BREP 實例" class="dd-item"><a href="../../classes/brep/index.html">操作 BREP 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/polyhedron/" title="實作 polyhedron" class="dd-item"><a href="../../classes/polyhedron/index.html">實作 polyhedron</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/surface/" title="建立網格面" class="dd-item"><a href="../../classes/surface/index.html">建立網格面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/face/" title="Face 布林操作" class="dd-item"><a href="../../classes/face/index.html">Face 布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/text/" title="文字的處理" class="dd-item"><a href="../../classes/text/index.html">文字的處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/extending/" title="擴充 Workplane" class="dd-item"><a href="../../classes/extending/index.html">擴充 Workplane</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/" title="結合 SciPy" class="dd-item parent"><a href="../index.html">| 結合 SciPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/scipy/hull/" title="建立 Convex hull" class="dd-item active"><a href="index.html">建立 Convex hull</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/polyline/" title="hull 折線" class="dd-item"><a href="../polyline/index.html">hull 折線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/voronoi/" title="Voronoi 2D/3D" class="dd-item"><a href="../voronoi/index.html">Voronoi 2D/3D</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/delaunay/" title="Delaunay 三角分割" class="dd-item"><a href="../delaunay/index.html">Delaunay 三角分割</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/" title="基於 NumPy" class="dd-item"><a href="../../numpy/index.html">| 基於 NumPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/numpy/matrix/" title="實作轉換矩陣" class="dd-item"><a href="../../numpy/matrix/index.html">實作轉換矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/turtle/" title="3D 海龜繪圖" class="dd-item"><a href="../../numpy/turtle/index.html">3D 海龜繪圖</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/perlin/" title="Perlin 雜訊" class="dd-item"><a href="../../numpy/perlin/index.html">Perlin 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/sweep/" title="多面體版本 sweep" class="dd-item"><a href="../../numpy/sweep/index.html">多面體版本 sweep</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/" title="cqMore plugin" class="dd-item"><a href="../../cqmore/index.html">| cqMore plugin</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/hello/" title="Hello, cqMore" class="dd-item"><a href="../../cqmore/hello/index.html">Hello, cqMore</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/dice/" title="柏拉圖多面骰" class="dd-item"><a href="../../cqmore/dice/index.html">柏拉圖多面骰</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/mobiusband/" title="莫比烏斯帶" class="dd-item"><a href="../../cqmore/mobiusband/index.html">莫比烏斯帶</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/torusknot/" title="環面扭結" class="dd-item"><a href="../../cqmore/torusknot/index.html">環面扭結</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/tree/" title="3D 碎形樹" class="dd-item"><a href="../../cqmore/tree/index.html">3D 碎形樹</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">CadQuery</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">結合 SciPy</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">建立 Convex hull</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#2d-凸包">2D 凸包</a></li>
+    <li><a href="index.html#3d-凸包">3D 凸包</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/scipy/">SciPy</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/hull/">hull</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>建立 Convex hull</h1>
+
+ <i class="space fa fa-calendar"> November 27, 2021</i> 
+<p>給你一組點，建立可以包裹這組點的凸多邊形或凸多面體，這稱為建立 Convex hull，常翻譯為建立凸包，而這個功能在 3D 建模中意外地好用。</p>
+<p>如果你想打造程式庫，自行實作這個功能也不錯（可參考〈<a href="../../../../Gossip/P5JS/3DObject.html">自訂 3D 物件</a>〉），這一方面可以是個練習，另一方面也可以不用額外依賴第三方程式庫。</p>
+<p>如果你只是想做做模型，畢竟 CadQuery 使用的就是 Python 語言，善用 Python 生態系中既有的方案，會是比較有效率的方式。</p>
+<h2 id="2d-凸包">2D 凸包</h2>
+<p>例如，SciPy 的 <code>scipy.spatial</code>，就提供了 <code>ConvexHull</code> 函式，可以建立 2D/3D 凸包，如果你想較完整地認識 SciPy，可以參考一下〈<a href="../../../../Gossip/DCHardWay/index.html">笨學資料運算</a>〉，不過，<code>ConvexHull</code> 函式的使用很直覺，就算不認識 SciPy，使用上應該也沒問題。</p>
+<p>例如，<a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html"><code>ConvexHull</code> 函式的官方文件</a>，就示範了 2D 凸包的建立方式，不過，其中還用到了 NumPy、Matplotlib 等，現在是使用 CadQuery，因此來簡化一下它的範例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> scipy.spatial <span style="color:#f92672">import</span> ConvexHull
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> cadquery <span style="color:#f92672">import</span> Vertex, Workplane
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 平面上的隨機點</span>
+</span></span><span style="display:flex;"><span>points <span style="color:#f92672">=</span> [(random(), random()) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">20</span>)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 顯示隨機點</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> points:
+</span></span><span style="display:flex;"><span>    show_object(Vertex<span style="color:#f92672">.</span>makeVertex(p[<span style="color:#ae81ff">0</span>], p[<span style="color:#ae81ff">1</span>], <span style="color:#ae81ff">0</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 建立凸包物件</span>
+</span></span><span style="display:flex;"><span>hull <span style="color:#f92672">=</span> ConvexHull(points)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vertices 取得凸包的頂點索引，逆時針順序</span>
+</span></span><span style="display:flex;"><span>convex_pts <span style="color:#f92672">=</span> [points[i] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> hull<span style="color:#f92672">.</span>vertices]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 用 Wire 建立凸包</span>
+</span></span><span style="display:flex;"><span>convex <span style="color:#f92672">=</span> (Workplane()
+</span></span><span style="display:flex;"><span>             <span style="color:#f92672">.</span>polyline(convex_pts)
+</span></span><span style="display:flex;"><span>             <span style="color:#f92672">.</span>close()
+</span></span><span style="display:flex;"><span>         )
+</span></span><span style="display:flex;"><span>show_object(convex)
+</span></span></code></pre></div><p>這會顯示以下的畫面，凸包構成的凸多邊形圍住了全部的點：</p>
+<p><img src="images/hull-1.jpg" alt="建立 Convex hull"></p>
+<p>如果目的就是用 <code>Wire</code> 來建立凸包，寫個 <code>hull2D</code> 會比較方便一些：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> scipy.spatial <span style="color:#f92672">import</span> ConvexHull
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> cadquery <span style="color:#f92672">import</span> Vertex, Workplane
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 用 Wire 來建立凸包</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hull2D</span>(points):
+</span></span><span style="display:flex;"><span>    hull <span style="color:#f92672">=</span> ConvexHull(points)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">.</span>polyline([points[i] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> hull<span style="color:#f92672">.</span>vertices])
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">.</span>close()
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">.</span>val()
+</span></span><span style="display:flex;"><span>           )
+</span></span><span style="display:flex;"><span>           
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 將 Workplane 中的 Wire 頂點轉為 (x, y)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">toPoints</span>(workplane):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [(v<span style="color:#f92672">.</span>X, v<span style="color:#f92672">.</span>Y) <span style="color:#66d9ef">for</span> v <span style="color:#f92672">in</span> workplane<span style="color:#f92672">.</span>vertices()<span style="color:#f92672">.</span>vals()]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 建立兩個四邊形的凸包</span>
+</span></span><span style="display:flex;"><span>rect1 <span style="color:#f92672">=</span> Workplane()<span style="color:#f92672">.</span>rect(<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>rect2 <span style="color:#f92672">=</span> Workplane()<span style="color:#f92672">.</span>center(<span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">20</span>)<span style="color:#f92672">.</span>rect(<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>convex <span style="color:#f92672">=</span> hull2D(toPoints(rect1) <span style="color:#f92672">+</span> toPoints(rect2))
+</span></span><span style="display:flex;"><span>show_object(convex)
+</span></span></code></pre></div><p>這個範例順便示範了凸包的應用之一，將兩個形狀包裹，構成了一個新的形狀：</p>
+<p><img src="images/hull-2.jpg" alt="建立 Convex hull"></p>
+<h2 id="3d-凸包">3D 凸包</h2>
+<p>若將這個範例延伸，可以進一步定義出簡單、具有寬度的 2D 畫線函式，這之後再來談，先來看看 3D 凸包，<code>scipy.spatial</code> 的 <code>ConvexHull</code> 函式可以接受 3D 的點，傳回的凸包物件，<code>vertices</code> 取得凸包頂點索引，透過 <code>simplices</code> 可以取得面索引。</p>
+<p>雖說如下將 <code>points</code>、<code>hull.simplices</code> 丟給〈<a href="../../classes/polyhedron/index.html">實作 polyhedron</a>〉的 <code>polyhedron</code> 函式，也是可以建立凸多面體：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">...</span> 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>points <span style="color:#f92672">=</span> [(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>), (<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>), (<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>), (<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>),
+</span></span><span style="display:flex;"><span>          (<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>), (<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>), (<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), (<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hull <span style="color:#f92672">=</span> ConvexHull(points)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> polyhedron(points, hull<span style="color:#f92672">.</span>simplices)
+</span></span><span style="display:flex;"><span>show_object(box)
+</span></span></code></pre></div><p>不過，若 <code>points</code> 有太多點不在凸包上，會讓 <code>polyhedron</code> 函式執行上很沒有效率，因此這邊做點過濾：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> scipy.spatial <span style="color:#f92672">import</span> ConvexHull
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> cadquery <span style="color:#f92672">import</span> Vector, Edge, Wire, Solid, Shell, Face
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">polyhedron</span>(points, faces):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_edges</span>(vectors, face_indices):
+</span></span><span style="display:flex;"><span>        leng_vertices <span style="color:#f92672">=</span> len(face_indices)   
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (
+</span></span><span style="display:flex;"><span>            Edge<span style="color:#f92672">.</span>makeLine(
+</span></span><span style="display:flex;"><span>                vectors[face_indices[i]], 
+</span></span><span style="display:flex;"><span>                vectors[face_indices[(i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">%</span> leng_vertices]]
+</span></span><span style="display:flex;"><span>            ) 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(leng_vertices)
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    vectors <span style="color:#f92672">=</span> [Vector(<span style="color:#f92672">*</span>p) <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> points]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Solid<span style="color:#f92672">.</span>makeSolid(
+</span></span><span style="display:flex;"><span>        Shell<span style="color:#f92672">.</span>makeShell(
+</span></span><span style="display:flex;"><span>            Face<span style="color:#f92672">.</span>makeFromWires(
+</span></span><span style="display:flex;"><span>                Wire<span style="color:#f92672">.</span>assembleEdges(
+</span></span><span style="display:flex;"><span>                    _edges(vectors, face_indices)
+</span></span><span style="display:flex;"><span>                )
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> face_indices <span style="color:#f92672">in</span> faces
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 建立 3D 版本的凸包</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hull3D</span>(points):
+</span></span><span style="display:flex;"><span>    hull <span style="color:#f92672">=</span> ConvexHull(points)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 凸包上的頂點</span>
+</span></span><span style="display:flex;"><span>    vertices <span style="color:#f92672">=</span> [points[i] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> hull<span style="color:#f92672">.</span>vertices]
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 用來查詢頂點的索引值</span>
+</span></span><span style="display:flex;"><span>    v_i_lookup <span style="color:#f92672">=</span> {v: i <span style="color:#66d9ef">for</span> i, v <span style="color:#f92672">in</span> enumerate(vertices)}
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 建立面索引</span>
+</span></span><span style="display:flex;"><span>    faces <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        [v_i_lookup[points[i]] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> face]
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> face <span style="color:#f92672">in</span> hull<span style="color:#f92672">.</span>simplices
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> polyhedron(vertices, faces)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 隨機點</span>
+</span></span><span style="display:flex;"><span>points <span style="color:#f92672">=</span> [(random(), random(), random()) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">10</span>)]
+</span></span><span style="display:flex;"><span>convex <span style="color:#f92672">=</span> hull3D(points)
+</span></span><span style="display:flex;"><span>show_object(convex)
+</span></span></code></pre></div><p>這會建立以下的模型：</p>
+<p><img src="images/hull-3.jpg" alt="建立 Convex hull"></p>
+<p>類似地，藉由 <code>hull3D</code>，你可以用兩個 3D 實體，取得它們的頂點，以建立凸包的方式建立新的 3D 實體，將之延伸，可以進一步定義出簡單、具有厚度的 3D 畫線函式，這之後再來談了。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/cadquery/scipy/hull/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/cadquery/scipy/hull/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=CadQuery%3a%3a%e5%bb%ba%e7%ab%8b%20Convex%20hull&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fcadquery%2fscipy%2fhull%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../index.html" title="結合 SciPy"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../polyline/index.html" title="hull 折線"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443676"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443676"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443676"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443676"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443676"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443676"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443676"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443676"></script>
+  </body>
+</html>

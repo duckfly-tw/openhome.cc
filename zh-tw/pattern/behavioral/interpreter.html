@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="你有想過自己創造一個程式語言嗎？在〈打造玩具語言〉，我試著土炮過一個玩具語言，試著將一些現代語言的元素實現出來，儘管沒什麼實用性，不過是個很">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Interpreter" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/interpreter/" />
+    <meta property="og:description" content="你有想過自己創造一個程式語言嗎？在〈打造玩具語言〉，我試著土炮過一個玩具語言，試著將一些現代語言的元素實現出來，儘管沒什麼實用性，不過是個很" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Interpreter" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/behavioral/interpreter/" />
+    <meta name="twitter:description" content="你有想過自己創造一個程式語言嗎？在〈打造玩具語言〉，我試著土炮過一個玩具語言，試著將一些現代語言的元素實現出來，儘管沒什麼實用性，不過是個很" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../images/favicon.ico%3F1664443693" type="image/x-icon">
+    <title> 漫談模式  :: Interpreter</title>
+    <link href="../../css/nucleus.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/fontawesome-all.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/featherlight.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/perfect-scrollbar.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/auto-complete.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/theme.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/theme-blue.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/variant.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/print.css%3F1664443693.css" rel="stylesheet" media="print">
+    <script src="../../js/jquery.min.js%3F1664443693"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/behavioral/interpreter/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item parent"><a href="index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item active"><a href="interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item"><a href="../functional/index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../functional/immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../functional/pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../functional/map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../functional/filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../functional/reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../functional/flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="interpreter.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="index.html"><span itemprop="name">行為式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="interpreter.html" aria-disabled="true"><span itemprop="name">Interpreter</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="interpreter.html#抽象語法樹">抽象語法樹</a></li>
+    <li><a href="interpreter.html#自動建立語法樹">自動建立語法樹</a></li>
+    <li><a href="interpreter.html#各自的職責">各自的職責</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/interpreter/">interpreter</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/gof/">Gof</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/design-pattern/">design pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/abstract-syntax-tree/">abstract syntax tree</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/parser/">parser</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Interpreter</h1>
+
+ <i class="space fa fa-calendar"> January 8, 2022</i> 
+<p>你有想過自己創造一個程式語言嗎？在〈<a href="../../toy-lang/index.html">打造玩具語言</a>〉，我試著土炮過一個玩具語言，試著將一些現代語言的元素實現出來，儘管沒什麼實用性，不過是個很有趣的經驗，也從中學到許多東西。</p>
+<p>打造一門語言看來好像很難，然而就實驗而言，志向不要太遠大，從最簡單的語法開始練習，有想法再加入調整，以我個人的經驗來說，是個不錯的方式，你會遇上一些難題，然後試著解決，最後覺得做法不完美，這過程得到的東西，在你閱讀語言實作的相關書籍或文件時，會有很大的幫助，你會比較清楚它們在談什麼。</p>
+<h2 id="抽象語法樹">抽象語法樹</h2>
+<p>那麼這邊就來個更簡單陽春的語言吧！首先，這門語言有 <code>print</code> 指令，可以指定要顯示的文字，例如，想在主控台顯示 caterpillar，可以這麼寫：</p>
+<pre tabindex="0"><code>print caterpillar
+</code></pre><p>先別管怎麼剖析這個語言，如果要用個物件來代表 <code>print</code> 指令，你需要能封裝文字，然後執行時顯示文字，因此可以設計：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Print</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String text<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Print<span style="color:#f92672">(</span>String text<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">text</span> <span style="color:#f92672">=</span> text<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>text<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>若要能對應方才寫的 <code>print caterpillar</code>，你可以撰寫程式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;caterpillar&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>如果有兩行以上的指令呢？</p>
+<pre tabindex="0"><code>print Justin
+print Monica
+print Irene
+</code></pre><p>你可以建立三個 <code>Print</code> 實例，封裝對應的文字，然後依序呼叫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var cmd1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Justin&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>var cmd2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Monica&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>var cmd3 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Irene&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>cmd1<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>cmd2<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>cmd3<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>建立 <code>Print</code> 實例的動作是必須的，然而 <code>execute</code> 的動作重複了，你想了一下，這是一串指令組成的指令區塊，那麼來設計一個 <code>Block</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.*<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Command</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// print 指令
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Print</span> <span style="color:#66d9ef">implements</span> Command <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String text<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Print<span style="color:#f92672">(</span>String text<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">text</span> <span style="color:#f92672">=</span> text<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>text<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 指令區塊也是指令
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Block</span> <span style="color:#66d9ef">implements</span> Command <span style="color:#f92672">{</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> List<span style="color:#f92672">&lt;</span>Command<span style="color:#f92672">&gt;</span> cmdlt <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>Command command<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        cmdlt<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>command<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var command <span style="color:#f92672">:</span> cmdlt<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            command<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>  
+</span></span></code></pre></div><p>這麼一來，你就可以這麼撰寫程式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var block <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Block<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Justin&#34;</span><span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Monica&#34;</span><span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Irene&#34;</span><span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>如果你想重複執行指令呢？或許有個 <code>repeat</code> 指令：</p>
+<pre tabindex="0"><code>repeat 3
+    print dog
+</code></pre><p>這會將其中的指令重複執行三次，為此可設計一個 <code>Repeat</code>，封裝次數與指令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Repeat</span> <span style="color:#66d9ef">implements</span> Command <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> times<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Command command<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Repeat<span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> times<span style="color:#f92672">,</span> Command command<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">times</span> <span style="color:#f92672">=</span> times<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">command</span> <span style="color:#f92672">=</span> command<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> times<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            command<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>這麼一來就可以如下執行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var block <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Block<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> Repeate<span style="color:#f92672">(</span>3<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;dog&#34;</span><span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>block<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>如果是這個程式呢？</p>
+<pre tabindex="0"><code>repeat 3
+    print dog
+    print cat
+</code></pre><p>別忘了，指令區塊也是指令，那麼遇到 <code>repeat</code> 時，乾脆建個 <code>Block</code> 好了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 主區塊
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>var main <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Block<span style="color:#f92672">();</span>           
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// repeat 區塊
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>var repeatBlock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Block<span style="color:#f92672">();</span>    
+</span></span><span style="display:flex;"><span>repeatBlock<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;dog&#34;</span><span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>repeatBlock<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cat&#34;</span><span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>var repeat <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Repeate<span style="color:#f92672">(</span>3<span style="color:#f92672">,</span> repeatBlock<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>main<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>repeat<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>main<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>這個簡單的語言還可以巢狀：</p>
+<pre tabindex="0"><code>repeat 3
+    print --------
+    repeat 2
+        print dog
+        print cat
+</code></pre><p>對應的指令物件該怎麼組合呢？想設計一門語言，如何組合這些物件是必須思考的過程，物件若視為節點，這些物件的組合視為一棵樹，有發現嗎？一旦建立這棵樹，只要呼叫根節點的 <code>execute</code>，就是在執行程式了，這棵被稱為抽象語法樹（abstract syntax tree）。</p>
+<h2 id="自動建立語法樹">自動建立語法樹</h2>
+<p>只不過，以上是手動建立語法樹，也就是說，把自己當成是直譯器（interpreter）了，有沒有辦法自動化呢？如果沒有 <code>repeat</code> 的話也許還好，因為只要逐行剖析，將每 <code>print xxx</code> 的 <code>xxx</code> 剖析出來，然而 <code>repeat</code> 構成了巢狀，也就是可能構成更複雜的遞迴結構：</p>
+<pre tabindex="0"><code>repeat 3
+    print --------
+    repeat 2
+        print dog
+        print cat
+        repeat 2
+            print |XDXDXDXD|
+            print |OrzOrzOrz|
+</code></pre><p>這時該怎麼剖析呢？這門語言已經超簡單了，沒有考慮程式碼的前後文，也就是還沒考慮有這個功能：</p>
+<pre tabindex="0"><code>repeat 3
+    print --------
+    repeat 2
+        print dog
+        print cat
+    print --------
+</code></pre><p>在語言要考慮前後文、有更複雜指令的情況下，撰寫出來的程式碼就會有更複雜的結構，該怎麼剖析程式碼，自動建立語法樹呢？這其實是很大的議題，現代有各式各樣的剖析器，依語言想達到的特性，也有各種不同的方式，因為採用不同的方式，想採用這些剖析器，制定語言文法時的規範也就各不相同。</p>
+<p>因此，如果你想要使用某個現成的剖析器，得先瞭解它採取的方式，然後知道在其架構上，該如何定義語言的文法，這也就是為什麼，一些語言實作的書，談沒多久，就會開始定義文法了。</p>
+<p>如果真有心做個實用的語言，務實的方法確實是使用這些剖析器，畢竟基於擴充性、穩定性、效率等各方面來考量，實在不用重新打造輪子。</p>
+<p>然而，自己動手實作一個剖析器，依舊是個有趣的課題，這可以讓你知道，一門語言是如何構造，也可以稍微接觸一下抽象語法樹，如果你工作上的語言，有提供介面，可以讓你接觸它的抽象語法樹的話，這些經驗就會很有用，可以讓你玩許多魔法。</p>
+<h2 id="各自的職責">各自的職責</h2>
+<p>那就來看看，方才這個簡單到不行的語言，如何實作個剖析器吧！只要掌握一個基本，想想看遞迴，如果你覺得遞迴難以掌握，那一定是你在每次遞迴時，做了太多不是該次遞迴要做的事，遞迴的精神在於，每次只做好自己份內的事，不要管上一次遞迴做了什麼，也不要管下次遞迴要做什麼。</p>
+<p>在剖析程式碼的時候也是如此，如果你在剖析 <code>print</code>，就別去管 <code>repeat</code>，如果你在剖析 <code>repeat</code>，那就只要管 <code>repeat</code> 該怎麼剖析，Gof 的 Interpreter 模式想傳達的概念，只是如此罷了。</p>
+<p>來具體看看吧！因為方才的語言很簡單，只要依空白、換行等切出程式碼裡的文字符號就可以了，來定義一個 <code>Source</code> 做這件事：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Source</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Scanner scanner<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Source<span style="color:#f92672">(</span>String code<span style="color:#f92672">)</span>  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        scanner <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Scanner<span style="color:#f92672">(</span>code<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">hasNextToken</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> scanner<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">nextToken</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> scanner<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span> 
+</span></span></code></pre></div><p>這看來很簡單，是因為要實現的語言很簡單，如果你的語言需要考慮前後文、有更複雜的語法，<code>Source</code> 要處理的任務就會變多就是了&hellip;接下來定義 <code>Parser</code> 的行為，剖析時的 <code>parse</code> 方法可接受 <code>Source</code>，從 <code>Source</code> 取得文字符號，然後傳回抽象語法樹的節點，也就是 <code>Command</code> 實例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Parser</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Command <span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>Source source<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>為了簡化問題，以下會忽略 <code>Parser</code> 在剖析過程時，如果遇到使用者程式碼寫錯時，該怎麼處理的問題；程式碼一開始，其實就是個指令區塊，可以包含許多指令，遇上 <code>print</code> 就建立負責剖析後續程式碼的 <code>PrintParser</code>，遇上 <code>repeat</code> 就建立負責剖析後續程式碼的 <code>RepeatParser</code>，會有個 <code>Block</code> 實例將剖析完的 <code>Command</code> 實例收集起來然後傳回：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BlockParser</span> <span style="color:#66d9ef">implements</span> Parser <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Command <span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>Source source<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var block <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Block<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>source<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNextToken</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span> 
+</span></span><span style="display:flex;"><span>            var cmd <span style="color:#f92672">=</span> source<span style="color:#f92672">.</span><span style="color:#a6e22e">nextToken</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cmd<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;print&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span> 
+</span></span><span style="display:flex;"><span>                block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> PrintParser<span style="color:#f92672">().</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>  
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cmd<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;repeat&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span> 
+</span></span><span style="display:flex;"><span>                block<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> RepeatParser<span style="color:#f92672">().</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> block<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><code>BlockParser</code> 不會去管 <code>PrintParser</code>、<code>RepeatParser</code> 怎麼剖析，那是它們的事；<code>PrintParser</code> 負責剖析 <code>print</code> 接受的文字，它不會有子節點了，因此實作上很簡單，取得下個文字符號，建立 <code>Print</code> 封裝就好了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PrintParser</span> <span style="color:#66d9ef">implements</span> Parser <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Command <span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>Source source<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Print<span style="color:#f92672">(</span>source<span style="color:#f92672">.</span><span style="color:#a6e22e">nextToken</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><code>RepeatParser</code> 需要將 <code>repeat</code> 時需要的次數剖析為整數，每個 <code>repeat</code> 實際上會建立一個指令區塊，不過那是 <code>BlockParser</code> 的事，<code>RepeatParser</code> 只要將 <code>BlockParser</code> 剖析後傳回的 <code>Command</code> 一併封裝起來就可以了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RepeatParser</span> <span style="color:#66d9ef">implements</span> Parser <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Command <span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>Source source<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var times <span style="color:#f92672">=</span> Integer<span style="color:#f92672">.</span><span style="color:#a6e22e">parseInt</span><span style="color:#f92672">(</span>source<span style="color:#f92672">.</span><span style="color:#a6e22e">nextToken</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Repeat<span style="color:#f92672">(</span>times<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> BlockParser<span style="color:#f92672">().</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>程式一開始就是指令區塊，因此建立一個 <code>BlockParser</code>，然後把 <code>Source</code> 丟進去，就會傳回一棵抽象語法樹：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var code <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">repeat 2
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    print dog
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    repeat 2
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        print |----XD
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        print |----Orz
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>var ast <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BlockParser<span style="color:#f92672">().</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Source<span style="color:#f92672">(</span>code<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>ast<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">();</span>
+</span></span></code></pre></div><p>執行之後就會顯示以下的結果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>dog
+</span></span><span style="display:flex;"><span>|----XD
+</span></span><span style="display:flex;"><span>|----Orz
+</span></span><span style="display:flex;"><span>|----XD
+</span></span><span style="display:flex;"><span>|----Orz
+</span></span><span style="display:flex;"><span>dog
+</span></span><span style="display:flex;"><span>|----XD
+</span></span><span style="display:flex;"><span>|----Orz
+</span></span><span style="display:flex;"><span>|----XD
+</span></span><span style="display:flex;"><span>|----Orz
+</span></span></code></pre></div><p>有沒有想挑戰更多語法的玩具語言呢？野心不要太大，可以有變數、可以運算 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>、可以運算費式數之類的，你會怎麼寫呢？</p>
+<p>〈<a href="../../toy-lang/index.html">打造玩具語言</a>〉裡的語言，一開始也只是這 300 多行的 <a href="https://gist.github.com/JustinSDK/9c38136b90137387ad3518d4e99d15ba">gist</a> 喔！試試看吧！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/behavioral/interpreter/" target="_blank"><img src = "../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/behavioral/interpreter/" target="_blank"><img src = "../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aInterpreter&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2fbehavioral%2finterpreter%2f" target="_blank"><img src = "../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="visitor/index.html" title="Visitor"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="memento/index.html" title="Memento"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../js/clipboard.min.js%3F1664443693"></script>
+    <script src="../../js/perfect-scrollbar.min.js%3F1664443693"></script>
+    <script src="../../js/perfect-scrollbar.jquery.min.js%3F1664443693"></script>
+    <script src="../../js/jquery.svg.pan.zoom.js%3F1664443693"></script>
+    <script src="../../js/featherlight.min.js%3F1664443693"></script>
+    <script src="../../js/modernizr.custom-3.6.0.js%3F1664443693"></script>
+    <script src="../../js/mermaid.min.js%3F1664443693"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../js/relearn.js%3F1664443693"></script>
+  </body>
+</html>

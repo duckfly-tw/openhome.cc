@@ -1,0 +1,231 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="You've been using functions for a while, but I haven't talked about functions detaily. In Hello Modu...">
+
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Defining and calling a function">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/eGossip/WebAssembly/Function.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="You've been using functions for a while, but I haven't talked about functions detaily. In Hello Modu...">
+
+    <title>Defining and calling a function</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Function.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/WebAssembly/index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Defining and calling a function</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>You've been using functions for a while, but I haven't talked about functions detaily. In <a href="Module.html">Hello Module</a>, you've known that functions are defined in sections of a module. The simplest function can be:</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main)
+)
+</code></pre>
+<p>The function name is for readability. Functions are assigned monotonically-increasing indices based on the order of definition in the module so a function without a name is allowed.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func)
+)
+</code></pre>
+<p>A function may declare parameters and a return type, such as the <code>$add</code> function below.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $add (param $lhs i32) (param $rhs i32) (result i32)
+        (i32.add (get_local $lhs) (get_local $rhs))
+    )   
+    (func $main
+        (call $add (i32.const 1) (i32.const 2))
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>You use <code>param</code> to declare parameters and their names are optional. After compiling, all are indices. Parameters are viewed as local variables so use <code>get_local</code> to retrieve their values. A function creates a block. If it doesn't define the return type, you should empty the stack before leaving the function.</p>
+<p>The <code>start</code> function must not take any arguments or return anything. After initializing the module instance, the function <code>start</code> refers would be called.</p>
+<p>The <code>call</code> instruction calls a single function, given its index or name. Push enough numbers onto the stack before calling a function. If your function declares a result type, the left number on the stack can be used after leaving the function.</p>
+<p>Local variables should be declared after the result type (if any). For example, let's define a <code>$fib</code> function which returns the nth Fibonacci number.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $fib (param $n i32) (result i32)                       ;; nth       
+        (local $a i32) (local $b i32)
+        (local $i i32) (local $tmp i32)
+
+        (i32.or                                                  ;; n == 0 || n == 1
+            (i32.eqz (get_local $n))
+            (i32.eq (get_local $n) (i32.const 1))
+        )
+
+        if (result i32)
+            get_local $n
+        else
+            (set_local $b (i32.const 1))                         ;; b = 1
+            (set_local $i (i32.const 2))                         ;; i = 2
+            loop (result i32)
+                (i32.le_s (get_local $i) (get_local $n))         ;; i &lt;= n
+                if
+                    (set_local $tmp (get_local $b))              ;; tmp = b
+                    (set_local $b                                ;; b = a + b
+                        (i32.add (get_local $a) (get_local $b)))
+                    (set_local $a (get_local $tmp))              ;; a = tmp
+                    (set_local $i                                ;; i = i + 1
+                        (i32.add (get_local $i) (i32.const 1)))
+                    br 1
+                end
+                get_local $b
+            end
+        end
+    )
+    (func $main
+        (call $fib (i32.const 10))
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>You can use <code>return</code> in the function. The instructions after <code>return</code> would not be executed.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $fib (param $n i32) (result i32)                       ;; nth       
+        (local $a i32) (local $b i32)
+        (local $i i32) (local $tmp i32)
+
+        (i32.or                                                  ;; n == 0 || n == 1
+            (i32.eqz (get_local $n))
+            (i32.eq (get_local $n) (i32.const 1))
+        )
+
+        if (result i32)
+            (return (get_local $n))
+        else
+            (set_local $b (i32.const 1))                         ;; b = 1
+            (set_local $i (i32.const 2))                         ;; i = 2
+            loop (result i32)
+                (i32.le_s (get_local $i) (get_local $n))         ;; i &lt;= n
+                if
+                    (set_local $tmp (get_local $b))              ;; tmp = b
+                    (set_local $b                                ;; b = a + b
+                        (i32.add (get_local $a) (get_local $b)))
+                    (set_local $a (get_local $tmp))              ;; a = tmp
+                    (set_local $i                                ;; i = i + 1
+                        (i32.add (get_local $i) (i32.const 1)))
+                    br 1
+                end
+                (return (get_local $b))
+            end
+        end
+    )
+    (func $main
+        (call $fib (i32.const 10))
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>In the MVP, a function can only return one result value. It might return more than one value in the future.</p>
+<p>WebAssembly functions support recursion. For example, the following is a recursive version of the above program.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $fib (param $n i32) (result i32)             ;; nth        
+        (i32.or                                        ;; n == 0 || n == 1
+            (i32.eqz (get_local $n))
+            (i32.eq (get_local $n) (i32.const 1))
+        )
+
+        if (result i32)
+            (return (get_local $n))
+        else
+            ;; return fib(n - 1) + fib(n - 2)
+            (return (i32.add                                              
+                (call $fib (i32.sub (get_local $n) (i32.const 1))) 
+                (call $fib (i32.sub (get_local $n) (i32.const 2)))
+            ))
+        end
+    )
+    (export "fib" (func $fib))
+)
+</code></pre>
+<p>The exported function will be a property of <code>exports</code> defined in the instance of <code>WebAssembly.Instance</code>. Let's run a simple benchmark.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+
+    function fibJS(n) {
+        if(n == 0 || n == 1) {
+            return n;
+        }
+        return fibJS(n - 1) + fibJS(n - 2);
+    }
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'))
+               .then(prog =&gt; {
+                   const n = 40;
+                   const fibWasm = prog.instance.exports.fib;
+
+                   let start = new Date().getTime();
+                   fibWasm(n);
+                   console.log(new Date().getTime() - start);
+
+                   start = new Date().getTime();
+                   fibJS(n);
+                   console.log(new Date().getTime() - start);
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Guess what will be faster in your browser? :p</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

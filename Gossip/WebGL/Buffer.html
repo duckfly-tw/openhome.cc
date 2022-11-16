@@ -1,0 +1,220 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈使用 attribute 變數〉中，每次只傳遞一個向量或浮點數，如果有多個頂點要繪製呢？這時可以透過 Buffer，使用 JavaScript 將資料放入 Buffer，然後著色器從 Buffer...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 Buffer">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/Buffer.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈使用 attribute 變數〉中，每次只傳遞一個向量或浮點數，如果有多個頂點要繪製呢？這時可以透過 Buffer，使用 JavaScript 將資料放入 Buffer，然後著色器從 Buffer...">
+
+    <title>使用 Buffer</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Buffer.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Buffer</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Attribute.html">使用 attribute 變數</a>〉中，每次只傳遞一個向量或浮點數，如果有多個頂點要繪製呢？這時可以透過 Buffer，使用 JavaScript 將資料放入 Buffer，然後著色器從 Buffer 取得資料。</p>
+<p>來看看怎麼畫兩個點好了，這只需要用到簡單的著色器：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    attribute vec3 position;
+
+    void main(void) {
+        gl_Position = vec4(position, 1.0);
+        gl_PointSize = 5.0;
+    }
+&lt;/script&gt;          
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    void main(void) {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+&lt;/script&gt;    
+</code></pre>
+<p>在這邊只有一個 <code>attribute</code>，頂點著色器會從 Buffer 中逐一取出頂點指定給 <code>position</code>，然後執行 <code>main</code>；JavaScript 的部份，使用陣列作為 Buffer，例如：</p>
+<pre class="prettyprint"><code lang="javascript">import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+const gl = getGLContext(document.getElementById('glCanvas'));
+const prog = installProgram(gl, 
+    shaderSourceById('vertex-shader'), 
+    shaderSourceById('fragment-shader')
+);
+
+// 兩個頂點
+const verteices = [
+    0.5, 0.0, 0.0,
+    -0.5, 0.0, 0.0
+];
+
+// 建立、指定、綁定 Buffer
+const buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);
+</code></pre>
+<p>在這邊可以看到，因為 <code>getGLContext</code>、<code>shaderSourceById</code>、<code>installProgram</code> 經常使用，就放在模組然後匯入了，<code>createBuffer</code> 用來建立 Buffer，<code>bindBuffer</code> 用來指定 <code>gl</code> 接下來的操作會是針對哪個 Buffer，<code>bufferData</code> 會在被綁定的 Buffer 中將指定的資料置入。</p>
+<p>因為這邊不做動畫，指定了 <code>gl.STATIC_DRAW</code>，這是個最佳化提示，表示會經常使用 Buffer，然而不常去變動它，在 MDN 的 <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData"><code>bufferData</code></a> 文件中，可以查看到其他提示，像是 <code>gl.DYNAMIC_DRAW</code>、<code>gl.STREAM_DRAW</code> 等。</p>
+<p>接下來可以指定 <code>position</code> 來取用這個 Buffer：</p>
+<pre class="prettyprint"><code lang="javascript">const attr_position = gl.getAttribLocation(prog, 'position');
+gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+gl.enableVertexAttribArray(attr_position);
+</code></pre>
+<p><code>vertexAttribPointer</code> 的參數中 3 與 <code>g.FLOAT</code> 表示，每次從 Buffer 中取用三個單位的資料，型態是浮點數；<code>false</code> 是 <code>normalized</code> 指定，簡單來說，若設定為 <code>true</code>，會把整數轉換為 -1 ~ 1 的值，因為這邊設定為 <code>g.FLOAT</code> 了，這個參數基本上就是 <code>false</code>（這時設成 <code>true</code> 也沒作用）；下一個 0 是 <code>stride</code>，用來指定每單位資料是幾個位元組，被設成 0 的話，就表示使用指定的型態；最後一個 0 表示從 Buffer 哪裏開始讀取，這邊是從陣列開頭開始。</p>
+<p>接下來就可以畫兩個點了：</p>
+<pre class="prettyprint"><code lang="javascript">let mode = gl.POINTS;
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawArrays(mode, 0, 2);
+</code></pre>
+<p><code>mode</code> 如果改成 <code>gl.LINES</code> 的話，就會每兩個點連接起來，繪製出一條線來，例如，希望按下滑鼠時可以切換點與線的繪製：</p>
+<pre class="prettyprint"><code lang="javascript">gl.canvas.addEventListener('mousedown', () =&gt; {
+    mode = mode === gl.POINTS ? gl.LINES : gl.POINTS;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(mode, 0, 2);
+});
+</code></pre>
+<p>可以<a href="https://openhome.cc/Gossip/WebGL/samples/Buffer-1.html">點一下範例網頁</a>看看效果，因為會有兩個頂點，頂點著色器會被呼叫兩次，然而卻畫出了一條線，這是片段著色器的功勞，它會自動根據兩個頂點座標處指定的 <code>varying</code> 變數值，計算出插值來執行演算內容，最後指定給 <code>gl_FragColor</code>，這個過程叫<a href="https://zh.wikipedia.org/wiki/%E6%A0%85%E6%A0%BC%E5%8C%96">柵格化（Rasterisation）</a>，就目前來說，並沒有用到 <code>varying</code> 變數，片段著色器的顏色是寫死的，因此兩個點間的像素顏色也就固定了，之後會看到，頂點著色器如何使用 <code>varying</code> 變數傳遞資訊給片段著色器。</p>
+<p>除了 <code>gl.POINTS</code>、<code>g.LINES</code> 之外，還有 <code>gl.LINE_STRIP</code> 依序連接每個點，<code>gl.LINE_LOOP</code> 依序連接每個點外，最後一個點還會連接第一個點，在上頭的範例因為只有兩個點，設成這兩個效果都一樣，來看看正三角形的繪製好了：</p>
+<pre class="prettyprint"><code lang="javascript">// 正三角頂點
+const verteices = [
+     0.25, 0.0, 0.0,
+     0.0, 0.433, 0.0,
+    -0.25, 0.0, 0.0
+];
+
+// 建立、指定、綁定 Buffer
+const buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);
+
+const attr_position = gl.getAttribLocation(prog, 'position');
+gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+gl.enableVertexAttribArray(attr_position);
+
+// 繪製
+let i = 0;
+let modes = [gl.LINE_STRIP, gl.LINE_LOOP, gl.TRIANGLES];
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawArrays(modes[i], 0, 3);
+
+gl.canvas.addEventListener('mousedown', () =&gt; {
+    i = (i + 1) % 3;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(modes[i], 0, 3);
+});
+</code></pre>
+<p>按下滑鼠的話，會依序展示 <code>gl.LINE_STRIP</code>、<code>gl.LINE_LOOP</code> 與 <code>gl.TRIANGLES</code> 的效果，<code>gl.TRIANGLES</code> 是每次取三個點，畫出一個三角形，你可以先<a href="https://openhome.cc/Gossip/WebGL/samples/Buffer-2.html">點一下範例網頁</a>看看效果，嗯？不是要畫正三角嗎？你看到的不是正三角？只是個等腰三角？頂點設錯了嗎？</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Buffer-1.JPG" alt="使用 Buffer"  /></div></div></p>
+<p>如果單看 <code>verteices</code> 中的三個頂點值，確實是正三角沒錯，不過別忘了，在〈<a href="Shader.html">認識著色器</a>〉談到：</p>
+<blockquote><p><strong>如果要將 Canvas 的顯示空間對應至裁剪空間，那麼通常可以將 Canvas 顯示空間最左邊對應至裁剪空間的 x 的 -1.0，最右邊對應至 1.0，顯示空間最下方對應至裁剪空間 y 的 -1.0，最上方對應至 1.0。</strong></p>
+</blockquote>
+<p>這表示，如果你的 Canvas 寬高並不是一比一的話，畫出來的東西是會變形的，若不想如此，必須依 Canvas 寬高比例做出修正：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    uniform float aspect;
+    attribute vec3 position;
+
+    void main(void) {
+        gl_Position = vec4(position.x, position.y * aspect, position.z, 1.0);
+        gl_PointSize = 5.0;
+    }
+&lt;/script&gt;     
+</code></pre>
+<p>這邊看到了 <code>uniform</code> 修飾，它表示在繪製過程中，<code>aspect</code> 的值是固定的，配合這個變數，JavaScript 的部份加入變數設定：</p>
+<pre class="prettyprint"><code lang="javascript">gl.uniform1f(
+    gl.getUniformLocation(prog, 'aspect'),
+    gl.canvas.clientWidth / gl.canvas.clientHeight
+);
+</code></pre>
+<p>要取得 <code>uniform</code> 變數的位置，必須使用 <code>getUniformLocation</code> 方法，而設定值時，使用的是 <code>uniform1f</code> 這類開頭為 uniform 的方法，<a href="https://openhome.cc/Gossip/WebGL/samples/Buffer-3.html">點一下範例網頁</a>看看效果，應該可以看到正三角了。</p>
+<p>來順便看一下 <code>gl.TRIANGLE_STRIP</code> 與 <code>gl.TRIANGLE_FAN</code> 好了。<code>gl.TRIANGLE_STRIP</code> 可以共用頂點，從第三個頂點開始，每個頂點與前兩個頂點連成三角形，也就是後續的三角形，會使用前兩個頂點形成的邊作為共用邊。例如：</p>
+<pre class="prettyprint"><code lang="javascript">const verteices = [
+     0.25, 0.0, 0.0,
+     0.0, 0.433, 0.0,                 
+    -0.25, 0.0, 0.0,
+    -0.5, 0.433, 0.0
+];
+
+...略
+
+gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/WebGL/samples/Buffer-4.html">看一下範例網頁</a>，你會看到兩個正三角形成的平行四邊形，下圖列出了頂點關係：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Buffer-2.JPG" alt="使用 Buffer"  /></div></div></p>
+<p>至於 <code>gl.TRIANGLE_FAN</code>，正如其名稱所示，適合繪製扇形，因為它從第三個頂點開始，都會與第一個和上個頂點相連，例如：</p>
+<pre class="prettyprint"><code lang="javascript">// 圓的頂點
+const r = 0.25;
+const fn = 24;
+const verteices = [0.0, 0.0, 0.0];
+for(let i = 0, step = 2 * Math.PI / fn; i &lt; fn; i++) {
+    let a = step * i;
+    verteices.push(r * Math.cos(a));
+    verteices.push(r * Math.sin(a));
+    verteices.push(0.0); 
+}
+verteices.push(r);
+verteices.push(0.0);
+verteices.push(0.0);
+
+...
+
+// 繪製
+let i = 0;
+gl.canvas.addEventListener('mousedown', () =&gt; {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 3 + i);
+    i = (i + 1) % fn;
+});
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/WebGL/samples/Buffer-5.html">看一下範例網頁</a>，每點一次就會增加扇形的面積，直到畫出一個圓。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

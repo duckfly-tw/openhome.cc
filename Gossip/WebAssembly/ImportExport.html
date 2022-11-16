@@ -1,0 +1,153 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebAssembly 最小可行版本（Minimum Viable Product, MVP）就只有四個對象可以匯入、匯出，也就是到目前為止，看過的函式、全域變數、表格與記憶體。
+在匯入的部份，之前就...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="匯入與匯出">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/ImportExport.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="WebAssembly 最小可行版本（Minimum Viable Product, MVP）就只有四個對象可以匯入、匯出，也就是到目前為止，看過的函式、全域變數、表格與記憶體。
+在匯入的部份，之前就...">
+
+    <title>匯入與匯出</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImportExport.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>匯入與匯出</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>WebAssembly 最小可行版本（Minimum Viable Product, MVP）就只有四個對象可以匯入、匯出，也就是到目前為止，看過的函式、全域變數、表格與記憶體。</p>
+<p>在匯入的部份，之前就看過了，<code>import</code> 都會包含兩個名稱，分別對應至匯入物件的第一層與第二層特性名稱，不過，<code>import</code> 包含的這兩個名稱，規格上是稱為模組名稱（module name）與匯入名稱（import name）。</p>
+<p>這或許意謂著在安排匯入物件時，第一層特性應該是模組名稱空間，像是 <code>Instance</code> 實例上 <code>exports</code> 特性的角色，第二層特性就是模組被匯出的各個對象，像是函式、全域變數、表格與記憶體。</p>
+<p>例如，若有個 <code>foo</code> 模組撰寫為：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $foo1 (export "foo1") (result i32)
+        i32.const 1
+    )
+    (func $foo2 (export "foo2") (result i32)
+        i32.const 2
+    )    
+)
+</code></pre>
+<p>在這邊看到 <code>export</code> 的另一種風格，可以直接寫在要匯出的函式上，實際上這個模組沒有呼叫任何函式，因此 <code>$foo1</code>、<code>$foo2</code> 是可以省略的。</p>
+<p>若有另一個模組，會需要使用到 <code>foo</code> 模組匯出的函式：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (import "foo" "foo1" (func $foo1 (result i32)))
+    (import "foo" "foo2" (func $foo2 (result i32)))
+    (func $main
+        call $foo1
+        call $log
+        call $foo2
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>目前來說，瀏覽器尚未整合模組的載入、初始化等，因此這並不會下載 <code>env</code>、<code>foo</code> 模組，目前得自己動手來做：</p>
+<pre class="prettyprint"><code lang="wat">(async () =&gt; {
+    const foo = await WebAssembly.instantiateStreaming(fetch('foo.wasm'));
+    const importObj = {
+        env : {
+            log(n) {
+                console.log(n);
+            }
+        },
+        foo : foo.instance.exports
+    };
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj);
+})();
+</code></pre>
+<p>當然，可以這麼寫的原因在於，事先知道 <code>program</code> 模組，需要從哪個模組 <code>import</code> 函式之類的，問題在於，撰寫 JavaScript 時，怎麼在拿到一個模組時，事先知道它當中要匯入哪些模組的東西呢？</p>
+<p><code>WebAssembly.Module</code> 定義了個 <code>imports</code> 函式，可以取得模組宣告的 <code>import</code> 相關資訊，給它一個 <code>WebAssembly.Module</code> 實例，它會傳回一個陣列，當中的各元素是個物件，擁有 <code>kind</code>、<code>module</code>、與 <code>name</code> 三個特性，分別表示匯入的是哪種對象（例如 <code>'function'</code>）、模組名稱、匯入名稱。</p>
+<p>因此，上例也可以改寫為：</p>
+<pre class="prettyprint"><code lang="wat">function moduleNames(mod, importObj) {
+    return Array.from(
+        new Set(
+            WebAssembly.Module.imports(mod)
+                              .map(impt =&gt; impt.module)
+                              .filter(name =&gt; !(name in importObj))
+        )
+    );
+}
+
+(async () =&gt; {
+    const importObj = {
+        env : {
+            log(n) {
+                console.log(n);
+            }
+        }
+    };
+
+    const progModule = await WebAssembly.compileStreaming(fetch('program.wasm'));
+    const names = moduleNames(progModule, importObj);
+    const results = await Promise.all(
+        names.map(name =&gt; WebAssembly.instantiateStreaming(fetch(`${name}.wasm`)))
+    );
+
+    for(let i = 0; i &lt; names.length; i++) {
+        importObj[names[i]] = results[i].instance.exports;
+    }
+
+    WebAssembly.instantiate(progModule, importObj);
+})();
+</code></pre>
+<p>如果在建立 <code>WebAssembly.Instance</code> 實例之前，需要進一步知道模組匯出的東西，<code>WebAssembly.Module</code> 也有定義 <code>exports</code> 函式來處理這件事。</p>
+<p>當然，上面的範例很單純，複雜的情況下，會有模組匯入的順序等問題，不過仔細想想，這應該是未來瀏覽器要處理的事情，或許是在 WebAssembly 可以整合 ES6 模組之後的事情，如果沒有，也應該會有個模組管理程式庫來做這類的事。</p>
+<p>在匯入、匯出函式、全域變數、表格與記憶體時，其實有一些要注意的小細節，這些記載在〈<a href="https://webassembly.org/docs/modules/#imports">Imports</a>〉中，如果你可以跟著文件一路來到這邊，自行參閱應該是不成問題。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,106 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="接續 一對多關聯 的內容，如果一個客戶擁有多個訂單，訂單是關於某項產品，如果設計上，想讓讓客戶與產品間形成多對多雙向關聯，可以如下定義：
+      # app/models/customer.rb...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="多對多關聯">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/ManyToMany.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="接續 一對多關聯 的內容，如果一個客戶擁有多個訂單，訂單是關於某項產品，如果設計上，想讓讓客戶與產品間形成多對多雙向關聯，可以如下定義：
+      # app/models/customer.rb...">
+
+
+    <title>多對多關聯</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ManyToMany.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多對多關聯</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>接續 <a href="OneToMany.html">一對多關聯</a> 的內容，如果一個客戶擁有多個訂單，訂單是關於某項產品，如果設計上，想讓讓客戶與產品間形成多對多雙向關聯，可以如下定義：</p>
+      <p class="courier" style="margin-left: 40px;"><strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;"># app/models/customer.rb<br>
+          class Customer &lt; ActiveRecord::Base<br>
+          &nbsp;&nbsp;&nbsp; has_many :orders<br>
+          &nbsp;&nbsp;&nbsp; has_many :products, :through =&gt; :orders<br>
+          end<br>
+          <br>
+        </strong><strong style="color: rgb(0, 0, 0); font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: -webkit-auto; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; font-size: small; "># app/models/order.rb<br>
+          class Order &lt; ActiveRecord::Base<br>
+          &nbsp;&nbsp;&nbsp; belongs_to :user<br>
+          &nbsp;&nbsp;&nbsp; belongs_to :products<br>
+          end</strong><br>
+        <br>
+        <strong style="color: rgb(0, 0, 0); font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: -webkit-auto; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; font-size: small; "># app/models/product.rb<br>
+          class Product &lt; ActiveRecord::Base<br>
+          &nbsp;&nbsp;&nbsp; has_many :orders<br>
+          &nbsp;&nbsp;&nbsp; has_many :customers, :through =&gt; :orders<br>
+          end</strong><br>
+      </p>
+      <p>此時表格上必須有以下的關係：</p>
+      <p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="ManyToMany" src="images/ManyToMany-1.PNG" /></div></div><br>
+      </p>
+      以上的情況，設計需求上也許本來就包括了<span class="courier">Order</span>模型，另一種多對多關係，是不需要中介模型存在的情況，例如一個使用者會使用多台電腦，而一台電腦會有多個使用者，模型設計上也許只需要：<br>
+      <br>
+      <div style="margin-left: 40px;"><strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;"># app/models/user.rb</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">class User &lt; ActiveRecord::Base</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">&nbsp;&nbsp;&nbsp; has_and_belongs_to_many :servers</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">end</strong><br>
+        <br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;"># app/models/server.rb</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">class Server &lt; ActiveRecord::Base</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">&nbsp;&nbsp;&nbsp; has_and_belongs_to_many :users</strong><br>
+        <strong style="color: black; font-family: 'Courier New'; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: small;">end</strong><br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

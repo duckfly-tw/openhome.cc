@@ -1,0 +1,360 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Widget 的 Key（一）〉中談到了 key 的作用，現在回到其中範例還沒有設置 key 的情境，假設你的便利貼 App，Note 為了能儲存、修改便利貼訊息，改繼承了 StatefulWid...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Widget 的 Key（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/Key2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Widget 的 Key（一）〉中談到了 key 的作用，現在回到其中範例還沒有設置 key 的情境，假設你的便利貼 App，Note 為了能儲存、修改便利貼訊息，改繼承了 StatefulWid...">
+
+    <title>Widget 的 Key（二）</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Key2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Widget 的 Key（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Key.html">Widget 的 Key（一）</a>〉中談到了 <code>key</code> 的作用，現在回到其中範例還沒有設置 <code>key</code> 的情境，假設你的便利貼 App，<code>Note</code> 為了能儲存、修改便利貼訊息，改繼承了 <code>StatefulWidget</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MyNote());
+
+class MyNote extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Note',
+      home: MyHomePage(title: 'My Note Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({this.title});
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() =&gt; _MyHomePageState();
+}
+
+// Note 現在繼承了 StatefulWidget
+class Note extends StatefulWidget {
+  Color color;
+  double width;
+  double height;
+
+  Note({this.color, this.width, this.height});
+
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _NoteState(this);
+}
+
+class _NoteState extends State&lt;Note&gt; {
+  Note note;
+
+  _NoteState(this.note);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: note.color,
+      width: note.width,
+      height: note.height,
+    );
+  }
+}
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  final notes = [
+    Note(
+      color: Colors.red,
+      width: 200,
+      height: 200,
+    ),
+    Note(
+      color: Colors.blue,
+      width: 200,
+      height: 200,
+    )
+  ];
+
+  void _round_robin() {
+    setState(() {
+      notes.add(notes.removeAt(0));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Stack(
+          children: notes,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _round_robin,
+        tooltip: 'round robin',
+        child: Icon(Icons.swap_vert),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>結果你發現按鈕怎麼按，畫面就是不會動：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-1.gif" alt="Widget 的 Key（二）"  /></div></div></p>
+<p>來看看是怎麼一回事，一開始 <code>Widget</code> 樹與 <code>Element</code> 樹是這樣的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-2.JPG" alt="Widget 的 Key（二）"  /></div></div></p>
+<p><code>StatefulWidget</code> 的 <code>createElement</code> 傳回的，是 <code>Element</code> 的子類 <code>StatefulElement</code> 實例，現在顏色資訊不在 <code>Note</code> 上，而是在 <code>_NoteState</code>，而 <code>Note</code> 對應的 <code>Element</code> 節點，才會參考到 <code>_NoteState</code>（六角形圖示），這也可以從 <code>StatefulElement</code> 的原始碼中看到：</p>
+<pre class="prettyprint"><code lang="dart">class StatefulElement extends ComponentElement {
+  /// Creates an element that uses the given widget as its configuration.
+  StatefulElement(StatefulWidget widget)
+      : _state = widget.createState(),
+        super(widget) {
+    _state._element = this;
+    _state._widget = widget;
+  }
+  ...
+</code></pre>
+<p>在按下按鈕後，因為 <code>Note</code> 沒有設置 <code>key</code>，根據〈<a href="Key.html">Widget 的 Key（一）</a>〉的說明，<code>Widget</code> 樹與 <code>Element</code> 樹會變為：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-3.JPG" alt="Widget 的 Key（二）"  /></div></div></p>
+<p><code>Widget</code> 樹中的 <code>Note</code> 節點是有調換了沒錯，然而由於沒有設置 <code>key</code>，<code>Element</code> 樹不會調整，只是對應的 <code>Element</code> 參考了新的 <code>Widget</code>，問題就在於，<code>Element</code> 的 <code>_NoteState</code> 並沒有換，繪製時的顏色狀態，是來自 <code>_NoteState</code>，結果畫面還是看到藍色。</p>
+<p>要解決這個問題，可以為 <code>Note</code> 加上 <code>key</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MyNote());
+
+...略
+
+class Note extends StatefulWidget {
+  Color color;
+  double width;
+  double height;
+
+  // 設置 key
+  Note({Key key, this.color, this.width, this.height}) : super(key: key);
+
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _NoteState(this);
+}
+
+...略
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  int _idx = 0;
+  final notes = [
+    Note(
+      key: UniqueKey(),  // 設置 key
+      color: Colors.red,
+      width: 200,
+      height: 200,
+    ),
+    Note(
+      key: UniqueKey(),  // 設置 key
+      color: Colors.blue,
+      width: 200,
+      height: 200,
+    )
+  ];
+
+  ...略
+}
+</code></pre>
+<p><code>Note</code> 加上 <code>key</code> 之後，根據〈<a href="Key.html">Widget 的 Key（一）</a>〉的說明，會因為 <code>canUpdate</code> 傳回 <code>false</code>，<code>Element</code> 樹必須與 <code>Widget</code> 樹有對應的調整，這時的兩棵樹會是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-4.JPG" alt="Widget 的 Key（二）"  /></div></div></p>
+<p>這時就可以根據 <code>Element</code> 各自的顏色狀態來繪製，因此可以看到兩個顏色交替。</p>
+<p>調整某些 <code>StatefulWidget</code> 節點時，該 <code>StatefulWidget</code> 節點必須設置 <code>key</code>，而且一定要設置在該節點，否則會導致新的 <code>Element</code> 產生，而使得 <code>State</code> 物件重新產生，這就無法保留狀態了。</p>
+<p>為了做個實驗，來修改一下 <code>Note</code> 與 <code>_NoteState</code>，令顏色是隨機設置，並在 <code>Note</code> 外加個 <code>Padding</code>，例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() =&gt; runApp(MyNote());
+
+class MyNote extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Note',
+      home: MyHomePage(title: 'My Note Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({this.title});
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() =&gt; _MyHomePageState();
+}
+
+class Note extends StatefulWidget {
+  double width;
+  double height;
+
+  // 設置 key
+  Note({Key key, this.width, this.height}) : super(key: key);
+
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _NoteState(this);
+}
+
+class _NoteState extends State&lt;Note&gt; {
+  Note note;
+  Color color;
+
+  _NoteState(this.note);
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 隨機顏色
+    var rand = new Random();
+    color = Color.fromARGB(255,
+        rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: color,
+      width: note.width,
+      height: note.height,
+    );
+  }
+}
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  final notes = [
+    Padding(  // 加上 Padding
+      child: Note( 
+        key: UniqueKey(),  
+        width: 200,
+        height: 200,
+      ),
+      padding: EdgeInsets.all(8.0),
+    ),
+    Padding(  // 加上 Padding
+      child: Note(
+        key: UniqueKey(),  
+        width: 200,
+        height: 200,
+      ),
+      padding: EdgeInsets.all(8.0),
+    ),
+  ];
+
+  void _round_robin() {
+    setState(() {
+      notes.add(notes.removeAt(0));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Stack(
+          children: notes,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _round_robin,
+        tooltip: 'round robin',
+        child: Icon(Icons.swap_vert),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>注意，雖然 <code>Note</code> 設置了 <code>key</code>，但 <code>Padding</code> 沒有設置 <code>key</code>，如果執行程式的話，會發生顏色不斷隨機變化：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-5.gif" alt="Widget 的 Key（二）"  /></div></div></p>
+<p>來看看為什麼，假設一開始的顏色等是如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-6.JPG" alt="Widget 的 Key（二）"  /></div></div></p>
+<p>按下按鈕後，<code>Widget</code> 樹變化了，現在要開始檢查 <code>Element</code> 樹，來看到檢查第一個 <code>Padding</code> 時：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-7.JPG" alt="Widget 的 Key（二）"  /></div></div></p>
+<p><code>Padding</code> 中 <code>Note</code> 與 <code>Element</code> 的 <code>key</code> 對不起來，Flutter 只會檢查目前子樹，不會去看另一個 <code>Padding</code> 子樹，這時原本的 <code>Element</code> 會被丟棄，使用 <code>Note</code> 的 <code>createElement</code> 建立一個新的 <code>Element</code>，而新的 <code>State</code> 也就隨之建立，結果又是另一個隨機色了。</p>
+<p>解決的方式是，在 <code>Padding</code> 設置 <code>key</code>：</p>
+<pre class="prettyprint"><code lang="dart">...略
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  final notes = [
+    Padding(
+      key: UniqueKey(),  // 設置 key
+      child: Note(
+        width: 200,
+        height: 200,
+      ),
+      padding: EdgeInsets.all(8.0),
+    ),
+    Padding(
+      key: UniqueKey(),  // 設置 key
+      child: Note(
+        width: 200,
+        height: 200,
+      ),
+      padding: EdgeInsets.all(8.0),
+    ),
+  ];
+  ...略
+}
+</code></pre>
+<p>這麼一來，<code>Widget</code> 樹的 <code>Padding</code> 節點調整了，<code>Element</code> 樹的部份也會跟著調整，也就沒有了方才的問題，一開始的兩個顏色是隨機的，而後交替出現：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Key2-8.gif" alt="Widget 的 Key（二）"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

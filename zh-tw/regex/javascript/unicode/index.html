@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="JavaScript 沒有字元型態，撰寫程式碼時，以單引號或雙引號來包括單一 Unicode 字元，也是字串型態。JavaScript 在 1995 創建之時，UTF-16 尚未公佈，只能採">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Regular Expression::JavaScript 與 Unicode 規則表示式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/regex/javascript/unicode/" />
+    <meta property="og:description" content="JavaScript 沒有字元型態，撰寫程式碼時，以單引號或雙引號來包括單一 Unicode 字元，也是字串型態。JavaScript 在 1995 創建之時，UTF-16 尚未公佈，只能採" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Regular Expression::JavaScript 與 Unicode 規則表示式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/regex/javascript/unicode/" />
+    <meta name="twitter:description" content="JavaScript 沒有字元型態，撰寫程式碼時，以單引號或雙引號來包括單一 Unicode 字元，也是字串型態。JavaScript 在 1995 創建之時，UTF-16 尚未公佈，只能採" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443699" type="image/x-icon">
+    <title> Regular Expression  :: JavaScript 與 Unicode 規則表示式</title>
+    <link href="../../../css/nucleus.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443699.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443699.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443699"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/regex/javascript/unicode/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/regex/" title="Regular Expression" class="dd-item parent"><a href="../../index.html">Regular Expression</a><ul>
+          <li data-nav-id="/zh-tw/regex/syntax/" title="語法" class="dd-item"><a href="../../syntax/index.html">| 語法</a><ul>
+          <li data-nav-id="/zh-tw/regex/syntax/basic/" title="簡介規則表示式" class="dd-item"><a href="../../syntax/basic/index.html">簡介規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/character/" title="字元表示、字元類" class="dd-item"><a href="../../syntax/character/index.html">字元表示、字元類</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/quantifier-anchor/" title="量詞、錨點" class="dd-item"><a href="../../syntax/quantifier-anchor/index.html">量詞、錨點</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/group/" title="分組捕捉" class="dd-item"><a href="../../syntax/group/index.html">分組捕捉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/syntax/unicode/" title="認識 Unicode" class="dd-item"><a href="../../syntax/unicode/index.html">認識 Unicode</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/" title="Java" class="dd-item"><a href="../../java/index.html">| Java</a><ul>
+          <li data-nav-id="/zh-tw/regex/java/string-regex/" title="Java 字串與規則表示式" class="dd-item"><a href="../../java/string-regex/index.html">Java 字串與規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/matcher/" title="Matcher 物件" class="dd-item"><a href="../../java/matcher/index.html">Matcher 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/pattern/" title="Pattern 物件" class="dd-item"><a href="../../java/pattern/index.html">Pattern 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/java/unicode/" title="Java 與 Unicode 規則表示式" class="dd-item"><a href="../../java/unicode/index.html">Java 與 Unicode 規則表示式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/" title="Python" class="dd-item"><a href="../../python/index.html">| Python</a><ul>
+          <li data-nav-id="/zh-tw/regex/python/re/" title="re 模組" class="dd-item"><a href="../../python/re/index.html">re 模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/pattern/" title="Pattern 物件" class="dd-item"><a href="../../python/pattern/index.html">Pattern 物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/python/unicode/" title="Python 與 Unicode 規則表示式" class="dd-item"><a href="../../python/unicode/index.html">Python 與 Unicode 規則表示式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/" title="JavaScript" class="dd-item parent"><a href="../index.html">| JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/regex/javascript/regex-literal/" title="JavaScript 字串與規則表示式" class="dd-item"><a href="../regex-literal/index.html">JavaScript 字串與規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/unicode/" title="JavaScript 與 Unicode 規則表示式" class="dd-item active"><a href="index.html">JavaScript 與 Unicode 規則表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/regexp/" title="RegExp 實例" class="dd-item"><a href="../regexp/index.html">RegExp 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/javascript/symbol/" title="RegExp 的 Symbol 協定" class="dd-item"><a href="../symbol/index.html">RegExp 的 Symbol 協定</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/" title="Go" class="dd-item"><a href="../../go/index.html">| Go</a><ul>
+          <li data-nav-id="/zh-tw/regex/go/match/" title="Go 的 Match 比對" class="dd-item"><a href="../../go/match/index.html">Go 的 Match 比對</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/regexp/" title="Go 的 Regexp 實例" class="dd-item"><a href="../../go/regexp/index.html">Go 的 Regexp 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/regex/go/unicode/" title="Go 與 Unicode 規則表示式" class="dd-item"><a href="../../go/unicode/index.html">Go 與 Unicode 規則表示式</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Regular Expression</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">JavaScript</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">JavaScript 與 Unicode 規則表示式</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#字串的元素">字串的元素</a></li>
+    <li><a href="index.html#unicode-模式">Unicode 模式</a></li>
+    <li><a href="index.html#unicode-特性轉譯">Unicode 特性轉譯</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/javascript/index.html">JavaScript</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/unicode/">Unicode</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>JavaScript 與 Unicode 規則表示式</h1>
+
+ <i class="space fa fa-calendar"> July 11, 2022</i> 
+<p>JavaScript 沒有字元型態，撰寫程式碼時，以單引號或雙引號來包括單一 Unicode 字元，也是字串型態。JavaScript 在 1995 創建之時，UTF-16 尚未公佈，只能採用 UCS-2，使用兩個位元組為當時字元集的字元編碼，後來支援 UTF-16，以便能處理 U+0000 至 U+FFFF 以外的字元。</p>
+<h2 id="字串的元素">字串的元素</h2>
+<p>為了解決輸入法無法直接鍵入這類字元的問題，JavaScript 以字元在 UTF-16 編碼時的高低位元組來表示，也就是使用兩個碼元，例如高音譜記號的 Unicode 碼點為 U+1D11E，無法直接使用既有的 <code>\uhhhh</code> 來表示，在 ES5 或早期版本，字串必須撰寫為 <code>'\uD834\uDD1E'</code> 來表示，這稱為稱作代理對（Surrogate pair）。</p>
+<p>在 ES6，增加了 <code>\u{…}</code> 表示法，可以直接撰寫 <code>'\u{1D11E}'</code>，以碼點來表示高音譜記號，現今兩種表示法可以並存，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; <span style="color:#e6db74">&#39;\uD834\uDD1E&#39;</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;\u{1D11E}&#39;</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>必須留意的是，因為 JavaScript 最初採用 UCS-2，對於原本就存在的 API 或索引，在處理字串時是以碼元為處理單位，支援 UTF-16 後為了兼顧相容性，ECMAScript 規定使用 UTF-16 碼元作為字串的元素（Element）單位 ，而不是把 Unicode 字元作為字串的一個元素。</p>
+<h2 id="unicode-模式">Unicode 模式</h2>
+<p>從 ES6 開始，規則表示式啟用 <code>u</code> 旗標，代表著啟用 Unicode 模式，目的之一是支援 <code>\u{…}</code> 的寫法；例如，ES6 以後 <code>'\uD834\uDD1E'</code> 可以使用 <code>'\u{1D11E}'</code> 來表示；然而，若要在規則表示式使用 <code>\u{…}</code>，必須開啟 <code>u</code> 旗標：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; <span style="color:#e6db74">&#39;Treble clef: \uD834\uDD1E&#39;</span>.search<span style="color:#f92672">(</span>/<span style="color:#ae81ff">\u</span><span style="color:#f92672">{</span>1D11E<span style="color:#f92672">}</span>/<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>-1
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#e6db74">&#39;Treble clef: \uD834\uDD1E&#39;</span>.search<span style="color:#f92672">(</span>/<span style="color:#ae81ff">\u</span><span style="color:#f92672">{</span>1D11E<span style="color:#f92672">}</span>/u<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>13
+</span></span><span style="display:flex;"><span>&gt; 
+</span></span></code></pre></div><p>在啟用 Unicode 模式的情況下，既有的 <code>\uhhhh</code> 寫法就是指定「碼點」（而不是碼元），也就是說，若 <code>\uhhhh</code> 指定的碼點處，實際上沒有定義 Unicode 字元，就不會比對成功。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let trebleClef <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\u{1D11E}&#39;</span>
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\u</span>D834/.test<span style="color:#f92672">(</span>trebleClef<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\u</span>D834/u.test<span style="color:#f92672">(</span>trebleClef<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>在沒有開啟 <code>u</code> 旗標的情況下，<code>test</code> 方法會在字串索引 0 處找到相符的碼元；然而，在開啟 Unicode 模式後，<code>\uD834</code> 就是指 Unicode 碼點 U+D834，然而該碼點處未定義字元，<code>test</code> 就因搜尋失敗而傳回 <code>false</code>。</p>
+<p>啟用 Unicode 模式後，對於 0xFFFF 以外的字元，才會進行正確的辨識，這會影響預定義字元類、量詞等的判斷。</p>
+<p>例如，未啟用 Unicode 模式前，預定義字元類 <code>\S</code> 表示非空白字元，然而，對 0xFFFF 以外的字元會誤判，只有在加上 <code>u</code> 旗標的情況下才會正確比對；類似地，<code>\W</code>、「<code>.</code>」也只有在啟用 Unicode 模式下，才能正確比對 0xFFFF 以外的字元：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\S</span>$/.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\S</span>$/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\W</span>$/.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\W</span>$/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /^.$/.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt; /^.$/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\u{1D11E}&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><h2 id="unicode-特性轉譯">Unicode 特性轉譯</h2>
+<p>ES9 以後支援規則表示式的 Unicode 特性轉譯（Unicode property escapes），為了能運用這個新功能，必須認識 Unicode 規範中的分類（Category）、文字（Script）。</p>
+<p>在 Unicode 的規範中，每個 Unicode 字元會隸屬於某個分類，在〈<a href="https://www.unicode.org/reports/tr18/#General_Category_Property">General Category Property</a>〉中可以看到 Letter、Uppercase Letter 等一般分類，每個分類也給予了 L、Lu 等縮寫名稱。</p>
+<p>舉例來說，隸屬於 Letter 分類的字元都是字母，a 到 z、A 到 Z、全形的 ａ 到 ｚ、Ａ 到 Ｚ 都在 Letter 分類中，除了英文字母之外，其他如希臘字母 α、β、γ 等，也都隸屬於 Letter 分類。</p>
+<p>ES9 以後若使用 <code>u</code> 旗標開啟 Unicode 模式，可以使用 <code>\p{General_Category=Letter}</code>、<code>\p{gc=Letter}</code>、<code>\p{Letter}</code>、<code>\p{L}</code> 等方式來指定分類，若分類名稱有兩個字，要使用 <code>_</code> 相連，這樣在使用規則表示式判斷字母、數字等，就非常方便了。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>General_Category<span style="color:#f92672">=</span>Letter<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>gc<span style="color:#f92672">=</span>Letter<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Uppercase_Letter<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Ll<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Number<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;1&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Number<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;１&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span></code></pre></div><p><code>\p{…}</code> 的相反就是 <code>\P{…}</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Number<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;１&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\P</span><span style="color:#f92672">{</span>Number<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;１&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>來個有趣的測試吧！𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼 都是十進位數字：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Decimal_Number<span style="color:#f92672">}</span>+$/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>數字呢？²³¹¼½¾𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼㉛㉜㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ都是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /^<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Number<span style="color:#f92672">}</span>+$/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;²³¹¼½¾𝟏𝟐𝟑𝟜𝟏𝟐𝟑𝟜���𝟪𝟫𝟬𝟭𝟮㉛㉛㉜㉜㉝㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>Unicode 將希臘文、漢字等組織為文字（Script）特性，可參考〈<a href="https://www.unicode.org/reports/tr24/">UNICODE SCRIPT PROPERTY</a>〉，例如，如果想在規則表示式中以文字特性比對，可以使用 <code>\p{Script=Greek}</code>、<code>\p{Script_Extensions=Greek}</code>、<code>\p{sc=Han}</code>、<code>\p{scx=Han}</code> 的寫法（Han 包含了正體中文、簡體中文，以及日、韓、越南文的全部漢字）。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Script<span style="color:#f92672">=</span>Greek<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;a&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>false
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Script_Extensions<span style="color:#f92672">=</span>Greek<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>sc<span style="color:#f92672">=</span>Greek<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;α&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>sc<span style="color:#f92672">=</span>Han<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;林&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>另外還有一些二元特性，像是 ASCII、Alphabetic、Lowercase、Emoji 等，直接寫在 <code>\p{..}</code> 裏就可以了。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; /<span style="color:#ae81ff">\p</span><span style="color:#f92672">{</span>Emoji<span style="color:#f92672">}</span>/u.test<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;😃&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>如果想取得 <code>\p{..}</code> 中可以使用的特性名稱等清單，可以查閱 ECMAScript 規格書〈<a href="https://www.ecma-international.org/ecma-262/10.0/index.html#sec-runtime-semantics-unicodematchproperty-p">UnicodeMatchProperty</a>〉與〈<a href="https://www.ecma-international.org/ecma-262/10.0/index.html#sec-runtime-semantics-unicodematchpropertyvalue-p-v">UnicodeMatchPropertyValue</a>〉內容。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/regex/javascript/unicode/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/regex/javascript/unicode/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Regular%20Expression%3a%3aJavaScript%20%e8%88%87%20Unicode%20%e8%a6%8f%e5%89%87%e8%a1%a8%e7%a4%ba%e5%bc%8f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fregex%2fjavascript%2funicode%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../regex-literal/index.html" title="JavaScript 字串與規則表示式"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../regexp/index.html" title="RegExp 實例"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443699"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443699"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443699"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443699"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443699"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443699"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443699"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443699"></script>
+  </body>
+</html>

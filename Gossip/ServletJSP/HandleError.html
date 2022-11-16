@@ -1,0 +1,164 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JSP 終究會轉譯為 Servlet，所以錯誤可能發生在三個時候：
+
+JSP 轉換為 Servlet 原始碼時
+如果在 JSP 頁面中撰寫了一些錯誤語法，而使得容器在轉譯 JSP 時不知道該怎麼將那些...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="錯誤處理">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/HandleError.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="JSP 終究會轉譯為 Servlet，所以錯誤可能發生在三個時候：
+
+JSP 轉換為 Servlet 原始碼時
+如果在 JSP 頁面中撰寫了一些錯誤語法，而使得容器在轉譯 JSP 時不知道該怎麼將那些...">
+
+    <title>錯誤處理</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HandleError.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>錯誤處理</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>JSP 終究會轉譯為 Servlet，所以錯誤可能發生在三個時候：</p>
+<ul>
+<li><p>JSP 轉換為 Servlet 原始碼時</p>
+<p>如果在 JSP 頁面中撰寫了一些錯誤語法，而使得容器在轉譯 JSP 時不知道該怎麼將那些語法轉譯為 Servlet 的.java檔案，就會發生錯誤。例如，在 <code>page</code> 指令元素中指定了錯誤的選項，像是 <code>buffer</code> 屬性指定錯誤：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" buffer="16"%&gt;
+</code></pre>
+<p>實際上指定 <code>buffer</code> 屬性時必須指定單位，例如 <code>"16kb"</code>。如果你直接將這個 JSP 檔案放到容器上，在請求 JSP 時容器無法轉譯，在 Tomcat 下就會出現類似以下的畫面錯誤：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/HandleError-1.JPG" alt="錯誤處理"  /></div></div></p>
+<p>容器通常會提示無法轉譯的原因，確定是否為這類錯誤的一個原則，就是查看上圖中反白區段，通常會是告知語法不合法的訊息。</p>
+<p>如果你使用整合開發工具（IDE），有檢查 JSP 語法的功能的話，在編輯器上就可以直接看到錯誤語法的提示。若初學者在沒有 JSP 語法檢查功能的編輯器上撰寫 JSP，就很容易遇到這種錯誤。</p>
+</li>
+<li><p>Servlet 原始碼進行編譯時</p>
+<p>如果你的 JSP 語法沒有問題，則容器可以將 JSP 轉譯為 Servlet 的 .java 程式，接著就會嘗試將 .java 編譯為 .class 檔案，如果此時編譯器因為某個原因而無法完成編譯，則會出現編譯錯誤。</p>
+<p>例如，你的 JSP 中使用了某些類別，但部署至伺服器時，忘了將相關的類別也部署上去，使得初次請求 JSP 時，雖然轉譯可以完成，但編譯時就會出錯，此時（在 Tomcat下）就會出現類似以下的畫面錯誤：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/HandleError-2.JPG" alt="錯誤處理"  /></div></div></p>
+<p>這個錯誤訊息比較容易確認，例如使用 Tomcat 容器的話，若出現 &ldquo;Unable to compile&rdquo; 之類的訊息，通常就是在編譯階段發生了錯誤。</p>
+<p>如果你使用整合開發工具（IDE），有檢查 JSP 語法的功能的話，在編輯器上可能會看到編譯方面的錯誤提示。但有時會像這邊舉的例子，開發階段與部署階段的運行環境不同，而使得找不到類別的情況發生時，使得部署後請求 JSP 時出現這類的錯誤。</p>
+</li>
+<li><p>Servlet 載入容器進行服務但發生執行時期錯誤時</p>
+<p>如果 Servlet 進行編譯成功，接下來就可以載入容器開始執行，但仍有可能在執行時期因找不到某個資源、程式邏輯上的問題而發生錯誤。例如最常見的 <code>NullPointerException</code> 就是一個例子。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/HandleError-3.JPG" alt="錯誤處理"  /></div></div></p>
+<p>執行時期的錯誤訊息也比較容易確認，例如使用 Tomcat 容器的話，若出現 &ldquo;An exception occurred processing JSP page&rdquo; 之類的訊息，通常就是執行時期發生了錯誤。</p>
+<p>這類錯誤由於是執行時期錯誤，整合開發工具檢查不出來。雖然容易確認是執行時期錯誤，但執行時期的錯誤可能原因就非常多了，此時你對例外繼承架構與處理方式是否了解，以及如何善用例外的堆疊追蹤（Stacktrace）來找出原因，就非常重要了。</p>
+</li>
+</ul>
+<p>你可以自訂執行時期例外發生時的處理頁面，只要使用 <code>page</code> 指示元素時，設定 <code>errorPage</code> 屬性來指定錯誤處理的 JSP 頁面。例如：</p>
+<h4>add.jsp</h4>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html"
+        pageEncoding="UTF-8" errorPage="error.jsp"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;加法網頁&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;%
+    String a = request.getParameter("a");
+    String b = request.getParameter("b");
+    out.println("a + b = " + 
+                (Integer.parseInt(a) + Integer.parseInt(b))
+            );
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>這是一個簡單的加法網頁，從請求參數中取得 <code>a</code> 與 <code>b</code> 的值後進行相加。如果有錯誤時，你想要直接轉發至 error.jsp 顯示錯誤，則該 JSP 頁面 <code>isErrorPage</code> 屬性設定為 <code>true</code> 即可。例如：</p>
+<h4>error.jsp</h4>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"
+        isErrorPage="true"%&gt;
+&lt;%@page import="java.io.PrintWriter"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;錯誤&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;網頁發生錯誤：&lt;/h1&gt;&lt;%= exception %&gt;
+  &lt;h2&gt;顯示例外堆疊追蹤：&lt;/h2&gt;
+&lt;%
+    exception.printStackTrace(new PrintWriter(out));
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p><code>exception</code> 物件是 JSP 的隱含物件，由 add.jsp 丟出的例外物件訊息就包括在 <code>exception</code> 之中，而且只有 <code>isErrorPage</code> 設定為 <code>true</code> 的頁面才可以使用 <code>exception</code> 隱含物件。</p>
+<p>在這個 error.jsp 中的標題上，只是簡單地顯示 <code>exception</code> 呼叫 <code>toString()</code> 之後的訊息，也就是 <code>&lt;%=exception%&gt;</code> 顯示的內容；另外也可將例外堆疊追蹤顯示出來。<code>printStackTrace()</code> 接受一個 <code>PrintWriter</code> 物件作為參數，所以你使用 <code>out</code> 隱含物件建構 <code>PrintWriter</code> 物件，然後再使用  <code>exception</code> 的 <code>printStackTrace()</code> 方法來顯示例外堆疊追蹤。</p>
+<p>如果在存取應用程式的時候發生了例外或錯誤，而你沒有在 Servlet/JSP 中處理這個例外或錯誤，則最後會由容器加以處理，一般容器就是直接顯示例外訊息與堆疊追蹤訊息。如果希望容器發現這類例外或錯誤時，可以自動轉發至某個 URL，則可以在 web.xm l中使用 <code>&lt;error-page&gt;</code> 進行設定。</p>
+<p>例如，若想要在容器收到某個類型的例外物件時進行轉發，則可以在 <code>&lt;error-page&gt;</code> 中使用 <code>&lt;exception-type&gt;</code> 指定：</p>
+<pre class="prettyprint"><code lang="java">&lt;web-app …&gt;
+    &lt;error-page&gt;
+        &lt;exception-type&gt;java.lang.NullPointerException&lt;/exception-type&gt;
+        &lt;location&gt;/report.view&lt;/location&gt;
+    &lt;/error-page&gt;
+&lt;/web-app&gt;
+</code></pre>
+<p>如果你要在 <code>&lt;location&gt;</code> 中設定的是 JSP 頁面，則該頁面必須設定 <code>isErrorPage</code> 屬性為 <code>true</code>，才可以使用 <code>exception</code> 隱含物件。</p>
+<p>如果想要基於 HTTP 錯誤狀態碼轉發至處理頁面，則是搭配 <code>&lt;error-code&gt;</code> 來設定。例如在找不到檔案而發出 404 狀態碼時，希望都交由某個頁面處理：</p>
+<pre class="prettyprint"><code lang="java">&lt;web-app …&gt;
+    &lt;error-page&gt;
+        &lt;error-code&gt;404&lt;/error-code&gt;
+        &lt;location&gt;/404.jsp&lt;/location&gt;
+    &lt;/error-page&gt;
+&lt;/web-app&gt;
+</code></pre>
+<p>這個設定，在自行使用 <code>HttpServletResponse</code> 的 <code>sendError()</code> 送出錯誤狀態碼時也有作用，因為 <code>sendError()</code> 只是告知容器，以容器的預設方式或 web.xml 中的設定來產生錯誤狀態碼的訊息。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

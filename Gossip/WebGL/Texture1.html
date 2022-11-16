@@ -1,0 +1,84 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="片段著色器可以為每個像素上色，如果是想要創造純色、漸層色或一些效果，可以藉由演算上的設計來達到，然而，如果想要讓模型有石頭的質感，擬真的方式是拍下石頭的表面，把照片貼到模型吧！
+WebGL 可以使用貼...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="貼圖座標">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/Texture1.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="片段著色器可以為每個像素上色，如果是想要創造純色、漸層色或一些效果，可以藉由演算上的設計來達到，然而，如果想要讓模型有石頭的質感，擬真的方式是拍下石頭的表面，把照片貼到模型吧！
+WebGL 可以使用貼...">
+
+    <title>貼圖座標</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Texture1.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>貼圖座標</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>片段著色器可以為每個像素上色，如果是想要創造純色、漸層色或一些效果，可以藉由演算上的設計來達到，然而，如果想要讓模型有石頭的質感，擬真的方式是拍下石頭的表面，把照片貼到模型吧！</p>
+<p>WebGL 可以使用貼圖（Texture）作為像素上色的依據，在實際撰寫程式之前，要先來認識貼圖座標（Texture coordinates），貼圖來源基本上是張圖片（具體來說，是一組像素資料，因此也可以是位元組集合，或者是 Canvas 2D 畫出來的圖），WebGL 的貼圖座標值為 0 ~ 1，然而，WebGL 慣例上不使用 X、Y 來表示，而使用 S、T，S 相當於 X，向右為正，T 相當於 Y，向下為正：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-1.JPG" alt="貼圖座標"  /></div></div></p>
+<p>如果要將圖片貼到模型上，必須指定把哪個貼圖座標對應到哪個頂點，例如，將圖片貼到三角形：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-2.JPG" alt="貼圖座標"  /></div></div></p>
+<p>這麼一來，為三角形每個像素上色時，會依貼圖座標從貼圖上採樣顏色資訊，以上圖為例，最後的結果就是繪製出挖土機的左下三角形，別忘了，WebGL 中最多就是三角形，如果想要繪製出完整的圖片，就要有兩個三角形。</p>
+<p>貼圖座標與頂點的對應關係，決定了貼圖上哪個部份要繪製到模型上，例如，若是這麼對應：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-3.JPG" alt="貼圖座標"  /></div></div></p>
+<p>那麼挖土機左下三角形被畫出來時就會是翻轉過來的樣子，也可以使用貼圖座標來選擇圖片中的部份區域：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-4.JPG" alt="貼圖座標"  /></div></div></p>
+<p>這麼一來，畫出來的圖就會只有挖土機的右下部份。只要知道這些，基本上要處理材質就不會是難事了，這在下篇文件中再來談了！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

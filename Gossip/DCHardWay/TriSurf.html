@@ -1,0 +1,210 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="環面或球之類的曲面，可以透過 Matplotlib 的 plot_surface 來繪製，那麼其他立方體之類的呢？像是一個盒子？基本上，是可以透過多次呼叫 plot_surface 來達到目的，例如：...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Matplotlib 三角曲面">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/TriSurf.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="環面或球之類的曲面，可以透過 Matplotlib 的 plot_surface 來繪製，那麼其他立方體之類的呢？像是一個盒子？基本上，是可以透過多次呼叫 plot_surface 來達到目的，例如：...">
+
+    <title>Matplotlib 三角曲面</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TriSurf.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Matplotlib 三角曲面</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>環面或球之類的曲面，可以透過 Matplotlib 的 <code>plot_surface</code> 來繪製，那麼其他立方體之類的呢？像是一個盒子？基本上，是可以透過多次呼叫 <code>plot_surface</code> 來達到目的，例如：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+width = 30
+depth = 40
+height = 50
+
+def box(width, depth, height):
+    x = np.arange(width + 1)
+    y = np.arange(depth + 1)
+    z = np.arange(height + 1)
+
+    X0, Y0 = np.meshgrid(x, y) 
+    Z0 = np.zeros((depth + 1, width + 1))
+
+    X1 = X0
+    Y1 = Y0
+    Z1 = Z0 + height
+
+    X2, Z2 = np.meshgrid(x, z)
+    Y2 = np.zeros((height + 1, width + 1))
+
+    X3 = X2
+    Y3 = Y2 + depth
+    Z3 = Z2
+
+    Y4, Z4 = np.meshgrid(y, z)
+    X4 = np.zeros((height + 1, depth + 1))
+
+    X5 = X4 + width
+    Y5 = Y4
+    Z5 = Z4
+
+    surfaces = [
+        [X0, Y0, Z0], 
+        [X1, Y1, Z1], 
+        [X2, Y2, Z2], 
+        [X3, Y3, Z3],
+        [X4, Y4, Z4], 
+        [X5, Y5, Z5]
+    ]
+
+    ax = plt.axes(projection='3d')
+    for X, Y, Z in surfaces:
+        ax.plot_surface(X, Y, Z) 
+
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    leng = width + depth + height
+    ax.set_box_aspect((width / leng, depth / leng, height / leng)) 
+    plt.show()
+
+box(width, depth, height)
+</code></pre>
+<p>畫出的圖如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-1.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+<p>然而，這種方式並不能套用至各種立方體，例如正四面體就沒辦法用這種方式繪製，怎麼辦呢？Matplotlib 有個 <code>plot_trisurf</code> 方法，可以用來以三角形為基礎來繪製曲面，最基本的使用方式是，提供每個點的座標，它會自動以 x 與 y 進行〈<a href="../P5JS/Delaunay.html">Delaunay 三角分割</a>〉，例如隨機產生一些點：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+n = 20
+
+points = np.random.rand(n, 3)
+xs = points[:,0]
+ys = points[:,1]
+zs = points[:,2]
+
+ax = plt.axes(projection='3d')
+ax.plot_trisurf(xs, ys, zs)
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+plt.show()
+</code></pre>
+<p><code>plot_trisurf</code> 需要的是一維陣列，分別代表所有座標的 x、y 與 z，這會繪製出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-2.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+<p>當然，隨機產生的點沒有連續性，來個可以用連續函式描述的曲面吧！</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+def function_grapher(f, x, y):
+    X, Y = np.meshgrid(x, y) 
+    Z = f(X, Y)
+
+    ax = plt.axes(projection='3d')
+    # plot_trisurf 需要一維陣列，因此透過 flatten 將二維陣列打平
+    ax.plot_trisurf(X.flatten(), Y.flatten(), Z.flatten(), cmap = cm.coolwarm) 
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.set_box_aspect((1, 1, 0.5))
+    plt.title('Axes3D Plot Surface')
+    plt.show()
+
+def f(x, y):
+    n = np.sqrt(np.power(x, 2) + np.power(y, 2)) / 180 * np.pi
+    return np.cos(n) + np.cos(3 * n)
+
+width = 200
+step = 10
+
+x = np.arange(-width, width, step)
+y = np.arange(-width, width, step)
+
+function_grapher(f, x, y)
+</code></pre>
+<p>這可以繪製出以下的圖案，可以跟〈<a href="Axes3D.html">Matplotlib 立體圖</a>〉中相對應的函式曲面圖比較看看：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-3.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+<p>那麼這跟繪製正四面體有什麼關係呢？<code>plot_trisurf</code> 可以透過 <code>triangles</code> 參數指定每個三角形使用的座標索引，這就可以用來構造 3D 物件的 mesh 了。</p>
+<p>對於正四面體，一個簡單的方式是連接正立方體的四個頂點來繪製：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-4.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+<p>因為正四面體可以有共用邊，將之展開的話就可以清楚看出，只要依序且循環地走訪頂點四次就可以了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-5.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+<p>使用 NumPy 及 Matplotlib 來實作的話：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+def tetrahedron(width):
+    n = width / (2 ** 0.5) * 0.5;
+
+    xs = np.array([n, -n,  n, -n]) 
+    ys = np.array([n,  n, -n, -n]) 
+    zs = np.array([n, -n, -n, n]) 
+
+    ax = plt.axes(projection='3d')
+    ax.plot_trisurf(xs, ys, zs, triangles = [[0, 1, 2], [1, 2, 3], [2, 3, 0], [3, 0, 1]])
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    plt.show()
+
+width = 30
+tetrahedron(width)
+</code></pre>
+<p>就可以繪製出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TriSurf-6.JPG" alt="Matplotlib 三角曲面"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

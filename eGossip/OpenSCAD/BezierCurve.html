@@ -1,0 +1,185 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="You may draw any curve if you can find its equation. Besides spirals mentioned in 3D line, I'll talk...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Bézier curve">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/OpenSCAD/BezierCurve.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="You may draw any curve if you can find its equation. Besides spirals mentioned in 3D line, I'll talk...">
+
+    <title>Bézier curve</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BezierCurve.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/OpenSCAD/index.html">&lt;&lt; OpenSCAD TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Bézier curve</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>You may draw any curve if you can find its equation. Besides spirals mentioned in <a href="Polyline3D.html">3D line</a>, I'll talk about how to draw the <a href="ArchimedeanSpiral.html">Archimedean spiral</a> in the later document.</p>
+<p>Sometimes, our math is not sufficient, so finding an equation to describe the curve might be hard for us. What should we do? A <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> is suitable for this situation. It can model smooth curves. For example, <a href="https://www.thingiverse.com/thing:1929831">Customizable Bezier vase</a> uses four points P0, P1, P2 and P3 on the plane to describe a Bézier curve.</p>
+
+<h1>Linear Bézier curves</h1>
+<p>If you still remember calculus, you might have some impression that the derivative of a function at a point is the slope of the tangent line to the function at the point. If you forget, think about it. You can look at a short segment of the curve. If its length approaches 0, the segment is almost a straight line.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-1.JPG" alt="Bézier curve"  /></div></div></p>
+<p>More specifically, if we have the curve function <code>f(x)</code>, a point <code>(x. y)</code> and move <code>Δx</code> in the X direction, we'll get <code>Δy = f(x + Δx) - f(x)</code>. If <code>Δx</code> approaches 0, you can view the segment of the curve as a line and its slope is <code>Δy / Δx</code>. (This is the definition of the derivative literally, and the line is the tangent line to <code>f(x)</code> at that point.)</p>
+<p>From this viewpoint, you can view a curve as being made of infinite lines. (This is the definition of the integral.) Nevertheless, the tangent line to the previous point has a different slope from the next point.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-2.JPG" alt="Bézier curve"  /></div></div></p>
+<p>We can get the slope of <code>f(x)</code> at <code>(x, y)</code> by giving <code>x</code> to <code>f'(x)</code> if we can find the curve function <code>f(x)</code>. The question is, however, we can't figure out what the function is.</p>
+<p>A Bézier curve also uses a line to describe a curve. What does this mean? Given two points, a linear Bézier curve is simply a straight line between them. Given points P0, P1, and P2, you can find a point Q0 at 1/4 of the line between P0 and P1, a point Q1 at 1/4 of the line between P1 and P2 and connect Q0 and Q1 to get a line. After that, find a point B0 at 1/4 of the line.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-3.JPG" alt="Bézier curve"  /></div></div></p>
+<p>Similarly, change 1/4 to 1/2 and 1/4, find out B1 and B2, and connect P0, B0, B1, B2 and P2. What will it be?</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-4.JPG" alt="Bézier curve"  /></div></div></p>
+<p>It looks like a curve. The example above divides lines P0-P1 and P1-P2 into four parts. Every time you move forward one part and find a point Bn at the corresponding position. If you divide lines into more parts, such as eight, sixteen and so on, the polyline is more like a curve. (This is also the concept of the integral.)</p>
+<h1>Quadratic curves</h1>
+<p>How can we get the function of the line between Q0 and Q1? Take a look at a linear Bézier curve first. Given P0 and P1, if the length between them is <code>LEN</code>, we move <code>len</code> along the line and <code>t = len / LEN</code>, a function <code>B(t)</code> can be obtained as below.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-5.JPG" alt="Bézier curve"  /></div></div></p>
+<p>Here, P0, P1 and B(t) are vectors. In OpenSCAD, if we can use <code>[x, y, z]</code> to represent a point, the coordinate (x0, y0, z0) of P0 can be written as <code>[x0, y0, z0]</code>. We can use matrix notation to express the above function.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-6.JPG" alt="Bézier curve"  /></div></div></p>
+<p>It's simple to put out the formula above, so I leave it as an exercise for you.</p>
+<p>Moreover, given three points P0, P1 and P2. There's a point X0 between P0 and P1, X1 between P1 and P2; the distance between X0 and X1 is <code>LEN</code>. We move <code>len</code> along the line of X0-X1, and <code>t = len / LEN</code>. You can express the point <code>B(t)</code> as:</p>
+<pre class="prettyprint"><code lang="openscad">B(t) = (1 - t) X0 + t X1, t ∈ [0, 1]
+</code></pre>
+<p>According to the formula of linear Bézier curves just mentioned above, X0 can be obtained by the equation below.</p>
+<pre class="prettyprint"><code lang="openscad">X0(t) = (1 - t) P0 + t P1, t ∈ [0, 1]
+</code></pre>
+<p>Similarly, X1 can be obtained by the formula below.</p>
+<pre class="prettyprint"><code lang="openscad">X1(t) = (1 - t) P1 + t P2, t ∈ [0, 1]
+</code></pre>
+<p>Substitute these two formulas for X0 and X1 in <code>B(t)</code>, we can derive the formula.</p>
+<pre class="prettyprint"><code lang="openscad">B(t) = (1 - t) * (1 - t) * P0 + 2 * t * (1 - t) * P1 + t * t * P2, t ∈ [0, 1]
+</code></pre>
+<p>It is the formula of a quadratic Bézier curve. You can derive higher-order curves with more intermediate points through this process, or find the equations from <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> directly. (<a href="https://en.wikipedia.org/wiki/Pascal&apos;s_triangle">Pascal's triangle</a> provides a good pattern to remember those coefficients).</p>
+<h1>Implementing cubic Bézier curves</h1>
+<p>Painting programs commonly provide tools for creating a Bezier curve because it's easy to model smooth curves by just moving those control points.</p>
+<p>OpenSCAD, however, doesn't use a mouse for modeling. It's probably the reason why OpenSCAD doesn't provide tools for Bézier curves. Nevertheless, we can implement it by ourselves. It's troublesome to have too many control points, so here we just define functions for cubic Bézier curves, used in <a href="https://www.thingiverse.com/thing:1929831">Customizable Bezier vase</a>.</p>
+<pre class="prettyprint"><code lang="openscad">function bezier_coordinate(t, n0, n1, n2, n3) = 
+    n0 * pow((1 - t), 3) + 3 * n1 * t * pow((1 - t), 2) + 
+        3 * n2 * pow(t, 2) * (1 - t) + n3 * pow(t, 3);
+
+function bezier_point(t, p0, p1, p2, p3) = 
+    [
+        bezier_coordinate(t, p0[0], p1[0], p2[0], p3[0]),
+        bezier_coordinate(t, p0[1], p1[1], p2[1], p3[1]),
+        bezier_coordinate(t, p0[2], p1[2], p2[2], p3[2])
+    ];
+
+
+function bezier_curve(t_step, p0, p1, p2, p3) = 
+    [for(t = [0: t_step: 1 + t_step]) bezier_point(t, p0, p1, p2, p3)];
+</code></pre>
+<p>The calculated points can pass into the <code>polyline</code> module developed in <a href="https://openhome.cc/Gossip/OpenSCAD/Polyline.html">Line</a>. For example.</p>
+<pre class="prettyprint"><code lang="openscad">function bezier_coordinate(t, n0, n1, n2, n3) = 
+    n0 * pow((1 - t), 3) + 3 * n1 * t * pow((1 - t), 2) + 
+        3 * n2 * pow(t, 2) * (1 - t) + n3 * pow(t, 3);
+
+function bezier_point(t, p0, p1, p2, p3) = 
+    [
+        bezier_coordinate(t, p0[0], p1[0], p2[0], p3[0]),
+        bezier_coordinate(t, p0[1], p1[1], p2[1], p3[1]),
+        bezier_coordinate(t, p0[2], p1[2], p2[2], p3[2])
+    ];
+
+
+function bezier_curve(t_step, p0, p1, p2, p3) = 
+    [for(t = [0: t_step: 1 + t_step]) bezier_point(t, p0, p1, p2, p3)];
+
+
+module line(point1, point2, width = 1, cap_round = true) {
+    angle = 90 - atan((point2[1] - point1[1]) / (point2[0] - point1[0]));
+    offset_x = 0.5 * width * cos(angle);
+    offset_y = 0.5 * width * sin(angle);
+
+    offset1 = [-offset_x, offset_y];
+    offset2 = [offset_x, -offset_y];
+
+    if(cap_round) {
+        translate(point1) circle(d = width, $fn = 24);
+        translate(point2) circle(d = width, $fn = 24);
+    }
+
+    polygon(points=[
+        point1 + offset1, point2 + offset1,  
+        point2 + offset2, point1 + offset2
+    ]);
+}
+
+module polyline(points, width = 1) {
+    module polyline_inner(points, index) {
+        if(index &lt; len(points)) {
+            line(points[index - 1], points[index], width);
+            polyline_inner(points, index + 1);
+        }
+    }
+
+    polyline_inner(points, 1);
+}
+
+t_step = 0.05;
+width = 2;
+
+p0 = [0, 0];
+p1 = [40, 60];
+p2 = [-50, 90];
+p3 = [0, 200];
+
+points = bezier_curve(t_step, 
+    p0, p1, p2, p3
+);
+
+polyline(points, width);
+</code></pre>
+<p>The above code models a curve below.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-7.JPG" alt="Bézier curve"  /></div></div></p>
+<p>Here is an exercise for you. How to use the above code to create <a href="https://www.thingiverse.com/thing:1929831">Customizable Bezier vase</a>?</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

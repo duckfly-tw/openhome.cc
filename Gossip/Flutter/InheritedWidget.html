@@ -1,0 +1,255 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈第一個 Flutter 專案〉中，建立 MaterialApp 實例時，可以指定 theme 特性，為 MaterialApp 的子元件們套用佈景主題。
+...略
+
+class MyApp ext...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="自訂 InheritedWidget">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/InheritedWidget.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈第一個 Flutter 專案〉中，建立 MaterialApp 實例時，可以指定 theme 特性，為 MaterialApp 的子元件們套用佈景主題。
+...略
+
+class MyApp ext...">
+
+    <title>自訂 InheritedWidget</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InheritedWidget.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自訂 InheritedWidget</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="FlutterApp.html">第一個 Flutter 專案</a>〉中，建立 <code>MaterialApp</code> 實例時，可以指定 <code>theme</code> 特性，為 <code>MaterialApp</code> 的子元件們套用佈景主題。</p>
+<pre class="prettyprint"><code lang="dart">...略
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+...略
+</code></pre>
+<p>這邊要討論的不是佈景主題本身。而是佈景主題這類資料，是作為 <code>MaterialApp</code> 的子元件們共用的資料，要讓這種共用資料，在子元件間傳遞，Flutter 的方式是透過 <code>InheritedWidget</code>。</p>
+<p>為了示範怎麼使用 <code>InheritedWidget</code>，來利用一下〈<a href="ScaffoldMaterialApp.html">Scaffold 與 MaterialApp</a>〉中的 <code>AppScaffold</code>，它的 <code>build</code> 方法中的三個 <code>Container</code>，<code>color</code> 都是寫死的，這邊希望的是，可以藉由 <code>ColorSuite</code> 節點來指定顏色，<code>ColorSuite</code> 的定義如下：</p>
+<pre class="prettyprint"><code lang="dart">class ColorSuite extends InheritedWidget {
+  Color titleColor;
+  Color bodyColor;
+  Color footerColor;
+
+  ColorSuite({Widget child, Color titleColor, Color bodyColor, Color footerColor}) : super(child: child) {
+    this.titleColor = titleColor == null ? Colors.blue : titleColor;
+    this.bodyColor = bodyColor == null ? Colors.tealAccent : bodyColor;
+    this.footerColor = footerColor == null ? Colors.cyan : footerColor;
+  }
+
+  @override
+  bool updateShouldNotify(ColorSuite oldWidget) {
+    return this.titleColor != oldWidget.titleColor ||
+           this.bodyColor != oldWidget.bodyColor ||
+           this.footerColor != oldWidget.footerColor;
+  }
+
+  static ColorSuite of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType&lt;ColorSuite&gt;();
+  }
+}
+</code></pre>
+<p>你可能會想，幹嘛這麼麻煩，為何不定義為 <code>AppScaffold</code> 的屬性就好？這邊希望的是，被指定給 <code>ColorSuite</code> 的顏色資訊，會在 <code>AppScaffold</code> 的子樹中各階層共享，而不單只是直接子元件共享，因此 <code>ColorSuite</code> 繼承了 <code>InheritedWidget</code>，它也是一種 <code>Widget</code>：</p>
+<pre class="prettyprint"><code lang="dart">Widget &gt; ProxyWidget &gt; InheritedWidget
+</code></pre>
+<p><code>ColorSuite</code> 可以指定 <code>child</code> 與顏包，繼承 <code>InheritedWidget</code> 後，必須重新定義 <code>updateShouldNotify</code>，決定這個 <code>Widget</code> 被重新建構時，是否通知子樹元件重新建構，在這邊實作的是，當 <code>ColorSuite</code> 重新建構時，若新舊 <code>ColorSuite</code> 上的顏色有不同，就通知子樹元件重新建構，像是使用者操作後更換了顏色的指定，通知子樹元件使用新的顏色重新建構。</p>
+<p>在〈<a href="StatelessWidget.html">自訂 StatelessWidget</a>〉中談過 <code>BuildContext</code>，可以透過它在 <code>Widget</code> 樹中找尋特定的 <code>Widget</code>，<code>ColorSuite</code> 定義了個 <code>static</code> 的 <code>of</code>，這可以方便子元件找到其父裔中的 <code>ColorSuite</code> 實例，稍後就會用到。</p>
+<p>接著就可以改造一下〈<a href="ScaffoldMaterialApp.html">Scaffold 與 MaterialApp</a>〉中 <code>AppScaffold</code> 等程式碼了，相關的說明寫在註解裡：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  ColorSuite(            // 建立 ColorSuite
+    child: AppScaffold(  // 指定 AppScaffold 為子元件
+      title: Text(
+        'Flutter 筆記',
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      ),
+      body: Text(
+          '內容...',
+          textDirection: TextDirection.ltr,
+          style: TextStyle(color: Colors.black)
+      ),
+      footer: Text(
+        '版權...',
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      ),
+    ),
+    // 指定顏色
+    titleColor: Colors.green,
+    bodyColor: Colors.lightGreenAccent,
+    footerColor: Colors.teal,
+  ),
+);
+
+// 因為實際的 App 會有狀態，AppScaffold 改繼承 StatefulWidget
+// Flutter 本身的 Scaffold 也是繼承 StatefulWidget
+class AppScaffold extends StatefulWidget {
+  final Widget title;
+  final Widget body;
+  final Widget footer;
+
+  AppScaffold({this.title, this.body, this.footer});
+
+  @override
+  State&lt;AppScaffold&gt; createState() =&gt; _AppScaffoldState();
+}
+
+class _AppScaffoldState extends State&lt;AppScaffold&gt; {
+  @override
+  Widget build(BuildContext context) {
+    // 每次重新建構時，都是找到父裔中的 ColorSuite
+    ColorSuite suite = ColorSuite.of(context);
+
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            color: suite.titleColor,   // 根據 ColorSuite 設定顏色
+            height: 100,
+            child: Center(child: widget.title),
+          ),
+          Expanded(
+              child: Container(
+                color: suite.bodyColor,  // 根據 ColorSuite 設定顏色
+                child: widget.body,
+              )
+          ),
+          Container(
+            color: suite.footerColor,    // 根據 ColorSuite 設定顏色
+            height: 80,
+            child: Center(child: widget.footer),
+          )
+        ]
+    );
+  }
+}
+
+class ColorSuite extends InheritedWidget {
+  Color titleColor;
+  Color bodyColor;
+  Color footerColor;
+
+  ColorSuite({Widget child, Color titleColor, Color bodyColor, Color footerColor}) : super(child: child) {
+    this.titleColor = titleColor == null ? Colors.blue : titleColor;
+    this.bodyColor = bodyColor == null ? Colors.tealAccent : bodyColor;
+    this.footerColor = footerColor == null ? Colors.cyan : footerColor;
+  }
+
+  @override
+  bool updateShouldNotify(ColorSuite oldWidget) {
+    return this.titleColor != oldWidget.titleColor ||
+        this.bodyColor != oldWidget.bodyColor ||
+        this.footerColor != oldWidget.footerColor;
+  }
+
+  static ColorSuite of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType&lt;ColorSuite&gt;();
+  }
+}
+</code></pre>
+<p>基本上，這就是 Flutter 中 <code>MaterialApp</code> 如何共享佈景主題資訊的原理，可以共享的資訊也可能是可變動的狀態，無論共享的是什麼資訊，重點在於 <code>ColorSuite.of(context)</code>，也就是每次重新建構時，都是找到父裔中的 <code>ColorSuite</code>，以便取得顏色資訊。</p>
+<p>其實在〈<a href="FlutterApp.html">第一個 Flutter 專案</a>〉中，也有個類似的程式片段，也就是在 <code>_MyHomePageState</code> 的 <code>build</code> 中，<code>Theme.of(context).textTheme.display1</code> 就是從父裔中找到共享的佈景主題資料：</p>
+<pre class="prettyprint"><code lang="dart">class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  ...
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: &lt;Widget&gt;[
+            Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.display1, // 找到父裔的共享資料
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,  // 註冊 onPressed 處理器
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ), 
+    );
+  }
+}
+</code></pre>
+<p>方才談到，繼承 <code>InheritedWidget</code> 後，必須重新定義 <code>updateShouldNotify</code>，決定這個 <code>Widget</code> 被重新建構時，是否通知子樹元件重新建構，如果子樹元件重建的代價昂貴，你可能不會想重建整個子樹，而是依條件重建子樹中的某些元件，這時可考慮繼承 <code>InheritedModel</code>，之後依 <code>aspect</code> 的指定來決定是否重建子樹中某個部份，詳情可參考 <a href="https://api.flutter.dev/flutter/widgets/InheritedModel-class.html"><code>InheritedModel</code> 的 API 文件</a>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

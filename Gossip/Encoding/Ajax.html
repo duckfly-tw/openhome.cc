@@ -1,0 +1,155 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 Ajax，可以從非同步物件的 responseText 取得伺服端的回應文字，不過要注意，伺服端回應時若沒有指明編碼（例如 Content-Type: text/html; charset=Bi...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Ajax 請求與回應">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Encoding/Ajax.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="使用 Ajax，可以從非同步物件的 responseText 取得伺服端的回應文字，不過要注意，伺服端回應時若沒有指明編碼（例如 Content-Type: text/html; charset=Bi...">
+
+    <title>Ajax 請求與回應</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Ajax.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Encoding 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Ajax 請求與回應</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>使用 Ajax，可以從非同步物件的 <code>responseText</code> 取得伺服端的回應文字，不過要注意，伺服端回應時若沒有指明編碼（例如 <code>Content-Type: text/html; charset=Big5</code> 之類），<code>responseText</code> 預設會使用 UTF-8 編碼來解讀傳回的文字。如果回應是 XML，則可以使用 <code>responseXML</code> 取得剖析後的 DOM 物件。</p>
+<p>在〈<a href="URLEncoding.html">URL 編碼</a>〉中介紹過如何為請求參數進行編碼，如果是透過表單發送請求，瀏覽器會自動進行 URL 編碼，如果是透過 Ajax，以非同步物件發送請求參數，有的瀏覽器會進行 URL 編碼，有的瀏覽器不會，為了跨瀏覽器，最保險的方式，就是自行處理 URL 編碼，再透過非同步物件發送請求。</p>
+<p>在 JavaScript 中，可以使用 <code>encodeURIComponent()</code> 編碼，編碼後的結果是遵守 RFC 3986 的規範，但正如〈<a href="URLEncoding.html">URL 編碼</a>〉中介紹過的，在 RFC 3986 之前，HTTP 亦規範了 GET 與 POST 在發送請求參數時的編碼，大致上也是編碼為 %hexhex，不過空白字元是編碼為 <code>+</code> 而不是 RFC 3986 的 <code>%20</code>。</p>
+<p>如果直接透過瀏覽器按下發送按鈕來送出表單，瀏覽器會自動處理編碼（依網頁上指定的編碼來處理），並將空白字元編碼為 <code>+</code>，但透過非同步物件發送請求參數時，必須自行處理。</p>
+<p>發送請求參數時，若使用 <code>encodeURIComponent()</code> 編碼後，要再將 <code>%20</code> 取代為 <code>+</code>，以符合 HTTP 的規範。</p>
+<p>要注意的是，在字串處理方面，JavaScript 支援 Unicode，內部實作上採用 16 位元編碼每個字串元素，大致上可視為 UCS-2/UTF-16（這當中還有些歷史因素造成的細節，詳見《Effective JavaScript》條款七），不過，傳入 <code>encodeURIComponent()</code> 的字串最後會以 UTF-8 進行編碼，若將 <code>encodeURIComponent()</code> 的結果透過非同步物件發送出去，伺服端必須以 UTF-8 來處理接收到的字串。</p>
+<p>下面這個範例是 GET 的一個示範，在新增書籤時，若 URL 已重複（已有的書籤是 https://caterpillar.onlyfun.net 與 https://openhome.cc）則以訊息提示：</p>
+<pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.onload = function() {
+                var xhr = window.XMLHttpRequest &amp;&amp; 
+                      (window.location.protocol !== 'file:' 
+                          || !window.ActiveXObject) ?
+                       function() {
+                           return new XMLHttpRequest();
+                       } :
+                       function() {
+                          try {
+                             return new ActiveXObject('Microsoft.XMLHTTP');
+                          } catch(e) {
+                             throw new Error('XMLHttpRequest not supported');
+                          }
+                       };
+
+                function param(obj) {
+                    var pairs = [];
+                    for(var name in obj) {
+                        var pair = encodeURIComponent(name) + '=' + 
+                                   encodeURIComponent(obj[name]);
+                        pairs.push(pair.replace('/%20/g', '+'));
+                    }
+                    return pairs.join('&amp;');
+                }
+
+                document.getElementById('url').onblur = function() {
+                    var request = xhr();
+                    request.onreadystatechange = function() {
+                        if(request.readyState === 4) {
+                            if(request.status === 200) {
+                                var message = '';
+                                if(request.responseText === 'urlExisted') {
+                                    message = 'URL 已存在';
+                                }
+                                document.getElementById('message')
+                                        .innerHTML = message;
+                            }
+                        }
+                    };
+                    var params = param(
+                       { url : document.getElementById('url').value}
+                    );
+                    request.open('GET', 'Ajax-1.php?' + params + 
+                         '&amp;time=' + new Date().getTime()); // 避免GET被快取
+                    request.send(null);
+                };
+            };
+        &lt;/script&gt;        
+    &lt;/head&gt;
+    &lt;body&gt;
+        新增書籤：&lt;br&gt;
+        網址：&lt;input id="url" type="text"&gt;
+        &lt;span id="message" style="color:red"&gt;&lt;/span&gt;&lt;br&gt;
+        名稱：&lt;input type="text"&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="samples/Ajax-1.html">按我執行</a></p>
+<p>如果要發送 POST，記得要使用 <code>setRequestHeader()</code> 設定內容類型，因為 POST 要發送的資料會放在請求的本體中，必須告知發送的資料類型為何，例如發送表單類型資料時，必須設置請求標頭 <code>'Content-Type'</code> 為 <code>'application/x-www-form-urlencoded'</code>，如果是 XML，設定請求標頭的 <code>'Content-Type'</code> 為 <code>'text/xml'</code>，如果是 JSON，請求標頭 <code>'Content-Typ'</code> 建議設為 <code>'application/json'</code>。以下是個示範：</p>
+<pre class="prettyprint"><code>...
+var url = 'somewhere';
+var queryString = 'a=10&amp;b=20';
+xmlHttp.open('POST', url);
+xmlHttp.setRequestHeader('Content-Type',  'application/x-www-form-urlencoded');
+xmlHttp.send(queryString); 
+</code></pre>
+<p>既然提到了 <code>encodeURIComponent()</code>，這邊順便比較一下與 <code>encodeURI()</code> 及 <code>escape()</code> 的差別。</p>
+<p>正如先前所言，<code>encodeURIComponent()</code> 可使用在編碼請求參數，它不編碼的字元有英文字母、數字、<code>-</code>、<code>_</code>、<code>.</code>、<code>!</code>、<code>~</code>、<code>*</code>、<code>'</code> 與 <code>、</code>。</p>
+<p><code>encodeURI()</code> 與 <code>encodeURIComponent()</code> 類似，傳入的字串會以 UTF-8 處理，不編碼的字元除了 <code>encodeURIComponent()</code> 不編碼的字元之外，對<code>;</code>、<code>,</code>、<code>/</code>、<code>:</code>、<code>@</code>、<code>&amp;</code>、<code>=</code>、<code>+</code>、<code>$</code> 也不加以編碼，所以像 URL 重新導向之類的需求，必須使用 <code>encodeURI()</code>，例如：</p>
+<pre class="prettyprint"><code>location.href=encodeURI("https://openhome.cc");
+</code></pre>
+<p><code>escape()</code> 事實上是一個不建議再被使用的函式，它對 0 到 255 以外的字元，編碼為 %u<strong></strong> 型式，而不是 URL 編碼，不編碼的字元除了 <code>encodeURIComponent()</code> 不編碼的字元之外，對 <code>@</code>、<code>*</code>、<code>/</code>、<code>+</code> 也不加以編碼。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

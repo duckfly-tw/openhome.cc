@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="若要直接使用JMS API來進行訊息傳送與接收，基本上都會有一些固定的流程，例如一個JMS傳送者可以如下撰寫：
+      
+      // 處理例外
+try {
+&nbsp; &nbsp;...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="使用 JmsTemplate">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/JmsTemplate.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="若要直接使用JMS API來進行訊息傳送與接收，基本上都會有一些固定的流程，例如一個JMS傳送者可以如下撰寫：
+      
+      // 處理例外
+try {
+&nbsp; &nbsp;...">
+
+
+    <title>使用 JmsTemplate</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JmsTemplate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 JmsTemplate</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      若要直接使用JMS API來進行訊息傳送與接收，基本上都會有一些固定的流程，例如一個JMS傳送者可以如下撰寫：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">// 處理例外<br>
+try {<br>
+&nbsp; &nbsp; // 設定系統屬性<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; System.setProperty("com.sun.appserv.iiop.endpoints", "127.0.0.1:3700");</span><br>
+      &nbsp; &nbsp; // 設定 JNDI 屬性<br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Properties properties = new Properties();</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; properties.setProperty(Context.PROVIDER_URL, "iiop://127.0.0.1:3700");</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; properties.setProperty(Context.INITIAL_CONTEXT_FACTORY,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;&nbsp; "com.sun.appserv.naming.S1ASCtxFactory");<br>
+      </span>&nbsp; &nbsp; // 建立 Context<br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Context ctx = new InitialContext(properties);</span><br>
+      <span style="font-weight: bold;"><br>
+&nbsp; &nbsp; // 查找 ConnectionFactory<br>
+&nbsp;&nbsp;&nbsp; ConnectionFactory connectionFactory = <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (ConnectionFactory) ctx.lookup("jms/HelloQueueFactory");<br>
+      <br>
+&nbsp; &nbsp; // 查找 Destination<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; Queue queue = (Queue) ctx.lookup("jms/HelloQueue");<br>
+      <br>
+&nbsp; &nbsp; // 建立 Connection<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;Connection connection = connectionFactory.createConnection();<br>
+      <br>
+&nbsp; &nbsp; // 建立 Session<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp; &nbsp; // 建立 MessageProducer<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; MessageProducer messageProducer = session.createProducer(queue);<br>
+&nbsp;<br>
+&nbsp; &nbsp; // 建立訊息並傳送<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; 5; i++) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TextMessage message = session.createTextMessage("Message " + ": " + i);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; messageProducer.send(message);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">} catch (Exception ex) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ex.printStackTrace();</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+一個JMS接收者也是類似的流程，每次都要撰寫重複的流程有些麻煩，您可以利用Spring所提供的JmsTemplate來簡化程式的撰寫。<br>
+      <br>
+以下範例假設您在Glassfish上建立了ConnectionFactory，JNDI名稱為"jms/HelloQueueFactory"，以及一個Queue，JNDI名稱為"jms/HelloQueue"。<br>
+      <br>
+ConnectionFactory與Queue的建立，都可以交由Spring容器，之後您可以建立JmsTemplate，並將Spring容器中的
+ConnectionFactory、Queue注入JmsTemplate的實例中，例如您可以這麼撰寫beans-config.xml：<br>
+      
+      <ul>
+        <li>beans-config.xml</li>
+      </ul>
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN"  <br>    "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;<br>	&lt;bean id="jmsFactory"<br>		class="org.springframework.jndi.JndiObjectFactoryBean"&gt;<br>		&lt;property name="jndiName" value="jms/HelloQueueFactory" /&gt;<br>	&lt;/bean&gt;<br><br>	&lt;bean id="myQueue"<br>		class="org.springframework.jndi.JndiObjectFactoryBean"&gt;<br>		&lt;property name="jndiName" value="jms/HelloQueue" /&gt;<br>	&lt;/bean&gt;<br><br>	&lt;bean id="jmst" class="org.springframework.jms.core.JmsTemplate"&gt;<br>		&lt;property name="connectionFactory"&gt;<br>                    &lt;ref bean="jmsFactory"/&gt; <br>                &lt;/property&gt;<br>		&lt;property name="defaultDestination"&gt;<br>                    &lt;ref bean="myQueue"/&gt; <br>                &lt;/property&gt;<br>	&lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+      <br>
+若要傳送訊息，則從容器中取得JmsTemplate的實例，並呼叫對應方法傳送即可，例如：<br>
+      
+      <ul>
+        <li>MessageProvider.java</li>
+      </ul>
+      <pre class="prettyprint"><code lang="java">package lab7.ex3;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.support.ClassPathXmlApplicationContext;<br>import org.springframework.jms.core.JmsTemplate;<br><br>public class MessageProvider {<br><br>	public static void main(String[] args) {<br>		ApplicationContext context = <br>                        new ClassPathXmlApplicationContext(<br>				"lab7/ex3/beans-config.xml");<br>		JmsTemplate jmst = (JmsTemplate) context.getBean("jmst");<br>		jmst.convertAndSend("Hello World!");<br>	}<br><br>}</code></pre>
+      <br>
+JmsTemplate會自動為您建立Connection、Session、Message並進行傳送，而訊息的處理者可以如下撰寫：<br>
+      
+      <ul>
+        <li>MessageConsumer.java</li>
+      </ul>
+      <pre class="prettyprint"><code lang="java">package lab7.ex3;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.support.ClassPathXmlApplicationContext;<br>import org.springframework.jms.core.JmsTemplate;<br><br>public class MessageConsumer {<br><br>	public static void main(String[] args) {<br>		ApplicationContext context = <br>                        new ClassPathXmlApplicationContext(<br>				"lab7/ex3/beans-config.xml");<br>		JmsTemplate jmst = (JmsTemplate) context.getBean("jmst");<br>		System.out.println(jmst.receiveAndConvert());<br>	}<br><br>}</code></pre>
+      <br>
+訊息傳送者傳送一個"Hello World!"，所以您會在訊息接收之後，於主控台下看到顯示"Hello World!"。<br>
+      <br>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

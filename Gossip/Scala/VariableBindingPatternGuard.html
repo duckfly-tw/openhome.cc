@@ -1,0 +1,71 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="變數綁定（Variable binding）可以在模式符合時，讓你指定任意位置的值給變數。直接看例子比較清楚，如果有個程式片段如下：def what(list: List[Int]) = list m...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="變數綁定（Variable binding）、模式防護（Pattern guard）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/VariableBindingPatternGuard.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="變數綁定（Variable binding）可以在模式符合時，讓你指定任意位置的值給變數。直接看例子比較清楚，如果有個程式片段如下：def what(list: List[Int]) = list m...">
+
+
+    <title>變數綁定（Variable binding）、模式防護（Pattern guard）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="VariableBindingPatternGuard.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>變數綁定（Variable binding）、模式防護（Pattern guard）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <span style="font-weight: bold;">變數綁定（Variable binding）可以在模式符合時，讓你指定任意位置的值給變數</span>。直接看例子比較清楚，如果有個程式片段如下：<br><pre class="prettyprint"><code lang="scala">def what(list: List[Int]) = list match {<br>    case List(2, _*)   =&gt; list.tail<br>    case List(3, _*)   =&gt; list.tail<br>    case _             =&gt; Nil<br>}<br><br>println(what(List(2, 3, 4, 5)))   // List(3, 4, 5)<br>println(what(List(3, 4, 5, 6)))   // List(4, 5, 6)<br>println(what(List(1, 3, 4, 5)))   // List()</code></pre><br>如果改用變數綁定的方式，可以如下撰寫：<br><pre class="prettyprint"><code lang="scala">def what(list: List[Int]) = list match {<br>    case List(2, <span style="font-weight: bold;">tail @</span> _*)   =&gt; tail<br>    case List(3, <span style="font-weight: bold;">tail @</span> _*)   =&gt; tail<br>    case _                    =&gt; Nil<br>}<br><br>println(what(List(2, 3, 4, 5)))   // List(3, 4, 5)<br>println(what(List(3, 4, 5, 6)))   // List(4, 5, 6)<br>println(what(List(1, 3, 4, 5)))   // List()</code></pre><br>當List中的元素是以2或3開頭，不論其後面有幾個元素時，可以符合上例中的兩個case，一旦模式符合，就將首個元素外的其它元素指定給tail變數。<br><br>下面這個例子則比對圓心是在(0, 0)的柱子，若找到則傳回圓的資訊：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br>case class Circle(p: Point, r: Int)<br>case class Cylinder(c: Circle, h: Int)<br><br>def what(c: Cylinder) = c match {<br>    case Cylinder(<span style="font-weight: bold;">circle @</span> Circle(Point(0, 0), _), _) =&gt; circle<br>    case _                                            =&gt; null<br>}<br><br>val cy1 = Cylinder(Circle(Point(0, 0), 10), 10)<br>val cy2 = Cylinder(Circle(Point(0, 0), 20), 20)<br>val cy3 = Cylinder(Circle(Point(1, 1), 20), 20)<br>println(what(cy1))  // Circle(Point(0,0),10)<br>println(what(cy2))  // Circle(Point(0,0),20)<br>println(what(cy3))  // null</code></pre><br>如果不使用變數綁定，基本上可以這麼寫：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br>case class Circle(p: Point, r: Int)<br>case class Cylinder(c: Circle, h: Int)<br><br>def what(c: Cylinder) = c match {<br>    case Cylinder(Circle(Point(0, 0), _), _) =&gt; c.c<br>    case _                                   =&gt; null<br>}<br><br>val cy1 = Cylinder(Circle(Point(0, 0), 10), 10)<br>val cy2 = Cylinder(Circle(Point(0, 0), 20), 20)<br>val cy3 = Cylinder(Circle(Point(1, 1), 20), 20)<br>println(what(cy1))  // Circle(Point(0,0),10)<br>println(what(cy2))  // Circle(Point(0,0),20)<br>println(what(cy3))  // null</code></pre><br><span style="font-weight: bold;">模式防護（Pattern guard）</span>則可以讓你在比對模式成功後，進一步設定判斷條件，決定是否執行=&gt;之後的程式。例如下面這個範例可以找出圓心座標x等y的圓，並傳回其半徑，否則傳回圓本身：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br>case class Circle(p: Point, r: Int)<br><br>def what(c: Circle) = c match {<br>    case Circle(Point(x, y), r) <span style="font-weight: bold;">if x == y</span> =&gt; r<br>    case _                                =&gt; c<br>}<br><br>println(what(Circle(Point(1, 1), 10)))   // 10<br>println(what(Circle(Point(2, 2), 20)))   // 20<br>println(what(Circle(Point(3, 1), 10)))   // Circle(Point(3,1),10)<br>println(what(Circle(Point(4, 4), 30)))   // 30</code></pre><br>如果不用模式防護，基本上是可以寫成以下的方式：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br>case class Circle(p: Point, r: Int)<br><br>def what(c: Circle) = c match {<br>    case Circle(Point(x, y), r) =&gt; if(x == y) r else c<br>}<br><br>println(what(Circle(Point(1, 1), 10)))   // 10<br>println(what(Circle(Point(2, 2), 20)))   // 20<br>println(what(Circle(Point(3, 1), 10)))   // Circle(Point(3,1),10)<br>println(what(Circle(Point(4, 4), 30)))   // 30</code></pre><br>
+       
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

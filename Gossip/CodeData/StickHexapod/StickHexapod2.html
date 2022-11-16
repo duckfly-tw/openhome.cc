@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="四足機器人的電路連接不難，只是小心別接錯就是了，而且要注意的是，要靠控制板上的 5V 接腳輸出之電流，就想驅動 12 顆馬達是不夠的，基本上保守的作法是，用一個電源接到 USB 或電源輸入插座，以提供...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="廢材四足機器人（二）電路連接、靜態平行與足態設計">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CodeData/StickHexapod/StickHexapod2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="四足機器人的電路連接不難，只是小心別接錯就是了，而且要注意的是，要靠控制板上的 5V 接腳輸出之電流，就想驅動 12 顆馬達是不夠的，基本上保守的作法是，用一個電源接到 USB 或電源輸入插座，以提供...">
+    <title>廢材四足機器人（二）電路連接、靜態平行與足態設計</title>
+    <link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../../css/caterpillar.css">
+    <script async="" src="../../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="StickHexapod2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="../index.html">回廢材機器人</a>
+          <ul class="pure-menu-list">
+            <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br>
+              <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>廢材四足機器人（二）電路連接、靜態平行與足態設計</h1>
+        </header>
+        <article class="content"><br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/StickHexapod.jpg"
+                alt="Stick Hexapod"></div>
+          </div>
+          <p></p>
+          <p>四足機器人的電路連接不難，只是小心別接錯就是了，而且要注意的是，要靠控制板上的 5V 接腳輸出之電流，就想驅動 12 顆馬達是不夠的，基本上保守的作法是，用一個電源接到 USB 或電源輸入插座，以提供控制板電流，而另一個電源供應馬達電流。</p>
+          <p>不過，我只使用一個電源，這個電源既供應控制板電流，也供應馬達所需的電流（馬達不是接到控制板上的 5V 接腳），這樣可以很快地耗用掉兩顆 3.7V 14500 可充電鋰電池的電力，持續運轉差不多半個多小時就可以用光光吧！… XD</p>
+          <h1>電路連接方式</h1>
+          <p>想要只使用一個電源來同時供應控制板與馬達所需的電力，就結論而言，就是將 12 顆馬達的 VCC 連接在一起，12 顆馬達的 GND 也連接在一起；接著電池盒的正極與馬達 VCC 端以及控制板的 Vin 連接在一起；而負極與馬達的 GND 以及控制板的 GND 腳位連接在一起。</p>
+          <p>在連接方面，我使用了附有小型麵包板的原型擴充板，因此，以下線路圖也使用麵包板示範：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/StickHexapod2-1.jpg"
+                alt="Stick Hexapod"></div>
+          </div>
+          <p></p>
+          <p>剩下的馬達訊號線，就依〈廢材四足機器人（一）修修補補成廢材〉中列出馬達編號的圖中，依編號做對應的腳位連接：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/StickHexapod1-6.jpg"
+                alt="Stick Hexapod"></div>
+          </div>
+          <p></p>
+          <p>其實組好之後，我就先做了個讓機器人上上下下的小測試，看看運作是否正常，一方面看看木頭撐不撐得住，然後，針對一些脆弱的地方，繼續修補 … XD</p>
+          <p><a href="https://www.youtube.com/watch?v=d2s3qi_liVk"></a></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><a href="https://www.youtube.com/watch?v=d2s3qi_liVk"><img
+                  class="pure-img-responsive" src="images/StickHexapod2-2.jpg"
+                  alt="Stick Hexapod"></a></div>
+          </div>
+          <p></p>
+          <p>程式設計的方面，之後再來談，現在要先探討一下足態設計！也就是如何維持機器人的靜態平衡，以及行進的方式！</p>
+          <h1>抬腿的靜態平衡 V2</h1>
+          <p>其實我一開始是想做成六足，後來想偷懶少切割些木頭，就做成四足了，不過，後來才想到不對，這樣反而無法偷懶，因為四足的靜態平衡比六足難，這 … 頭都洗下去了 … 只好認真地思考一下足態怎麼設計了 … 一開始轉彎是設計成這樣 …</p>
+          <p><a href="https://www.youtube.com/watch?v=Sq3oHFkE5Uk"></a></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><a href="https://www.youtube.com/watch?v=Sq3oHFkE5Uk"><img
+                  class="pure-img-responsive" src="images/StickHexapod2-3.jpg"
+                  alt="Stick Hexapod"></a></div>
+          </div>
+          <p></p>
+          <p>觀看影片的話，乍看還蠻像一回事的，不過，仔細看，它其實腳並沒有抬起來，打開電腦喇叭的話，你就可以聽到腳拖行在地面上發出的聲音，以下這個也是 …</p>
+          <p><a href="https://www.youtube.com/watch?v=mxfnD08Qb5k"></a></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><a href="https://www.youtube.com/watch?v=mxfnD08Qb5k"><img
+                  class="pure-img-responsive" src="images/StickHexapod2-4.jpg"
+                  alt="Stick Hexapod"></a></div>
+          </div>
+          <p></p>
+          <p>前進或後退時，腳沒有真正抬起來，根本就是在滑行，如果只能在地面上滑行，那就只能在摩擦力小的地面行動，而且其實也不需要讓每一隻各有三個自由度了，這個算是失敗的版本，姑且就稱為 V1 吧！</p>
+          <p>其實，我有試著讓腳抬起來，不過一直沒成功，一直都是在地面上拖行，就這麼又放上了好幾天 … 才想到可以增加腳底的接觸寬度，接下來要談的，就暫時稱為 V2 ...</p>
+          <p>仔細看上頭的影片，腳底只有一隻竹筷，而〈廢材四足機器人（一）修修補補成廢材〉中，我談到要在腳底各黏貼了四小段竹筷，這是後來為了增加靜態平衡能力才加上去的 …</p>
+          <p>對於足型機器人，想維持靜態平衡最簡單的方式，就是三腳著地時三個落地點呈三角型，然後一腳抬起，其實想要以兩腳維持平衡也不是不行，不過容易倒，看過有人在腳底直接加個大圓盤，這省事多了，不過我不喜歡，感覺有點醜（是說現在修補成這樣也稱不上帥了） …</p>
+          <p>還沒將腳底擴充為四個竹筷前，其實我也試著以三腳著地的方式來抬腿，像是 …</p>
+          <p><a href="https://www.youtube.com/watch?v=LYEpD1pIuvQ"></a></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><a href="https://www.youtube.com/watch?v=LYEpD1pIuvQ"><img
+                  class="pure-img-responsive" src="images/StickHexapod2-5.jpg"
+                  alt="Stick Hexapod"></a></div>
+          </div>
+          <p></p>
+          <p>看起來好像是成功了，不過，其實也很不穩，一不小心就容易腳滑傾向錯誤的一邊，後來才想到，將腳底擴充為四個竹筷，幸好機器人本身重心算低，只要將腳底擴充為四個竹筷，靜態平衡就比較容易做，不用加個大圓盤，看來也還算帥…XD</p>
+          <p>從前面抬腿的影片中也可以看到，要先將想抬起的腿對角線另一邊降低，讓重心轉移，這樣會讓抬腿更容易一些，不轉移重心的話，雖然也可以抬腿，不過稍有震動，重心一偏向抬起的腿那邊，就會倒下去。</p>
+          <h1>轉彎與前進足態設計 V2</h1>
+          <p>轉彎很容易設計，讓馬達 1-1、2-1、3-1、4-1 都逆時針轉，四足機器人就會順時針轉，但此時腳還留在原也，因此，此時逐一抬腿，讓四隻腳再度成為對角線，如底下影片示範：</p>
+          <p><a href="https://www.youtube.com/watch?v=ZpO9VWxu_0o"></a></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><a href="https://www.youtube.com/watch?v=ZpO9VWxu_0o"><img
+                  class="pure-img-responsive" src="images/StickHexapod1-3.jpg"
+                  alt="Stick Hexapod"></a></div>
+          </div>
+          <p></p>
+          <p>前進時的足態比較複雜一些，實際上對前進有幫助的，只有腿在側面的運動，因此先讓右後腿抬起逆時針 45 度後著地，接著右邊兩腳同時往後推，如此四足的右半邊就會前進，然後，右前腿逆時針 45 度後著地，此時四隻腳又是成為對角線。</p>
+          <p>同理，想要機器人左半邊前進，就是先讓左後腿抬起順時針 45 度後著地，接著左邊兩腳同時往後推，如此四足的左半邊就會前進，然後，左前腿順時針 45 度後著地，此時四隻腳又是成為對角線，如此反復不斷，就會讓機器人前進，連續動作就如上面的影片中看到的。</p>
+          <p>嚴格來說，當一邊的兩腳往後時，另一邊兩腳也要做若干轉動，這樣另一邊兩腳才不會被略為拖行，我省略了這部份，在不是太粗糙的地面上，目前的動作應該足夠應付，如果要在更複雜的地面上行進，那麼這部份的考量應該就是必要的。</p>
+          <p>接下來就剩程式的部份了 … 其實有以上說明，看 <a href="https://github.com/JustinSDK/Stick-Hexapod">Github 上的程式碼</a> 應該就會清楚多了，不過，我還是準備了獨立的一篇來說明一下程式怎麼寫的，你可以試著先依以上說明寫寫看，再參考我下一篇要說明的版本！</p>
+          <br>
+          <br>
+<div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+</html>

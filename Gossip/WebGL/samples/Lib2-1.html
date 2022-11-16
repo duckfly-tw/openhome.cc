@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Lib2</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform mat4 viewingWindow;
+            uniform mat4 transformation;
+
+            attribute vec3 position;
+            attribute vec4 color;
+
+            varying vec4 fColor;
+    
+            void main(void) {
+                gl_Position = viewingWindow * transformation * vec4(position.x, position.y, position.z, 1.0);
+                fColor = color;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            varying vec4 fColor;
+
+            void main(void) {
+                gl_FragColor = fColor;
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {GL, shaderSourceById, Renderer, IcosahedronGeometry, BasicMaterial, Mesh, mat4, OrthographicCamera, PerspectiveCamera} from './js/gl-comm-3.js';
+            
+            const canvas = document.getElementById('glCanvas');
+            const renderer = new Renderer(
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader'),
+                canvas);
+            
+            renderer.setClearColor(0, 0, 0, 1);
+
+            const geometry = new IcosahedronGeometry(100);
+
+            const faceColors = [];
+            for(let i = 0; i < 20; i++) {
+                faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+            }
+            const material = new BasicMaterial(3, faceColors);
+            const icosahedron = new Mesh(geometry, material);
+
+            renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+            
+            const colorBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.vertexColors(), GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(colorBuffer, 'color', 4);
+
+            const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(vertBuffer, 'position', 3);
+
+            const perspective = new PerspectiveCamera(
+                Math.PI / 4,                               // fovy
+                canvas.clientWidth / canvas.clientHeight,  // 寬高比
+                0.1,                                       // 近面
+                canvas.clientWidth                         // 遠面
+            );
+
+            const ortho = new OrthographicCamera(
+                -canvas.clientWidth / 2,  // 左邊界
+                canvas.clientWidth / 2,   // 右邊界
+                canvas.clientHeight / 2,  // 上邊界
+                -canvas.clientHeight / 2, // 下邊界
+                0.1,                      // 近面
+                canvas.clientWidth        // 遠面
+            );
+
+            let camera = perspective;
+            renderer.uniformMatrix4fv('viewingWindow', camera.viewingWindow());
+
+            let changeProjection = false;
+            canvas.addEventListener('mousedown', () => {
+                changeProjection = true;
+            });
+            
+            const origin = [0, 0, -canvas.clientWidth / 2];
+            const r = canvas.clientWidth / 4;
+            icosahedron.setPosition(origin[0], origin[1], origin[2]);
+            
+            let i = 0;
+            function drawIcosahedronGeometry() {
+                if(changeProjection) {
+                    camera = camera === perspective ? ortho : perspective;
+                    renderer.uniformMatrix4fv('viewingWindow', camera.viewingWindow());
+                    changeProjection = false;
+                }
+                i++;
+                
+                icosahedron.setPosition(
+                    origin[0] + r * Math.cos(0.025 * i), 
+                    origin[1], 
+                    origin[2] - r * Math.sin(0.025 * i)
+                );
+
+                icosahedron.yRotate(0.025);
+
+                renderer.uniformMatrix4fv('transformation', icosahedron.getTransformation());
+
+                renderer.clear();
+                renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+                renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+                renderer.render(icosahedron);
+
+                requestAnimationFrame(drawIcosahedronGeometry);                
+            }
+
+            drawIcosahedronGeometry();
+        </script>
+    </body>
+</html>

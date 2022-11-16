@@ -1,0 +1,309 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈auto_ptr〉中，主要是認識自動管理動態配置物件的原理，c++ 98 的 auto_ptr 被廢棄的原因顯而易見，往往一個不小心，就忽略了資源被接管的問題，另一個問題是，它無法管理動配置的連續...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="unique_ptr">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/uniquePtr.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈auto_ptr〉中，主要是認識自動管理動態配置物件的原理，c++ 98 的 auto_ptr 被廢棄的原因顯而易見，往往一個不小心，就忽略了資源被接管的問題，另一個問題是，它無法管理動配置的連續...">
+
+    <title>unique_ptr</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="uniquePtr.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>unique_ptr</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="autoPtr.html">auto_ptr</a>〉中，主要是認識自動管理動態配置物件的原理，c++ 98 的 <code>auto_ptr</code> 被廢棄的原因顯而易見，往往一個不小心，就忽略了資源被接管的問題，另一個問題是，它無法管理動態配置的連續空間，因為不會使用 <code>delete []</code> 來刪除。</p>
+<p>對於第一個問題，主要原因來自於複製時就會發生資源接管，既然如此，就禁止複製吧！這可以將複製建構式與複製指定運算子刪掉來達到，不過，實際上還是會需要轉移資源權，那麼就明確地定義釋放資源與重置資源的方法；對於第二個問題，可以讓使用者指定刪除器，自行決定怎麼刪除資源。</p>
+<p>實際上 C++ 11 的標準程式庫在 <code>memory</code> 標頭檔，定義有 <code>unique_ptr</code> 實現了以上的概念，不過試著自行實現個基本版本，是個不錯的挑戰，也能對 <code>unique_ptr</code> 有更多認識，那就來看個基本的版本吧！</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;utility&gt;
+#include &lt;functional&gt;
+using namespace std;
+
+class Deleter {
+public:
+    template &lt;typename T&gt;
+    void operator()(T* ptr) { delete ptr; }
+};
+
+// 預設的 D 型態是 Deleter
+template&lt;typename T, typename D = Deleter&gt;
+class UniquePtr {
+    T* p;
+    D del;
+
+public:
+    // 不能複製
+    UniquePtr(const UniquePtr&lt;T&gt;&amp;) = delete;
+    UniquePtr&lt;T&gt;&amp; operator=(const UniquePtr&lt;T&gt;&amp;) = delete;
+
+    UniquePtr() = default;
+
+    // 每個 UniquePtr 有自己的 Deleter
+    UniquePtr(T* p, const D &amp;del = D()) : p(p), del(del) {}
+
+    // 對於右值可以直接進行資源的移動
+    UniquePtr(UniquePtr&lt;T&gt;&amp;&amp; uniquePtr) : p(uniquePtr.p), del(std::move(uniquePtr.del)) {
+        uniquePtr.p = nullptr;
+    }
+
+    UniquePtr&lt;T&gt;&amp; operator=(UniquePtr&lt;T&gt; &amp;&amp;uniquePtr) {
+        if(this != &amp;uniquePtr) {
+            this-&gt;reset();
+            this-&gt;p = uniquePtr.p;
+            del = std::move(uniquePtr.del);
+            uniquePtr.p = nullptr;
+        }
+        return *this;
+    }
+
+    ~UniquePtr() {
+        del(this-&gt;p);
+    }
+
+    // 釋放資源的管理權
+    T* release() {
+        T* r = this-&gt;p;
+        this-&gt;p = nullptr;
+        return r;
+    }
+
+    // 重設管理的資源
+    void reset(T *p = nullptr) {
+        del(this-&gt;p);
+        this-&gt;p = p;
+    }    
+
+    // 令 UniquePtr 行為像個指標
+    T&amp; operator*() { return *(this-&gt;p); }
+    T* operator-&gt;() { return this-&gt;p; }
+};
+
+...未完
+</code></pre>
+<p>來從實際的使用中認識這個實作：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+class Foo {
+public:
+    int n;
+    Foo(int n) : n(n) {}
+    ~Foo() {
+        cout &lt;&lt; n &lt;&lt; " Foo deleted" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    UniquePtr&lt;Foo&gt; f1(new Foo(10)); 
+    UniquePtr&lt;Foo&gt; f2(new Foo(20)); 
+
+    f2.reset(f1.release());
+
+    return 0;
+}
+</code></pre>
+<p>因為無法複製了，在上例中，你不能 <code>UniquePtr&lt;Foo&gt; f2 = f1</code>，或者是 <code>f2 = f1</code>，因此不會隱含地就轉移了資源的管理權，然而，可以透過 <code>release</code> 本身釋放資源，<code>f1.release()</code> 後不再管理原本的資源，資源的位址被傳回，透過 <code>f2</code> 的 <code>reset</code> 設定給 <code>f2</code>，<code>f2</code> 原本的資源會被刪除，管理的資源被設定為接收到的資源，透過 <code>release</code> 與 <code>reset</code>，資源的轉移得到了明確的語義。</p>
+<p>因為無法複製了，你不能將 <code>UniquePtr</code> 實例作為引數傳入函式；然而，這邊看到了 <code>rvalue</code> 運算式與 <code>std::move</code> 的一個應用，當 <code>UniquePtr</code> 實例作為傳回值時，雖然呼叫者會建立新的 <code>UniquePtr</code> 實例，然而因為實作了移動建構式與移動指定運算子，被傳回的 <code>UniquePtr</code> 實際上進行了資源的移動，結果就是，你可以從函式中傳回 <code>UniquePtr</code> 實例。例如：</p>
+<pre class="prettyprint"><code lang="c++">...
+
+auto unique_foo(int n) {
+    return UniquePtr&lt;Foo&gt;(new Foo(n)); 
+}
+
+int main() {
+    auto foo = unique_foo(10); 
+    cout &lt;&lt; foo-&gt;n &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>這個範例的意思就是，既然自動管理資源了，就透過 <code>unique_foo</code> 避免使用 <code>new</code> 吧！如果要管理動態配置的連續空間呢？</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+auto unique_arr(int len) {
+    auto deleter = [](int *arr) { delete [] arr; };
+    return UniquePtr&lt;int, decltype(deleter)&gt;(new int[len] {0}, deleter); 
+}
+
+int main() {
+    auto arr = unique_arr(10); 
+    cout &lt;&lt; *arr &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>透過自訂的刪除器，就可以指定如何刪除動態配置的連續空間了，當然，這邊實作的 <code>UniquePtr</code> 並不全面，因為沒有重載下標運算子，因此無法如陣列可以使用下標操作。</p>
+<p>來看看標準程式庫的 <code>unique_ptr</code> 怎麼用吧！</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+#include &lt;functional&gt;
+using namespace std;
+
+class Foo {
+public:
+    int n;
+    Foo(int n) : n(n) {}
+    ~Foo() {
+        cout &lt;&lt; n &lt;&lt; " Foo deleted" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    unique_ptr&lt;Foo&gt; f1(new Foo(10)); 
+    unique_ptr&lt;Foo&gt; f2(new Foo(20)); 
+
+    f2.reset(f1.release());
+
+    return 0;
+}
+</code></pre>
+<p>C++ 11 時要以 <code>new</code> 建立 <code>unique_ptr</code>，這是制定規範時的疏忽，從 C++ 14 開始，建議使用 <code>make_unique</code>，這可以避免直接使用 <code>new</code>：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+#include &lt;functional&gt;
+using namespace std;
+
+class Foo {
+public:
+    int n;
+    Foo(int n) : n(n) {}
+    ~Foo() {
+        cout &lt;&lt; n &lt;&lt; " Foo deleted" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    auto f1 = make_unique&lt;Foo&gt;(10); 
+    auto f2 = make_unique&lt;Foo&gt;(20); 
+    f2.reset(f1.release());
+
+    return 0;
+}
+</code></pre>
+<p>C++ 11 沒有 <code>make_unique</code>，不過可以自行實作：</p>
+<pre class="prettyprint"><code lang="c++">template&lt;typename T, typename... Args&gt;
+std::unique_ptr&lt;T&gt; make_unique(Args&amp;&amp;... args)
+{
+    return std::unique_ptr&lt;T&gt;(new T(std::forward&lt;Args&gt;(args)...));
+}
+</code></pre>
+<p>這個版本的 <code>make_unique</code> 指定的引數，都會用於建構實例，如果是動態配置連續空間呢？C++ 11 時，為此準備了另一個版本的 <code>unique_ptr</code>，支援下標運算子，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+using namespace std;
+
+int main() {
+    unique_ptr&lt;int[]&gt; arr(new int[3] {1, 2, 3});
+
+    for(auto i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; arr[i] &lt;&lt; endl;
+    }
+
+    return 0;
+}
+</code></pre>
+<p>這個版本不用指定刪除器，在 <code>unique_ptr</code> 生命週期結束時，會自動刪除動態配置的連續空間，<code>make_unique</code> 有個對應的重載版本，可以指定動態配置的長度：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+using namespace std;
+
+int main() {
+    auto arr = make_unique&lt;int[]&gt;(3);
+
+    for(auto i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; arr[i] &lt;&lt; endl;
+    }
+
+    return 0;
+}
+</code></pre>
+<p>雖然可以如下動態配置連續空間，也可以自行指定刪除器，然而意義不大就是了：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+using namespace std;
+
+int main() {
+    auto deleter = [](int *arr) { delete [] arr; };
+    unique_ptr&lt;int, decltype(deleter)&gt; arr(new int[2] {0, 1}, deleter); 
+
+    cout &lt;&lt; *arr &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>在這個範例中，並不能對 <code>arr</code> 下標操作，也不能對 <code>arr</code> 進行加、減操作，因為並沒有重載對應的運算子，這也說明了一件事，雖然許多文件會稱 <code>unique_arr</code> 或之後要談到的 <code>shared_ptr</code> 等為智慧指標（smart pointer），然而這並不正確，因為從這篇文件一開始，其實就知道，<code>unique_arr</code> 等型態的實例並不是指標，它只是有指標部份行為罷了。</p>
+<p>理解這個事實後，對於動態配置連續空間這件事，並想要以下標操作應該先前使用使用 <code>unique_ptr</code> 或 <code>make_unique</code> 的對應版本。</p>
+<p>支援下標運算子版本的 <code>unique_ptr</code>，也可以自訂刪除器：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include&lt;memory&gt;
+using namespace std;
+
+int main() {
+    auto deleter = [](int arr[]) { delete [] arr; };
+    unique_ptr&lt;int[], decltype(deleter)&gt; arr(new int[3] {1, 2, 3}, deleter);
+
+    for(auto i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; arr[i] &lt;&lt; endl;
+    }
+
+    return 0;
+}
+</code></pre>
+<p>那麼 <code>make_unique</code> 可否指定刪除器呢？基本上 <code>make_unique</code> 是為了不需要自訂刪除器的場合而存在的，因為指定了刪除器，代表著你會使用 <code>delete</code>，這就表示也必須對應的 <code>new</code> 存在，另外，由於支援下標操作的版本存在，自訂刪除器的需求也減少了，若還是有需求，就直接在建構 <code>unique_ptr</code> 時指定。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

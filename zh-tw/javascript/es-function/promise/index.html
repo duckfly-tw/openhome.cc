@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="到目前為止介紹過的範例都是單一流程，也就是執行 .js 從開始至結束只有一個主流程；JavaScript 最初為瀏覽器而生，而使用者在操作瀏覽器時會有">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="JavaScript::非同步與 Promise" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-function/promise/" />
+    <meta property="og:description" content="到目前為止介紹過的範例都是單一流程，也就是執行 .js 從開始至結束只有一個主流程；JavaScript 最初為瀏覽器而生，而使用者在操作瀏覽器時會有" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="JavaScript::非同步與 Promise" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-function/promise/" />
+    <meta name="twitter:description" content="到目前為止介紹過的範例都是單一流程，也就是執行 .js 從開始至結束只有一個主流程；JavaScript 最初為瀏覽器而生，而使用者在操作瀏覽器時會有" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443687" type="image/x-icon">
+    <title> JavaScript  :: 非同步與 Promise</title>
+    <link href="../../../css/nucleus.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443687.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443687.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443687"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/javascript/es-function/promise/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/javascript/" title="JavaScript" class="dd-item parent"><a href="../../index.html">JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/" title="這些東西不簡單" class="dd-item"><a href="../../basics/index.html">| 這些東西不簡單</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/es5/" title="從 ECMAScript 5 開始" class="dd-item"><a href="../../basics/es5/index.html">從 ECMAScript 5 開始</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/var/" title="使用 var 宣告變數" class="dd-item"><a href="../../basics/var/index.html">使用 var 宣告變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/type/" title="與眾不同的資料型態" class="dd-item"><a href="../../basics/type/index.html">與眾不同的資料型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/wat/" title="弱型別的代價 – WAT！" class="dd-item"><a href="../../basics/wat/index.html">弱型別的代價 – WAT！</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/operator/" title="操弄數值的運算子" class="dd-item"><a href="../../basics/operator/index.html">操弄數值的運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object/" title="鍵值聚合體的物件" class="dd-item"><a href="../../basics/object/index.html">鍵值聚合體的物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object-api/" title="物件特性 API" class="dd-item"><a href="../../basics/object-api/index.html">物件特性 API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/array/" title="數字為特性的陣列" class="dd-item"><a href="../../basics/array/index.html">數字為特性的陣列</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/" title="一切都與函式有關" class="dd-item"><a href="../../function/index.html">| 一切都與函式有關</a><ul>
+          <li data-nav-id="/zh-tw/javascript/function/abc/" title="不可輕忽的函式基礎" class="dd-item"><a href="../../function/abc/index.html">不可輕忽的函式基礎</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/first-class/" title="初探一級函式" class="dd-item"><a href="../../function/first-class/index.html">初探一級函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/this/" title="this 是什麼？" class="dd-item"><a href="../../function/this/index.html">this 是什麼？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/closure/" title="Closure 與一級函式" class="dd-item"><a href="../../function/closure/index.html">Closure 與一級函式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/" title="定義物件" class="dd-item"><a href="../../object/index.html">| 定義物件</a><ul>
+          <li data-nav-id="/zh-tw/javascript/object/constructor/" title="隱藏諸多細節的建構式" class="dd-item"><a href="../../object/constructor/index.html">隱藏諸多細節的建構式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/prototype/" title="函式 prototype 特性" class="dd-item"><a href="../../object/prototype/index.html">函式 prototype 特性</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/introspection/" title="檢驗物件" class="dd-item"><a href="../../object/introspection/index.html">檢驗物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/namespace/" title="名稱空間管理" class="dd-item"><a href="../../object/namespace/index.html">名稱空間管理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/json/" title="輕量資料格式 JSON" class="dd-item"><a href="../../object/json/index.html">輕量資料格式 JSON</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/" title="這些東西簡單了嗎？" class="dd-item"><a href="../../es-basics/index.html">| 這些東西簡單了嗎？</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-basics/let-const/" title="let 與 const" class="dd-item"><a href="../../es-basics/let-const/index.html">let 與 const</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/number-string/" title="增強的數值與字串" class="dd-item"><a href="../../es-basics/number-string/index.html">增強的數值與字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/symbol/" title="作為協定的符號" class="dd-item"><a href="../../es-basics/symbol/index.html">作為協定的符號</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/bigint/" title="大整數 bigint" class="dd-item"><a href="../../es-basics/bigint/index.html">大整數 bigint</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/object-literal/" title="物件實字簡化與增強" class="dd-item"><a href="../../es-basics/object-literal/index.html">物件實字簡化與增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/iterator/" title="for/of 與迭代器" class="dd-item"><a href="../../es-basics/iterator/index.html">for/of 與迭代器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/data-pattern/" title="Destructuring、Rest 與 Spread" class="dd-item"><a href="../../es-basics/data-pattern/index.html">Destructuring、Rest 與 Spread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/collection/" title="Array、Set、Map 與 ArrayBuffer" class="dd-item"><a href="../../es-basics/collection/index.html">Array、Set、Map 與 ArrayBuffer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/sameness/" title="JavaScript 的相等性" class="dd-item"><a href="../../es-basics/sameness/index.html">JavaScript 的相等性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/" title="不再只是 function 了" class="dd-item parent"><a href="../index.html">| 不再只是 function 了</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-function/enhanced/" title="函式的增強" class="dd-item"><a href="../enhanced/index.html">函式的增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/arrow/" title="箭號函式" class="dd-item"><a href="../arrow/index.html">箭號函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/generator/" title="產生器函式" class="dd-item"><a href="../generator/index.html">產生器函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/promise/" title="非同步與 Promise" class="dd-item active"><a href="index.html">非同步與 Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/async-await/" title="async、await" class="dd-item"><a href="../async-await/index.html">async、await</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/" title="類別與模組" class="dd-item"><a href="../../class-module/index.html">| 類別與模組</a><ul>
+          <li data-nav-id="/zh-tw/javascript/class-module/class/" title="類別語法" class="dd-item"><a href="../../class-module/class/index.html">類別語法</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/inheritance/" title="實作繼承" class="dd-item"><a href="../../class-module/inheritance/index.html">實作繼承</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/module/" title="模組入門" class="dd-item"><a href="../../class-module/module/index.html">模組入門</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/" title="瀏覽器與 JavaScript" class="dd-item"><a href="../../script/index.html">| 瀏覽器與 JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/script/tag/" title="初探 script 標籤" class="dd-item"><a href="../../script/tag/index.html">初探 script 標籤</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/module/" title="script 標籤與模組" class="dd-item"><a href="../../script/module/index.html">script 標籤與模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/security/" title="script 標籤的安全性" class="dd-item"><a href="../../script/security/index.html">script 標籤的安全性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/" title="關於 DOM" class="dd-item"><a href="../../dom/index.html">| 關於 DOM</a><ul>
+          <li data-nav-id="/zh-tw/javascript/dom/abc/" title="DOM 簡介" class="dd-item"><a href="../../dom/abc/index.html">DOM 簡介</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/traversing/" title="走訪 DOM 樹" class="dd-item"><a href="../../dom/traversing/index.html">走訪 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/modification/" title="修改 DOM 樹" class="dd-item"><a href="../../dom/modification/index.html">修改 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/event/" title="事件模型" class="dd-item"><a href="../../dom/event/index.html">事件模型</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/" title="樣式處理" class="dd-item"><a href="../../style/index.html">| 樣式處理</a><ul>
+          <li data-nav-id="/zh-tw/javascript/style/abc/" title="存取樣式資訊" class="dd-item"><a href="../../style/abc/index.html">存取樣式資訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/display-visibility-opacity/" title="顯示、可見與不透明" class="dd-item"><a href="../../style/display-visibility-opacity/index.html">顯示、可見與不透明</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/class/" title="操作 class 屬性" class="dd-item"><a href="../../style/class/index.html">操作 class 屬性</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">JavaScript</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">不再只是 function 了</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">非同步與 Promise</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#使用-settimeout">使用 setTimeout</a></li>
+    <li><a href="index.html#同步非同步">同步？非同步？</a></li>
+    <li><a href="index.html#非同步與回呼">非同步與回呼</a></li>
+    <li><a href="index.html#promise-api">Promise API</a></li>
+    <li><a href="index.html#銜接-promise">銜接 Promise</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/asynchronous/">asynchronous</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/promise/">promise</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/callback-hell/">callback hell</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>非同步與 Promise</h1>
+
+ <i class="space fa fa-calendar"> August 14, 2022</i> 
+<p>到目前為止介紹過的範例都是單一流程，也就是執行 .js 從開始至結束只有一個主流程；JavaScript 最初為瀏覽器而生，而使用者在操作瀏覽器時會有各種操作，若想在某操作事件發生時執行對應的程式流程，該怎麼做呢？</p>
+<h2 id="使用-settimeout">使用 setTimeout</h2>
+<p>從頭至尾只使用一個主流程設計有什麼問題嗎？來看個例子吧！如果要設計一個龜兔賽跑遊戲，賽程長度為10步，每經過一秒，烏龜會前進一步，兔子可能前進兩步或睡覺，那該怎麼設計呢？如果用目前學過的流程語法來說，可能會如下設計：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">INTERVAL</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">TOTAL_STEP</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">tortoiseStep</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">hareStep</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;龜兔賽跑開始...&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">time</span> <span style="color:#f92672">=</span> Date.<span style="color:#a6e22e">now</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(Date.<span style="color:#a6e22e">now</span>() <span style="color:#f92672">-</span> <span style="color:#a6e22e">time</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">INTERVAL</span>) {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">tortoiseStep</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">running</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">ceil</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>) <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">running</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">hareStep</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;兔子睡著了zzzz&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">tortoiseStep</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`烏龜跑了 </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">tortoiseStep</span><span style="color:#e6db74">}</span><span style="color:#e6db74">  步...`</span>);
+</span></span><span style="display:flex;"><span>    } 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;烏龜抵達終點！&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">hareStep</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`兔子跑了 </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">hareStep</span><span style="color:#e6db74">}</span><span style="color:#e6db74">  步...`</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;兔子抵達終點！&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">while</span>(<span style="color:#a6e22e">tortoiseStep</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">hareStep</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span>);
+</span></span></code></pre></div><p>由於程式只有一個主流程，就不得不將計時任務，以及烏龜與兔子的行為混雜在同一流程中撰寫，如果可以分別定義計時任務以及烏龜、兔子的流程，程式邏輯會比較清楚。</p>
+<p><code>setTimeout</code> 函式雖然不是 JavaScript 本身的標準，然而在瀏覽器環境或 Node.js 都支援，可以用來實現計時任務，而烏龜、兔子的行為，可以定義在不同的函式，並在逾時（Timeout）事件發生時呼叫。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">INTERVAL</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">TOTAL_STEP</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">tortoise</span>(<span style="color:#a6e22e">step</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">step</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`烏龜跑了 </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">step</span><span style="color:#e6db74">}</span><span style="color:#e6db74"> 步...`</span>);        
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">tortoise</span>, <span style="color:#a6e22e">INTERVAL</span>, <span style="color:#a6e22e">step</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;烏龜抵達終點！&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">hare</span>(<span style="color:#a6e22e">step</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">step</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">TOTAL_STEP</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">running</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">ceil</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>) <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">running</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`兔子跑了 </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">step</span><span style="color:#e6db74">}</span><span style="color:#e6db74"> 步...`</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">hare</span>, <span style="color:#a6e22e">INTERVAL</span>, <span style="color:#a6e22e">step</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;兔子睡著了zzzz&#39;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">hare</span>, <span style="color:#a6e22e">INTERVAL</span>, <span style="color:#a6e22e">step</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;兔子抵達終點！&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;龜兔賽跑開始...&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">tortoise</span>, <span style="color:#a6e22e">INTERVAL</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">hare</span>, <span style="color:#a6e22e">INTERVAL</span>);
+</span></span></code></pre></div><p>在這個範例中，使用 <code>tortoise</code> 與 <code>hare</code> 函式分別定義了烏龜與兔子的流程，計時任務是由 <code>setTimeout</code> 函式負責，它的第一個參數接受要執行的函式，第二個參數是毫秒指定的時間（若不指定，預設為0毫秒），之後的參數可以是呼叫指定的函式提供之引數；首次執行 <code>tortoise</code> 與 <code>hare</code> 函式的時間是一秒之後，之後若還沒抵達終點，就再次呼叫 <code>setTimeout</code> 函式。執行時的結果會像是…</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>兔賽跑開始...
+</span></span><span style="display:flex;"><span>烏龜跑了 1 步...
+</span></span><span style="display:flex;"><span>兔子睡著了zzzz
+</span></span><span style="display:flex;"><span>烏龜跑了 2 步...
+</span></span><span style="display:flex;"><span>兔子睡著了zzzz
+</span></span><span style="display:flex;"><span>烏龜跑了 3 步...
+</span></span><span style="display:flex;"><span>兔子跑了 2 步...
+</span></span><span style="display:flex;"><span>烏龜跑了 4 步...
+</span></span><span style="display:flex;"><span>兔子跑了 4 步...
+</span></span><span style="display:flex;"><span>烏龜跑了 5 步...
+</span></span><span style="display:flex;"><span>兔子睡著了zzzz
+</span></span><span style="display:flex;"><span>烏龜跑了 6 步...
+</span></span><span style="display:flex;"><span>兔子睡著了zzzz
+</span></span><span style="display:flex;"><span>烏龜跑了 7 步...
+</span></span><span style="display:flex;"><span>兔子睡著了zzzz
+</span></span><span style="display:flex;"><span>烏龜跑了 8 步...
+</span></span><span style="display:flex;"><span>兔子跑了 6 步...
+</span></span><span style="display:flex;"><span>烏龜跑了 9 步...
+</span></span><span style="display:flex;"><span>兔子跑了 8 步...
+</span></span><span style="display:flex;"><span>烏龜抵達終點！
+</span></span><span style="display:flex;"><span>兔子抵達終點！ 
+</span></span></code></pre></div><h2 id="同步非同步">同步？非同步？</h2>
+<p>電腦科學領域有許多名詞，不過多半沒有嚴謹的定義；然而，既然這邊要討論非同步，總還是得定義一下非同步與同步（Synchronous），以便後續進行討論。</p>
+<p>之前的程式碼或範例，都有個明顯的特徵，無論是運算式、陳述句或是函式，都是在定義的任務完成之後，才會往下一個運算式、陳述句或函式執行，這樣的流程稱為同步。例如，若已知 <code>foo</code> 函式的任務為顯示 foo 字樣，若底下的程式碼執行結果，是依序顯示 begin、foo、end，那麼這個程式碼片段就是同步的流程：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;begin&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">foo</span>();
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;end&#39;</span>);
+</span></span></code></pre></div><p>之前定義過的函式，都是這類函式，姑且稱為同步函式，當然，要實作這樣的 <code>foo</code> 函式並不難，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;foo&#39;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>如果是另一種 <code>foo</code> 函式實作，會令方才的程式片段顯示 begin、end、foo 呢？也就是 <code>foo</code> 的任務未完成前，就執行了後續的程式流程，那麼這樣的流程就是非同步的，而這類函式就被稱為非同步函式。</p>
+<p>先前使用了 <code>setTimeout</code>，可以指定的時間後才執行指定的函式；若拿 <code>setTimeout</code> 來設計底下的 <code>foo</code> 函式，就可以達到非同步的需求。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// 非同步函式
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>, <span style="color:#ae81ff">1000</span>, <span style="color:#e6db74">&#39;foo&#39;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 非同步流程，執行後顯示begin、end、foo
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;begin&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">foo</span>();
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;end&#39;</span>);
+</span></span></code></pre></div><p>計時本身就是個獨立於主流程的任務，逾時是個事件，在事件發生時必須執行某個指定操作，像這類獨立於程式主流程的任務、事件生成，以及處理事件的方式，稱為非同步（Asynchronous）。</p>
+<p>在瀏覽器的環境時，獨立於主流程的任務可能是下載檔案，下載完成是個事件，有事件發生時必須執行某個指定操作；在 Node.js 的環境中，獨立於主流程的任務可能是寫入檔案，寫入完成是個事件，有事件發生時必須執行某個指定操作；為了滿足諸如此類的需求，非同步根本上就是與 JavaScript 息息相關的議題。</p>
+<p>如果你曾經學習過其他具有多執行緒（Multi-thread）特性的語言（例如Java），可能會想到，為什麼不透過多執行緒呢？確實地，在支援多執行緒的語言中，執行緒是用來實現非同步的方式之一；然而，JavaScript 本身不支援多執行緒，而且 JavaScript 引擎是以單執行緒方式執行程式碼。</p>
+<p>對於熟悉多執行緒的許多開發者來說，單執行緒可以實現非同步，乍聽之下難以想像，實際上，JavaScript 執行環境會在事件迴圈（Event loop），不斷地檢查事件佇列（Event queue），當事件發生時，並不是馬上執行指定的函式，而是將事件排入佇列，在迴圈下一輪的檢查時，才將佇列中事件對應的任務依序執行完成。</p>
+<p>以方才的範例來說，<code>foo</code> 執行時，<code>setTimeout</code> 會令瀏覽器或  Node.js 進行計時，然後 <code>setTimeout</code> 就執行完畢了，這也意謂著 <code>foo</code> 函式執行完畢，因此才會往下一行 <code>console.log('end')</code> 執行，當逾時事件發生時，<code>setTimeout</code> 指定的函式會排入事件佇列，在迴圈下一輪檢查佇列時執行。</p>
+<p>簡而言之，JavaScript 是以單執行緒，不斷地在事件迴圈中檢查事件佇列，若佇列中有任務的話就依序執行完成；這就意謂著，JavaScript 沒有多執行緒切換的機制，也就是說，如果某個事件對應的任務執行過久，佇列中後續事件對應的任務就會被卡住，若是在使用者操作瀏覽器的時候發生了這類情況，就會感覺操作畫面被凍結，或者是發生無回應的狀態；這也表示，在支援多執行緒的語言中 <code>sleep</code> 之類的函式或方法，在 JavaScript 中無法實現。</p>
+<p>在 HTML5 規範包含 Web Worker API，可以提供多執行緒，然而這個支援是由「瀏覽器」提供，而不是 JavaScript 引擎。</p>
+<h2 id="非同步與回呼">非同步與回呼</h2>
+<p>對於同步函式，任務執行完之後會傳回結果；然而非同步函式呼叫時，被指定的任務未完成前，函式就會立即返回，這麼一來，該怎麼取得任務執行結果呢？</p>
+<p>對於非同步函式想要取得執行結果，方式之一是使用回呼函式。例如，若asyncFoo()函式會在兩秒之後，使用指定的引數乘上隨機產生的數字，若要取得該結果的話，可以如下設計：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">n</span>, <span style="color:#a6e22e">callback</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">setTimeout</span>(
+</span></span><span style="display:flex;"><span>        () =&gt; <span style="color:#a6e22e">callback</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">random</span>()), 
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">2000</span>
+</span></span><span style="display:flex;"><span>    );    
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>, <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>);
+</span></span></code></pre></div><p>這個範例在執行完 <code>setTimeout</code> 後，<code>asyncFoo</code> 函式立即返回，而在兩秒之後完成任務，以結果呼叫了指定的 <code>callback</code> 函式，這種回呼模式直覺而簡單，一些基礎程式庫，像是 Node.js 中想要讀取檔案，可以使用 <code>fs</code> 模組的 <code>readFile</code> 函式，若想取得檔案讀取結果並做進一步處理，就必須指定回呼函式。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;fs&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#e6db74">&#39;files.txt&#39;</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">files</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">files</span>.<span style="color:#a6e22e">toString</span>());
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>這邊談到的模組，是指 Node.js 本身的模組，並非 JavaScript  規範的模組，Node.js 也支援 JavaScript 模組。</p>
+<p>在事情簡單時，回呼模式沒什麼問題，然而，若希望任務完成後，接續地執行下一個非同步任務時，就會發生回呼函式形成巢狀結構的問題。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;fs&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#e6db74">&#39;files.txt&#39;</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">files</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">files</span>.<span style="color:#a6e22e">toString</span>().<span style="color:#a6e22e">split</span>(<span style="color:#e6db74">&#39;\r\n&#39;</span>).<span style="color:#a6e22e">forEach</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">file</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#a6e22e">file</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">content</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">content</span>.<span style="color:#a6e22e">toString</span>());
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>在 JavaScript 的應用中，非同步地執行任務是常見需求，回呼函式形成巢狀結構的問題可能會變得嚴重，因而引發回呼地獄（Callback hell）的問題，令撰寫程式或後續閱讀程式碼發生困難。</p>
+<p>若使用方才的 <code>assyncFoo</code> 為例，想在取得任務結果之後，再次用來呼叫 <code>assyncFoo</code>，連續三次地呼叫之後，就會寫成這樣如下結構：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>, <span style="color:#a6e22e">r1</span> =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>, <span style="color:#a6e22e">r2</span> =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>, <span style="color:#a6e22e">r3</span> =&gt; {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>);
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>可以看到的，就算使用了箭號函式，在這種需求之下，會因為巢狀的回呼函式，造成可讀性迅速下降。</p>
+<p>回呼模式不是不好，若非同步操作取得結果後，不會有進一步執行非同步任務的需求來說，回呼模式直覺而簡單；然而，若發現需求已經超出了原本預想的範圍，程式碼開始有形成回呼地獄的傾向時，就應該適時重構，以免影響程式的可讀性，重構時可以採取的方向之一是 <a href="../../../pattern/async/promise/index.html">Promise 模式</a>，而 ES6 以後，提供了 Promise API 來支援此模式。</p>
+<h2 id="promise-api">Promise API</h2>
+<p>在 ES6 以後，<code>Promise</code>  實例可以作為是非同步函式的傳回值，正如名稱暗示的，<code>Promise</code> 實例代表著「承諾」在未來提供任務執行結果。以方才的範例來說，可以使用 <code>Promise</code> 來實作 <code>asyncFoo</code> 函式，令其傳回 <code>Promise</code> 實例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">n</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">setTimeout</span>(
+</span></span><span style="display:flex;"><span>            () =&gt; <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> Math.<span style="color:#a6e22e">random</span>()), 
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2000</span>
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r1</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r2</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r3</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>));
+</span></span></code></pre></div><p><code>Promise</code> 實例建立後，處於未定（Pending）狀態，在建立 <code>Promise</code> 實例時可以指定回呼函式，該函式可以具有參數，第一個參數慣例上常命名為 <code>resolve</code>，這兩個參數會各自接受函式，這邊僅定義了 <code>resolve</code> 參數，若呼叫 <code>resolve</code> 函式，表示 <code>Promise</code> 指定的任務達成（Fulfilled）狀態，呼叫 <code>resolve</code> 時指定的引數，就是任務達成的結果。</p>
+<p><code>Promise</code> 實例具有 <code>then</code> 方法，<code>then</code> 接受的回呼函式可以具有參數，若 <code>Promise</code> 指定的任務達成，那麼呼叫 <code>resolve</code> 時指定的引數，就會是 <code>then</code> 回呼函式的參數值，回呼函式可以傳回任何值，通常會是 <code>Promise</code> 實例或是 <code>thenable</code> 物件（具有 <code>then</code> 方法的物件），若是後兩者，代表下個待達成的任務，<code>then</code> 方法會傳回 <code>Promise</code>，因此可以形成方法鏈進行連續呼叫，各個 <code>then</code> 呼叫的回呼函式中，可以取得任務達成結果。</p>
+<p>就程式碼閱讀來說，<code>Promise</code> 的撰寫風格就像是循序的，也避免了回呼地獄的問題，不過順序的保證，僅限於 <code>then</code> 指定的任務，上面的範例若在最後一行加上了 <code>console.log('end')</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">…</span><span style="color:#a6e22e">略</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r1</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r2</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r3</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;end&#39;</span>);
+</span></span></code></pre></div><p>那麼會先顯示end字樣，後續才會顯示非同步任務的結果，如果想要顯示非同步任務的結果，最後才顯示 end 字樣，方式之一是再寫個 <code>then</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">…</span><span style="color:#a6e22e">略</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r1</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r1</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r2</span> =&gt; <span style="color:#a6e22e">asyncFoo</span>(<span style="color:#a6e22e">r2</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r3</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">r3</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;end&#39;</span>));
+</span></span></code></pre></div><p><code>Promise</code> 的 <code>then</code> 方法，也可以直接接受 <code>Promise</code> 實例，若不在乎前一個 <code>Promise</code> 的結果，只需要在前一個 <code>Promise</code> 完成後執行時使用。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">asyncFoo</span>(<span style="color:#ae81ff">20</span>));
+</span></span></code></pre></div><p>在建立 <code>Promise</code> 實例時指定的回呼函式，可以定義第二個參數，慣例上常命名為 <code>reject</code>，如果指定的任務無法達成，可以使用傳入的 <code>reject</code> 函式來否決任務，此時 <code>Promise</code> 就會處於否決（Rejected）狀態。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">randomDivided</span>(<span style="color:#a6e22e">divisor</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise((<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">reject</span>) =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">n</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">!==</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">divisor</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">n</span>);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#39;Shit happens: divided by zero&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">n</span>   =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">n</span>),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><p>在上例中，若 <code>n</code> 不為 0 任務就會達成，若為 0 就會否決任務，若有定義 <code>then</code> 的第二個回呼函式，該函式就會被呼叫，<code>reject</code> 接受的引數，可以成為 <code>then</code> 第二個回呼函式的引數，在這邊 <code>reject</code> 時指定了字串值。</p>
+<p>本質上，<code>Promise</code> 被否決時，表示任務因為某個錯誤而無法執行下去，如果想要突顯錯誤處理的流程，建議使用 <code>catch</code> 方法。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">n</span>   =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">n</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">err</span>   =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>));
+</span></span></code></pre></div><h2 id="銜接-promise">銜接 Promise</h2>
+<p><code>Promise</code> 建構式本身擁有幾個特性，也就是以 <code>Promise</code> 為名稱空間的函式（不是定義在 <code>Promise.prototype</code> 上的特性），主要目的是作為 API 的銜接。例如，方才的範例，除了直接以 <code>new</code> 建構來銜接 Promise API，也可以這麼撰寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">randomDivided</span>(<span style="color:#a6e22e">divisor</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">n</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">!==</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Promise.<span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">divisor</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">n</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Promise.<span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#39;Shit happens: divided by zero&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">n</span>   =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">n</span>),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><p><code>Promise.resolve</code> 可以接受任何值，包括 <code>Promise</code> 實例或是 thenable 物件，這些物件任務達成的值，會成為 <code>Promise.resolve</code> 傳回 <code>Promise</code> 實例的達成值；<code>Promise.reject</code> 也可以接受任何值。</p>
+<p>如果手邊有多個 <code>Promise</code> 實例，而且不在意達成的順序，只要達成的結果，是依照指定的 <code>Promise</code> 順序排列就可以的話，可以使用 <code>Promise.all</code>，它接受 <code>Promise</code> 組成的可迭代物件，並傳回 <code>Promise</code> 實例，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>Promise.<span style="color:#a6e22e">all</span>([<span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">20</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">30</span>)])
+</span></span><span style="display:flex;"><span>       .<span style="color:#a6e22e">then</span>(
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">results</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">results</span>[<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">results</span>[<span style="color:#ae81ff">1</span>], <span style="color:#a6e22e">results</span>[<span style="color:#ae81ff">2</span>]),
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>       );
+</span></span></code></pre></div><p><code>Promise.all</code> 就像是將一組 <code>Promise</code> 組合為一個 <code>Promise</code>，就上例來說，如果三個 <code>Promise</code> 的任務都達成了，那麼 <code>results</code> 就會是三個任務的結果陣列，元素是依照 <code>Promise.all</code> 最初指定的 <code>Promise</code> 順序；然而，如果有任何一個 <code>Promise</code> 被否決了，無論是否還有其他 <code>Promise</code> 的任務在執行，都會直接呼叫 <code>then</code> 指定的第二個回呼函式，未達成的 <code>Promise</code> 還是會繼續執行，也無法取得其他有達成任務的 <code>Promise</code> 之結果。</p>
+<p><code>Promise.race</code> 函式則接受 <code>Promise</code> 組成的可迭代物件，這組 <code>Promise</code> 任一個先達成或否決的話，就會當成 <code>Promise.race</code> 傳回的 <code>Promise</code> 達成或否決的結果，不過其他 <code>Promise</code> 還是會繼續執行就是了。一個使用 <code>Promise.race</code> 的例子是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>Promise.<span style="color:#a6e22e">race</span>([<span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">20</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">30</span>)])
+</span></span><span style="display:flex;"><span>       .<span style="color:#a6e22e">then</span>(
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">result</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">result</span>),
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>       );
+</span></span></code></pre></div><p>那麼，如果想指定一組 <code>Promise</code>，並且在全部的 <code>Promise</code> 達成或否決之後，再來判斷各個 <code>Promise</code> 的狀態，該怎麼做呢？ES11 以後，有個 <code>Promise.allSettled</code> 函式可以使用：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">randomDivided</span>(<span style="color:#a6e22e">divisor</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">n</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">n</span> <span style="color:#f92672">!==</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Promise.<span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">divisor</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">n</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Promise.<span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#39;Shit happens: divided by zero&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Promise.<span style="color:#a6e22e">allSettled</span>([<span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">10</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">20</span>), <span style="color:#a6e22e">randomDivided</span>(<span style="color:#ae81ff">30</span>)])
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">statusObjs</span> =&gt; <span style="color:#a6e22e">statusObjs</span>.<span style="color:#a6e22e">filter</span>(<span style="color:#a6e22e">obj</span> =&gt; <span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">status</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;fulfilled&#39;</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">results</span> =&gt; <span style="color:#a6e22e">results</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">result</span> =&gt; <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">value</span>))
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>);
+</span></span></code></pre></div><p><code>Promise.allSettled</code> 會個別地呼叫 <code>Promise</code> 的 <code>then</code> 方法，各個 <code>Promise</code> 若達成，就傳回 <code>status</code> 特性為 <code>'fufilled'</code> 的物件，若否決傳回 <code>status</code> 特性為 <code>'rejected'</code> 的物件，這些 <code>Promise</code> 被 <code>Promise.all</code> 收集起來，<code>Promise.all</code> 傳回的 <code>Promise</code>，就可以取得具有 <code>status</code> 特性的物件陣列，接下來就看是對達成的 <code>Promise</code> 或是被否決的 <code>Promise</code> 感興趣，這可以針對物件的 <code>status</code> 特性來進行判斷。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/javascript/es-function/promise/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/javascript/es-function/promise/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=JavaScript%3a%3a%e9%9d%9e%e5%90%8c%e6%ad%a5%e8%88%87%20Promise&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjavascript%2fes-function%2fpromise%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../generator/index.html" title="產生器函式"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../async-await/index.html" title="async、await"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443687"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443687"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443687"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443687"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443687"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443687"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443687"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443687"></script>
+  </body>
+</html>

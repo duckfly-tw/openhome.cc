@@ -1,0 +1,190 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ajax 這個名詞是由 Jesse James Garrett 提出，在他發表的〈[Ajax: A New Approach to Web Applications]〉(http://adaptive...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="建立 XMLHttpRequest 物件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/XMLHttpRequest.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Ajax 這個名詞是由 Jesse James Garrett 提出，在他發表的〈[Ajax: A New Approach to Web Applications]〉(http://adaptive...">
+
+    <title>建立 XMLHttpRequest 物件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="XMLHttpRequest.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>建立 XMLHttpRequest 物件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Ajax 這個名詞是由 <a href="https://en.wikipedia.org/wiki/Jesse_James_Garrett">Jesse James Garrett</a> 提出，在他發表的〈<a href="http://adaptivepath.org/ideas/ajax-new-approach-web-applications/">Ajax: A New Approach to Web Applications</a>〉 中談到 Google Suggest 與 Google Maps 使用到的技術，是他們在 <a href="http://www.adaptivepath.com/">Adaptive Path</a> 中稱之為 Ajax 的新方法：</p>
+<blockquote><p>Google Suggest and Google Maps are two examples of a new approach to web applications that we at Adaptive Path have been calling Ajax. The name is shorthand for Asynchronous JavaScript + XML, and it represents a fundamental shift in what’s possible on the Web.</p>
+</blockquote>
+<p>文中表示，Ajax 是非同步 JavaScript 結合 XML 的概念，XML 是用來交換結構化資料，但事實上，並非唯一可用的格式。</p>
+<p>Ajax 的核心概念為非同步，為何要非同步？傳統表單提交、超鏈結點選，瀏覽器會有預設的處理方式，也就是以同步方式傳送請求，接著等待伺服器回應資料，然後進行換頁動作，在資料提交期間，使用者只能等待最新的畫面回應，中間若作了其它的頁面操作，瀏覽器可能會放棄原有的請求，就算在資料回應之後，使用者 面對的是全新的一個頁面，即使使用者真正所作的只是會更新畫面中某個區域。</p>
+<p>如果可以把請求與回應改為非同步進行，也就是發出請求後，瀏覽器無需苦等伺服器的回應，而可以讓使用者對瀏覽 器中的 Web 應用程式進行其它的操作，又不會中斷原本的請求，當伺服器終於處理完請求並送出回應，而瀏覽器接收到回應時，再回過頭來呼叫瀏覽器所設定的對應 動作進行處理，方式是可以利用 DOM 操作更新畫面中的某些區域，那麼就開啟了各種可能的互動模式。</p>
+<p>目前來說，在標準瀏覽器中使用 <code>XMLHttpRequest</code> 來建立非同步物件，可以如下呼叫建立非同步物件：</p>
+<pre class="prettyprint"><code lang="javascript">let request = new XMLHttpRequest();
+</code></pre>
+<p>基本上 <code>XMLHttpRequest</code> 可用的幾個方法如下：</p>
+<ul>
+<li><p><code>void open(string method, string url[, boolean asynch, string username, string password])</code>
+<br  />開啟對伺服端的連結；<code>method</code> 為 HTTP 請求方式（<code>'GET'</code>、<code>'POST'</code>、<code>'HEAD'</code> 等）；<code>url</code> 為伺服端位址，如果是 <code>GET</code> 的話，可加上請求參數與值；<code>asynch</code> 為非同步設定，預設是 <code>true</code>，表示使用非同步方式，<code>username</code>、<code>password</code> 視伺服端有無要求驗證而設置。</p>
+</li>
+<li><p><code>void setRequestHeader(string header, string value)</code></p>
+<p>為 HTTP 請求設定一個標頭值，在呼叫 <code>open</code> 之後呼叫，通常在 <code>open</code> 的 <code>method</code> 參數為 <code>'POST'</code> 時使用。</p>
+</li>
+<li><p><code>void send(content)</code></p>
+<p>對伺服端傳送請求，<code>open</code> 的 <code>method</code> 為 <code>'GET'</code> 時，<code>content</code> 設為 <code>null</code>，<code>'POST'</code> 時 <code>content</code> 可放字串、XML、JSON 格式的內容，會放在 <code>POST</code> 本體中發送。在早期，瀏覽器不一定支援全部的 HTTP 方法。</p>
+</li>
+<li><p><code>void abort()</code></p>
+<p>用來中斷請求。</p>
+</li>
+<li><p><code>string getAllResponseHeaders()</code></p>
+<p>傳回一個字串，其中包含 HTTP 請求的所有回應標頭。</p>
+</li>
+<li><p><code>string getResponseHeader(string header)</code></p>
+<p>傳回一個字串，其中包含指定的回應標頭值。</p>
+</li>
+</ul>
+<p><code>open</code> 方法的第三個參數通常保留預設置 <code>true</code>，若想以同步方式，可以設為 <code>false</code>。若想知道目前請求物件狀態，可以在呼叫 <code>open</code> 方法之前，對 <code>onreadystatechange</code> 設置處理器函式。只要有狀態變化，則會呼叫所設置的處理器函式。</p>
+<p>通常會在 <code>onreadystatechange</code> 的處理器函式中，偵測 <code>XMLHttpRequest</code> 物件的狀態，狀態可藉由 <code>readyState</code> 特性取得，這特性會有 0 到 4 的變化，代表各個處理階段，常數可透過 <code>XMLHttpRequest</code> 上的常數名稱取得：：</p>
+<ul>
+<li><p><code>XMLHttpRequest.UNSENT</code></p>
+<p>常數值 0，<code>XMLHttpRequest</code> 物件已建構。</p>
+</li>
+<li><p><code>XMLHttpRequest.OPENED</code></p>
+<p>常數值 1，已成功呼叫 <code>open</code> 方法，在這個狀態下，可以使用 <code>setRequestHeader</code>，而後呼叫 <code>send</code> 方法。</p>
+</li>
+<li><p><code>XMLHttpRequest.HEADERS_RECEIVED</code></p>
+<p>常數值 2，在呼叫過 <code>send</code> 方法且接收到回應標頭的狀態。</p>
+</li>
+<li><p><code>XMLHttpRequest.LOADING</code></p>
+<p>常數值 3，正在接收回應本體。</p>
+</li>
+<li><p><code>XMLHttpRequest.DONE</code></p>
+<p>常數值 4，伺服端回應結束，可能是資料傳輸完成，或者是傳送過程因發生錯誤而中斷（例如偵測到無限重導）。</p>
+</li>
+</ul>
+<p>通常只會對 <code>readyState</code> 為 <code>XMLHttpRequest.DONE</code> 時作處理，<code>XMLHttpRequest</code> 物件的 <code>status</code> 表示 HTTP 回應狀態碼，一個例子如下：</p>
+<pre class="prettyprint"><code lang="javascript">let request = new XMLHttpRequest();
+request.onreadystatechange = function(evt) {
+    let req = evt.target;
+    if(req.readyState === XMLHttpRequest.DONE &amp;&amp; req.status === 200) {
+        // 對成功回應作處理
+    }
+};
+request.open('GET', 'data.txt');
+request.send(null);
+</code></pre>
+<p>（偶而地，也會針對 <code>XMLHttpRequest.LOADING</code> 來進行處理，例如接收到一個持續回應的串流（stream），像是模擬伺服端推播的時候。）</p>
+<p><code>onreadystatechange</code> 的第一個參數會是 <a href="https://dom.spec.whatwg.org/#event"><code>Event</code></a> 實例，其 <code>target</code> 特性會是 <code>XMLHttpRequest</code> 實例，可以使用 <code>statusText</code> 取得回應狀態碼代表的文字訊息，而 <code>XMLHttpRequest</code> 的 <code>responseText</code> 取得伺服端的回應文字，不過要注意，伺服端回應時若沒有指明字元集（例如 <code>Content-Type: text/html; charset=UTF-8</code> 之類），<code>responseText</code> 預設會使用 UTF-8 字元集來解讀傳回的文字。</p>
+<p>如果回應是 XML，可以使用 <code>responseXML</code> 取得剖析後的 XML DOM 物件。</p>
+<p>以下是一個非同步取得資料的完整流程示範，其中請求的純文件中包括中文，所以先儲存為 UTF-8 格式：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"&gt;
+&lt;tbody&gt;
+    &lt;tr&gt;
+        &lt;td style="vertical-align: top;"&gt;標題一&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;標題二&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;標題三&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;標題四&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td style="vertical-align: top;"&gt;資料1&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料3&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料5&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料7&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td style="vertical-align: top;"&gt;資料2&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料4&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料6&lt;/td&gt;
+        &lt;td style="vertical-align: top;"&gt;資料8&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+</code></pre>
+<p>執行的結果是以非同步方式取得文件，並在同一個頁面顯示內容：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;button id='req'&gt;取得表格&lt;/button&gt;
+    &lt;div id="table"&gt;&lt;/div&gt;
+
+&lt;script type="text/javascript"&gt;
+
+    document.getElementById('req').onclick = function() {
+        let request = new XMLHttpRequest();
+        request.onreadystatechange = function(evt) {
+            let req = evt.target;
+            if(req.readyState === XMLHttpRequest.DONE &amp;&amp; req.status === 200) {
+                document.getElementById('table').innerHTML = req.responseText;
+            }
+        };
+        request.open('GET', 'XMLHttpRequest-1.txt');
+        request.send(null);
+    };
+
+&lt;/script&gt;   
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/XMLHttpRequest-1.html">按我觀看執行結果</a>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

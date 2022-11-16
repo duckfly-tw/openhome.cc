@@ -1,0 +1,196 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="目前你的 polls.urls 模組中，每個 url 都設定了 name：
+
+有沒有想過，如果在不同 App 的 urls 模組中，也有重複的 name 設定值該怎麼辦？實際上，你可以為每個 App ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 3 Tutorial 第十堂（2）表單與 CSRF">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/FormCSRFPy3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="目前你的 polls.urls 模組中，每個 url 都設定了 name：
+
+有沒有想過，如果在不同 App 的 urls 模組中，也有重複的 name 設定值該怎麼辦？實際上，你可以為每個 App ...">
+
+    <title>Python 3 Tutorial 第十堂（2）表單與 CSRF</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FormCSRFPy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/PythonTutorial/">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 3 Tutorial 第十堂（2）表單與 CSRF</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>目前你的 <code>polls.urls</code> 模組中，每個 <code>url</code> 都設定了 <code>name</code>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FormCSRFPy3-1.JPG" alt="表單與 CSRF"  /></div></div></p>
+<p>有沒有想過，如果在不同 App 的 <code>urls</code> 模組中，也有重複的 <code>name</code> 設定值該怎麼辦？實際上，你可以為每個 App 的 <code>urls</code> 模組設定不同的名稱空間（Namespace），來避免名稱衝突的問題發生，在接下來的練習 16 中，也要來看看如何建立一個簡易表單。</p>
+<h2>練習 16：建立 URL 名稱空間與簡易表單</h2>
+<p>在目前的 mysite/urls.py 檔案中，<code>urlpatterns</code> 前加上 <code>app_name = 'polls'</code>：</p>
+<pre class="prettyprint"><code lang="python">from django.conf.urls import url
+
+from . import views
+
+app_name = 'polls'
+urlpatterns = [
+    # ex: /polls/
+    url(r'^$', views.index, name='index'),
+    # ex: /polls/5/
+    url(r'^(?P&lt;question_id&gt;[0-9]+)/$', views.detail, name='detail'),
+    # ex: /polls/5/results/
+    url(r'^(?P&lt;question_id&gt;[0-9]+)/results/$', views.results, name='results'),
+    # ex: /polls/5/vote/
+    url(r'^(?P&lt;question_id&gt;[0-9]+)/vote/$', views.vote, name='vote'),
+]
+</code></pre>
+<p>接下來，你就可以在模版中使用這個名稱空間設定，例如，修改 polls/index.html 模版：</p>
+<pre class="prettyprint"><code lang="python">{% if latest_question_list %}
+    &lt;ul&gt;
+    {% for question in latest_question_list %}
+        &lt;li&gt;&lt;a href="{% url 'polls:detail' question.id %}"&gt;{{ question.question_text }}&lt;/a&gt;&lt;/li&gt;
+    {% endfor %}
+    &lt;/ul&gt;
+{% else %}
+    &lt;p&gt;No polls are available.&lt;/p&gt;
+{% endif %}
+</code></pre>
+<p>接著要來建立一個簡易表單了，修改 polls/detail.html，如下包括 HTML 的 <code>&lt;form&gt;</code> 標籤內容：</p>
+<pre class="prettyprint"><code lang="python">&lt;h1&gt;{{ question.question_text }}&lt;/h1&gt;
+
+{% if error_message %}&lt;p&gt;&lt;strong&gt;{{ error_message }}&lt;/strong&gt;&lt;/p&gt;{% endif %}
+
+&lt;form action="{% url 'polls:vote' question.id %}" method="post"&gt;
+{% csrf_token %}
+{% for choice in question.choice_set.all %}
+    &lt;input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" /&gt;
+    &lt;label for="choice{{ forloop.counter }}"&gt;{{ choice.choice_text }}&lt;/label&gt;&lt;br /&gt;
+{% endfor %}
+&lt;input type="submit" value="Vote" /&gt;
+&lt;/form&gt; 
+</code></pre>
+<p>在 polls/views.py 中增加以下內容與修改 <code>results</code> 及 <code>vote</code>，讓 <code>results</code> 可以根據請求的 <code>question_id</code> 與指定的模版檔案繪製畫面，而 <code>results</code> 用以取得 <code>question_id</code> 更新選項結果：</p>
+<pre class="prettyprint"><code lang="python">from django.template import loader
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect, HttpResponse
+from django.core.urlresolvers import reverse
+
+from .models import Choice, Question
+
+# .. 其他程式碼
+
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question': question})
+
+def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        return render(request, 'polls/detail.html', {
+            'question': question,
+            'error_message': "You didn't select a choice.",
+        })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+</code></pre>
+<p>其中 <code>try..except..else</code> 的部份，如果 <code>try</code> 區塊中沒有任何的錯誤發生，則會執行 <code>else</code> 區塊，而 <code>reverse('polls:results', args=(question.id,))</code> 會傳回像是 <code>polls/3/results/</code> 的字串，也就是當選項設定完成後，直接重新導向至問題的投票結果頁面。</p>
+<p>當然，我們必須在樣版資料夾中建立 polls/results.html 模版檔案：</p>
+<pre class="prettyprint"><code lang="python">&lt;h1&gt;{{ question.question_text }}&lt;/h1&gt;
+
+&lt;ul&gt;
+{% for choice in question.choice_set.all %}
+    &lt;li&gt;{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;
+
+&lt;a href="{% url 'polls:detail' question.id %}"&gt;Vote again?&lt;/a&gt;
+</code></pre>
+<p>接著你可以試著連結網站，在上頭作些投票，你應該可以看到以下結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FormCSRFPy3-2.JPG" alt="表單與 CSRF"  /></div></div></p>
+<h1>簡介 CSRF</h1>
+<p>在練習 16 中看到了個 <code>{% csrf_token %}</code>，這是什麼？CSRF 全名 Cross-Site Request Forgery，中文常翻為跨站請求攻擊或跨站偽造請求，這是利用 Web 應用程式在設計 HTTP 請求時，因為考量不周全造成的漏洞，從而進行攻擊的手法，通常是在 Web 應用程式站外的其他頁面中，包括惡意程式碼或鏈結，當使用者已通過驗證且會話（Session）未過期時，瀏覽該頁面或點選該惡意鏈結，就會造成攻擊成功的可能性。</p>
+<p>一個 CSRF 攻擊的情境範例會像是 &hellip;</p>
+<ol>
+<li>Bob 登入了 www.webapp.com，並且會話尚未過期。</li>
+<li>Bob 瀏覽了另一個頁面，這個頁面中包括了惡意駭客置入的 <code>&lt;img src="http://www.webapp.com/project/1/destroy"&gt;</code>，然後 Bob 的某個專案就莫名奇妙被刪除了。</li>
+<li>Bob 瀏覽的頁面是不是跟 www.webapp.com 同一個網站並不重要，也許是在另一個論譠、Blog 或特意發給 Bob 的郵件中。</li>
+</ol>
+<p>瀏覽器遇到 <code>&lt;img&gt;</code> 時，就會自動以 GET 請求 <code>src</code> 指定的網址，就這個情境來說，攻擊要能成立的前題，是 /project/1/destroy 這樣的請求就能刪除專案，這很顯然是 URL 設計時的不良，加上應用程式沒有在重大操作之前，進一步確認使用者身份與意圖而導致。</p>
+<p>對於 HTTP 請求，有些人會有 GET 不安全，而 POST 比較安全的錯誤觀念，乍看這個例子好像是如此，實際上，也可以透過 POST 來發動類似的請求。例如：</p>
+<pre class="prettyprint"><code lang="python">&lt;a href="http://www.harmless.com/" onclick="
+  var f = document.createElement('form');
+  f.style.display = 'none';
+  this.parentNode.appendChild(f);
+  f.method = 'POST';
+  f.action = 'http://www.example.com/account/destroy';
+  f.submit();
+  return false;"&gt;好康在這裡&lt;/a&gt;
+</code></pre>
+<p>就算不點選，只要滑鼠略過圖也可以 &hellip;</p>
+<pre class="prettyprint"><code lang="python">&lt;img src="http://www.harmless.com/img" width="400" height="400" onmouseover="..." /&gt;
+</code></pre>
+<p>就算沒有任何滑鼠操作，現在只要利用一些 JavaScript 寫些 Ajax 請求，都有可能讓這類攻擊發生 &hellip;</p>
+<p>先前談過，CSRF 是利用 Web 應用程式在設計 HTTP 請求時，因為考量不周全造成的漏洞，因此，防範方式就是認真思考 HTTP 請求方法之使用。單就 <code>&lt;form&gt;</code> 的 <code>method</code> 允許設置的 GET 與 POST 來說，至少要想一下：</p>
+<ul>
+<li>GET 應用於<strong>等冪（Idempotent）</strong>操作，相同請求重複多次都必須有相同結果，就 GET 而言，語義上也是「取得」資訊，因此 GET 請求不建議用於改變應用程式狀態。</li>
+<li>POST 應用於<strong>非等冪</strong>操作，同樣請求重複多次，可能會產生不同結果，也就是會改變應用程式狀態。</li>
+</ul>
+<blockquote><p>實際上要考量的不只有等幂性，還有請求方法是否安全（Safe），進一步地，在 REST 架構設計下，還有更多的 HTTP 請求方法（像是 PUT、DELETE 等）考量，可參考〈<a href="../../Programmer/HttpMethod.html">重新認識HTTP請求方法</a>〉。</p>
+</blockquote>
+<p>如果 GET 確實地應用於等冪操作，對於非 GET 請求，通常會用個安全代碼，在 Django 中，這可由 <code>{% csrf_token %}</code> 來產生，當你瀏覽表單時，<code>{% csrf_token %}</code> 會產生隱藏欄位，當中包括了一組安全代碼，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FormCSRFPy3-3.JPG" alt="表單與 CSRF"  /></div></div></p>
+<p>Django 應用程式接受請求時，必須同時在請求中找到這組安全代碼，從而確認請求是來自於同一站上的表單。</p>
+<blockquote><p>這個例子並不單只是如何防範 CSRF，主要想表達的是，安全其實是現代設計應用程式時應主動納入的考量，現在有不少框架也將安全納為特色之一，讓開發者不用煩惱安全防護實作時的枝微末節。</p>
+</blockquote>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

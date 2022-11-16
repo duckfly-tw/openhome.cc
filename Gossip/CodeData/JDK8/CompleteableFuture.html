@@ -1,0 +1,160 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果你要非同步（Asyncronous）讀取文字檔案，在檔案讀取完後做某些事，可以使用 ExecutorService 來 submit 一個 Runnable 物件，像是類似以下的流程：
+publi...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【JDK8】CompletableFuture 非同步處理">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JDK8/CompleteableFuture.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果你要非同步（Asyncronous）讀取文字檔案，在檔案讀取完後做某些事，可以使用 ExecutorService 來 submit 一個 Runnable 物件，像是類似以下的流程：
+publi...">
+
+
+    <title>【JDK8】CompletableFuture 非同步處理</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CompleteableFuture.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/JDK8/">回 JDK8 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【JDK8】CompletableFuture 非同步處理</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>如果你要非同步（Asyncronous）讀取文字檔案，在檔案讀取完後做某些事，可以使用 <code>ExecutorService</code> 來 <code>submit</code> 一個 <code>Runnable</code> 物件，像是類似以下的流程：</p>
+<pre class="prettyprint"><code lang="java">public static Future readFileAsync(String file, Consumer&lt;String&gt; success,
+                        Consumer&lt;IOException&gt; fail, ExecutorService service) {
+    return service.submit(() -&gt; {
+        try {
+            success.accept(new String(Files.readAllBytes(Paths.get(file))));
+        } catch (IOException ex) {
+            fail.accept(ex);
+        }
+    });
+}
+</code></pre>
+<p>這麼一來，你就可使用以下非同步的風格來讀取一個文字檔案：</p>
+<pre class="prettyprint"><code lang="java">readFileAsync(args[0], 
+    content -&gt; out.println(content),  // 成功處理
+    ex -&gt; ex.printStackTrace(),       // 失敗處理
+    Executors.newFixedThreadPool(10)
+);
+</code></pre>
+<p><code>out.println(content)</code> 與 <code>ex.printStackTrace()</code> 會在與讀取檔案的同一個執行緒中進行，如果你想要在不同執行緒中進行，得再額外作些設計；另一方面，這種非同步操作使用的<strong>回呼（Callback）風格</strong>，在每次回呼中若又再度進行非同步操作及回呼，很容易寫出<strong>回呼地獄（Callback hell）</strong>，造成可讀性不佳。例如若有個類似 <code>readFileAsync</code> 風格的非同步 <code>processContentAsync</code> 方法，用來再繼續處理 <code>readFileAsync</code> 讀取的檔案內容，那麼可能撰寫出以下的程式碼：</p>
+<pre class="prettyprint"><code lang="java">readFileAsync(args[0],
+    content -&gt; processContentAsync(content,
+                 processedContent -&gt; out.println(processedContent) ,
+                 ex -&gt; ex.printStackTrace(), service),
+    ex -&gt; ex.printStackTrace(), service);
+</code></pre>
+<p>實際上非同步處理的組合需求很多，為此，JDK8 新增了 <code>java.util.concurrent.CompletableFuture</code>，你可以使用它來改寫 <code>readFileAsync</code>，例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.IOException;
+import static java.lang.System.out;
+import java.nio.file.*;
+import java.util.concurrent.*;
+
+public class Async {
+    public static CompletableFuture&lt;String&gt; readFileAsync(
+                       String file, ExecutorService service) {
+        return CompletableFuture.supplyAsync(() -&gt; {
+            try {
+                return new String(Files.readAllBytes(Paths.get(file)));
+            } catch(IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }, service);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        ExecutorService poolService = Executors.newFixedThreadPool(10);
+
+        readFileAsync(args[0], poolService).whenComplete((ok, ex) -&gt; {
+            if(ex == null) {
+                out.println(ok);
+            } else {
+                ex.printStackTrace();
+            }
+        }).join(); // join 是為了避免 main 執行緒在任務完成前就關閉ExecutorService
+
+        poolService.shutdown();
+    }
+}
+</code></pre>
+<p><code>CompletableFuture</code> 的靜態方法 <code>supplyAsync</code> 接受 <code>Supplier</code> 實例，可指定非同步執行任務，它會傳回 <code>CompletableFuture</code> 實例，你可以呼叫 <code>whenComplete</code> 以 <code>BiConsumer</code> 實例指定任務完成如何處理，第一個參數是 <code>Supplier</code> 的傳回值，若有例外發生則會指定給第二個參數，想要在任務完成後繼續非同步地處理，則可以使用 <code>whenCompleteAsync</code> 方法。</p>
+<p>如果第一個 <code>CompletableFuture</code> 任務完成後，想要繼續以非同步方式來處理結果，可以使用 <code>thenApplyAsync</code>。例如：</p>
+<pre class="prettyprint"><code lang="java">readFileAsync(args[0], poolService)
+     .thenApplyAsync(String::toUpperCase)
+     .whenComplete((ok, ex) -&gt; {
+         if(ex == null) {
+            out.println(ok);
+         } else {
+            ex.printStackTrace();
+         }
+     });
+</code></pre>
+<p><code>CompletableFuture</code> 實例的方法，基本上都會有同步與非同步兩個版本，可以用 <code>Async</code> 後置名稱來區分，例如，<code>thenApplyAsync</code> 的同步版本就是 <code>thenApply</code> 方法。</p>
+<p>〈<a href="../../Java/FlatMap.html"><code>Optional</code> 與 <code>Stream</code> 的 <code>flatMap</code></a>〉中談到，<code>Optional</code> 與 <code>Stream</code> 中各定義有 <code>map</code> 方法，可讓你指定 <code>Optional</code> 或 <code>Stream</code> 中的值 <code>T</code> 如何映射為值 <code>U</code>，然後傳回新的 <code>Optional</code> 或 <code>Stream</code>，<code>CompletableFuture</code> 的 <code>thenApply</code>（以及非同步的 <code>thenApply</code> 版本）其實就類似 <code>Optional</code> 或 <code>Stream</code> 的 <code>map</code>，可讓你指定前一個 <code>CompletableFuture</code> 處理後的結果 <code>T</code> 如何映射為值 <code>U</code>，然後傳回新的 <code>CompletableFuture</code>。</p>
+<p>該份文件中也談到，<code>Optional</code> 與 <code>Stream</code> 中也各定義有 <code>flatMap</code> 方法，可讓你指定 <code>Optional</code> 或 <code>Stream</code> 中的值 <code>T</code> 與 <code>Optional&lt;U&gt;</code>、<code>Stream&lt;U&gt;</code> 之間的關係，<code>CompletableFuture</code> 也有個 <code>thenCompose</code>（以及非同步的 <code>thenComposeAsnyc</code> 版本），作用就類似 <code>flatMap</code>，可以讓你指定前一個 <code>CompletableFuture</code> 處理後的結果 <code>T</code> 如何映射為值 <code>CompleteableFuture&lt;U&gt;</code>，舉例來說，你想在 <code>readFileAsync</code> 傳回的 <code>CompletableFuture&lt;String&gt;</code> 處理完後，繼續組合 <code>processContentAsync</code> 方法傳回 <code>CompletableFuture&lt;String&gt;</code>，就可以如下撰寫：</p>
+<pre class="prettyprint"><code lang="java">readFileAsync(args[0], poolService)
+        .thenCompose(content -&gt; processContentAsync(content, poolService))
+        .whenComplete((ok, ex) -&gt; {
+            if (ex == null) {
+                out.println(ok);
+            } else {
+                ex.printStackTrace();
+            }
+        });
+</code></pre>
+<p><code>CompletableFuture</code> 上還有許多方法可以使用，詳情除了參考 API 文件之中，還可以看看〈<a href="http://www.nurkiewicz.com/2013/05/java-8-definitive-guide-to.html">Java 8: Definitive guide to CompletableFuture</a>〉這篇文章，有 JDK8 之前，可以使用 guava-libraries 的 <code>ListenableFuture</code>，有興趣的話可以參考〈<a href="http://www.codedata.com.tw/java/guava-tutorial-9-listenablefuture/">ListenableFuture 聽取未來需求</a>〉，其他各技術生態中的類似產物，可以參考〈<a href="http://ingramchen.io/blog/2013/01/composable-future-api.html">Composable Future API</a>〉的介紹。</p>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,246 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="After defining (or simulating) the list with the concept of algebraic data types, let's get back to ...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Functional Programming for Java Developers, Part 3 - List Patterns">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/FunctionalProgrammingforJavaDevelopers3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="After defining (or simulating) the list with the concept of algebraic data types, let's get back to ...">
+
+
+    <title>Functional Programming for Java Developers, Part 3 - List Patterns</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionalProgrammingforJavaDevelopers3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Functional Programming for Java Developers, Part 3 - List Patterns</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+      After defining (or simulating) the list with the concept of algebraic data types, let's get back to the final question left in the <a
+
+        href="FunctionalProgrammingforJavaDevelopers1.html">Functional Programming for Java Developers, Part 1</a>. We're talking about Java, so we have to translate the following code to Java:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">sum [] = 0<br>
+        sum (x:xs) = <strong>x</strong> + sum <strong>xs </strong></div>
+      <br>
+      Java doesn't support pattern match, so we use <span class="courier">if</span> to check whether a list is <span
+
+        class="courier">Nil</span>. We can define a <span class="courier">sum</span> method as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">public static Integer sum(List&lt;Integer&gt; lt) {<br>
+        &nbsp;&nbsp;&nbsp; if(lt == Nil) return 0;<br>
+        &nbsp;&nbsp;&nbsp; else return <strong>lt.head()</strong> + sum(<strong>lt.tail()</strong>);<br>
+        }</div>
+      <br>
+      After defining the <span class="courier">sum</span> method, <span
+
+        class="courier">sum(list(1, 2, 3, 4, 5))</span> will return the result 15. Look Great. Then, how to define an <span
+
+        class="courier">addOne</span> method to add 1 to each list element? A sub problem is what should be returned when the list is empty? Just return the empty list. The other sub problem is how to get the result from the head element <span
+
+        class="courier">x</span> and the tail list <span class="courier">xs</span>. Add 1 to <span
+
+        class="courier">x</span>, us <span class="courier">xs</span> to call the <span
+
+        class="courier">addOne</span> method<span class="courier"></span>, and use the method <span
+
+        class="courier">cons</span> to get the new list. Let's write these two sub problems in Java. <br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public static List&lt;Integer&gt; <span
+
+          style="font-weight: bold;">addOne</span>(List&lt;Integer&gt; lt) {<br>
+        &nbsp;&nbsp;&nbsp; if(lt == Nil) return nil();<br>
+        &nbsp;&nbsp;&nbsp; else return cons(lt.head() <span style="font-weight: bold;">+ 1</span>, <span
+
+          style="font-weight: bold;">addOne</span>(lt.tail()));<br>
+        }</div>
+      <br>
+      Similarly, defining a method to subtract 2 from each list element just needs changing <span
+
+        class="courier">(+ 1)</span> to <span class="courier">(- 2</span>) and renaming <span
+
+        class="courier">addOne</span> to <span class="courier">subtractTWO</span>. Defining a method to multiply each list element by 3 just needs changing <span
+
+        class="courier">(+ 1)</span> to <span class="courier">(* 3)</span> and renaming <span
+
+        class="courier">addOne</span> to <span class="courier">multiplyByThree</span>. Can you see that? If <span
+
+        class="courier">(+ 1)</span>, <span class="courier">(- 2)</span> and <span
+
+        class="courier">(* 3)</span> are first-class functions, we'll be able to reuse the code template. Hey! JDK8 Lambda will introduce first class functions, doesn't it? We can define a functional interface as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> <span>public interface F1&lt;P, R&gt; {<br>
+          &nbsp;&nbsp;&nbsp; R apply(P p);<br>
+          }</span></div>
+      <br>
+      Mapping a list of something to a list of others is a common pattern when dealing with a list. We can define a <span
+
+        class="courier">map</span> method to do that.<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> <span>public class AlgebraicType {<br>
+          &nbsp;&nbsp;&nbsp; ...<br>
+          &nbsp;&nbsp;&nbsp; public static &lt;T, R&gt; List&lt;R&gt; <strong>map</strong>(List&lt;T&gt; lt, F1&lt;T, R&gt; f) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(lt == Nil) return nil();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cons(<span style="font-weight: bold;">f.apply</span>(lt.head()), <strong>map</strong>(lt.tail(), f));<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }</span></div>
+      <br>
+      Then, adding 1 to each list element can be as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> map(list(1, 2, 3, 4, 5), <strong>x -&gt; x + 1</strong>);</div>
+      <br>
+      Subtracting 2 from each list element can be as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> map(list(1, 2, 3, 4, 5), <strong>x -&gt; x - 2</strong>);</div>
+      <br>
+      Multiplying each list element by 3 can be as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> map(list(1, 2, 3, 4, 5), <strong>x -&gt; x * 3</strong>);</div>
+      <br>
+      The <span class="courier">map</span> is a really versatile method that can be used in millions of different ways. Similarly, how to filter out list elements greater than 3? We can write code as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public static List&lt;Integer&gt; <strong>greaterThanThree</strong>(List&lt;Integer&gt; lt) {<br>
+        &nbsp;&nbsp;&nbsp; if(lt == Nil) return nil();<br>
+        &nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(lt.head() <strong>&gt; 3</strong>) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cons(lt.head(), <strong>greaterThanThree</strong>(lt.tail()));<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>greaterThanThree</strong>(lt.tail());<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      How to filter out list elements smaller than 10?<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public static List&lt;Integer&gt; <strong>smallerThanTen</strong>(List&lt;Integer&gt; lt) {<br>
+        &nbsp;&nbsp;&nbsp; if(lt == Nil) return nil();<br>
+        &nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(lt.head() <strong>&lt; 10</strong>) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cons(lt.head(), <strong>smallerThanTen</strong>(lt.tail()));<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>smallerThanTen</strong>(lt.tail());<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      <br>
+      Filtering a list of elements is a common pattern when dealing with a list. We can define a <span
+
+        class="courier">filter</span> method to do the work.<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public class AlgebraicType {<br>
+        &nbsp;&nbsp;&nbsp; ...<br>
+        &nbsp;&nbsp;&nbsp; public static &lt;T&gt; List&lt;T&gt; <strong>filter</strong>(List&lt;T&gt; lt, F1&lt;T, Boolean&gt; f) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(lt == Nil) return nil();<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(<strong>f.apply</strong>(lt.head())) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cons(lt.head(), <strong>filter</strong>(lt.tail(), f));<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>filter</strong>(lt.tail(), f);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      Then, filtering a list of elements greater than 3 is as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> filter(list(1, 2, 3, 4, 5), <span
+
+          style="font-weight: bold;">x -&gt; x &gt; 3</span>);</div>
+      <br>
+      filtering a list of elements smaller than 10 is as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> filter(list(10, 19, 3, 4, 5), <span
+
+          style="font-weight: bold;">x -&gt; x &lt; 10</span>);</div>
+      <br>
+      The <span class="courier">filter</span> is a really versatile method that can be used to filter elements in millions of different ways. Similarly, reducing a list of elements to a single value is a common pattern. Before that, we define a functional interface as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public interface F2&lt;P, R&gt; {<br>
+        &nbsp;&nbsp;&nbsp; R apply(R r, P p);<br>
+        }</div>
+      <br>
+      Then, we define a <span class="courier">reduce</span> method as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> public class AlgebraicType {<br>
+        &nbsp;&nbsp;&nbsp; ...<br>
+        &nbsp;&nbsp;&nbsp; public static &lt;T, R&gt; R reduce(List&lt;T&gt; lt, F2&lt;T, R&gt; f, R r) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(lt == Nil) return r;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return reduce(lt.tail(), f, f.apply(r, lt.head()));<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      Summing up a list of elements can be done as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"> reduce(list(1, 2, 3, 4, 5), <strong>(sum, x) -&gt; sum + x</strong>, 0);</div>
+      <br>
+      Understanding the magic which the <span class="courier">reduce</span> method plays is not easy for a functional programming novice. The <span
+
+        class="courier">reduce</span> method is also called as <span class="courier">foldLeft</span>. What it does is like folding a paper from the left. What the code <span
+
+        class="courier">reduce(list(1, 2, 3, 4, 5), (sum, x) -&gt; sum + x, 0)</span> does is like the animation shown below. Every time you fold the paper, you add the left number to the right number. After completing the work, you get the final result.<br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="reduce" src="images/reduce.gif" /></div></div><br>
+      <br>
+      The <span class="courier">reduce</span> is a really versatile method. You have millions of different ways to reduce a list of elements to a single value. The point here is, however, If you code functionally, you can easily find the similar structure between functions, distill and reuse the high level abstraction. The <span
+
+        class="courier">map</span>, <span class="courier">filter</span> and <span
+
+        class="courier">reduce</span> methods shown here are good examples for that. Once you can think functionally, you'll find more high level abstractions. <br>
+     <div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

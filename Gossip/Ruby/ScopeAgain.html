@@ -1,0 +1,356 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="先前談過，在Ruby中有五種變數，包括區域變數、全域變數、實例變數、類別變數與常數，先前曾討論過一些範圍（Scope）的問題，在學到模組之後，這邊要正名為區域變數、全域變數、實例變數、類別模組變數與常...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="再看變數範圍">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Ruby/ScopeAgain.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="先前談過，在Ruby中有五種變數，包括區域變數、全域變數、實例變數、類別變數與常數，先前曾討論過一些範圍（Scope）的問題，在學到模組之後，這邊要正名為區域變數、全域變數、實例變數、類別模組變數與常...">
+
+
+    <title>再看變數範圍</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ScopeAgain.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Ruby 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>再看變數範圍</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            先前談過，在Ruby中有五種變數，包括區域變數、全域變數、實例變數、類別變數與常數，先前曾討論過一些範圍（Scope）的問題，在學到模組之後，這邊要正名為區域變數、全域變數、實例變數、<span style="font-weight: bold;">類別模組變數</span>與常數。以下對變數作個總整理。<br>
+      <br>
+以<span style="font-family: Courier New,Courier,monospace;">$$</span>開頭的全域變數是最容易理解的，因為整個程式中隨處可見。<br>
+      <br>
+以小寫字母開頭的區域變數的範圍也許是其次容易理解的，在Ruby中，非常明確的，<span style="font-weight: bold;">區域變數就真的只是區域變數，無論它出現在哪個區域，可見範圍就僅止於該區域，不會跨入內嵌的子區域</span>。如果出現在類別區域，就是在類別區域中可見，不會在方法區域中可見。如果出現在模組區域中，就只在模組區域中可見，不會在類別或方法中可見。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; x = 10<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts x<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; Some.new.some<br>
+            </span>NameError: undefined local variable or method `x' for #&lt;Some:0x42df98&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):23:in `some'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):26<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from C:/Winware/Ruby192/bin/irb:12:in `&lt;main&gt;'<span style="font-weight: bold;"><br>
+&gt;&gt; module M1<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; y = 20<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; puts y<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end</span><br>
+NameError: undefined local variable or method `y' for M1::Some:Class<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):30:in `&lt;class:Some&gt;'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):29:in `&lt;module:M1&gt;'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):27<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from C:/Winware/Ruby192/bin/irb:12:in `&lt;main&gt;'<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+      <br>
+      <span style="font-weight: bold;">如果類別或模組中定義了常數，則類別或模組，或其中的方法都可取用常數（方法中不能設定常數）</span>。常數若定義在類別中，則可以透過「<span style="font-weight: bold;">類別名稱</span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">::</span><span style="font-weight: bold;">常數</span>」的方式取得。常數若定義在模組中，則可以透過「<span style="font-weight: bold;">模組名稱</span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">::</span><span style="font-weight: bold;">常數</span>」的方式取得。事實上，類別名稱或模組都必須以大寫名稱作開頭，而大寫名稱在Ruby中是定義為常數，所以類別名稱與模組名稱，其實就是個常數。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; CONT_SOME = 10<br>
+&gt;&gt; end<br>
+</span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; Some::CONT_SOME<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; module M1<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; CONT_M1 = 20<br>
+&gt;&gt; end<br>
+            </span>=&gt; 20<span style="font-weight: bold;"><br>
+&gt;&gt; M1::CONT_M1<br>
+            </span>=&gt; 20<span style="font-weight: bold;"><br>
+&gt;&gt; module M2<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; CONT_M2 = 30<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; class Other<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CONT_OTHER = 40<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+            </span>=&gt; 40<span style="font-weight: bold;"><br>
+&gt;&gt; M2::CONT_M2<br>
+            </span>=&gt; 30<span style="font-weight: bold;"><br>
+&gt;&gt; M2::Other<br>
+            </span>=&gt; M2::Other<span style="font-weight: bold;"><br>
+&gt;&gt; M2::Other::CONT_OTHER<br>
+            </span>=&gt; 40<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+      <br>
+      因此，模組也常被用來作為類別、公用方法或公用常數的名稱空間，而與特定類別相關的公用常數與公用方法則定義在特定類別中。<br>
+      <br>
+      <span style="font-weight: bold;">如果類別或模組外定義了常數，則</span>類別或模組內可以直接取用<span style="font-weight: bold;">常數，在類別或模組中若設定了同名常數，則是在類別或模組中定義了自己的常數</span>。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; X = 10<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; puts X<br>
+&gt;&gt; end<br>
+            </span>10<span style="font-weight: bold;"><br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; class Other<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; X = 20<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; puts X<br>
+&gt;&gt; end<br>
+            </span>20<span style="font-weight: bold;"><br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; X<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">關於@@開頭的變數，</span>在 <a href="ClassVariable.html">類別變數</a> 中作過深入的討論，實際上，<span style="font-family: Courier New,Courier,monospace;">@@</span>開頭的變數，也可以定義在模組中，姑且稱之為模組變數，屬於模組擁有，模組變數必須定義模組方法來取得。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; module M1<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @@x = 10<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def self.x<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @@x<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; M1.x<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+      <br>
+      實際上，<span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: red;">@@</span><span style="font-weight: bold; color: red;">開頭的變數，範圍貫穿</span>模組或類別<span style="font-weight: bold; color: red;">以及當中定義的方法（無論是實例方法或是類別方法），<span style="font-family: Courier New,Courier,monospace;">而且在Object類別中，若有@@變數與內部類別的@@類別變數同名，則外部類別的@@變數會覆蓋內部類別的@@變數（在Object中定義@@變數，幾乎就等同全域變數了）。</span></span>因此要小心使用，你可以回顧 <a href="ClassVariable.html">類別變數</a> 中看過的幾個例子。<br>
+      <br>
+      <span style="font-weight: bold;">以@開頭的變數為實例變數，屬於個別物件擁有，可視範圍僅限於物件之內，要取得實例變數，必須為該物件定義實例方法。<br>
+      <br>
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold; color: red;">@開頭</span><span style="font-weight: bold; color: red;">的變數，並不是只能出現在實例方法中，如果@開頭的變數出現在類別或模組本體，那它就是屬於類別或模組（因為它們也是物件），出現在類別或模組方法中時，表示要存取的就是該類別或模組擁有的實例變數。</span>例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @a = 10<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def self.a<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @a<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def a<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @a<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; def a=(v)<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @a = v<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; end<br>
+&gt;&gt; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; s = Some.new<br>
+            </span>=&gt; #&lt;Some:0x2603a60&gt;<span style="font-weight: bold;"><br>
+&gt;&gt; Some.a<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; s.a = 20<br>
+            </span>=&gt; 20<span style="font-weight: bold;"><br>
+&gt;&gt; Some.a<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; s.a<br>
+            </span>=&gt; 20<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+      <br>
+      出現在Some本體的@a，是屬於Some類別擁有的實例變數，因此必須透過類別方法Some.a取得。出現在實例方法中的@a，則屬於Some產生的s實例擁有，因此必須透過s.a實例方法存取。<br>
+      <br>
+      那麼，@@開頭的變數與@開頭的變數有何不同？來看看這個例子：<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @@a = 10<br>
+&gt;&gt; end<br>
+</span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; def Some.a<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @@a<br>
+&gt;&gt; end<br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; Some.a<br>
+            </span>NameError: uninitialized class variable @@a in Object<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):5:in `a'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from (irb):8<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from C:/Winware/Ruby192/bin/irb:12:in `&lt;main&gt;'<br>
+            <span style="font-weight: bold;">&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+
+      <br>
+      這是在 <a href="ClassVariable.html">類別變數</a> 討論過的情況，直譯器看到<span style="font-family: Courier New,Courier,monospace;">@@a</span>時，會往外看類別或模組邊界在哪（而不是看到<span style="font-family: Courier New,Courier,monospace;">Some.a中的Some</span>），結果看到的邊界是<span style="font-family: Courier New,Courier,monospace;">Object，但Object中並沒有定義@@a，因此發生錯誤。</span><br>
+      <br>
+如果是以下呢？<br>
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some<br>
+&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @a = 10<br>
+&gt;&gt; end<br>
+</span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt; def Some.a<br>
+            </span>&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp; @a<span style="font-weight: bold;"><br>
+&gt;&gt; end<br>
+            </span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; Some.a<br>
+            </span>=&gt; 10<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+
+
+      <br>
+      直譯器看到<span style="font-family: Courier New,Courier,monospace;">@a</span>時，會看看是透過哪個實例呼叫，結果是<span style="font-family: Courier New,Courier,monospace;">Some，因此取得的是Some中定義的@a</span><span style="font-family: Courier New,Courier,monospace;">。<br>
+</span><br>
+      @開頭的變數一定是在實例上，只是這個實例可能是類別、模組或依類別建構出來的實例；<span style="font-family: Courier New,Courier,monospace; font-weight: bold;">@@</span><span style="font-weight: bold;">開頭的變數，可</span><span style="font-weight: bold;">記憶為比<span style="font-family: Courier New,Courier,monospace;">@</span>擁有更大可視範圍的意</span><span style="font-weight: bold;">涵，其</span><span style="font-weight: bold;">範圍貫穿模組或類別以及當中定義的方法（無論是實例方法或是類別方法），並需留意<span style="font-family: Courier New,Courier,monospace;">Object中@@變數幾乎等同全域變數的情況</span>。</span><br>
+      <br>
+      <br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

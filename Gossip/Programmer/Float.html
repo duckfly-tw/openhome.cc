@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="這個世界上許多電腦都在處理錢，我老覺得疑惑的是，沒有任何主流程式語言把錢當成一級資料型態來看待。...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="算錢學問大">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Programmer/Float.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="這個世界上許多電腦都在處理錢，我老覺得疑惑的是，沒有任何主流程式語言把錢當成一級資料型態來看待。">
+    <title>算錢學問大</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+    <!-- 網頁層級廣告 -->
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script>
+  </head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="Float.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="index.html">回
+            程式人目錄</a>
+          <ul class="pure-menu-list">
+            <br>
+            <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                  title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+              <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                  alt="Facebook" src="../images/facebook.png"></a>
+              </div>
+            <br>
+            <div id="search box">
+              <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+            <br>
+            <div class="ad" style="text-align: center;">
+              <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+              <!-- 2015 新版型 160 x 600 廣告 -->
+              <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+              <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>算錢學問大</h1>
+        </header>
+        <article class="content"><br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <br>
+          算錢？不過就是數字加減乘除之類的吧！然而Martin
+          Fowler曾經說過：「這個世界上許多電腦都在處理錢，我老覺得疑惑的是，沒有任何主流程式語言把錢當成一級資料型態來看待。」這不禁讓人自問，算錢真的有那麼難？<br>
+          <br>
+          <dl>
+            <dt>惱人的小數點？</dt>
+          </dl>
+          <br>
+          在Google搜尋中鍵入「算錢」，知道為什麼會出現「算錢用浮點，遲早被人扁」的建議搜尋嗎？實際上，在電腦中浮點數計算會有誤差這件事，許多開發
+          者並不知道，遇到1.0 -
+          0.8的結果會是0.19999999999999996的類似場合，抓著頭髮脫口What的大有人在，更怕的表面風平浪靜，直到有一天突然出現致命誤差，而被業務或者財
+          務會計人員追殺之時。<br>
+          <br>
+          六、七十年代各型號電腦有著各式的浮點數表示法，後來IEEE 754浮點數運算標準出來一統江湖，簡單來說，IEEE
+          754會有符號位（Sign）、指數（Exponent）與小數（Fraction）部份，對於一個浮點數，必須先將數值轉為二進位，然後經過一些步驟儲存符號、指數與小
+          數，例如只有小數部份時，轉為二進位的第一步會是：<br>
+          <br>
+          <code>0.5 = 1/2 =&gt; 0.1<br>
+            0.75 = 1/2 + 1/4 =&gt; 0.11<br>
+            0.875 = 1/2 + 1/4 + 1/8 =&gt; 0.111</code><br>
+          <br>
+          而當遇上0.1這類的數值時，會是1/16 + 1/32 + 1/256 + 1/512 +1/4096 + 1/8192
+          +...無止境下去，實際上電腦沒辦法無止境地儲存位數，勢必造成誤差，因此，不要將浮點數用於嚴謹的財務計算之類的場合，解決的方式之是使用整數並進行大數運算，例如
+          10.25可使用1025加上位數（scale）表示，基本上，程式語言通常都會有協助大數運算的程式庫（標準程式庫或者第三方程式庫），像是
+          Java的<code>java.math.BigDecimal</code>。<br>
+          <br>
+          然而使用這些程式庫會有一些必須注意的地方，例如，在使用<code>BigDecimal</code>的時候，建議使用<code>BigDecimal(String)</code>而
+          不是<code>BigDecimal(double)</code>來建立實例，因為像<code>BigDecimal(0.1)</code>實
+          際上會是0.1000000000000000055511151231257827021181583404541015625，只有<code>BigDecimal("0.1")</code>才
+          會是表示0.1，另一個要注意的是，<code>BigDecimal(double)</code>並不等同於<code>Double.valueOf(double)</code>後
+          呼叫<code>BigDecimal(String)</code>，這個需求建議使用<code>BigDecimal.valueOf(double)</code>。<br>
+          <br>
+          <dl>
+            <dt>不同的進位捨去法</dt>
+          </dl>
+          <br>
+          在算錢時會遇到必須進位捨去的情況，不同的國家會採用不同的方式，涉及錢的問題時，開發者必須清楚採用哪一種方式。一般人概念中最常有的捨入概念，應
+          該是四捨五入、無條件進位或捨去，如果是正值的話比較容易理解，5.4套用這三者取整數的結果分別會是5、6.0與5.0，在Java中可以分別使用<code>Math</code>的
+          靜態方法<code>round()</code>、<code>ceil()</code>與<code>floor()</code>來計算，那
+          麼-5.4呢？套用這三個方法的結果分別會是-5、-5.0、-6.0！<br>
+          <br>
+          <code>round()</code>實際上是向最接近數字方向的捨入操作，結果為-5並不意外；<code>ceil()</code>是往正
+          方向的捨入，因此-5.4的正方向就是-5.0；<code>floor()</code>是往負方向的捨入，-5.4的負方向是-6.0。<code>Math</code>的
+          靜態方法<code>round()</code>、<code>ceil()</code>、<code>floor()</code>只保留整數
+          部份，遇到想指定小數位數的時候，許多開發者會自行設計公式來計算，然而，可以使用<code>BigDecimal</code>在一些計算操作時
+          指定捨入模式，早期的JDK是使用<code>BigDecimal</code>的整數常數來列舉，從JDK5之後，可使用<code>RoundingMode</code>列
+          舉型態的成員，<code>round()</code>、<code>ceil()</code>、<code>floor()</code>的三
+          種捨入模式分別對應至<code>HALF_UP</code>、<code>CEILING</code>與<code>FLOOR</code>。<br>
+          <br>
+          <code>RoundingMode</code>的<code>UP</code>捨入模式，會遠離0的方向，被捨棄的部份若不是0，左邊的數字
+          一律遞增1，因此5.4若只保留整數，操作後會是6，-5.4操作後會是-6；<code>DOWN</code>會接近0的方向，5.4操作後會是
+          5，-5.4操作後會是-5；<code>HALF_UP</code>與<code>HALF_DOWN</code>都會向最接近數字方向進行捨
+          入操作，不同的是，若最接近的數字距離相同，前者進位而後者捨去，因此5.5的<code>HALF_UP</code>會是6，而<code>HALF_DOWN</code>會
+          是5。<br>
+          <br>
+          <code>HALF_EVEN</code>的模式比較難理解一些，雖然會往最接近數字方向進行捨入操作，不過，若最接近的數字距離相同，是向相鄰
+          的偶數捨入，因此<code>HALF_EVEN</code>時，若捨去部份的左邊為奇數，那麼行為就像是<code>HALF_UP</code>，
+          因此5.5會成為6，若為偶數，那麼行為上就像是<code>HALF_DOWN</code>，因此4.5會成為4，這種捨入法又稱銀行家捨入法
+          （Banker's rounding）或者四捨五入取偶數（round-to-even）。<br>
+          <br>
+          開發者必須得小心的是，搞清楚目前使用的程式庫對於捨入的行為究竟為何，Java的<code>Math.round()</code>採用的是<code>HALF_UP</code>，
+          不過其他語言或程式庫不見得是如此，猜猜看，Python3的<code>round()</code>函式採用的是哪種？答案是銀行家捨入法！因
+          此，Python3中<code>round(5.5)</code>是6，而<code>round(4.5)</code>會是4。<br>
+          <br>
+          <dl>
+            <dt>為金錢建立模型</dt>
+          </dl>
+          <br>
+          如果處理的不只有一種貨幣，那麼處理錢除了數量之外，還必須考量貨幣單位，以及貨幣之間的計算與轉換問題。從JDK1.4開始，基本上可使用<code>java.util.Currency</code>這
+          個類別來代表貨幣，而貨幣的量使用<code>BigDecimal</code>來儲存，為了方便，可以定義一個<code>Money</code>類
+          別來封裝這兩個物件，並提供加、減、乘、除等操作，以及大於、等於、小於等金錢比較，這時也就必須要根據不同國家或地區，採用不同的進位捨去觀念。<br>
+          <br>
+          使用<code>BigDecimal</code>在設定小數位數時，記得指定的是<code>scale</code>相關參數或者使用<code>scale</code>相
+          關方法，而不是<code>precision</code>；<code>precision</code>是指從數字最左邊不是0的數字開始，直
+          到最右邊使用的數字個數；在建構<code>BigDecimal</code>時，也可以使用<code>BigInteger</code>指定<code>unscaled</code>值，
+          並使用<code>scale</code>指定小數位數。使用<code>BigDecimal</code>時記得它是不可變動物件，每個操作都
+          會傳回新的<code>BigDecimal</code>實例。<br>
+          <br>
+          如果需要程式碼參考的話，Martin Flower在〈<a href="http://www.javapractices.com/topic/TopicAction.do?Id=13">Representing
+            money</a>〉介紹過Money模式，其中也提供了程式碼實作，不過，其中少了對貨幣的格式化描述，在格式化方面，Java可以使用<code>java.text.DecimalFormat</code>來
+          達到，類似地，格式化時會涉及捨入問題，<code>DecimalFormat</code>從JDK6開始也接受了<code>RoundingMode</code>的
+          設定。<br>
+          <br>
+          <dl>
+            <dt>第三方程式庫或JSR354</dt>
+          </dl>
+          <br>
+          如果不想從頭自行實作這一切的話，可以考慮第三方程式庫，像是<a href="http://www.joda.org/joda-money/">Joda-Money</a>，
+          它是由Stephen
+          Colebourne建立，一個很精簡的程式庫，建議閱讀它的原始碼，這不需要花費很長的時間，也能從中瞭解到如何使用這個程式庫。Joda-Money缺少貨幣轉換方
+          案，雖然<code>Money</code>類別提供了<code>convertedTo</code>方法，然而必須自行獲取匯率並封裝為<code>BigDecimal</code>實
+          例，然後呼叫<code>convertedTo</code>時一併指定<code>CurrencyUnit</code>與<code>RoundingMode</code>。<br>
+          <br>
+          Java標準本身為了解決貨幣問題，制定了JSR354金錢與貨幣API（Money and Currency API），它本來打算放到Java
+          9，後來JSR354成員覺得太燥進了，決定不放入Java
+          9，而是做為一個獨立規格，專案名稱為JavaMoney（https://goo.gl/UbbiMu）。JSR354提供貨幣轉換方案，在匯率轉換上，目前有基於歐洲
+          央行（European Central Bank）與國際貨幣基金（International Monetary
+          Fund）公佈數據的預設實作。<br>
+          <br>
+          涉及錢的問題，從浮點數、BigDecimal、各種捨入模式、金錢模型、格式化到貨幣轉換，算錢可真是不是件容易的事，身為開發者的你，是否曾經認
+          真地搞清楚每個環節了呢？<br>
+          <br>
+          <br>
+          <p></p>
+          <p></p>
+          <ul>
+          </ul>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+  </body>
+</html>

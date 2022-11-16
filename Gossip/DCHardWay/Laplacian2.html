@@ -1,0 +1,151 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Laplacian 運算（一）〉中，透過 x 軸方向的二階導數，可以對圖像進行 x 軸方向的邊緣偵測，是不是也可以對 y 軸方向求二階導數，然後兩個二階導數相加，來得到兩個方向的邊緣偵測呢？來試試...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Laplacian 運算（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/Laplacian2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Laplacian 運算（一）〉中，透過 x 軸方向的二階導數，可以對圖像進行 x 軸方向的邊緣偵測，是不是也可以對 y 軸方向求二階導數，然後兩個二階導數相加，來得到兩個方向的邊緣偵測呢？來試試...">
+
+    <title>Laplacian 運算（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Laplacian2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Laplacian 運算（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Laplacian.html">Laplacian 運算（一）</a>〉中，透過 x 軸方向的二階導數，可以對圖像進行 x 軸方向的邊緣偵測，是不是也可以對 y 軸方向求二階導數，然後兩個二階導數相加，來得到兩個方向的邊緣偵測呢？來試試看吧！</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import cv2
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+x_derivative2 = cv2.filter2D(img, cv2.CV_16S, np.array([
+    [0, 0, 0],
+    [1, -2, 1],
+    [0, 0, 0]
+]))
+
+y_derivative2 = cv2.filter2D(img, cv2.CV_16S, np.array([
+    [0, 1, 0],
+    [0, -2, 0],
+    [0, 1, 0]
+]))
+
+# 放大兩倍後取絕對值並轉為 uint8
+edge = cv2.convertScaleAbs(x_derivative2 + y_derivative2, alpha = 2)
+
+cv2.imshow('caterpillar', img)
+cv2.imshow('edge', edge)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p><code>cv2.convertScaleAbs</code> 可以指定 <code>alpha</code>，這會用來與第一個引數值相乘，得到縮放的效果，這也是函式名稱上為什麼有 Scale 字樣的原因，這邊放大兩倍，可以讓邊緣顯示時更亮一些，可以得到以下的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian2-1.JPG" alt="Laplacian 運算（二）"  /></div></div></p>
+<p>實際上，可以將用於 <code>cv2.filter2D</code> 的兩個核合併，得到相同的效果：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import cv2
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+derivative2 = cv2.filter2D(img, cv2.CV_16S, np.array([
+    [0, 1, 0],
+    [1, -4, 1],
+    [0, 1, 0]
+]))
+
+edge = cv2.convertScaleAbs(derivative2, alpha = 2)
+
+cv2.imshow('caterpillar', img)
+cv2.imshow('edge', edge)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>更進一步地，可以直接使用 <code>cv2.Laplacian</code>：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import cv2
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+laplacian = cv2.Laplacian(img, cv2.CV_16S)
+
+edge = cv2.convertScaleAbs(laplacian, alpha = 2)
+
+cv2.imshow('caterpillar', img)
+cv2.imshow('edge', edge)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>這些範例的結果都是相同的，只是為什麼它叫 Laplacian 呢？方才的範例中，<code>x_derivative2</code> 相當於每次選擇圖片中的一列（row）來求對應的一組二階導數，也就是說，如果圖片可以使用 f(x, y) 描述，這相當於求 x 的二階偏導數，也就是將 y 視為常數，求 x 方向上的變化。</p>
+<p>而基於〈<a href="Laplacian.html">Laplacian 運算（一）</a>〉中的推導，可以知道 f(x, y) 對 x 的二階偏微分會是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian2-2.JPG" alt="Laplacian 運算（二）"  /></div></div></p>
+<p>相對地，<code>y_derivative2</code> 相當於每次選擇圖片中的一行（column），最後就相當於求 f(x, y) 對 y 的二階偏微分：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian2-3.JPG" alt="Laplacian 運算（二）"  /></div></div></p>
+<p>將這兩個公式相加，f(x, y) 的係數變成 -4，而上、下、左、右四個位置的係數都是 1，也就是為什麼方才的範例，可以指定 <code>cv2.filter2D</code> 的核為以下的原因：</p>
+<pre class="prettyprint"><code lang="python">[
+    [0, 1, 0],
+    [1, -4, 1],
+    [0, 1, 0]
+]
+</code></pre>
+<p>而這符合了〈<a href="https://zh.wikipedia.org/wiki/%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E7%AE%97%E5%AD%90">Laplace 運算</a>〉的定義：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian2-4.JPG" alt="Laplacian 運算（二）"  /></div></div></p>
+<p>Laplacian 運算是認識圖像邊緣偵測一個很好的入門，知道其原理後，日後接觸其他如 Sobel 運算、Scharr 運算等邊緣偵測方法時，想進一步認識原理或應用，會有很大的幫助。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

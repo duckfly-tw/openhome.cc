@@ -1,0 +1,150 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈NumPy 的 Universal 函式〉中，在文字模式中顯示了謝爾賓斯基三角形，有沒有辦法在 Matplotlib 中也畫個謝爾賓斯基三角形呢？可以的！
+
+依〈NumPy 的 Universal...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Matplotlib 散佈圖">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/ScatterPlot.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈NumPy 的 Universal 函式〉中，在文字模式中顯示了謝爾賓斯基三角形，有沒有辦法在 Matplotlib 中也畫個謝爾賓斯基三角形呢？可以的！
+
+依〈NumPy 的 Universal...">
+
+    <title>Matplotlib 散佈圖</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ScatterPlot.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Matplotlib 散佈圖</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Universal.html">NumPy 的 Universal 函式</a>〉中，在文字模式中顯示了謝爾賓斯基三角形，有沒有辦法在 Matplotlib 中也畫個謝爾賓斯基三角形呢？可以的！</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ScatterPlot-1.JPG" alt="Matplotlib 散佈圖"  /></div></div></p>
+<p>依〈<a href="Universal.html">NumPy 的 Universal 函式</a>〉的演算法，在文字模式中必須有黑與白對應的字元，不過使用 Matplotlib 來畫的話，因為預設背景為白色，只要在黑的部份佈點就可以了，這可以使用散佈圖來達到，在 Matplotlib 中，可透過 <code>pyplot</code> 的 <code>scatter</code> 函式，指定 x 軸與 y 軸的座標清單就可以了。</p>
+<p>暫且不使用 NumPy 的話，想在黑的部份佈點，就是收集黑的部份座標，用以呼叫 <code>scatter</code> 函式：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt
+
+n = 32
+xs = []
+ys = []
+for y in range(n):
+    for x in range(n):
+        if x &amp; y == 0:
+            xs.append(x)
+            ys.append(y)
+
+plt.title('Sierpinski triangle') 
+plt.xlabel('x')           
+plt.ylabel('y')   
+plt.gca().set_aspect(1)
+plt.scatter(xs, ys)
+plt.show()  
+</code></pre>
+<p>不過，這只會畫出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ScatterPlot-2.JPG" alt="Matplotlib 散佈圖"  /></div></div></p>
+<p>Matplotlib 預設的標示（marker）是圓形，想調整標示圖案，可以透過 <code>scatter</code> 的 <code>marker</code> 參數，預設值是 <code>'o'</code>，可指定的其他值可在 <a href="https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers">matplotlib.markers</a> 查詢，我想要使用方塊，就要指定 <code>'s'</code>。</p>
+<p>另外，我想要作為點的方塊彼此銜接，這必須設定標示的大小，可以透過 <code>scatter</code> 的 <code>s</code> 參數來設定，這個參數有點特別，<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">scatter 的文件</a>談到，<code>s</code> 要指定 points**2，point 是啥？</p>
+<p>Matplotlib 在指定一些尺寸參數時，並不是使用像素之類的單位，而是跟印刷方面有關的單位，Matplotlib 中的 point，是印刷上使用的長度單位，一個點是 1/72 英吋（inch），而 <code>s</code> 是指定標示尺寸的平方（可以想成大致上是標示佔有的方形區域的面積）。</p>
+<p>在標示指定為方塊時，為了讓他們彼此能銜接，必須知道軸的座標範圍與長度，範圍可以透過 <code>pyplot</code> 的 <code>xlim</code>、<code>ylim</code> 得知，不過預設情況下，軸的範圍是 Matplotlib 自動運算得到的，無論運算後的範圍為何，這時呼叫 <code>xlim</code>、<code>ylim</code>，只會傳回 <code>(0.0, 1.0)</code>。</p>
+<p>既然如此，那就自行設定軸的範圍，這可以透過 <code>xlim</code>、<code>ylim</code> 來設定，那麼軸的長度呢？可以透過 <code>pyplot</code> 的 <code>gcf</code> 取得目前的圖，然後呼叫 <code>set_size_inches</code> 來設定圖表大小，不過這設定的是整個圖表大小，包含了那些標示文字，如果設定比例為 1:1 的話，那麼座標軸佔的長度，大致上會是圖長度的 0.775。</p>
+<p>因此，為了能計算標示的尺寸，使用 <code>set_size_inches</code> 設定圖表為 <code>(plotwidth, plotwidth)</code>，x、y 軸範圍都是 <code>(-0.5, n - 0.5)</code>，那麼標示大小就可以如下計算：</p>
+<pre class="prettyprint"><code lang="python">PTS_PER_INCH = 72                        # 一英吋有 72 個點
+plotwidth_pts = PTS_PER_INCH * plotwidth # 圖表的長度有幾個點？
+marksize = 0.775 * plotwidth_pts / n     # 座標軸切為 n 分，每一份的長度有幾個點？
+</code></pre>
+<p>整理一下程式碼，如下就可以畫出方才第一張圖的結果：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt
+
+def scatter_plot(title, plotsize, axislim, markersize, xs, ys):
+    plt.title(title) 
+    plt.gcf().set_size_inches(plotsize)
+    plt.xlim(axislim)
+    plt.ylim(axislim)
+    plt.xlabel('x')           
+    plt.ylabel('y')   
+    plt.scatter(xs, ys, marker = 's', s = markersize ** 2)
+    plt.show()
+
+n = 128
+
+xs = []
+ys = []
+for y in range(n):
+    for x in range(n):
+        if x &amp; y == 0:
+            xs.append(x)
+            ys.append(y)
+
+plotwidth = 6
+axislim = (-0.5, n - 0.5)
+
+plotsize = (plotwidth, plotwidth)
+
+PTS_PER_INCH = 72
+plotwidth_pts = PTS_PER_INCH * plotwidth
+marksize = 0.775 * plotwidth_pts / n
+
+scatter_plot(
+    'Sierpinski triangle',
+    plotsize,
+    axislim,
+    marksize,
+    xs, 
+    ys
+)
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

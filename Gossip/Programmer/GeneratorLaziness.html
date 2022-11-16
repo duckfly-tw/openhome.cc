@@ -1,0 +1,138 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：產生器與惰性求值
+      
+      
+      多數傳統程式語言，特別是命令式（Imperative）語言的求值策略是立刻求值（Eager evaluation...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="產生器與惰性求值">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/GeneratorLaziness.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：產生器與惰性求值
+      
+      
+      多數傳統程式語言，特別是命令式（Imperative）語言的求值策略是立刻求值（Eager evaluation...">
+
+
+    <title>產生器與惰性求值</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GeneratorLaziness.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>產生器與惰性求值</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/node/82181">產生器與惰性求值</a><br>
+      <br>
+      <br>
+      多數傳統程式語言，特別是命令式（Imperative）語言的求值策略是立刻求值（Eager evaluation），也就是運算式（Expression）在被指定至變數時，就會立即運算出數值，習於使用這些傳統語言的開發者，對於惰性求值（Lazy evaluation）的概念與應用相對來說較不熟悉，若能認識惰性求值，在適當場合善用對應的語法或程式庫，對於效能的改進將會有極大幫助。<br>
+      <br>
+      <dl>
+        <dt>Python中的產生器語法</dt>
+      </dl>
+      <br>
+      在Python中有個<code>yield</code>語法可運用在函式中，呼叫包括<code>yield</code>的函式時，實際上並非執行函式內容，而是傳回產生器（Generator），產生器的<code>__next__</code>被呼叫時，才會執行原本包括<code>yield</code>的流程，單看流程定義的話，<code>yield</code>很像是<code>return</code>可傳回值，不過傳回值後，流程會離開函式回到呼叫<code>__next__</code>的客戶端流程，客戶端再度呼叫產生器的<code>__next__</code>時，流程又會回到函式中<code>yield</code>處並承接先前狀態繼續執行，可是這語法有什麼好處呢？應用之一是產生無限長的自然數列：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>def natural(x):<br>
+          &nbsp;&nbsp;&nbsp; while True:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yield x; x += 1<br>
+        </code></div>
+      <br>
+      假設呼叫<code>natural(1)</code>後會傳回產生器並指定給<code>gen</code>變數，<code>next(gen)</code>就會呼叫<code>gen</code>的<code>__next__</code>方法，此時執行<code>natural</code>函式定義的流程並於<code>yield</code>時傳回1，客戶端再呼叫<code>next(gen)</code>就會繼續<code>x += 1</code>的流程並再度回到迴圈開頭執行<code>yield</code>傳回2，依此類推。建立無限長自然數的<code>list</code>在Python中是不可能的，然而使用<code>yield</code>建立產生器，就可在需要時產生下一個自然數。在Python中還可使用<code>for</code>表達式（Comprehension）建立產生器，例如<code>(get_person_from_database(id) for id in ids)</code>會建立產生器，而<code>[get_person_from_database(id) for id in ids]</code>會直接產生<code>list</code>，如果如前者建立產生器並指定給<code>person_gen</code>的話，那麼以下程式會比直接產生<code>list</code>有效率：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>for person in person_gen:</code><br>
+        <code>&nbsp;&nbsp;&nbsp; if(person.luckyNumber == generatedLuckyNumber):</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return person</code><br>
+        <code></code></div>
+      <br>
+      上面的<code>for in</code>迴圈會呼叫產生器的<code>__next__</code>，此時<code>get_person_from_database</code>才會實際執行，查詢資料庫是個耗時工作，若原本的<code>ids</code>有1000個，假設首次迭代就找到幸運兒，那後面就節省了後續999次的查詢資料庫動作，提供了捷徑（Short-circuit）運算的可能性。<br>
+      <br>
+      <dl>
+        <dt>迭代器與產生器的不同</dt>
+      </dl>
+      <br>
+      Python使用者可能會聯想到迭代器，正如我先前專欄〈從具體到抽象的迭代器〉中談過的，迭代器可尋訪一組資料，在Python中可實作物件的<code>__iter__</code>方法傳回迭代器，通常使用<code>iter</code>函式來呼叫物件的<code>__iter__</code>方法，迭代器與產生器使用相同的協定，也就是迭代器也具有<code>__next__</code>方法。事實上，可搭配<code>for in</code>迴圈的是具有<code>__iter__</code>方法的物件，迴圈會透過<code>__iter__</code>取得迭代器，再於迴圈中呼叫迭代器的<code>__next__</code>方法。前段介紹的產生器就實作了<code>__iter__</code>方法，因此可搭配for in迴圈進行迭代。<br>
+      <br>
+      既然Python中的產生器與迭代器，都是具有<code>__next__</code>方法的物件，那為何要區分產生器與迭代器？直接以迭代器概念，也可實現無限長自然數列或是捷徑運算不是嗎？畢竟使用產生器搭配<code>for in</code>迴圈時，最後也是呼叫迭代器<code>__next__</code>方法時，將之委託給產生器的<code>__next__</code>方法罷了。就Python而言，主要程式碼在表述能力上的問題，Python提供了<code>yield</code>與<code>for</code>表達式來建立產生器，可使得程式碼在流程表述上更為清楚。<br>
+      <br>
+      在沒有內建產生器語法的語言中，像是Java，確實可以實作迭代器模式，令迭代器具備產生器的行為；實際上，在JDK8設計與Lambda語法搭配的<code>Collection </code>API時，2012年4月的草案中就曾考慮過在<code>Iterable</code>上定義<code>filter</code>、<code>map</code>等方法，令他們傳回<code>Iterable</code>物件，而這些物件的<code>iterator</code>方法傳回的<code>Iterator</code>實作，將具有產生器的功能，只不過，相對於直接提供語法建立產生器來說，使用迭代器來實作產生器概念時，程式碼著實刁鑽了許多。<br>
+      <br>
+      <dl>
+        <dt>以產生器實現惰性求值</dt>
+      </dl>
+      <br>
+      先前實現無限長自然數列或是捷徑運算的範例，實際上都是產生器於惰性求值的應用。惰性求值常見於函數式程式語言，運算式不會在被指定給變數時立即求值，而是真正要取用值的時候才進行運算。舉例來說，Java中若有個<code>addOne</code>方法，可將傳入的<code>List</code>中之元素都加1後傳回新<code>List</code>，那麼<code>addOne(addOne(addOne(list)))</code>時將會發生三次走訪<code>List</code>的動作，整個過程中最右邊的<code>addOne</code>會產生<code>List</code>傳給中間的<code>addOne</code>，而該<code>addOne</code>又產生新的<code>List</code>傳給最右邊的<code>addOne</code>，然後最右的<code>addOne</code>產生最後的<code>List</code>。<br>
+      <br>
+      然而在Haskell中，執行<code>addOne \$ addOne \$ addOne [1, 2, 3, 4, 5]</code>時，最右邊的<code>addOne</code>並不會馬上求值，而是當最左邊的<code>addOne</code>需要在第一個元素上加1時，中間<code>addOne</code>才會要求最右邊的<code>addOne</code>提供第一個元素，因此整個過程完成只需產生一個數列，數列走訪只會發生一次，由此獲得效率上的改進。簡單來說，在Haskell這類支援惰性求值的語言中，每個運算式都是產生器，並不需要特別的語法。<br>
+      <br>
+      Python的運算式不支援惰性求值，然而提供<code>yield</code>與<code>for</code>表達式來建立產生器，在實現惰性求值時甚至可以不影響原本流程表述方式。例如在Python中<code>addOne(addOne(addOne(list)))</code>時，想要有Haskell中類似的惰性求值效果，可以定義<code>addOne</code>函式如下：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>def addOne(lt):<br>
+          &nbsp;&nbsp;&nbsp; return (ele + 1 for ele in lt)<br>
+        </code></div>
+      &nbsp;&nbsp;&nbsp; <br>
+      基本上這個流程表述方式，Python開發者都很熟悉，只不過將<code>[]</code>改為<code>()</code>，不過<code>addOne(addOne(addOne(list)))</code>最後傳回的還是產生器，因此得搭配<code>next</code>函式，或者是<code>for in</code>語法來逐一取得元素，或者是使用<code>list</code>函式從產生器中建立<code>list</code>物件，用<code>set</code>函式建立<code>set</code>物件等。實際上，Python中有些函式的結果就是產生器，像是<code>map</code>、<code>filter</code>，它們傳回<code>map</code>與<code>filter</code>實例，而不是<code>list</code>。<br>
+      <br>
+      <dl>
+        <dt>區分職責與語義</dt>
+      </dl>
+      <br>
+      在Python中由於有支援產生器的語法，因此產生器與迭代器在外觀與職責算是清楚，然而在沒有這類支援的Java中，雖可使用迭代器來實現產生器，然而職責上混淆不清。2012年12月的草案中提出新的<code>Stream</code>物件來擔負產生器職責。相對於<code>Collection</code>是以<code>iterator</code>產生<code>Iterator</code>物件，<code>stream</code>方法用來產生<code>Stream</code>物件，其本身是循序的概念，上頭定義的<code>filter</code>、<code>map</code>等方法，也都傳回<code>Stream</code>物件，就如同Python中<code>map</code>、<code>filter</code>函式會傳回<code>map</code>、<code>filter</code>物件，<code>Stream</code>在做<code>filter</code>、map等時是惰性求值。<code>iterator</code>傳回迭代器，<code>stream</code>傳回<code>Stream</code>產生器，語義明確，而對於平行處理的支援，則可以使用<code>Collection</code>的<code>parallelStream</code>方法傳回支援平行處理的<code>Stream</code>物件。<br>
+      <br>
+      將產生器與迭代器的職責區隔開來後就可以明瞭，在<code>stream</code>方法呼叫之後，接下來的操作都是中介操作，若要取得最後成果必然得透過某個方法，就像Python中使用<code>list</code>、<code>set</code>等函式，從產生器中建立<code>list</code>、<code>set</code>物件等；然而與其在<code>Stream</code>上設計一堆<code>toList</code>、<code>toSet</code>、<code>toCollection</code>方法，JDK8定義<code>collect</code>方法接受<code>Collector</code>物件，透過<code>Collector</code>物件來告知<code>collect</code>方法，如何收集產生器中取得的物件並以指定型態傳回。<br>
+      <br>
+      現在不少程式庫或語言都納入了產生器的實現概念，例如不支援產生器語法的JavaScript有個Lazy.js程式庫，就致力於JavaScript中實現惰性求值，JavaScript是動態語言，因而實現之後在應用上算是簡潔；實際上JavaScript 1.7定義了<code>yield</code>可建立產生器，可惜目前JavaScript的各執行環境在支援上程度不一。無論如何，產生器在現代開發中並非罕見，認識並理解產生器的實現概念，方有助於對相關程式庫或語法的善用。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

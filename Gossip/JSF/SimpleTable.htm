@@ -1,0 +1,254 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="很多資料經常使用表格來表現，JSF提供&lt;h:dataTable&gt;標籤讓您得以列舉資料並使用表格方式來呈現，舉個實際的例子來看，假設您撰寫了以下：
+
+
+      
+      
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="簡單的表格">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JSF/SimpleTable.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="很多資料經常使用表格來表現，JSF提供&lt;h:dataTable&gt;標籤讓您得以列舉資料並使用表格方式來呈現，舉個實際的例子來看，假設您撰寫了以下：
+
+
+      
+      
+...">
+
+
+    <title>簡單的表格</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SimpleTable.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/JSF/">回 JSF 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡單的表格</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      很多資料經常使用表格來表現，JSF提供&lt;h:dataTable&gt;標籤讓您得以列舉資料並使用表格方式來呈現，舉個實際的例子來看，假設您撰寫了以下：<br>
+
+
+      
+      <ul>
+
+        <li>UserBean.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public class UserBean {<br>    private String name;<br>    private String password;<br><br>    public UserBean() {<br>    }<br>    <br>    public UserBean(String name, String password) {<br>        this.name = name;<br>        this.password = password;<br>    }<br>    <br>    public String getName() {<br>        return name;<br>    }<br><br>    public void setName(String name) {<br>        this.name = name;<br>    }<br><br>    public String getPassword() {<br>        return password;<br>    }<br><br>    public void setPassword(String password) {<br>        this.password = password;<br>    }<br>}</code></pre>
+
+
+
+
+
+
+      <br>
+
+
+      
+      <ul>
+
+        <li> TableBean.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.*;<br><br>public class TableBean {<br>    private List userList;<br>    <br>    public List getUserList() {<br>        if(userList == null) {<br>            userList = new ArrayList();<br>            userList.add(<br>                new UserBean("caterpillar", "123456"));<br>            userList.add(<br>                new UserBean("momor", "654321"));<br>            userList.add(<br>                new UserBean("becky", "7890"));<br>        }<br>        <br>        return userList;<br>    }<br>}</code></pre>
+
+
+      <br>
+
+      
+在TableBean中，我們假設getUserList()方法實際上是從資料庫中查詢出UserBean的內容，之後傳回List物件，若我們的 faces-config.xml如下：<br>
+
+
+      
+      <ul>
+
+        <li>faces-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, <br>   Inc.//DTD JavaServer Faces Config 1.0//EN"<br>   "http://java.sun.com/dtd/web-facesconfig_1_0.dtd"&gt;<br><br>&lt;faces-config&gt;<br>    &lt;managed-bean&gt;<br>        &lt;managed-bean-name&gt;tableBean&lt;/managed-bean-name&gt;<br>        &lt;managed-bean-class&gt;<br>            onlyfun.caterpillar.TableBean<br>        &lt;/managed-bean-class&gt;<br>        &lt;managed-bean-scope&gt;request&lt;/managed-bean-scope&gt;<br>    &lt;/managed-bean&gt;<br>    &lt;managed-bean&gt;<br>        &lt;managed-bean-name&gt;userBean&lt;/managed-bean-name&gt;<br>        &lt;managed-bean-class&gt;<br>            onlyfun.caterpillar.UserBean<br>        &lt;/managed-bean-class&gt;<br>        &lt;managed-bean-scope&gt;request&lt;/managed-bean-scope&gt;<br>    &lt;/managed-bean&gt;<br>&lt;/faces-config&gt;</code></pre>
+
+
+      <br>
+
+      
+我們可以如下使用&lt;h:dataTable&gt;來產生表格資料：<br>
+
+
+      
+      <ul>
+
+        <li>index.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;<br>&lt;%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %&gt;<br>&lt;html&gt;<br>&lt;body&gt;<br>&lt;f:view&gt;<br>    &lt;h:dataTable value="#{tableBean.userList}" var="user"&gt;<br>        &lt;h:column&gt;<br>            &lt;h:outputText value="#{user.name}"/&gt;<br>        &lt;/h:column&gt;<br>        &lt;h:column&gt;<br>            &lt;h:outputText value="#{user.password}"/&gt;<br>        &lt;/h:column&gt;<br>    &lt;/h:dataTable&gt;<br>&lt;/f:view&gt;<br>&lt;/body&gt;	<br>&lt;/html&gt;</code></pre>
+
+
+      <br>
+
+      
+&lt;h:dataTable&gt;的value值綁定tableBean的userList方法，它會一個一個取出
+List中的資料並設定給var設定的user，之後在每一個column中我們可以顯示所列舉出的user.name與user.password，程
+式的結果會如下所示：<br>
+
+      <br>
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/simpleTable-1.jpg" /></div></div><br>
+
+      <br>
+
+
+所產生的HTML表格標籤如下：<br>
+
+      
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&lt;table&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &lt;tbody&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;caterpillar&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;123456&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;momor&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;654321&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;becky&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td&gt;7890&lt;/td&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/tr&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &lt;/tbody&gt;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&lt;/table&gt;</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+
+&lt;h:dataTable&gt;的value值綁定的對象可以是以下的型態：<br>
+
+      
+
+      
+      <ul>
+
+        <li> 陣列
+  </li>
+
+        <li> java.util.List的實例
+  </li>
+
+        <li> java.sql.ResultSet的實例
+  </li>
+
+        <li> javax.servlet.jsp.jstl.sql.Result的實例
+  </li>
+
+        <li> javax.faces.model.DataModel的實例
+  </li>
+
+      
+      </ul>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

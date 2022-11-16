@@ -1,0 +1,159 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈貼圖上色〉中暫時被忽略的 generateMipmap，現在要在這邊認識了，在這之前，要先來談談採樣器，基本上貼圖與採樣器的關係可以比擬為下圖：
+
+右邊採樣器的每個方格，可以看成對應至畫面上的一個...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="貼圖過濾與包裹">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/FilterWrapping.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈貼圖上色〉中暫時被忽略的 generateMipmap，現在要在這邊認識了，在這之前，要先來談談採樣器，基本上貼圖與採樣器的關係可以比擬為下圖：
+
+右邊採樣器的每個方格，可以看成對應至畫面上的一個...">
+
+    <title>貼圖過濾與包裹</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FilterWrapping.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>貼圖過濾與包裹</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Texture2.html">貼圖上色</a>〉中暫時被忽略的 <code>generateMipmap</code>，現在要在這邊認識了，在這之前，要先來談談採樣器，基本上貼圖與採樣器的關係可以比擬為下圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-1.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>右邊採樣器的每個方格，可以看成對應至畫面上的一個像素，當貼圖座標定義的範圍內之像素，與採樣器的像素是一對一，基本上就沒什麼問題，例如上圖中，紅色部份表示正從貼圖採樣出黃色。</p>
+<p>然而，實際上多半不會就這麼剛好一對一，貼圖選定的範圍可能會被放大或縮小，例如，若上圖只選擇貼圖的部份範圍，那相當於貼圖被放大，這時採樣器與貼圖的關係會是如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-2.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>這樣就有疑問了，正在採樣的部份涵蓋了黃色與藍色，最後該採樣出哪種顏色？這就要看你的貼圖過濾器（Texture Filter）設定了，當貼圖被放大（Magnification）時，要看 <code>gl.TEXTURE_MAG_FILTER</code> 設定為何，當貼圖被縮小（Minification）時，要看 <code>gl.TEXTURE_MIN_FILTER</code> 設定為何。</p>
+<p>如果被設定為 <code>gl.NEAREST</code> 的話，就看貼圖的像素中心哪個最接近取樣的中心，以上圖來說的話，應該是右下的黃色像素，因此取得的會是黃色，這種方式會產生比較多的刷齒；若被設為 <code>gl.LINEAR</code> 的話，會將取樣的中心四個方向的像素值拿來平均，因此這種方式在顏色上會有漸變的效果。</p>
+<p><strong><code>gl.LINEAR</code> 是 <code>gl.TEXTURE_MAG_FILTER</code> 過濾器的預設值，而 <code>gl.TEXTURE_MIN_FILTER</code> 過濾器的預設值是 <code>gl.NEAREST_MIPMAP_LINEAR</code></strong>。可以透過 <code>texParameteri</code> 來設定過濾器，例如：</p>
+<pre class="prettyprint"><code lang="javascript">gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+</code></pre>
+<p>至於什麼是 <code>gl.NEAREST_MIPMAP_LINEAR</code>，在談這個之前，先談什麼是 MIPMAP，因為無論採 <code>gl.NEAREST</code> 或 <code>gl.LINEAR</code>，計算出來的效果並不總是你想要的，這時就會想，我自己來製作各種尺寸的貼圖好了，這麼一來，就可以在不同縮放下選擇適合的貼圖尺寸，以便控制品質。</p>
+<p>然而，你不可能製作全部的尺寸，因此大概就是製作個全尺寸、一半、四分之一、八分之一、十六分之一&hellip;</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-3.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>這就是 MIPMAP，也就是一系列的縮小圖，<strong>如果你的貼圖寬、高各是 2 的次方（不必是正方形）</strong>，〈<a href="Texture2.html">貼圖上色</a>〉中談到的 <code>generateMipmap</code>，可以自動產生 MIPMAP，直到寬、高像素其中之一為 1，最原尺寸的貼圖稱為 Level 0，還記得〈<a href="Texture2.html">貼圖上色</a>〉中 <code>texImage2D</code> 的第二個參數被指定為 0 嗎？對 <code>generateMipmap</code> 來說，這就是原尺寸貼圖的來源。</p>
+<p>這也表示，其他各級尺寸的貼圖也可以自行使用 <code>texImage2D</code> 指定，之後再 <code>generateMipmap</code> 建立 MIPMAP，這對於主要的幾個尺寸的貼圖，在品質上可以自行掌握，<strong>指定至 MIPMAP 的貼圖，寬、高也必須是 2 的次方</strong>。</p>
+<p>然而這也就沿生另一個問題了，如果貼圖被縮放時，不是正好落在你提供的尺寸，怎麼處理呢？這又得回歸到你設定的過濾器為何了。</p>
+<p>對於放大超過原尺寸的情況，無從選擇地，只能為 <code>gl.TEXTURE_MAG_FILTER</code> 提供  <code>gl.NEAREST</code> 或 <code>gl.LINEAR</code>，然而，比原尺寸小的情況，因為會落在 MIPMAP 兩個縮小尺寸的貼圖之間，該選哪個，就看 <code>gl.TEXTURE_MIN_FILTER</code> 是設定底下哪個來決定，當然，這些值也只在有 MIPMAP 時才能指定：</p>
+<ul>
+<li><code>gl.NEAREST_MIPMAP_NEAREST</code>：選擇最接近的尺寸，並使用 <code>g.NEAREST</code> 來處理縮放。</li>
+<li><code>gl.LINEAR_MIPMAP_NEAREST</code>：選擇最接近的尺寸，並使用 <code>g.LINEAR</code> 來處理縮放。</li>
+<li><code>gl.NEAREST_MIPMAP_LINEAR</code>：選擇兩個最接近的尺寸，各使用 <code>g.NEAREST</code> 來處理縮放，然後取兩者的平均值，它是 <code>gl.TEXTURE_MIN_FILTER</code> 預設值。</li>
+<li><code>gl.LINEAR_MIPMAP_LINEAR</code>：選擇兩個最接近的尺寸，各使用 <code>g.LINEAR</code> 來處理縮放，然後取兩個的平均值。</li>
+</ul>
+<p>因為這些值只在有 MIPMAP 時才能指定，而 MIPMAP 限制只能是寬、高為 2 的次方貼圖，這表示，<strong>對於寬、高非 2 次方的貼圖，<code>gl.TEXTURE_MIN_FILTER</code> 就只能設定 <code>gl.NEAREST</code> 或 <code>gl.LINEAR</code></strong>。</p>
+<p>因為 <code>gl.TEXTURE_MIN_FILTER</code> 過濾器的預設值是 <code>gl.NEAREST_MIPMAP_LINEAR</code>，這表示…</p>
+<blockquote><p><strong>對於寬、高非 2 次方的貼圖，<code>gl.TEXTURE_MIN_FILTER</code> 一定要改為 <code>gl.NEAREST</code> 或 <code>gl.LINEAR</code>，不然就會發生錯誤</strong>。</p>
+</blockquote>
+<p>不過，如果你有個非 2 次方寬高的貼圖，就算使用 <code>texParameteri</code> 更改了 <code>gl.TEXTURE_MIN_FILTER</code> 為 <code>gl.NEAREST</code> 或 <code>gl.LINEAR</code>，也沒辦法繪製出來，這是因為 <code>gl.TEXTURE_WRAP_S</code> 與 <code>gl.TEXTURE_WRAP_T</code> 的預設值都是 <code>gl.REPEAT</code>，然而，<strong>對於非 2 次方寬高的貼圖來說，WebGL 只允許 <code>gl.TEXTURE_WRAP_S</code> 與 <code>gl.TEXTURE_WRAP_T</code> 被設定為 <code>gl.CLAMP_TO_EDGE</code></strong>。</p>
+<p><code>gl.TEXTURE_WRAP_S</code> 是指貼圖座標 S 方向的包裹模式，<code>gl.TEXTURE_WRAP_T</code> 是指 T 方向的包裹模式，它們在貼圖座標被指定了 0 ~ 1 範圍以外的值時（也就是範圍大於貼圖），應該要有的行為，例如若〈<a href="Texture2.html">貼圖上色</a>〉中的範例這麼指定貼圖座標：</p>
+<pre class="prettyprint"><code lang="javascript">enableBufferOfAttr(gl, prog, 'texturePosition', 2, [
+    0.0,  0.0,
+    1.0,  0.0,
+    0.0,  1.0,
+    0.0,  1.0,
+    1.0,  0.0,
+    1.0,  1.0
+]);
+</code></pre>
+<p>由於 ST 方向預設都是 <code>g.REPEAT</code>，這表示兩個方向都重複貼圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-4.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>可以只設其中一個方向，例如，將 S 方向改為 <code>g.MIRRORED_REPEAT</code>：</p>
+<pre class="prettyprint"><code lang="javascript">gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+</code></pre>
+<p>那麼 S 方向就會自動鏡像重複：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-5.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>至於 <code>gl.CLAMP_TO_EDGE</code>，0 ~ 1 範圍外的部份，會尋找最接近的有效採樣點，然後在指定的方向繪製，對於邊綠都相同顏色的圖來說，若如下設置：</p>
+<pre class="prettyprint"><code lang="javascript">gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+</code></pre>
+<p>結果感覺就只是一張圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-6.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>如果故意在圖上加點邊框，例如用這張圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-7.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>那麼 ST 方向都 <code>gl.CLAMP_TO_EDGE</code> 的話，就會有以下的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/FilterWrapping-8.JPG" alt="貼圖過濾與包裹"  /></div></div></p>
+<p>那麼，該是來個總結了，<strong>WebGL 希望你可以儘量提供寬高為 2 次方的貼圖，如果沒辦法的話，那麼一定要改變三個值，才能正確繪製：</strong></p>
+<pre class="prettyprint"><code lang="javascript">gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+// 因為無法產生 MINMAP，必須是 gl.LINEAR 或 gl.NEAREST
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+</code></pre>
+<p><strong>如果提供寬高為 2 次方的貼圖，不呼叫 <code>generateMipmap</code> 情況下，一定要改變 <code>gl.TEXTURE_MIN_FILTER</code> 的值：</strong></p>
+<pre class="prettyprint"><code lang="javascript">// 因為沒有產生 MINMAP，必須是 gl.LINEAR 或 gl.NEAREST
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+</code></pre>
+<p>如果提供寬高為 2 次方的貼圖，並呼叫 <code>generateMipmap</code> 產生 MINMAP，那設定上就沒有限制了，就看你要什麼效果了。</p>
+<p>然而，有時會想要能夠運用隨意尺寸貼圖的場合，怎麼辦呢？這時可以寫個函式來判斷 2 次方：</p>
+<pre class="prettyprint"><code lang="javascript">function isPowerOf2(value) {
+  return (value &amp; (value - 1)) == 0;
+}
+</code></pre>
+<p>然後如下做分支判斷：</p>
+<pre class="prettyprint"><code lang="javascript">if (isPowerOf2(image.width) &amp;&amp; isPowerOf2(image.height)) {
+    // 寬高都是 2 次方，產生 MINMAP
+    gl.generateMipmap(gl.TEXTURE_2D);
+} else {
+    // 寬或高不是 2 次方，只能用 gl.CLAMP_TO_EDGE
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    // 因為無法產生 MINMAP，必須是 gl.LINEAR 或 gl.NEAREST
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

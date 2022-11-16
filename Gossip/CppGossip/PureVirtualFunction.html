@@ -1,0 +1,195 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈虛擬函式〉中，將 to_string 設成 virtual 了，然而你可能會發現，Role 的子類別都有 fight 方法，為什麼不將它們提昇至父類別並設為 virtual？可以是可以，不過提昇之...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="純虛擬函式（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/PureVirtualFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈虛擬函式〉中，將 to_string 設成 virtual 了，然而你可能會發現，Role 的子類別都有 fight 方法，為什麼不將它們提昇至父類別並設為 virtual？可以是可以，不過提昇之...">
+
+    <title>純虛擬函式（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PureVirtualFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>純虛擬函式（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="VirtualFunction.html">虛擬函式</a>〉中，將 <code>to_string</code> 設成 <code>virtual</code> 了，然而你可能會發現，<code>Role</code> 的子類別都有 <code>fight</code> 方法，為什麼不將它們提昇至父類別並設為 <code>virtual</code>？可以是可以，不過提昇之後，在 <code>Role</code> 中的方法該寫什麼呢？空的方法本體？如果是這樣的話，不如將它設為純虛擬函式（pure virtual function），也就是沒有任何實作的方法：</p>
+<pre class="prettyprint"><code lang="c++">class Role {
+    ...略
+
+public:
+    Role(string name, int level, int blood)
+     : name(name), level(level), blood(blood) {}
+
+    virtual void fight() = 0;
+
+    …略
+};
+</code></pre>
+<p>這麼一來，就可以如下寫個 <code>doFight</code> 了：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+void doFight(Role &amp;role) {
+    role.fight();
+}
+
+int main() { 
+    SwordsMan swordsMan("Justin", 1, 1000);
+    Magician magician("Magician", 1, 800);
+
+    fight(swordsMan);
+    fight(magician);
+
+    return 0;
+}
+</code></pre>
+<p>被設為 0 的 <code>virtual</code> 函式，沒有任何實作，是個抽象方法，而擁有抽象方法的類別，是個抽象類別（abstract class），不能用來實例化：</p>
+<pre class="prettyprint"><code lang="c++">Role role("Justin", 1, 1000); // error: cannot declare variable 'role' to be of abstract type 'Role'
+</code></pre>
+<p>因此，也不能如下指定：</p>
+<pre class="prettyprint"><code lang="c++">Role role = swordsMan;
+</code></pre>
+<p>也就是說，因為抽象類別不是個完整的類別定義，只用來宣告參考或指標，而繼承抽象類別的子類，一定要重新定義抽象方法，否則該子類也會是抽象類別，無法用來實例化。</p>
+<p>來看看抽象方法與抽象類別的另一個應用，如果要你開發一個猜數字遊戲，會隨機產生 0 到 9 的數字，使用者輸入的數字與隨機產生的數字相比，如果相同就顯示「猜中了」，如果不同就繼續讓使用者輸入數字，直到猜中為止。</p>
+<p>這程式有什麼難的？相信現在的你也可以實作出來：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;string&gt; 
+#include &lt;chrono&gt;
+#include &lt;random&gt;
+#include &lt;functional&gt;
+using namespace std;
+
+function&lt;int()&gt; rand(int from, int to) {
+    unsigned seed = chrono::system_clock::now()
+                        .time_since_epoch().count(); // 隨機數種子
+    default_random_engine uniform(seed);             // 產生均勻分佈隨機數的引擎
+    uniform_int_distribution&lt;int&gt; dist(from, to);    // 範圍為 0 到 9 均勻分佈
+    return bind(dist, uniform);                      // 綁定引擎與範圍
+}
+
+int main() { 
+    function&lt;int()&gt; randZeroToNine = rand(0, 9);
+
+    int number = randZeroToNine();
+    int guess = 0;
+    do {
+        cout &lt;&lt; "輸入數字：";
+        cin &gt;&gt; guess;
+    } while(guess != number);
+    cout &lt;&lt; "猜中了！" &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>不過，需求中並沒有說要在文字模式下執行這個遊戲，也就是說取得使用者輸入、顯示結果的環境未定，但你負責的這部份還是要先實作，怎麼辦呢？可以先設計個抽象類別：</p>
+<pre class="prettyprint"><code lang="c++">class GuessGame {
+public:
+    void go() {
+        function&lt;int()&gt; randZeroToNine = rand(0, 9);
+
+        int number = randZeroToNine();
+        int guess = 0;
+        do {
+            this-&gt;print("輸入數字：");
+            guess = this-&gt;nextInt();
+        } while(guess != number);
+        println("猜中了！");
+    }
+
+    void println(string text) {
+        this-&gt;print(text + "\n");
+    }
+
+    virtual void print(string text) = 0;
+    virtual int nextInt() = 0;
+
+    virtual ~GuessGame() = default;
+};
+</code></pre>
+<p>對於文字模式中的遊戲，可以繼承 <code>GuessGame</code>：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+class ConsoleGame : public GuessGame {
+public:
+    void print(string text) {
+        cout &lt;&lt; text;
+    }
+
+    int nextInt() {
+        int guess = 0;
+        cin &gt;&gt; guess;
+        return guess;
+    }
+};
+
+int main() { 
+    GuessGame &amp;&amp;game = ConsoleGame();
+    game.go();
+
+    return 0;
+}
+</code></pre>
+<p>一個執行的結果如下：</p>
+<pre class="prettyprint"><code lang="c++">輸入數字：3
+輸入數字：5
+輸入數字：6
+輸入數字：7
+輸入數字：8
+猜中了！
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

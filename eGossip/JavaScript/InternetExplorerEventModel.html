@@ -1,0 +1,265 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Internet Explorer doesn't support DOM Level 2 Event Model, yet has a similar model. Because of the e...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Internet Explorer Event Model">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/InternetExplorerEventModel.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Internet Explorer doesn't support DOM Level 2 Event Model, yet has a similar model. Because of the e...">
+
+
+    <title>Internet Explorer Event Model</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InternetExplorerEventModel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; JavaScript TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Internet Explorer Event Model</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      <br>
+      Internet Explorer doesn't support DOM Level 2 Event Model, yet has a similar model. Because of the exclusive use of Internet Explorer, it's usually called Internet Explorer Event Model. <br>
+      <br>
+      In Internet Explorer, registering multiple event handlers needs functions <span
+
+        class="courier">attachEvent</span> and <span class="courier">detachEvent</span>. And notice that, when an event happens, the event handler will be called globally. That's to say that <span
+
+        class="courier">this</span> will refer to the global object. Unfortunately, Internet Explorer Event Model doesn't a <span
+
+        class="courier">currentTarget</span> property on an <span class="courier">Event</span> Instance used to return the element which triggers the event currently (such as that in DOM Level 2 Event Model).<br>
+      <br>
+      To get the element triggering the event is binding the element in some way. One way is to bind <span
+
+        class="courier">this</span> to the element. For example, through a <span
+
+        class="courier">proxy</span> function: <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>function proxy(element, handler) {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; return function() {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return handler.apply(element, arguments);</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; };</strong></span><span><strong><br>
+          </strong></span><span><strong>}</strong></span></div>
+      <br>
+      The <span class="courier">proxy</span> function will return a function. The function calls the <span
+
+        class="courier">apply</span> function of the parameter <span class="courier">handler</span> of the enclosing function, and uses the parameter <span
+
+        class="courier">element</span> as the first argument. The parameter <span
+
+        class="courier">element</span> accepts the element which your handler will bind <span
+
+        class="courier">this</span> to. <br>
+      <br>
+      With the above <span class="courier">proxy</span> function, we can rewrite the first example in <a
+
+        href="DOMLevel2EventModel.html">DOM Level 2 Event Model</a>. Because the model is for the exclusive use of Internet Explorer, the following examples only work in Internet Explorer.<br>
+      <ul>
+        <li><a href="samples/InternetExplorerEventModel-1.html">InternetExplorerEventModel-1.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.attachEvent('onload', function() {
+                function proxy(element, handler) {
+                    return function() {
+                        return handler.apply(element, arguments);
+                    };
+                }
+                function handler() {
+                    document.getElementById('console').innerHTML 
+                         = 'Who\'s clicked: ' + this.id;
+                }
+                var btn1 = document.getElementById('btn1');
+                btn1.attachEvent('onclick', proxy(btn1, handler));
+                
+                var btn2 = document.getElementById('btn2');
+                btn2.attachEvent('onclick', proxy(btn2, handler));
+            });
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;button id="btn1"&gt;Button 1&lt;/button&gt;&lt;br&gt;
+        &lt;button id="btn2"&gt;Button 2&lt;/button&gt;&lt;br&gt;
+        &lt;div id="console"&gt;&lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      Note that, the first parameter of <span class="courier">attachEvent</span> accepts the event name, started with a <span
+
+        class="courier">'on'</span>. The second parameter accepts the event handler. The difference from DOM Level 2 Event Model is, Internet Explorer has no capturing event, there's only bubbling event. <br>
+      <br>
+      Some events have a default action. In Internet Explorer Event Model, returning <span
+
+        class="courier">false</span> from an event handler, or setting the <span
+
+        class="courier">returnValue</span> property of an <span class="courier">Event</span> instance <span
+
+        class="courier">false</span> can stop the default action. For example, we can rewrite the second sample in <a
+
+        href="DOMLevel2EventModel.html">DOM Level 2 Event Model</a> as follows: <br>
+      <ul>
+        <li><a href="samples/InternetExplorerEventModel-2.html">InternetExplorerEventModel-2.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.attachEvent('onload', function() {
+                function proxy(element, handler) {
+                    return function() {
+                        return handler.apply(element, arguments);
+                    };
+                }
+                var form = document.form1;
+                form.attachEvent('onsubmit', proxy(form, function() {
+                    if(this.data.value.length === 0) {
+                        window.event.returnValue = false;
+                    } 
+                }));
+            });
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form name="form1" action="fake.do"&gt;
+            Input data &lt;input name="data"&gt;&lt;br&gt;
+            &lt;button type="submit"&gt;Submit&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      In Internet Explorer, the <span class="courier">event</span> property of <span
+
+        class="courier">window</span> refers to an <span class="courier">Event</span> instance, not the first parameter of the event handler. Internet Explorer supports only event bubbling. The <span
+
+        class="courier">srcElement</span> property of an <span class="courier">Event</span> instance is used to return the operated target element. For example, you can rewrite the third sample in <a
+
+        href="DOMLevel2EventModel.html">DOM Level 2 Event Model</a> to observe an event bubbling. <br>
+      <ul>
+        <li><a href="samples/InternetExplorerEventModel-3.html">InternetExplorerEventModel-3.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.attachEvent('onload', function() {
+                function proxy(element, handler) {
+                    return function() {
+                        return handler.apply(element, arguments);
+                    };
+                }
+                function handler() {
+                    document.getElementById('console').innerHTML += 
+                      '&lt;br&gt;&lt;b&gt;this.id:&lt;/b&gt; ' + this.id + 
+                      ', &lt;b&gt;srcElement.id:&lt;/b&gt; ' + window.event.srcElement.id;
+                }
+                var body = document.getElementById('bodyId');
+                body.attachEvent('onclick', proxy(body, handler));
+                
+                var div = document.getElementById('divId');
+                div.attachEvent('onclick', proxy(div, handler));
+                
+                var btn = document.getElementById('btnId');
+                btn.attachEvent('onclick', proxy(btn, handler));
+            });
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body id="bodyId"&gt;
+        &lt;div id="divId"&gt;&lt;button id="btnId"&gt;Click me&lt;/button&gt;&lt;/div&gt;
+        &lt;span id="console"&gt;&lt;/span&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      Clicking the button will cause the following result. It can be observed that the event propagate from inside to outside. <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>this.id: btnId, srcElement.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>this.id: divId, srcElement.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>this.id: bodyId, srcElement.id: btnId</strong></span><strong><br>
+        </strong></div>
+      <br>
+      The <span class="courier">cancelBubble</span> property of an <span
+
+        class="courier">Event</span> instance is used to stop the event propagation. Stopping the event propagation of the above example can be as follows: <br>
+      <ul>
+        <li><a href="samples/InternetExplorerEventModel-4.html">InternetExplorerEventModel-4.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.attachEvent('onload', function() {
+                function proxy(element, handler) {
+                    return function() {
+                        return handler.apply(element, arguments);
+                    };
+                }
+                function handler() {
+                    document.getElementById('console').innerHTML += 
+                      '&lt;br&gt;&lt;b&gt;this.id:&lt;/b&gt; ' + this.id + 
+                      ', &lt;b&gt;srcElement.id:&lt;/b&gt; ' + window.event.srcElement.id;
+                      window.event.cancelBubble = true;
+                }
+                var body = document.getElementById('bodyId');
+                body.attachEvent('onclick', proxy(body, handler));
+                
+                var div = document.getElementById('divId');
+                div.attachEvent('onclick', proxy(div, handler));
+                
+                var btn = document.getElementById('btnId');
+                btn.attachEvent('onclick', proxy(btn, handler));
+            });
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body id="bodyId"&gt;
+        &lt;div id="divId"&gt;&lt;button id="btnId"&gt;Click me&lt;/button&gt;&lt;/div&gt;
+        &lt;span id="console"&gt;&lt;/span&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+ <div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

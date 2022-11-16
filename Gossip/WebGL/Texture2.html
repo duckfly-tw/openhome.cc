@@ -1,0 +1,188 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈貼圖座標〉中談到，貼圖是上色時採樣的依據，這表示著色器的撰寫上，必須傳入貼圖座標：
+&lt;script id="vertex-shader" type="x-shader/x-vertex"&g...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="貼圖上色">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/Texture2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈貼圖座標〉中談到，貼圖是上色時採樣的依據，這表示著色器的撰寫上，必須傳入貼圖座標：
+&lt;script id="vertex-shader" type="x-shader/x-vertex"&g...">
+
+    <title>貼圖上色</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Texture2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>貼圖上色</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Texture1.html">貼圖座標</a>〉中談到，貼圖是上色時採樣的依據，這表示著色器的撰寫上，必須傳入貼圖座標：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    uniform float aspect;
+    attribute vec3 vertexPosition;
+    attribute vec2 texturePosition;
+
+    varying vec2 vTexturePosition;
+
+    void main(void) {
+        gl_Position = vec4(vertexPosition.x, vertexPosition.y * aspect, vertexPosition.z, 1.0);
+        vTexturePosition = texturePosition;
+    }
+&lt;/script&gt;          
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+
+    uniform sampler2D sampler;
+    varying vec2 vTexturePosition;
+
+    void main(void) {
+        gl_FragColor = texture2D(uSampler, vTexturePosition);
+    }
+&lt;/script&gt;  
+</code></pre>
+<p>在頂點著色器中，傳入的貼圖座標 <code>texturePosition</code> 指定給 <code>vTexturePosition</code>，因此片段著色器中就可以利用貼圖座標來上色，貼圖本身的資訊會設定給 <code>sampler</code>，型態為 <code>sampler2D</code>，顯然地，採樣的來源是個 2D 圖片，<code>texture2D</code> 函式會從指定的採樣器中依座標取得顏色資訊作為像素的顏色。</p>
+<p>為了能在圖片下載後繪製，這邊將程式寫在 <code>load</code> 事件之中：</p>
+<pre class="prettyprint"><code lang="javascript">// 共用的 Buffer 設置函式
+function enableBufferOfAttr(gl, prog, attrName, size, data) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    const position = gl.getAttribLocation(prog, attrName);
+    gl.vertexAttribPointer(position, size, gl.FLOAT, false, 0 , 0);
+    gl.enableVertexAttribArray(position);
+}
+
+const gl = getGLContext(document.getElementById('glCanvas'));
+const prog = installProgram(gl, 
+    shaderSourceById('vertex-shader'), 
+    shaderSourceById('fragment-shader')
+);       
+
+const image = new Image();
+image.addEventListener('load', () =&gt; {
+    // 在這邊進行繪製
+    ...
+});
+image.src = "images/caterpillar.jpg";
+</code></pre>
+<p>接下來，啟用、建立、綁定貼圖：</p>
+<pre class="prettyprint"><code lang="javascript">gl.activeTexture(gl.TEXTURE0);
+gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+</code></pre>
+<p><code>activeTexture</code> 表示使用哪個貼圖單元，<code>createTexture</code> 建立的物件會作為貼圖操作時的資料存儲與狀態記錄之用，在這邊，<code>bindTexture</code> 會將之綁定在 <code>gl.TEXTURE0</code>。</p>
+<p>接著把下載的圖片置入：</p>
+<pre class="prettyprint"><code lang="javascript">gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB  , gl.UNSIGNED_BYTE, image);
+gl.generateMipmap(gl.TEXTURE_2D);
+</code></pre>
+<p><code>texImage2D</code> 用來設置貼圖來源與相關參數，它有多個重載版本，在這邊，<code>gl.TEXTURE_2D</code> 表示這是個二維貼圖，0 表示這是原始圖片（具體來說，mipmap 的第 0 級，之後文件會說明），第一個 <code>gl.RGB</code> 表示貼圖來源的顏色資訊，因為這是個 JPG，不會有 Alpha 資訊，因此指定為 <code>gl.RGB</code> 就可以了，第二個 <code>gl.RGB</code> 是 Texel（Texture 與 Pixel 的合成字）資料格式，也就是貼圖讀入為位元組之後，如何看待這些位元組資訊，對於 WebGL 1，必須與前一個參數值相同，<code>gl.UNSIGNED_BYTE</code> 是 Texel 的資料型態，這個版本的 <code>texImage2D</code> 會自動依 <code>image</code> 判斷圖片寬高。</p>
+<p>在這邊暫且不用關心 <code>generateMipmap</code>，只需要先知道，如果圖片的長、寬都是 2 的次方，那麼 <code>generateMipmap</code> 可以自動處理貼圖縮放的問題，當然，也可以自己控制，對於圖片的長、寬不是 2 次方的圖片，不能使用 <code>generateMipmap</code>，也得自行控制縮放相關參數。</p>
+<p>在這邊，caterpillar.jpg 是 256x256，因此可以使用 <code>generateMipmap</code>，之後會再說明它的作用。</p>
+<p>接下來指定採樣器要使用哪個貼圖單元：</p>
+<pre class="prettyprint"><code lang="javascript">gl.uniform1i(
+    gl.getUniformLocation(prog, "sampler"), 
+    0
+);
+</code></pre>
+<p>由於著色器中全域變數的預設值為 0，在只有一個貼圖的情況下，<code>gl.activeTexture(gl.TEXTURE0)</code> 與上頭採樣器的設置不寫，其實也是可以運作的，不過這邊還是將之寫出來比較清楚。</p>
+<p>剩下的就是頂點、貼圖座標等的設置了，這邊要畫出完整的圖片，因此要使用兩個三角形：</p>
+<pre class="prettyprint"><code lang="javascript">enableBufferOfAttr(gl, prog, 'vertexPosition', 3, [
+    -0.25, 0.25, 0.0,
+    0.25, 0.25, 0.0,
+    -0.25, -0.25, 0.0,
+    -0.25, -0.25, 0.0,
+    0.25, 0.25, 0.0,
+    0.25, -0.25, 0.0
+]);
+
+enableBufferOfAttr(gl, prog, 'texturePosition', 2, [
+    0.0,  0.0,
+    1.0,  0.0,
+    0.0,  1.0,
+    0.0,  1.0,
+    1.0,  0.0,
+    1.0,  1.0,
+]);
+
+gl.uniform1f(
+    gl.getUniformLocation(prog, 'aspect'),
+    gl.canvas.clientWidth / gl.canvas.clientHeight
+);    
+
+// 繪製
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawArrays(gl.TRIANGLES, 0, 6);
+</code></pre>
+<p>可以<a href="https://openhome.cc/Gossip/WebGL/samples/Texture-1.html">按一下範例網頁</a>，費盡千辛萬苦，只為了畫一張圖？當然不是這樣的，因為使用三角形構成，只要改變一下頂點座標，就可以完成某些效果，例如：</p>
+<pre class="prettyprint"><code lang="javascript">enableBufferOfAttr(gl, prog, 'vertexPosition', 3, [
+    -0.5, 0.25, 0.0,
+    0.25, 0.25, 0.0,
+    -0.25, -0.25, 0.0,
+    -0.25, -0.25, 0.0,
+    0.5, 0.25, 0.0,
+    0.25, -0.25, 0.0
+]);
+</code></pre>
+<p>就可以把挖土機切割了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-5.JPG" alt="貼圖上色"  /></div></div></p>
+<p>想像一下，多規劃幾個三角形，修改一下程式，就可以完成玻璃心碎掉的效果了。</p>
+<p>另一方面，因為片段著色器中，<code>texture2D</code> 傳回 <code>vec4</code>，如果重新組合 RGBA 的資訊，就可以達到變化色彩的效果了，例如：</p>
+<pre class="prettyprint"><code lang="javascript">gl_FragColor = texture2D(sampler, vTexturePosition).gbra;
+</code></pre>
+<p>就可以把挖土機變色了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-6.JPG" alt="貼圖上色"  /></div></div></p>
+<p>知道這些之後，基本上，要貼圖到立體方塊上，只要頂點、貼圖座標與索引陣列不要搞錯就好了，例如<a href="https://openhome.cc/Gossip/WebGL/samples/Texture-2.html">這個範例網頁</a>有個轉動的立體方塊，詳細程式碼就自行從中探索了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Texture-7.JPG" alt="貼圖上色"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在第一堂下課之前，我們完成了練習 1：哈囉！世界！，那麼那些程式碼中做了什麼？為了方便，把範例程式碼再貼過來一下：
+filename = input('檔名：')file = open(filen...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Python 3 Tutorial 第二堂（1）Unicode 支援、基本 I/O">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/UnicodeBasicIOPy3.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在第一堂下課之前，我們完成了練習 1：哈囉！世界！，那麼那些程式碼中做了什麼？為了方便，把範例程式碼再貼過來一下：
+filename = input('檔名：')file = open(filen...">
+    <title>Python 3 Tutorial 第二堂（1）Unicode 支援、基本 I/O</title>
+    <link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../../css/caterpillar.css">
+    <script async="" src="../../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="UnicodeBasicIOPy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="index.html">回 Python Tutorial</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a
+                  href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../../images/facebook.png"></a> </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 --> <ins class="adsbygoogle"
+                  style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>Python 3 Tutorial 第二堂（1）Unicode 支援、基本 I/O</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>在第一堂下課之前，我們完成了練習 1：哈囉！世界！，那麼那些程式碼中做了什麼？為了方便，把範例程式碼再貼過來一下：</p>
+          <pre class="prettyprint"><code lang="python">filename = input('檔名：')
+
+file = open(filename, 'r', encoding='UTF-8')
+content = file.read()
+file.close()
+
+print(content)
+print(content.encode('UTF-8'))                 # 這是什麼？
+print(content.encode('UTF-8').decode('UTF-8')) # 這是什麼？
+</code></pre>
+          <h1>原始碼檔案的編碼</h1>
+          <p>首先，程式一開始使用 <code>input</code> 函式指定提示訊息，這會讓程式停下來等待使用者的輸入。在提示訊息的部份使用了中文，在 Ubuntu 中這沒有問題，然而，若你試著在 Windows 環境中進行這個課程，第一個練習可能就會遇上問題：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/UnicodeBasicIOPy3-1.JPG"
+                alt="Unicode 支援、基本 I/O"></div>
+          </div>
+          <p></p>
+          <p>這是因為 Python 3.x 中，<code>python</code> 直譯器預期的 .py 編碼，預設是 UTF-8，而在 Ubuntu 15.10 中，預設採用的文字編碼也是 UTF-8，這時在 .py 檔案中撰寫中文，並不會有問題發生，然而，你知道在 Windows 中，使用記事本編輯文字檔案時，預設的文字編碼是什麼嗎？</p>
+          <p>有趣的是，有時我上課會問學員一個問題：「你用的原始碼文字編碼是什麼？」很多學員答不出來，很多人不知道自己作業系統中開個純文字檔編碼是什麼，不知道在整合開發環境（Integrated Development Environment, IDE）中開個原始碼編碼是什麼，當然也就不知道為什麼把 A 專案的原始碼放到 B 專案中程式碼會出現亂碼。</p>
+          <p>如果你連 UTF-8 是什麼都不知道，那建議你看看我寫的〈<a href="../../Encoding/index.html">亂碼 1/2</a>〉中這幾篇文件：</p>
+          <ul>
+            <li><a href="../../Encoding/TextFile.html">哪來的純文字檔？</a></li>
+            <li><a href="../../Encoding/UnicodeUTF.html">Unicode 與 UTF</a></li>
+            <li><a href="../../Encoding/UTF8.html">UTF-8</a></li>
+          </ul>
+          <p>在 Windows 中使用記事本編輯文字檔案，預設的編碼是 MS950，在 Python 3.x 中，若 .py 檔案的編碼若不是 UTF-8，必須在檔案的一開頭作編碼宣告（Encoding declaration）：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/UnicodeBasicIOPy3-2.JPG"
+                alt="Unicode 支援、基本 I/O"></div>
+          </div>
+          <p></p>
+          <p>編碼宣告是個魔法註解（Magic comment），在上頭的例子中，<code># coding=MS950</code> 告訴 Python 直譯器，這個原始碼檔案是以 MS950 來編碼，如此就能正確地讀取 .py 檔案。</p>
+          <h1>Python 的 Unicode 支援</h1>
+          <p>Python 3.x 中，文字是 <code>str</code> 型態的實例，不過 <code>str</code> 代表的是 Unicode，下面這個程式在 Python 3.x 中執行的話：</p>
+          <pre class="prettyprint"><code lang="python">text = '測試'
+print(type(text)) # 顯示 "&lt;class 'str'&gt;"
+print(len(text)) # 顯示 2
+</code></pre>
+          <p><code>type</code> 函式可用來得知資料的型態，而 <code>len</code> 會表示有兩個「字元」，這樣的結果代表著 Python 3.x 對 Unicode 有比較好的支援，反觀在 Python 2.x，程式中，文字雖是 <code>str</code> 的實例，然而卻是代表文字資料的位元組序列（Byte sequence）。例如在 Python 2.x 中，以下的程式會顯示 6，即使 <code>'測試'</code> 是兩個字元：</p>
+          <pre class="prettyprint"><code lang="python"># coding=UTF-8
+text = '測試'
+print len(text) # 顯示 6
+</code></pre>
+          <p>這是因為 <code>'測試'</code> 這兩個字元，使用 UTF-8 編碼的話，會使用六個位元組，在 Python 2.x 中，<code>len</code> 函式實際上是計算位元組序列的長度，而不是字元長度。</p>
+          <p>在 Python 2.x 中，如果想要用 Unicode 來代表文字，也就是想要用 <code>unicode</code> 型態來封裝文字，可以使用 Unicode 字面常量（Unicode literal） 來表示，也就是在文字前置一個 <code>u</code> 符號。例如：</p>
+          <pre class="prettyprint"><code lang="python"># coding=UTF-8
+text = u'測試'
+print type(text) # 顯示 "&lt;type 'unicode'&gt;"
+print len(text) # 顯示 2
+</code></pre>
+          <p>Python 2.x 直譯器執行程式時，會使用 <code>unicode</code> 實例來代表文字資料，使用 <code>len</code> 取得一個 unicode 實例的長度時，它會告訴你有幾個字元。</p>
+          <p>為了讓 Python 3.x 與 2.x 之間有更好的相容性，在 Python 3.5 中，也可以使用 <code>u</code> 明確指定是一個 <code>str</code> 實例（記得，Python 3.x 中是代表 Unicode），而使用 <code>b</code> 的話，表示是一個 <code>bytes</code> 實例，也就是一個位元組序列。底下顯示了 Python 3.5 與 Python 2.7 的文字編碼差異：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/UnicodeBasicIOPy3-3.JPG"
+                alt="Unicode 支援、基本 I/O"></div>
+          </div>
+          <p></p>
+          <p>在 Python 3.x 中，如果想取得文字實際編碼後的位元組序列，可以使用 <code>encode</code> 方法指定編碼，這也會傳回一個 <code>bytes</code> 實例，如果有個 <code>bytes</code> 實例，可以使用 <code>decode</code> 指定編碼，傳回代表 Unicode 的 <code>str</code> 實例。例如下圖是在 Python 3.x 互動交談環境中的測試實例：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/UnicodeBasicIOPy3-4.JPG"
+                alt="Unicode 支援、基本 I/O"></div>
+          </div>
+          <p></p>
+          <p>如果想知道更多 Python 中有關文字編碼的細節，可以再參考〈<a href="../../Encoding/Python.html">Python 的編碼</a>〉這篇文件。</p>
+          <h1>基本 I/O</h1>
+          <p>接下來看看有關基本 I/O 的部份，你可以使用 <code>open</code> 函式來開啟檔案，開啟時指定存取模式，<code>'r'</code> 表示讀取，<code>'w'</code> 表示寫入，由於在 Ubuntu 中，預設的文字編碼是 UTF-8，若你讀取的檔案中含有中文，最好是指定 <code>encoding</code> 參數，若不指定的話，就看系統是什麼編碼了，具體來說，就是以 <code>locale.getpreferredencoding(False)</code> 的傳回結果作為讀取時的編碼。</p>
+          <p><code>open</code> 函式會傳回 <code>_io.TextIOWrapper</code> 實例，使用 <code>read</code> 方法可以讀取檔案內容，以 <code>str</code> 型態傳回，以下是個實際的讀取程式範例：</p>
+          <pre class="prettyprint"><code lang="python">import sys
+file = open(sys.argv[1], 'r')
+content = file.read()
+file.close()
+print(content)
+</code></pre>
+          <p>程式第一行匯入（import）了 <code>sys</code> 模組，<code>sys.argv</code> 是個 <code>list</code>，其中儲存了執行程式時的命令列引數（Command line arguments），索引 0 固定都是執行時的模組名稱，而後是跟隨著的引數，例如執行 <code>python3.5 hello.py one two three</code> 時，<code>sys.argv[0]</code> 就會是 <code>'hello.py'</code>，其餘索引則是 <code>'one'</code>、<code>'two'</code>、<code>'three'</code>。<code>print()</code> 在 Python 3.x 中是個函式，用來顯示指定的資料。不使用檔案時，記得使用 <code>close</code> 關閉檔案。</p>
+          <p>類似地，一個寫入檔案的程式範例如下，<code>write</code> 方法會將文字的位元組序列寫入至檔案中：</p>
+          <pre class="prettyprint"><code lang="python">import sys
+file = open(sys.argv[1], 'w')
+file.write('test')
+file.close()
+</code></pre>
+          <p>如果要逐行讀取檔案呢？可以使用 <code>open</code> 傳回實例上的 <code>readline</code> 方法，例如逐行讀取一個文字檔案的所有內容，可以在 <code>while</code> 迴圈中進行：</p>
+          <pre class="prettyprint"><code lang="python">import sys
+file = open(sys.argv[1], 'r')
+while True:
+    line = file.readline()
+    if not line: break
+    print(line, end = '')
+file.close()
+</code></pre>
+          <p>如果讀不到東西了，那 <code>readline</code> 會傳回 <code>''</code>，在 <code>if</code> 判斷式中，<code>''</code> 會被視為 <code>False</code>。</p>
+          <p><code>while</code> 後加上 : 表示區塊開始，Python 中使用縮排來決定區塊範圍。注意！你可以自行決定縮排字元，但是 Python 中縮排要一致，如果縮排想使用 Tab 字元，那所有原始碼就都要使用 Tab 字元縮排，如果要使用四個空白字元，那所有原始碼就得是四個空白字元來縮排，強制統一縮排，是 Python 的特色，也是 Python 的文化。</p>
+          <p><code>print()</code> 函式顯示完指定的文字後，預設會加上換行字元，若想指定其他字元，可以在 <code>end</code> 參數上指定，在上例中，加上了 <code>end = ''</code>，也就不會換行了。</p>
+          <p>可以使用 <code>readlines</code> 方法一次讀取所有檔案內容，這會傳回 <code>list</code>，每個索引處代表一行內容，一個程式範例是這樣的：</p>
+          <pre class="prettyprint"><code lang="python">import sys
+file = open(sys.argv[1], 'r')
+for line in file.readlines():
+    print(line, end = '')
+file.close()
+</code></pre>
+          <p><code>for in</code> 語法可作用在 <code>list</code> 上，逐一取出 <code>list</code> 中的元素並指定給變數，對於 <code>for line in file.readlines()</code> 是這樣閱讀的：對於 <code>file.readlines()</code> 傳回的 <code>list</code> 中每個元素，將之指定給 <code>line</code>。</p>
+          <p>實際上對於 Python 來說，讀取檔案最好的方式，就是不要去 <strong><code>read</code></strong> 它，這是什麼意思？是這樣的…</p>
+          <pre class="prettyprint"><code lang="python">import sys
+for line in open(sys.argv[1], 'r'):
+    print(line, end = '')
+</code></pre>
+          <p>這是 Python 的風格，也是 Python 的文化，這樣的寫法好處就是增加了可讀性，你不用自行使用 <code>close</code> 關閉檔案，在 <code>open</code> 傳回的<a
+              href="http://stackoverflow.com/questions/11130312/line-by-line-file-processing-for-loop-vs-with">實例被回收後，檔案就會關閉</a>，<code>for line in open(sys.argv[1], 'r')</code> 是這樣閱讀的：對於開啟檔案的每一行。除了可讀性外，這個語法還能讓讀取更有效率，不過現階段你不用管這些事，只要當這語法背後施了些魔法就好。</p>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+
+</html>

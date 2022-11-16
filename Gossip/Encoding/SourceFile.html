@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="很令人訝異的事情是，當被問及「你現在編輯的原始碼檔案是什麼編碼？」，不少程式設計人員都答不出來。
+如果在正體中文 Windows 中開一個純文字檔案，用「記事本」編輯的話，應該是用 MS950 來處理...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="你的原始碼是什麼編碼？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Encoding/SourceFile.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="很令人訝異的事情是，當被問及「你現在編輯的原始碼檔案是什麼編碼？」，不少程式設計人員都答不出來。
+如果在正體中文 Windows 中開一個純文字檔案，用「記事本」編輯的話，應該是用 MS950 來處理...">
+
+    <title>你的原始碼是什麼編碼？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SourceFile.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Encoding 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>你的原始碼是什麼編碼？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>很令人訝異的事情是，當被問及「你現在編輯的原始碼檔案是什麼編碼？」，不少程式設計人員都答不出來。</p>
+<p>如果在正體中文 Windows 中開一個純文字檔案，用「記事本」編輯的話，應該是用 MS950 來處理原始碼中字元的儲存，現在許多 Linux 系統，預設使用 UTF-8 編碼，所以在這些 Linux 直接使用 vim 等編輯器編輯原始碼的話，預設應該就是 UTF-8。</p>
+<p>如果是在整合開發環境（IDE）中，要視 IDE 的設定，有些 IDE 預設是使用作業系統編碼，有些 IDE 預設使用 UTF-8，如果在 IDE 中，預設是用 Big5 的編輯器，結果開啟 UTF-8 的原始碼，也會是亂碼，你必須指定編輯器使用正確的編碼來開啟原始碼。</p>
+<p>這有什麼問題呢？以 Java 而言，在正體中文 Windows 中，如果用舊版記事本編輯原始碼：</p>
+<pre class="prettyprint"><code>public class Main {
+    public static void main(String[] args) {
+        System.out.println("哈囉！世界！");
+    }
+}
+</code></pre>
+<p>如果直接如下編譯：</p>
+<pre class="prettyprint"><code>C:\workspace&gt;javac Main.java
+</code></pre>
+<p>那麼就會編譯成功，不過，編譯器是使用哪種編碼來解譯原始碼呢？答案是作業系統預設編譯，正體中文 Windows 中，如果用記事本編輯原始碼，原始碼檔案預設用 MS950 儲存，而編譯器採用作業系統編碼編譯，所以就不用任何指定，就可以正確編譯。</p>
+<p>同樣地，在預設編碼為 UTF-8 的 Linux 中，如果你用 vim 編輯原始碼，原始碼檔案是用 UTF-8 儲存，而編譯器採用作業系統編碼編譯，所以就不用任何指定，就可以正確編譯。</p>
+<p>如果用記事本轉存為「Unicode」或「Unicode big endian」編碼，那要如何編譯？答案是指定 <code>-encoding</code> 告知編譯器原始檔案的編碼：</p>
+<pre class="prettyprint"><code>C:\workspace&gt;javac -encoding UTF-16 Main.java
+</code></pre>
+<p>如果用舊記事本轉存為「UTF-8」編碼，那要如何編譯？答案是無法編譯，即使指定了 <code>-encoding</code> 為 UTF-8 也一樣&hellip;</p>
+<pre class="prettyprint"><code>C:\workspace&gt;javac -encoding UTF-8 Main.java
+Main.java:1: illegal character: \65279
+?public class Main {
+^
+1 error
+</code></pre>
+<p>在 <a href="UTF8.html">UTF-8</a> 中談過，因為 Windows 的記事本存成 UTF-8 時，會在檔首加上 BOM，<code>javac</code> 編譯器並不處理BOM，只會視為不合法字元，如果要將原始碼存為 UTF-8，必須使用可存為檔首無BOM的編譯器，例如 NotePad++。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SourceFile-1.JPG" alt="你的原始碼是什麼編碼？"  /></div></div></p>
+<p>如此指定 <code>-encoding</code> 為 UTF-8 進行編譯，就可以編譯成功（新版 Windows 記事本已經預設使用檔首無 BOM 的 UTF-8 儲存）。</p>
+<p>在 Windows 中，如果用 <code>gcc</code> 編譯一個以 Big5 儲存的 C 原始碼：</p>
+<pre class="prettyprint"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("編譯成功");
+    return 0;
+}
+</code></pre>
+<p>可能會得到錯誤訊息：</p>
+<pre class="prettyprint"><code>C:\workspace&gt;gcc main.c
+main.c: In function `main':
+main.c:4: error: missing terminating " character
+main.c:5: error: syntax error before "return"
+</code></pre>
+<p>如果將原始碼中的「成功」改為「OK」，編譯就會成功，為什麼？檢視原始碼的十六進位碼：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SourceFile-2.JPG" alt="你的原始碼是什麼編碼？"  /></div></div></p>
+<p>「功」這個字儲存為 a5、5c 兩個位元組，而 5C 在 ASCII 字元表中，就是 <code>\</code> 字元，也就是說，<code>gcc</code> 看到了 <code>\</code> 字元，以為是略過（escape）字元，但下一個字元是 <code>"</code>，結果組成了 <code>\"</code>，因此 <code>gcc</code> 以為 <code>"</code> 沒有成對，因此編譯失敗，這就是過去著名的「許功蓋」問題。</p>
+<p>如果將 C 原始碼存為 UTF-8 再直接編譯，執行結果會出現亂碼：</p>
+<pre class="prettyprint"><code>C:\workspace&gt;gcc main.c
+
+C:\workspace&gt;a
+蝺刻陌?栀?
+</code></pre>
+<p>只是將字元的位元組改為另一組位元，所以編譯可以成功，但執行時 Windows 的 Console 預設使用 MS950（也就是 Big5 相容），對這組位元並沒有對應實際可辨識的字元，所以就是亂碼，必須如下指定執行時期編碼為 Big5：</p>
+<pre class="prettyprint"><code>C:\workspace&gt;gcc -fexec-charset=BIG5 main.c
+
+C:\workspace&gt;a
+編譯成功
+</code></pre>
+<p>新版的 Windows 10 可以藉由地區設定，將 Console 預設為 UTF-8：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SourceFile-3.JPG" alt="你的原始碼是什麼編碼？"  /></div></div></p>
+<p>不同語言辨識或指定原始碼編碼的方式並不相同，可以進一步參考：</p>
+<ul>
+<li><a href="String.html">Java 的字串</a></li>
+<li><a href="JVMEncoding.html">JVM 預設編碼</a></li>
+<li><a href="https://openhome.cc/Gossip/Ruby/Encoding.html">Ruby 的編碼</a></li>
+<li><a href="Python.html">Python 的編碼</a></li>
+<li><a href="JavaScript.html">JavaScript 編碼基礎</a></li>
+</ul>
+<p>甚至在不同環境中也會有不同方式，可參考：</p>
+<ul>
+<li><a href="JSP.html">JSP 的轉譯</a></li>
+<li><a href="https://openhome.cc/Gossip/Rails/Encoding.html">Rails 的編碼</a></li>
+</ul>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

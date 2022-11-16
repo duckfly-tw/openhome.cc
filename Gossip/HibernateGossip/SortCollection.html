@@ -1,0 +1,347 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="從資料庫的觀點來看，Set、Map、Bag是無序的，而List是有序的，這邊所謂的無序或有序，是指將集合中物件儲存至資料庫時，是否依集合物件中的
+順序來儲存。
+
+
+
+
+      
+
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="集合的排序">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/SortCollection.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="從資料庫的觀點來看，Set、Map、Bag是無序的，而List是有序的，這邊所謂的無序或有序，是指將集合中物件儲存至資料庫時，是否依集合物件中的
+順序來儲存。
+
+
+
+
+      
+
+...">
+
+
+    <title>集合的排序</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SortCollection.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>集合的排序</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+從資料庫的觀點來看，Set、Map、Bag是無序的，而List是有序的，這邊所謂的無序或有序，是指將集合中物件儲存至資料庫時，是否依集合物件中的
+順序來儲存。<br>
+
+
+
+
+      <br>
+
+
+
+
+
+然而從資料庫取得資料之後，您也許會希望Set、Map等集合中的物件可以依一定的順序來排列，您可以從兩個層次來集合中的物件排序，一是在載入資料後於JVM中排序，另一是在資料庫中直接使用order by子句來排序。<br>
+
+
+
+
+      <br>
+
+
+
+
+
+以 Set
+這篇文章中的範例來作說明，要在JVM中就資料進行排序，您可以在映射文件中使用sort屬性來定義集合的排序，這適用於Set與Map，例如：
+
+      <br>
+
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping&gt; <br><br>    &lt;class name="onlyfun.caterpillar.User" table="user"&gt; <br>        ....<br>        &lt;set name="emails" table="email" <span style="font-weight: bold;">sort="natural"</span>&gt; <br>            &lt;key column="id"/&gt; <br>            &lt;element type="string" <br>                     column="address"/&gt; <br>        &lt;/set&gt; <br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+      
+sort="natural"表示使用物件的comparaTo()方法來進行排序，集合中的物件上必須有實作java.lang.Comparable
+介面，例如String就有實作java.lang.Comparable介面，結果會使用字典順序來排列集合中的物件。<br>
+
+
+
+
+      <br>
+
+
+
+
+
+您可以實現自己的排序方式，只要定義一個類別來實作java.util.Comparator介面，例如：
+      <br>
+
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>CustomComparator.java</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.Comparator;<br><br>public class CustomComparator implements Comparator {<br>    public int compare(Object o1, Object o2) {<br>        if (((String) o1).equals(o2)) <br>            return 0;<br>        return ((Comparable) o1).compareTo(o2) * -1;<br>    }<br>}</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+      
+在自訂的Comparator中，如果兩個物件的順序相同會傳回0，而為了方便比較物件，要求傳入的物件必須實作Comparable介面（例如
+String物件就有實作Comparable介面），範例中只是簡單的將原來compareTo()傳回的值乘以負一，如此就可以簡單的讓排列順序相
+反，接著可以在映射文件中指定自訂的Comparator類別：<br>
+
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping&gt; <br><br>    &lt;class name="onlyfun.caterpillar.User" table="user"&gt; <br>        ....<br>        &lt;set name="emails" table="email" <br>             <span style="font-weight: bold;">sort="onlyfun.caterpillar.CustomComparator"</span>&gt;<br>            &lt;key column="id"/&gt; <br>            &lt;element type="string" <br>                     column="address"/&gt; <br>        &lt;/set&gt; <br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+      
+Bag與List並不適用於這種方式，Bag或List本身是根據索引值來排列的。<br>
+
+
+
+
+      <br>
+
+
+
+
+
+另一個排序的方式則是在資料庫中進行，直接使用order by子句來排序，這可以在映射文件中使用order-by屬性來指定，例如：
+      <br>
+
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping&gt; <br><br>    &lt;class name="onlyfun.caterpillar.User" table="user"&gt; <br>        ....<br>        &lt;set name="emails" table="email" <span style="font-weight: bold;">order-by="address desc"</span>&gt; <br>            &lt;key column="id"/&gt; <br>            &lt;element type="string" <br>                     column="address"/&gt; <br>        &lt;/set&gt; <br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+      
+觀察Hibernate所使用的SQL可以看到order by子句：<br>
+
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Hibernate:
+select emails0_.id as id0_, emails0_.address as address0_ from email
+emails0_ where emails0_.id=? <span style="color: rgb(255, 0, 0);">order
+by</span> emails0_.address desc</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span></div>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"><br>
+
+
+      </span><span style="font-family: Courier New,Courier,monospace;">Hibernate在內部會使用LinkedHashMap或LinkedHashSet來作為集合物件，如果是Bag的話，則會在內部使用ArrayList作為集合物件。</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"><br>
+
+
+      </span>
+ 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

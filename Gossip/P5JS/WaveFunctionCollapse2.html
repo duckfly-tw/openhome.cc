@@ -1,0 +1,256 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Wave Function Collapse（一）〉認識了 Wave Function Collapse 演算的基本原理後，接下來就是看看程式如何實作了，首先需要準備一張範例地圖，例如：
+
+這張範...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Wave Function Collapse（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/WaveFunctionCollapse2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Wave Function Collapse（一）〉認識了 Wave Function Collapse 演算的基本原理後，接下來就是看看程式如何實作了，首先需要準備一張範例地圖，例如：
+
+這張範...">
+
+    <title>Wave Function Collapse（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="WaveFunctionCollapse2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 P5JS</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Wave Function Collapse（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="WaveFunctionCollapse.html">Wave Function Collapse（一）</a>〉認識了 Wave Function Collapse 演算的基本原理後，接下來就是看看程式如何實作了，首先需要準備一張範例地圖，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/WaveFunctionCollapse2-1.JPG" alt="Wave Function Collapse（二）"  /></div></div></p>
+<p>這張範例圖若根據〈<a href="WaveFunctionCollapse.html">Wave Function Collapse（一）</a>〉中的拼接塊標示，整理為二維陣列，會是以下的資料：</p>
+<pre class="prettyprint"><code lang="javascript">const sample = [
+    ['S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S'],
+    ['S',  'S', 'C0', 'CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'C3',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],
+    ['S',  'S', 'CW',  'L',  'L',  'L',  'L',  'L',  'L',  'L', 'CE',  'S',  'S'],    
+    ['S',  'S', 'C1', 'CS', 'CS', 'CS', 'CS', 'CS', 'CS', 'CS', 'C2',  'S',  'S'],
+    ['S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S',  'S']
+];
+</code></pre>
+<p>若單一拼接塊的權重是 1，範例地圖中有多少同類型的拼接塊，就代表輸出的地圖，必須參考的權重有多少，那麼可以實作出以下的權重計算函式：</p>
+<pre class="prettyprint"><code lang="javascript">function weightsOfTiles(sample) {
+    const weights = new Map();
+    for(let y = 0; y &lt; sample.length; y++) {
+        for(let x = 0; x &lt; sample[y].length; x++) {
+            const tile = sample[y][x];
+            if(weights.get(tile) === undefined) {
+                weights.set(tile, 0);
+            }
+            weights.set(tile, weights.get(tile) + 1);
+        }
+    }
+    return weights;
+}
+</code></pre>
+<p>透過這個權重計算函式，可以得到範例地圖中每個拼接塊加總後的權重如下：</p>
+<pre class="prettyprint"><code lang="javascript">C0: 1
+C1: 1
+C2: 1
+C3: 1
+CW: 7
+CS: 7
+CE: 7
+CN: 7
+S : 62
+L : 49
+</code></pre>
+<p>看來這是個海洋佔多數面積、陸地次之的範例地圖，輸出的地圖也應該要是海洋佔多數面積、陸地次之。</p>
+<p>接下來，需要有個可以初始輸出地圖中各位置疊加狀態的函式，因為計算後的權重會儲存在 <code>Map</code>，其中鍵就是使用到的拼接塊類型，使用該 <code>Map</code> 就可以初始輸出地圖的疊加狀態：</p>
+<pre class="prettyprint"><code lang="javascript">function initialEigenstates(width, height, weights) {
+    const eigenstates = [];
+    for(let y = 0; y &lt; height; y++) {
+        const row = [];
+        for(let x = 0; x &lt; width; x++) {
+            row.push(Array.from(weights.keys()));
+        }
+        eigenstates.push(row);
+    }
+    return eigenstates;
+}
+</code></pre>
+<p>從〈<a href="WaveFunctionCollapse.html">Wave Function Collapse（一）</a>〉可以知道，從任何某個已塌縮的位置開始，都可以藉由傳播來擴充輸出地圖，從而產生無盡拼接的地圖，然而因為這邊只是做個範，為了簡化，這邊還是指定了輸出地圖的大小，在這邊可以看到，每個位置的疊加狀態，是由該位置的一組類型與權重決定。</p>
+<p>各位置的疊加狀態儲存在二維陣列中，存取時的索引 <code>eigenstates[y][x]</code> 代表了座標 (x, y)，之後會一直處理這個二維陣列，因此封裝為一個類別是個不錯的選擇：</p>
+<pre class="prettyprint"><code lang="javascript">class WaveFunction {
+    constructor(width, height, weights) {
+        this.width = width;
+        this.height = height;
+        this.weights = weights;
+        this.eigenstates = initialEigenstates(width, height, weights);
+    }
+
+    getEigenstates(x, y) {
+        return this.eigenstates[y][x];
+    }
+
+    isAllCollapsed() {
+        for(let row of this.eigenstates) {
+            if(row.some(states =&gt; states.length &gt; 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    remove(x, y, removedStates) {
+        const states = this.eigenstates[y][x];
+        this.eigenstates[y][x] = states.filter(state =&gt; !removedStates.includes(state));
+    }
+    ...
+} 
+</code></pre>
+<p><code>WaveFunction</code> 接受輸出地圖的大小以及範例地圖的拼接塊權重關係，為了便於存取某位置的疊加狀態，定義了 <code>getEigenstates</code> 方法；為了判斷地圖中每個位置是否都塌縮為一個狀態，定義了 <code>isAllCollapsed</code> 方法，單純地判斷是不是有某位置的狀態數量超過 1；由於塌縮會傳播，為了移除傳播過程中不相容的疊加狀態，定義了 <code>remove</code> 方法，<code>removedTiles</code> 會被濾掉，剩餘的狀態再指定回 (x, y) 位置。</p>
+<p>現在要選擇將某位置的疊加狀態，塌縮為一個狀態，只是這一個狀態該怎麼選擇呢？單純地從疊加狀態中隨機選出一個，顯然就無法輸出類似範例地圖的結果，以範例地圖海洋居多、陸地次之為例，若疊加狀態中有海洋拼接塊，應該給予較高選中的機會。</p>
+<p>可以先找出指定位置的疊加狀態與權重關係，先計算出總權重，然後取個 0 到總權重間的值作為閥值，接著總權重逐一減去各狀態的權重，直到低於閥值：</p>
+<pre class="prettyprint"><code lang="javascript">class WaveFunction {
+    ...
+
+    collapse(x, y) {
+        const statesWeights = new Map(
+            Array.from(this.weights.keys())
+                 .filter(state =&gt; this.eigenstates[y][x].includes(state))
+                 .map(state =&gt; [state, this.weights.get(state)])
+        );
+
+        const totalWeights = Array.from(statesWeights.values()).reduce((r, w) =&gt; r + w);
+        let threshold = random() * totalWeights;
+        for(let [state, weight] of statesWeights) {
+            threshold -= weight;
+            if(threshold &lt; 0) {
+                this.eigenstates[y][x] = [state];
+                return;
+            }
+        }
+    }
+    ...
+}
+</code></pre>
+<p>若疊加狀態中有權重較大的狀態，減去其權重後，有較大的機會低於閥值，說是較大的機會是因為，總權重還是乘上了 0 到 1 的隨機值，若調整閥值的上下界，也就是調整 <code>random</code> 的上下界引數，就會影響狀態的選擇，例如，使用 <code>random(0.8, 1)</code> 的話，因為閥值高，減去小權重後，很有可能就低於閥值，這表示你可能產生較多小或零落的島嶼。</p>
+<p>在〈<a href="WaveFunctionCollapse.html">Wave Function Collapse（一）</a>〉談到，選擇哪個位置，令其塌縮成一個狀態，可以是疊加的狀態數、權重或是其他計算方式，在 Maxim Gumin 的 <a href="https://github.com/mxgmn/WaveFunctionCollapse">WaveFunctionCollapse</a> 中採用的是具有最小 Shannon entropy 的位置，Shannon entropy 是？</p>
+<p>entropy 源於熱力學，我試著從科普的角度調查後的認識是，它本為熱量除以溫度的商數，entropy 中文常譯為熵，本無此字，物理學家胡剛復在「商」字旁加上「火」而創造此字以便於聯想；物理學家 Ludwig Boltzmann 發現，系統的熵跟構成熱力學性質的微觀狀態數量有關（例如，容器中氣體分子的位置及動量構成之狀態數量），也就是說，熵是個跟狀態有關的函數。</p>
+<p>熵後來被作為系統混亂程度的度量，系統中的狀態數量越多，系統越混亂，例如在維基百科〈<a href="https://zh.wikipedia.org/wiki/%E7%86%B5">熵</a>〉條目中有個丟硬幣的比喻，若有 10 個硬幣，丟硬幣時得到最有規律的狀態是 10 個都為正面或反面，硬幣排列上只會構成兩種狀態，若是最混亂的情況，有 5 個正面、5 個反面，硬幣排列上就會有 252 種。</p>
+<p>Claude Shannon 將熵引入了資訊理論（Information theory）的領域，作為不確定性的量度，熵越大表示不確定性越大，根據維基百科〈<a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Entropy (information theory)</a>〉條目，Shannon 熵的計算方式是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/WaveFunctionCollapse2-2.JPG" alt="Wave Function Collapse（二）"  /></div></div></p>
+<p>其中 X 是變數，可能的值為 (x1, x2, &hellip;., Xn)，P(xi) 是 xi 出現的機率，對數的底 b 視使用的 Shannon 熵單位而定，單位為 <a href="https://en.wikipedia.org/wiki/Bit_(unit)">bits</a> 時使用 2，<a href="https://en.wikipedia.org/wiki/Nat_(unit)">nats</a> 使用 <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)">e</a>，<a href="https://en.wikipedia.org/wiki/Ban_(unit)">bans</a> 使用 10。</p>
+<p>例如，Shannon 熵常用在計算密碼強度，熵值越大表示密碼組合的混亂程度越大，也就越難以組合出正確的密碼，若允許使用的字元有 N 個，密碼長度為 L，密碼的可能組合就是 1/N<sup>L</sup>，某組密碼出現的機率是 1/N<sup>L</sup>，對應至以上公式，n 就是 1/N<sup>L</sup>，P(xi) 是 1/N<sup>L</sup>，採用 bits 為 Shannon 熵單位，b 是 2，整理一下公式後，密碼強度的計算公式就是 <a href="https://en.wikipedia.org/wiki/Password_strength#Entropy_as_a_measure_of_password_strength">Entropy as a measure of password strength</a> 中列出的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/WaveFunctionCollapse2-3.JPG" alt="Wave Function Collapse（二）"  /></div></div></p>
+<p>在 Maxim Gumin 的 <a href="https://github.com/mxgmn/WaveFunctionCollapse">WaveFunctionCollapse</a> 中，<a href="https://github.com/mxgmn/WaveFunctionCollapse#comments">Comments</a> 談到了採用 Shannon 熵的理由，是來自於他觀察到，人們解決這類繪圖問題時，經常採用了最小熵值的概念。</p>
+<p>例如，〈<a href="WaveFunctionCollapse.html">Wave Function Collapse（一）</a>〉談到，若某位置的拼接塊數量少，其周圍的拼接塊數量也不會多，選擇該位置塌縮成一個拼接塊，在傳播時對各位置的拼接塊衝擊較小，也就是傳播過程，各位置的拼接塊可以保有較多的選擇性，後續選擇某個拼接塊，發生死胡同的可能性會比較低。</p>
+<p>也就是說，一個方式是選擇剩餘類型數量少的位置，這也可以理解為，類型數量少的位置，代表它受到周圍位置的限制較多，也就是它接收到周圍位置的資訊較多，才會擁有較少的類型。</p>
+<p>不過，類型的數量不是狀態，畢竟在數量相同的情況下，有可能擁有不同的權重加總，然而反之，權重加總也不是狀態的全部，畢竟相同權重加總下，也可能有不同的類型數量，最好的方式是兩者都考慮，記得一開始說的嗎？每個位置的疊加狀態，是由該位置的一組類型與權重決定。</p>
+<p>Shannon 熵是個與狀態有關的值，公式在計算過程考量了類型數量，若將權重設計進去來求得熵值，就可以作為疊加狀態的代表，也就是可以尋找最小熵值的位置來塌縮，<a href="https://github.com/mxgmn/WaveFunctionCollapse">WaveFunctionCollapse</a> 中就是採用權重作為 Shannon 熵的計算依據，若某位置狀態總權重是 sumOfWeights，某類型的權重為 wi，該位置出現該 wi 權重的類型機率 P(wi) 是 wi / sumOfWeights，套用到 Shannon 熵公式，整理一下公式，如果 sumOfWeightLogWeights 代表每個 wi * log(wi) 的加總，那麼最後的公式會是：</p>
+<pre class="prettyprint"><code lang="javascript">log(sumOfWeights) - (sumOfWeightLogWeights / sumOfWeights)
+</code></pre>
+<p>將之實作為程式碼就會是：</p>
+<pre class="prettyprint"><code lang="javascript">class WaveFunction {
+    ...
+
+    entropy(x, y) {
+        let sumOfWeights = 0;
+        let sumOfWeightLogWeights = 0;
+        for(let opt of this.getEigenstates(x, y)) {
+            const weight = this.weights.get(opt);
+            sumOfWeights += weight;
+            sumOfWeightLogWeights += weight * log(weight);
+        }
+        return log(sumOfWeights) - (sumOfWeightLogWeights / sumOfWeights);
+    }
+    ...
+}
+</code></pre>
+<p>為了方便取得具有最小熵值的位置，來定義一個 <code>coordinateOfMinEntropy</code> 方法：</p>
+<pre class="prettyprint"><code lang="javascript">class WaveFunction {
+    ...
+    coordinateOfMinEntropy() {
+        let entropy;
+        let entropyCoord;
+        for(let {x, y} of this.notCollapsedCoords()) {
+            // 加上一點小小的擾動，增加一點多樣性
+            const noisedEntropy = this.entropy(x, y) - (random() / 1000);
+            if(entropy === undefined || noisedEntropy &lt; entropy) {
+                entropy = noisedEntropy;
+                entropyCoord = {x, y};
+            }
+        }
+
+        return entropyCoord;
+    }
+
+    // 取得尚未完全塌縮成一個狀態的位置
+    notCollapsedCoords() {
+        const coords = [];
+        for(let y = 0; y &lt; this.height; y++) {
+            for(let x = 0; x &lt; this.width; x++) {
+                if(this.getEigenstates(x, y).length !== 1) {
+                    coords.push({x, y});
+                }
+            }
+        }
+        return coords;
+    }
+}
+</code></pre>
+<p>在實作中可以看到 <code>noisedEntropy</code>，將取得的熵值加上了一點小擾動，這是根據 <a href="https://github.com/mxgmn/WaveFunctionCollapse">WaveFunctionCollapse</a> 的範例原始碼而來，應該是為了增加一些輸出地圖的多樣性，不做這種擾動，基本上也是可以輸出隨機地圖就是了。</p>
+<p>到這邊為止，完成了 <code>WaveFunction</code> 的定義，它只用來提供或更新地圖上各位置的狀態，至於怎麼找出拼接塊的相容性、傳播等，會交由另一個 <code>TileMap</code> 來處理，這就留在下一篇文件再來談&hellip;</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,210 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebAssembly 提供 block 指令，它可以建立一個區塊，在區塊中看不到進入區塊前於堆疊中置放的數值，可以想像成在既有的堆疊頂端，建立一個新的堆疊起點，在其中進行指令操作。
+因此底下會出錯：...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="區塊與分支">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Block.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="WebAssembly 提供 block 指令，它可以建立一個區塊，在區塊中看不到進入區塊前於堆疊中置放的數值，可以想像成在既有的堆疊頂端，建立一個新的堆疊起點，在其中進行指令操作。
+因此底下會出錯：...">
+
+    <title>區塊與分支</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Block.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>區塊與分支</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>WebAssembly 提供 <code>block</code> 指令，它可以建立一個區塊，在區塊中看不到進入區塊前於堆疊中置放的數值，可以想像成在既有的堆疊頂端，建立一個新的堆疊起點，在其中進行指令操作。</p>
+<p>因此底下會出錯：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        i32.const 1
+        block
+            i32.const 2
+            i32.add
+            call $log
+        end
+    )
+    (start $main)
+)
+</code></pre>
+<p>因為區塊中看不到先前堆疊中已經置入的數值，區塊中在新堆疊起點之後，只置入了一個數值，而 <code>i32.add</code> 必須堆疊中有兩個數值，必須是底下才是正確的：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        i32.const 1
+        block
+            i32.const 2
+            i32.const 3
+            i32.add
+            call $log
+        end
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>區塊若沒有定義結果型態，執行完區塊後，堆疊必須為空，否則會發生堆疊不為空的錯誤；區塊可以使用 <code>result</code> 定義回傳值，執行完區塊後堆疊可以留下一個數值，這個數值在離開區塊之後，會置入先前堆疊，可以繼續其他指令操作。例如：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        i32.const 1
+        block (result i32)
+            i32.const 2
+            i32.const 3
+            i32.add
+        end
+        i32.add
+        call $log ;; 顯示 6
+    )
+    (start $main)
+)
+</code></pre>
+<p>在區塊中可以使用 <code>br</code> 分支（Branch）指令跳出區塊，<code>br</code> 可以接上數字，若數字為 <code>n</code>，表示流程分支至往外第 <code>n</code> 層區塊的 <code>end</code> 之後開始執行，也就是在分支時，只能分支至外層。例如：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        block
+            block
+                br 0
+                i32.const 3
+                call $log
+            end
+            i32.const 2
+            call $log
+        end
+        i32.const 1
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>其中 <code>br 0</code> 表示流程分支至往外第 0 層的 <code>end</code>，也就是目前區塊的 <code>end</code> 之後，因此顯示 2、1，如果將 <code>br 0</code> 改為 <code>br 1</code>，表示流程分支至往外第 1 層的 <code>end</code>，這時就只會顯示 1。</p>
+<p>就撰寫上，使用數字並不方便，區塊也可以命名，<code>br</code> 時就可以指定名稱：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        block $B0
+            block $B1
+                br $B1
+                i32.const 3
+                call $log
+            end
+            i32.const 2
+            call $log
+        end
+        i32.const 1
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>同樣地，以上會顯示 2、1，若改為 <code>br $B0</code> 則會顯示 1。</p>
+<p>在分支指令方面，有個 <code>br_if</code> 可以進行條件分支，<code>br_if</code> 會從堆疊中取出一個數值，若為 0 不做什麼事，若不為 0 就依指定進行分支，因此，可以用來實現一個 <code>unless</code>（也就是 <code>if</code> 的相反）：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        block $UNLESS_BLOCK
+            block $THEN
+                block $UNLESS
+                    i32.const 0 ;; unless 條件不成立
+                    br_if $THEN
+                end
+                ;; unless 條件不成立執行的部份
+                i32.const 10
+                call $log               
+                br $UNLESS_BLOCK
+            end
+            ;; unless 條件成立執行的部份
+            i32.const 20
+            call $log
+        end
+    )
+    (start $main)
+)
+</code></pre>
+<p>在上面的範例中，因為 <code>i32.const 0</code>，<code>br_if</code> 不進行分支，繼續執行流程到 <code>br $UNLESS_BLOCK</code>，分支至 <code>$UNLESS_BLOCK</code> 的 <code>end</code> 之後，因此不會執行到 <code>$THEN</code> 的 <code>end</code> 之後的部份，也就是結果顯示 10；若是改為 <code>i32.const 1</code>，結果就會顯示 20。</p>
+<p>在多個區塊形成巢狀的情況下，也許會有複雜的分支流程，這時可以使用 <code>br_table</code>，它會從堆疊中取出一個數值，依數值決定要分支至哪個被列出的區塊。例如：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        (local $n i32)
+        (set_local $n (i32.const 0))
+        block $B0
+            block $B1
+                block $B2
+                    get_local $n
+                    br_table $B2 $B1 $B0  ;; 依 $n 的值分支
+                end
+                i32.const 2
+                call $log
+            end
+            i32.const 1
+            call $log
+        end
+        i32.const 0
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p><code>$n</code> 若為 0，就會分支至第一個列出的 <code>$B2</code>，若為 1 就分支至 <code>$B1</code>，依此類推。</p>
+<p>若要進行條件判斷，WebAssembly 提供 <code>if..else..end</code>、<code>loop..end</code> 條件分支，不必如上自行使用 <code>block</code> 來兜，實際上，<code>if..else..end</code>、<code>loop..end</code>（以及 <code>func</code>）都會建立區塊，而 <code>block</code> 可以輔助 <code>if..else..end</code>、<code>loop..end</code> 等，實現更多樣化的條件分支。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

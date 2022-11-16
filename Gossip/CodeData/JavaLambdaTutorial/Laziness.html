@@ -1,0 +1,100 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java 開發者的函數式程式設計（5）JDK8 預設方法&nbsp;&lt;&lt; 前情
+      English
+      嗯...先前的文章忽略了函數式程式設計中重要的一個特性 - 惰性...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Java 開發者的函數式程式設計（6）惰性">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/Laziness.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Java 開發者的函數式程式設計（5）JDK8 預設方法&nbsp;&lt;&lt; 前情
+      English
+      嗯...先前的文章忽略了函數式程式設計中重要的一個特性 - 惰性...">
+
+
+    <title>Java 開發者的函數式程式設計（6）惰性</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Laziness.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/">回 Java Lambda</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Java 開發者的函數式程式設計（6）惰性</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+      <p style="text-align: right;"><a href="../../../eGossip/Blog/FunctionalProgrammingforJavaDevelopers6.html">English</a></p>
+      嗯...先前的文章忽略了函數式程式設計中重要的一個特性 - 惰性（Laziness）。讓我們再次舉 Haskell 為例，為了簡化，令 <code>addOne = map (+1)</code>，如果執行 <code>addOne $ addOne $ addOne [1, 2, 3, 4, 5]</code> 的話，會有什麼結果呢？你會先得到一個清單 <code>[2, 3, 4, 5, 6]</code> 後，傳給 <code>addOne</code> 函式再得到一個最後的結果清單 <code>[4, 5, 6, 7, 8]</code> 嗎？不！Haskell 在你真正要取得結果之前，並不會執行函式。<br>
+      在執行 <code>addOne $ addOne $ addOne [1, 2, 3, 4, 5]</code> 時，最右邊的 <code>addOne</code> 函式並不會立刻執行，它只會說：「嘿！我知道我該做些什麼，不過待會有需要再做！」第二個 <code>addOne</code> 也是如此，當最左邊的 <code>addOne</code> 函式必須對清單第一個元素加 1 時，第二個 <code>addOne</code> 函式就會要求最右邊的 <code>addOne</code> 函式傳回一個計算後的元素，當最左邊的 <code>addOne</code> 函式要對下個元素加 1 時，相同的過程又會再發生一次。Haskell 是惰性的（Lazy），所以最終只會走訪一次清單，而不是走訪三個清單，藉此改進效能。<br>
+      回到 <a href="http://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/ListPatterns.html">Java 開發者的函數式程式設計（3）</a>，當中撰寫的 <code>map</code> 或 <code>filter</code> 方法會立即地（Eagerly）執行對應與過濾。如果你如下定義一個 <code>addOne</code> 方法：
+      <pre class="prettyprint"><code lang="java">public static List&lt;Integer&gt; addOne(List&lt;Integer&gt; lt) {
+    return map(lt, x -&gt; x + 1);
+}</code></pre>
+      執行 <code>addOne(addOne(addOne(list(1, 2, 3, 4, 5))))</code> 的話，過程中將會產生三個清單，也就是說，對於先前定義的 <code>map</code>、<code>filter</code>，每次執行過後，都會得到完整對應或過濾後的清單。<br>
+      來想一個問題，你可能要將某個清單對應為另一個清單，例如有 1000 個整數，在某些情況下，也許實際上只需要對應後清單的第一個元素，目前定義的 <code>map</code> 在這種情況下顯然沒有效率，此時如果可以惰性地執行過濾或對應操作，就會有明顯的效率改進。可以從 Python 中舉個實際的例子，例如，你可能從資料庫中取得一些東西，如下執行對應與過濾操作：
+      <pre class="prettyprint"><code lang="java">...
+for person in map(lambda id : get_person_from_database(id) , ids):
+    if(person.luckyNumber == generatedLuckyNumber):
+        return person
+...</code></pre>
+      如果使用的是 Python 3，<code>map</code> 函式並不會傳回完整對應過後的清單，實際上在傳回的 <code>map</code> 物件上 <code>_next_</code> 方法被呼叫時（也就是 <code>for in</code> 迴圈實際上在做的事），<code>get_person_from_database</code> 函式才會被呼叫，如果第一個 <code>person</code> 的 <code>luckyNumber</code> 就與 <code>generatedLuckyNumber</code> 相等，當時的 <code>person</code> 物件就會被傳回，如此就不用再使用 <code>ids</code> 餘下的 <code>id</code> 來呼叫 <code>get_person_from_database</code> 函式，因而可省下不必要的對應操作。<br>
+      大多數情況下，對應與過濾等操作其實會是取得最終結果前的中介步驟。如果語言本身沒有直接支援惰性，可以設計一個中介物件來做為對應或過濾操作的結果，像是 Python 中的 <code>map</code> 物件。如果想在 Java 中實作這個特性的話，就得討論一些問題，傳回的中介物件該是什麼型態？這些物件從何處產生？<br>
+      在 <a href="http://cr.openjdk.java.net/%7Ebriangoetz/lambda/collections-overview.html">State of the Lambda: Libraries Edition (April 2012)</a> 這篇文章中曾談到，惰性操作的中介物件型態會是 <code>Iterable</code>，而這個物件可從 <code>Iterable</code> 物件上定義的方法產生，如果是這樣的話，就會有以下的撰碼風格：
+      <pre class="prettyprint"><code lang="java">List&lt;String&gt; names = ...;
+names.filter(s -&gt; s.length() &lt; 3)
+     .forEach(s -&gt; out.println(s));</code></pre>
+      不過，<code>Iterable</code> 有循序（Sequentially）迭代其實作物件的意涵，在上頭定義一堆像是 <code>filter</code>、<code>map</code> 的方法，也會令 <code>Iterable</code> 肩負過多職責，還有個問題是，如上的撰碼風格也會令人有疑問，<code>filter</code> 方法會立即求值嗎？還是隋性？或甚至是平行化（Parallel）處理？如果不察看 API 文件的話，單看程式碼並不會知曉。<br>
+      隱含（Implicit）並不是 Java 的風格。在 <a href="http://cr.openjdk.java.net/%7Ebriangoetz/lambda/sotc3.html">State of the Lambda: Libraries Edition (November 2012)</a> 這篇文章中提到，JDK8 定義了 <code>Stream</code> 介面，其中定義了許多中介操作的行為，對於資料處理問題，<code>Collection</code> 上定義的 <code>stream</code> 方法可用來產生 <code>Stream</code> 實例，所以在 JDK8 中，必須如下撰寫程式：
+      <pre class="prettyprint"><code lang="java">List&lt;String&gt; names = ...;
+names.stream()
+     .filter(s -&gt; s.length() &lt; 3)
+     .forEach(s -&gt; out.println(s));</code></pre>
+      這邊的 <code>stream</code> 方法會傳回循序處理的 <code>Stream</code> 物件，這個物件會將原 <code>Collection</code> 做為來源，<code>Stream</code> 物件上定義了 <code>map</code>、<code>filter</code> 之類的方法。<code>Collection</code> 上也定義了一個 <code>parallelStream</code> 方法，這個方法傳回的 <code>Stream</code> 會以原 <code>Collection</code> 做為來源進行（可能的）平行處理。循序的 <code>Stream</code> 實例也可以使用 <code>parallel</code> 方法傳回可進行平行處理的物件，平行的 <code>Stream</code> 實例也可以使用 <code>sequential</code> 方法傳回可進行循序處理的物件。Java 想要的，就是讓操作可以明確。<br>
+      終於來到「Java 開發者的函數式程式設計」系列尾聲了，在不瞭解函數式程式設計的情況下，是否有能力運用 JDK8 的 Lambda 等特性呢？當然可以！只不過，如果瞭解函數式程式設計的話，就可以更加明瞭如何善用 JDK8 的 Lambda 等特性。<br>
+      這一路下來，其實有許多觀念是可以同時套用在命令式及函數式的程式設計上，實際上，許多語言現在都支援多典範（Multi-paradigm）程式設計，即使 Java 是命令式語言、支援抽象資料型態、提供可變的變數及物件也不例外。唯一的問題就是，你是否有能力掌控這些特性？或者說，你可否瞭解這些來自於函數式程式設計的概念之真正意涵呢？<br>
+      所以了...為何該重視函數式程式設計？！<br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

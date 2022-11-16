@@ -1,0 +1,190 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RMI
+（Remote Method Invocation）是從JDK
+1.1開始就出現的API功能，它讓客戶端在使用遠端物件所提供的服務時，就如何使用本地物件一樣，然而RMI在使用時必須一連串繁...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="RMI">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/RMI.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="RMI
+（Remote Method Invocation）是從JDK
+1.1開始就出現的API功能，它讓客戶端在使用遠端物件所提供的服務時，就如何使用本地物件一樣，然而RMI在使用時必須一連串繁...">
+
+
+    <title>RMI</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RMI.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>RMI</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      RMI
+（Remote Method Invocation）是從JDK
+1.1開始就出現的API功能，它讓客戶端在使用遠端物件所提供的服務時，就如何使用本地物件一樣，然而RMI在使用時必須一連串繁複的手續，像是服務介
+面在定義時必須繼承java.rmi.Remote介面、服務Server在實作時必須繼承java.rmi.UnicastRemoteObject類
+別、必須使用rmic指令產生stub與skeleton等，設定上手續繁雜。<br>
+
+      <br>
+
+您可以在Spring中透過org.springframework.remoting.rmi.RmiServiceExporter來簡化使用RMI
+的手續，來實際看看例子，了解Spring在RMI上的使用與簡化，首先來看一下RMI伺服端的撰寫，首先定義一個服務物件的介面：<br>
+
+      
+      
+      <ul>
+
+        <li>ISomeService.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public interface ISomeService { <br>    public String doSomeService(String some);<br>    public int doOtherService(int other);<br>} </code></pre>
+
+      <br>
+
+服務物件的介面不用繼承java.rmi.Remote介面，而在實作ISomeService時也不用繼承java.rmi.UnicastRemoteObject類別，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>SomeService.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public class SomeServiceImpl implements ISomeService {<br>    public String doSomeService(String some) {<br>        return some + " is processed";<br>    } <br>    <br>    public int doOtherService(int other) {<br>        return ++other;<br>    }<br>} </code></pre>
+
+      <br>
+
+這個實作只是個簡單的示範，兩個方法都只是傳回一個已經修改過的值，接下來您只要在Bean定義檔中定義，讓Spring管理、生成Bean實例，如此即可註冊、啟動RMI服務，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>rmi-server.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt; <br>    &lt;bean id="someService" <br>          class="onlyfun.caterpillar.SomeServiceImpl"/&gt;<br><br>    &lt;bean id="serviceExporter" <br>          class="org.springframework.remoting.<br>                   &rarr; rmi.RmiServiceExporter"&gt;<br>        &lt;property name="service"&gt;<br>            &lt;ref bean="someService"/&gt;<br>        &lt;/property&gt;<br>        &lt;property name="serviceName"&gt;<br>            &lt;value&gt;SomeService&lt;/value&gt;<br>        &lt;/property&gt;<br>        &lt;property name="serviceInterface"&gt;<br>            &lt;value&gt;onlyfun.caterpillar.ISomeService&lt;/value&gt;<br>        &lt;/property&gt;        <br>    &lt;/bean&gt;<br>    <br>&lt;/beans&gt;</code></pre>
+
+      <br>
+
+很簡單，只要告訴org.springframework.remoting.rmi.RmiServiceExporter服務物件、名稱（注意在
+"serviceName"屬性上設定為"SomeService"）與要代理的介面，之後Spring讀取完定義檔並生成Bean實例後，RMI服務就
+會啟動，來撰寫一個簡單的RMIServer類別，以啟動RMI服務：<br>
+
+      
+      
+      <ul>
+
+        <li>RMIServer.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.BufferedReader;<br>import java.io.IOException;<br>import java.io.InputStreamReader;<br>import org.springframework.context.<br>       support.FileSystemXmlApplicationContext;<br><br>public class RMIServer {<br>    public static void main(String[] args) <br>                           throws IOException {<br><br>        new FileSystemXmlApplicationContext("rmi-server.xml");<br>        <br>        System.out.println("啟動 RMI Server..");<br>        System.out.println("請輸入 exit 關閉 Server: ");<br>        <br>        BufferedReader reader = <br>            new BufferedReader(<br>                    new InputStreamReader(System.in));<br>        <br>        while(true) {<br>            if(reader.readLine().equals("exit")) {<br>                System.exit(0);<br>            }<br>        }<br>        <br>    }<br>} </code></pre>
+
+      <br>
+
+在運行上面的程式之後，RMI服務就會啟動，Spring會自動使用另一個執行緒來執行RMI服務，所以您不用關心執行緒的處理問題，您可以輸入
+"exit"直接離開程式，接著來看一下，如何實作一個RMI客戶端以向RMI伺服器要求服務，首先要記得的是，客戶端是依賴於抽象的介面，也就是先前的
+ISomeService介面之.class檔也必須在客戶端有一份。<br>
+
+      <br>
+
+在客戶端需要RMI服務時，只要透過org.springframework.remoting.rmi.RmiProxyFactoryBean，並告
+知服務的URL（對應至先前設定的"SomeService"名稱）、代理的介面即可，在撰寫程式時就好像在使用本地端管理的服務一樣，例如Bean定義
+檔可以如下撰寫：<br>
+
+      
+      
+      <ul>
+
+        <li>rmi-client.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt; <br>    &lt;bean id="someServiceProxy" <br>          class="org.springframework.remoting.<br>                   &rarr; rmi.RmiProxyFactoryBean"&gt;<br>        &lt;property name="serviceUrl"&gt;<br>            &lt;value&gt;rmi://localhost/SomeService&lt;/value&gt;<br>        &lt;/property&gt;<br>        &lt;property name="serviceInterface"&gt;<br>            &lt;value&gt;onlyfun.caterpillar.ISomeService&lt;/value&gt;<br>        &lt;/property&gt;<br>    &lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+
+      <br>
+
+注意到"serviceUrl"屬性的設定，它是以"rmi://"開頭，接著指定伺服器位址與服務名稱，來撰寫個簡單的客戶端程式以使用RMI伺服器上的服務：<br>
+
+      
+      
+      <ul>
+
+        <li>RMIClient.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.<br>              support.FileSystemXmlApplicationContext;<br><br>public class RMIClient {<br>    public static void main(String[] args) {<br>        ApplicationContext context =<br>            new FileSystemXmlApplicationContext(<br>                    "rmi-client.xml");<br><br>        ISomeService service = <br>            (ISomeService) context.getBean("someServiceProxy");<br><br>        String result1 = service.doSomeService("Some request");<br>        System.out.println(result1);<br><br>        int result2 = service.doOtherService(1);<br>        System.out.println(result2);<br>    }<br>} </code></pre>
+
+      <br>
+
+在程式的實作中，您完全不需要處理到有關服務連結的種種細節，代理物件會自動幫您完成這些細節，單從程式來看，您根本不會注意到您正在取得遠端伺服器上的服務。<br>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

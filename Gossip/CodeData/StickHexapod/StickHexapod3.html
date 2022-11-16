@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="相較於組裝廢材機器人與足態的決定，程式設計方面是比較簡單的，稍微有點程式設計底子，應該都可以看得懂 Github 上的程式，這邊主要就來解釋一下，程式上我的基本想法是什麼。
+伺服馬達的狀態更新因為只...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="廢材四足機器人（三）一點點的程式設計說明">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CodeData/StickHexapod/StickHexapod3.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="相較於組裝廢材機器人與足態的決定，程式設計方面是比較簡單的，稍微有點程式設計底子，應該都可以看得懂 Github 上的程式，這邊主要就來解釋一下，程式上我的基本想法是什麼。
+伺服馬達的狀態更新因為只...">
+    <title>廢材四足機器人（三）一點點的程式設計說明</title>
+    <link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../../css/caterpillar.css">
+    <script async="" src="../../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="StickHexapod3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="../index.html">回廢材機器人</a>
+          <ul class="pure-menu-list">
+            <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br>
+              <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>廢材四足機器人（三）一點點的程式設計說明</h1>
+        </header>
+        <article class="content"><br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/StickHexapod.jpg"
+                alt="Stick Hexapod"></div>
+          </div>
+          <p></p>
+          <p>相較於組裝廢材機器人與足態的決定，程式設計方面是比較簡單的，稍微有點程式設計底子，應該都可以看得懂 <a href="https://github.com/JustinSDK/Stick-Hexapod">Github 上的程式</a>，這邊主要就來解釋一下，程式上我的基本想法是什麼。</p>
+          <h1>伺服馬達的狀態更新</h1>
+          <p>因為只使用了一片 Arduino Uno，沒有使用其他的驅動板，因此，可想而知的，Arduino Uno 本身會很忙，必須逐一更新馬達的角度，我採用單純的做法，無論馬達角度是否有變動，每次都跑 12 個馬達更新：</p>
+          <pre class="prettyprint"><code lang="arduino">Servo servos[4][3];
+
+int degOfServo[4][3] = {
+  {90, 180, 180}, // LEG3 - Servo 1, 2, 3
+  {90, 180, 180}, // LEG4 - Servo 1, 2, 3
+  {90, 0,   0},   // LEG2 - Servo 1, 2, 3
+  {90, 0,   0}    // LEG1 - Servo 1, 2, 3
+};
+
+void initServos() {
+  for(int i = 0; i &lt; 4; i++) {
+    for(int j = 0; j &lt; 3; j++) {
+      servos[i][j].attach(8 + i * 3 + j);
+    }
+  }
+  updateServos();
+}
+
+void updateServos() {
+  for(int i = 0; i &lt; 4; i++) {
+    for(int j = 0; j &lt; 3; j++) {
+      servos[i][j].write(degOfServo[i][j]); 
+      delayMicroseconds(MICROSECONDS);
+    }
+  }
+}
+</code></pre>
+          <p>各個馬達的角度是記錄在 <code>degOfServo</code> 陣列中，編號在〈廢材四足機器人（一）修修補補成廢材〉的圖中有標示，接的 Arduino Uno 是從 D8 到 D19，這麼安排的好處，就如上頭程式中看到的，只要跑迴圈，就可以更新所有馬達狀態。</p>
+          <p>在示範影片中，四足的動作是特意放慢的，這樣比較容易看清楚動作，如果想要讓它動得快一些，只要修改一下 <code>MICROSECONDS</code> 的值。</p>
+          <p>在 <a href="https://github.com/JustinSDK/Stick-Hexapod/commits/master">Commit history</a> 中可看到，之後要讓四足做出動作，經常使用 <code>for</code> 迴圈，後來我就重構出一個 <code>forLoop</code> 函式來做這件事：</p>
+          <pre class="prettyprint"><code lang="arduino">void forLoop(int to,  void (*fn)(int), int arg) {
+  for(int i = 0; i &lt; to; i++) {
+    fn(arg);
+  }
+}
+</code></pre>
+          <h1>封裝伺服馬達的角度設定</h1>
+          <p>由於伺服馬達在組裝是，並不是同一個方向，每次都得想著，這顆伺服馬達要轉正幾度，那顆伺服馬達又得轉負幾度，這實在很麻煩，我就寫了些函式，讓垂直方向運動的馬達只有上下之別，而水平方向的馬達只有順時針或逆時針之別：</p>
+          <pre class="prettyprint"><code lang="arduino">void joint1_1ClkDataStep(int deg) {
+  degOfServo[3][0] += deg;
+}
+
+void joint2_1ClkDataStep(int deg) {
+  degOfServo[2][0] += deg;
+}
+
+void joint3_1ClkDataStep(int deg) {
+  degOfServo[0][0] += deg;
+}
+
+void joint4_1ClkDataStep(int deg) {
+  degOfServo[1][0] += deg;
+}
+
+void joint1_2DownDataStep(int deg) {
+  degOfServo[3][1] += deg;
+}
+
+void joint2_2DownDataStep(int deg) {
+  degOfServo[2][1] += deg;
+}
+
+void joint3_2DownDataStep(int deg) {
+  degOfServo[0][1] -= deg;
+}
+
+void joint4_2DownDataStep(int deg) {
+  degOfServo[1][1] -= deg;
+}
+
+void joint1_3DownDataStep(int deg) {
+  degOfServo[3][2] += deg;
+}
+
+void joint2_3DownDataStep(int deg) {
+  degOfServo[2][2] += deg;
+}
+
+void joint3_3DownDataStep(int deg) {
+  degOfServo[0][2] -= deg;
+}
+
+void joint4_3DownDataStep(int deg) {
+  degOfServo[1][2] -= deg;
+}
+</code></pre>
+          <p>函式的名稱是 joint（關節）加上馬達編號，Data 表示這只是設定馬達角度陣列，還沒實際 <code>write</code> 到馬達，Step 表示以目前既有角度步進，也就是指定的 <code>deg</code> 會與目前角度相加或相減，來做到上下或者順逆時針之運動。</p>
+          <h1>基本的連續技</h1>
+          <p>四足機器人每個動作，實際上都由數個馬達連續做動來組成，例如說單獨只有一隻腿的上昇好了，其實是由兩個關節的馬達轉動組成：</p>
+          <pre class="prettyprint"><code lang="arduino">void leg1UpStep(int deg) {
+  joint1_2DownDataStep(deg); joint1_3DownDataStep(deg); 
+  updateServos();
+}
+
+void leg2UpStep(int deg) {
+  joint2_2DownDataStep(deg); joint2_3DownDataStep(deg); 
+  updateServos();
+}
+
+void leg3UpStep(int deg) {
+  joint3_2DownDataStep(deg); joint3_3DownDataStep(deg); 
+  updateServos();
+}
+
+void leg4UpStep(int deg) {
+  joint4_2DownDataStep(deg); joint4_3DownDataStep(deg); 
+  updateServos();
+}
+</code></pre>
+          <p>而將整個四足撐起來的動作，就要八個馬達合作：</p>
+          <pre class="prettyprint"><code lang="arduino">void hexapodUpStep(int deg) {
+  joint1_2DownDataStep(deg); joint2_2DownDataStep(deg); joint3_2DownDataStep(deg); joint4_2DownDataStep(deg);
+  joint1_3DownDataStep(deg); joint2_3DownDataStep(deg); joint3_3DownDataStep(deg); joint4_3DownDataStep(deg);
+  updateServos();
+}
+</code></pre>
+          <p>因為我想要機器人的動作看來平順一些，在不透過其他驅動板的情況下，比較好的方式是增減一點角度就更新一次馬達，這會讓機器人的各馬達動作，看來比較像是在「同時」進行，就我目前的作法是，每次 <code>deg</code> 只是指定 1，增加這個值的話，機器人的動作看起來就會比較「粗魯」，無論如何，這邊都還看得到 <code>deg</code> 參數的指定，這是為了要讓機器人動作平順些，還是快速些或粗魯些而做的保留。</p>
+          <p>其他的函式大概也是這樣的的設計，像是整個機器人身體的轉動，或者是單一腳的轉動：</p>
+          <pre class="prettyprint"><code lang="arduino">void hexapodClockwiseStep(int deg) {
+  joint1_1ClkDataStep(-deg);
+  joint2_1ClkDataStep(-deg);
+  joint3_1ClkDataStep(-deg);
+  joint4_1ClkDataStep(-deg);
+  updateServos();
+}
+
+void joint1_1ClkStep(int deg) {
+  joint1_1ClkDataStep(deg);
+  updateServos();
+}
+
+void joint2_1ClkStep(int deg) {
+  joint2_1ClkDataStep(deg);
+  updateServos();
+}
+
+void joint3_1ClkStep(int deg) {
+  joint3_1ClkDataStep(deg);
+  updateServos();
+}
+
+void joint4_1ClkStep(int deg) {
+  joint4_1ClkDataStep(deg);
+  updateServos();
+}
+</code></pre>
+          <h1>足態的實作程式 V2</h1>
+          <p>如果你仔細看看 Github 中的程式，會發現 Hexapod.ino 內容有點不同，這是因為後來我想到了個可以不用重心轉移就能抬腿的足態 V3 版本，不過，V2 版本還是值得瞭解一下，因為它足態與程式撰寫上都比較簡單，因此前一篇文章與這邊還是先說明一下 V2 的版本，你還是可以在 <a
+              href="https://github.com/JustinSDK/Stick-Hexapod/commit/88619d2531b25dcbb3231da72d3bd63beec5f3e1">Commit history</a> 中找到 V2 相關的程式碼：</p>
+          <p>首先，想將整個身體撐起來，要連續跑 90 次的 <code>hexapodUpStep</code>：</p>
+          <pre class="prettyprint"><code lang="arduino">void hexapod(int dir) {
+  forLoop(90, hexapodUpStep, dir);
+}
+</code></pre>
+          <p>如果想讓身體向上，就是 <code>hexapod(UP)</code>，反之則是 <code>hexapod(DOWN)</code>，<code>UP</code>、<code>DOWN</code> 的值分別是 1 與 -1， 這麼呼叫函式，會比 <code>hexapod(1)</code>、<code>hexapod(-1)</code> 清楚些。</p>
+          <p>真正要讓機器人能抬腿，如〈廢材四足機器人（二）電路連接、靜態平行與足態設計〉中談過的，是對角線的腿與腿間的合作：</p>
+          <pre class="prettyprint"><code lang="arduino">void leg1UpDown() {
+  forLoop(75, leg4UpStep, -1);
+  forLoop(60, leg1UpStep, -1);  
+  forLoop(60, leg1UpStep, 1);
+  forLoop(75, leg4UpStep, 1);
+}
+
+void leg2UpDown() {
+  forLoop(75, leg3UpStep, -1);
+  forLoop(60, leg2UpStep, -1);  
+  forLoop(60, leg2UpStep, 1);
+  forLoop(75, leg3UpStep, 1);
+}
+
+void leg3UpDown() {
+  forLoop(75, leg2UpStep, -1);
+  forLoop(60, leg3UpStep, -1);  
+  forLoop(60, leg3UpStep, 1);
+  forLoop(75, leg2UpStep, 1);    
+}
+
+void leg4UpDown() {
+  forLoop(75, leg1UpStep, -1);
+  forLoop(60, leg4UpStep, -1);  
+  forLoop(60, leg4UpStep, 1);
+  forLoop(75, leg1UpStep, 1);    
+}
+</code></pre>
+          <p>轉動的部份就需要四隻腿的合作了：</p>
+          <pre class="prettyprint"><code lang="arduino">void hexapodTurn(int dir) {
+  forLoop(45, hexapodClockwiseStep, dir);
+
+  leg1Turn(dir);
+
+  if(dir == CLK) {
+    leg2Turn(dir);
+  } else {
+    leg3Turn(dir);
+ }    
+
+  leg4Turn(dir);   
+
+  if(dir == CLK) {  
+    leg3Turn(dir);
+  } else {
+    leg2Turn(dir);
+  }
+}
+</code></pre>
+          <p>想要順時針轉動的話，就是 <code>hexapodTurn(CLK)</code>，逆時針轉動就是 <code>hexapodTurn(CT_CLK)</code>，<code>CLK</code> 的值是 1，<code>CT_CLK</code> 的值是 -1，這麼設計也是為了程式的可讀性，上面的函式中有 <code>leg1Turn</code>、<code>leg2Turn</code>、<code>leg3Turn</code>、<code>leg4Turn</code>，都是由一度一度步進來實作出來的：</p>
+          <pre class="prettyprint"><code lang="arduino">void leg1Turn(int dir) {
+  forLoop(75, leg4UpStep, -1);
+  forLoop(60, leg1UpStep, -1);  
+  forLoop(45, joint1_1ClkStep, dir);
+  forLoop(60, leg1UpStep, 1);
+  forLoop(75, leg4UpStep, 1);  
+}
+
+void leg2Turn(int dir) {
+  forLoop(75, leg3UpStep, -1);
+  forLoop(60, leg2UpStep, -1);  
+  forLoop(45, joint2_1ClkStep, dir);  
+  forLoop(60, leg2UpStep, 1);
+  forLoop(75, leg3UpStep, 1);
+}
+
+void leg3Turn(int dir) {
+  forLoop(75, leg2UpStep, -1);
+  forLoop(60, leg3UpStep, -1);  
+  forLoop(45, joint3_1ClkStep, dir);  
+  forLoop(60, leg3UpStep, 1);
+  forLoop(75, leg2UpStep, 1); 
+}
+
+void leg4Turn(int dir) {
+  forLoop(75, leg1UpStep, -1);
+  forLoop(60, leg4UpStep, -1);  
+  forLoop(45, joint4_1ClkStep, dir);  
+  forLoop(60, leg4UpStep, 1);
+  forLoop(75, leg1UpStep, 1);    
+}
+</code></pre>
+          <p>至於機器人的前進設計上也是類似：</p>
+          <pre class="prettyprint"><code lang="arduino">void leg12Turn(int dir) {
+  joint1_1ClkDataStep(dir);
+  joint2_1ClkDataStep(dir);    
+  updateServos();  
+}
+
+void leg34Turn(int dir) {
+  joint3_1ClkDataStep(dir);
+  joint4_1ClkDataStep(dir);    
+  updateServos();
+}
+
+void moveForward() {
+  leg2Turn(CT_CLK);  
+  forLoop(45, leg12Turn, CLK);
+  leg1Turn(CT_CLK);
+
+  leg4Turn(CLK);   
+  forLoop(45, leg34Turn, CT_CLK);
+  leg3Turn(CLK);
+}
+</code></pre>
+          <p>這樣的演算其實都是基於靜態平衡，感覺是有些蠻幹，應該有更好的演算法，之前我在玩 <a href="../EV3Tutorial/index.html">樂高 EV3</a> 時就知道了，做機器人不是我擅長，總是會遇上各種問題，有時一點點設計方向的錯誤，也會讓一切重新來過（就樂高來說就是拆掉重組啦！），這是很令人懊惱的事，感覺就像之前的時間都白費了呢！</p>
+          <p>不過，樂趣也在於解決問題，就算砍掉重練很令人不甘，不過有時重練出東西來，反而有更大的樂趣，在做這隻四足的過程中，有好幾次我也就差一點想劈了它當柴燒，還好我忍住了… XD</p>
+          <p>下一個玩具該做什麼呢？…</p>
+          <p>PS1. 足態 V3 版本與相關程式，就自行研究囉！<br>
+            PS2. 目前超音波感應器只是裝飾器。<br>
+            PS3. 你可以試著為它裝上紅外線或藍牙來遙控它。</p>
+          <br>
+          <br>
+<div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+</html>

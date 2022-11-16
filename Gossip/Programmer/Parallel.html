@@ -1,0 +1,123 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：執行資料平行處理的效能考量
+      
+      JDK8的Stream程式庫標榜著，只要簡單地將stream方法，改為parallelStream，就可以獲得平行處理...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="執行資料平行處理的效能考量">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/Parallel.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：執行資料平行處理的效能考量
+      
+      JDK8的Stream程式庫標榜著，只要簡單地將stream方法，改為parallelStream，就可以獲得平行處理...">
+
+
+    <title>執行資料平行處理的效能考量</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Parallel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>執行資料平行處理的效能考量</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/voice/91464"><span
+
+          style="color: #444444;"><span style="font-weight: bold;">執行資料平行處理的效能考量</span></span></a><br>
+      <br>
+      JDK8的<code>Stream</code>程式庫標榜著，只要簡單地將<code>stream</code>方法，改為<code>parallelStream</code>，就可以獲得平行處理的可能性，增加處理效能，實際上，事情似乎並沒有那麼簡單，在將程式重構為運用<code>Stream</code>程式庫並改用<code>parallelStream</code>，效能沒有增加或不昇反降的情況很多，究竟是怎麼一回事？<br>
+      <br>
+      <dl>
+        <dt>平行任務的重要性</dt>
+      </dl>
+      <br>
+      平行（Parallelism）與並行（Concurrency）不同，如果兩個任務分配到一個CPU核心，在取得的時間片段中交互執行，稱之為並行。如果有兩個核心，兩個任務各分配到其中之一同時執行，稱之為平行。現今開發者對於並行設計應不陌生，利用並行運算處理多個流程，讓客戶端以為任務「同時」執行，或者是某任務被阻斷（Block）之時，切換另一任務執行，避免等待而浪費CPU執行時間，用以提昇整體任務執行效率。<br>
+      <br>
+      過去十年多以來，處理器著重在多核心的發展，就連個人電腦、智慧型手機等，多核心處理器的搭載已經是基本配備，在提昇整體任務執行效率這方面，越來越多開發者注意到，設法將任務分配至多個核心上平行執行，成為另一個可行途徑。只不過，程式上要直接進行平行設計並不容易，直接面對低階的平行處理程式庫，容易使得開發者陷入混亂之中，所幸地，對於一些平行處理模式，近來越來越多高階程式庫可供使用，這使得開發者可以專心地在平行任務的表達上著墨，不用面對低階細節，JDK8的平行<code>Stream</code>處理，就是實際的例子。<br>
+      <br>
+      然而，即使辛苦地將既有的程式重構為<code>Stream</code> API版本，而後改用了<code>parallelStream</code>，效率也不會理所當地獲得提昇。根據計算機科學界的〈Amdahl's law〉經驗法則，如果任務中沒有任何能平行處理的分量，那麼擁有再多的核心，應用程式本身也不會獲得任何的效率提昇；然而，如果能將序列處理中的一半改為平行處理，在不考慮投入的核心數下，效率就會增加為兩倍。<code>Stream</code> API這類高階程式庫的目的，就是讓開發者有機會更專心地思考，循序任務如何能進一步地平行化，而這通常意謂著開發者得重新設計，或者從另一個角度來看待任務。<br>
+      <br>
+      <dl>
+        <dt>思考分而治之的處理過程</dt>
+      </dl>
+      <br>
+      在我先前專欄〈從Thread到MapReduce〉中曾談過，平行化是不斷解開「做什麼」與「何時做」之間相依性的策略。以<code>Stream</code> API來說，它可處理的平行類型是資料平行（Data parallelism），也就是將全部可處理的資料劃分為各個小塊，再各自進行平行處理。最簡單的例子就是發現循序時是對每個元素進行相同處理，像是將歌曲清單改為歌曲長度清單，就非常適合改為平行處理，而根據條件過濾元素也是其中一個例子。<br>
+      <br>
+      利用<code>Stream</code> API，將資料處理過程重構，是個令資料處理過程得以「接近」分而治之（Divide and conquer）可行性的方式，然而，並非可重構為Sttream API的程式，就可以輕易改為<code>parallelStream</code>獲得效能，如果沒事先思考分而治之的過程，非但無法獲得效能提昇，反而還會造成結果錯誤。例如，將數字清單乘在一起，最後結果再乘以5，寫為<code>numbers.stream().reduce(5, (acc, x) -&gt; x * acc)</code>結果是正確的，但<code>stream</code>方法改呼叫<code>parallelStream</code>就會產生錯誤的結果，因為在分而治之的各個過程，都會乘上一次5，如果改用<code>parallelStream</code>要得到正確結果，必須寫為<code>5 * numbers.parallelStream().reduce(1, (acc, x) -&gt; x * acc)</code>。<br>
+      <br>
+      有些操作整體看來，沒辦法平行處理，然而換個角度思考，或許就能找出平行處理某些步驟的可能性，〈Java 8 Lambdas〉中舉了個計算簡單移動平均（Simple moving average）的例子，以n日的移動平均計算來看，似乎得循序地每n日計算出一個平均，然而，亦可事先對陣列使用<code>Arrays.parallelPrefix</code>做平行累計加總，之後再循序地減去各元素前置項並除以n，根據〈Amdahl's law〉，由於部份循序分量改為平行分量，這也有助於效能提升的可能性。<br>
+      <br>
+      反過來說，使用了<code>Stream</code> API的處理過程中，如果有些操作涉及了循序處理，像是<code>forEachOrdered</code>、<code>sorted</code>、<code>limit</code>之類的有序操作，其成本有可能蓋過先前平行處理時爭取來的效率，因而使得整體效率沒有提升。如果順序不重要時，可考量使用<code>unordered</code>方法去除順序，某些操作像是過濾重複元素（Distinct）或群組（Group），在無序的資料來源上會比較有效率。<br>
+      <br>
+      <dl>
+        <dt>思考額外的成本負擔</dt>
+      </dl>
+      <br>
+      無論如何，程式實際上是運行於電腦之上，因而平行處理時必須有電腦資源上的考量。最基本的，平行處理必須分而治之，在將資料切為子資料的過程中，會有切割、建立新物件、結合為最終結果等成本考量。因而在資料量不大的情況下，分割結合成本高過於平行處理得到的效益時，改為平行處理反而使得效率低落。雖然常見的籠統建議都聲稱，一切以評測（Benchmark）結果為主，這並沒有錯，只不過在這之前，是否有個依據可供參考？<br>
+      <br>
+      Doug Lea在〈Stream Parallel Guidance〉文件中給了一些建議，對於<code>S.parallelStream().operation(F)</code>，如果<code>N</code>為<code>S</code>的元素數量，而<code>Q</code>為<code>F</code>處理每個元素的成本，可以大略使用<code>F</code>中的操作或行數來計算，如果<code>N*Q</code>至少超過10000，才有平行化的價值。因此，如果操作簡單如<code>x -&gt; x + 1</code>，那麼至少得有10000個以上的元素，才有平行化的價值，相對地，如果每個元素涉及大量運算，那麼就越有平行化的價值。<br>
+      <br>
+      在Java上得考量一種處理成本：基本資料型態與對應的包裹器型態間的轉換。例如，<code>int</code>與<code>Integer</code>之間的Boxing與Unboxing操作。如果實際上<code>List</code>中都是數值且進行數學運算，考慮使用<code>mapToInt</code>轉為專屬於<code>int</code>的<code>IntStream</code>，而後再進行數學運算，可免去不必要的Boxing與Unboxing成本。目前就JDK8的<code>Stream</code>程式庫來說，也不建議對I/O做平行處理。在想要免於I/O、同步處理等待之類情況下，其他並行、非同步I/O程式庫或<code>CompletableFuture</code>會是比較好的選擇。<br>
+      <br>
+      資料來源的結構也是一個考量，先前談過，可思考將有序打為無序後，是否對平行處理有益，另一方面，因為平行處理必須分而治之，在這之前採取易於劃分的資料結構作為來源，對平行處理會有幫助，例如支援隨機存取的陣列、<code>ArrayList</code>或具有一定範圍的<code>IntStream.range</code>，平行處理時會比較有效率；而<code>HashSet</code>、<code>TreeSet</code>等，因為涉及雜湊空間與樹平衡等考量，會是其次之選；然而，像是<code>LinkedList</code>這類鏈結資料，走訪劃分資料的成本是O(N)，就不適合作為平行處理的來源結構，長度無法確定的資料來源，像是<code>Streams.iterate</code>、<code>BufferedReader.lines</code>等，也不建議採用。<br>
+      <br>
+      <dl>
+        <dt>程式庫僅提供專注思考平行的機會</dt>
+      </dl>
+      <br>
+      一匹馬拉著一輛載滿貨物的車，與將貨物平分到數輛車分別由數匹馬拉相比，後者會快一點到達目的地，不過前題是得有馬來拉車。因而，在單核心處理器上，基本上不需要平行處理；多核心處理器如果各有其他任務要忙，實際上也可能無暇處理應用程式的平行任務；增加更多的核心也不一定有幫助，每個核心只處理一點點任務沒什麼太大效益，根據〈Amdahl's law〉，核心增加後能得到的效益，存在一個極限值，也就是再增加核心也沒有用，這個極值是受限於程式中循序處理的部份。<br>
+      <br>
+      因此，最終開發者還是得思考，如何將循序設計改為平行設計，像JDK8的<code>Stream</code> API這類的程式庫，基本上只是讓開發者不用關心低階層次如何處理平行，而能有更多空間來思考或訓練自己進行平行設計，而有些效能考量其實是從循序處理時就得累積建立，像是前述資料結構、元素處理成本的考量，只是將<code>stream</code>改為<code>parallelStream</code>就想獲得效能提昇，大概跟博杯（擲筊）的意思沒兩樣！<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>glMatrix - Transformation</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            uniform mat4 transformation;
+
+            attribute vec3 position;
+            attribute vec4 color;
+
+            varying vec4 fColor;
+    
+            void main(void) {
+                vec4 pos = transformation * vec4(position.x, position.y, position.z, 1.0);
+                gl_Position = vec4(pos.x, pos.y * aspect, pos.z, 1.0);
+                fColor = color;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            varying vec4 fColor;
+
+            void main(void) {
+                gl_FragColor = fColor;
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {GL, shaderSourceById, Renderer, CubeGeometry, BasicMaterial, Mesh} from './js/gl-comm-3.js';
+            import * as mat4 from './js/glMatrix/mat4.js';
+
+            const canvas = document.getElementById('glCanvas');
+            const renderer = new Renderer(
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader'),
+                canvas);
+            
+            renderer.uniform1f('aspect', canvas.clientWidth / canvas.clientHeight);
+            renderer.setClearColor(0, 0, 0, 1);
+
+            const geometry = new CubeGeometry(0.1);
+
+            const faceColors = [];
+            for(let i = 0; i < 6; i++) {
+                faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+            }
+            const material = new BasicMaterial(4, faceColors);
+            const cube = new Mesh(geometry, material);
+
+            renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+            
+            const colorBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.vertexColors(), GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(colorBuffer, 'color', 4);
+
+            const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.STATIC_DRAW);
+            renderer.enableVertexAttribArray(vertBuffer, 'position', 3);
+
+            
+            let transformation = mat4.create();
+            let i = 0;
+            function drawCube() {                
+                i++;
+
+                mat4.identity(transformation);
+                mat4.rotateZ(transformation, transformation, 0.025 * i);
+                mat4.translate(transformation, transformation, [0.25, 0, 0]);
+                mat4.rotateX(transformation, transformation, 0.5);
+                mat4.rotateY(transformation, transformation, 0.5);
+
+                renderer.uniformMatrix4fv('transformation', transformation);
+
+                renderer.clear();
+                renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+                renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+                renderer.render(cube);
+
+                requestAnimationFrame(drawCube);                
+            }
+
+            drawCube();
+        </script>
+    </body>
+</html>

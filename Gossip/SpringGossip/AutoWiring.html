@@ -1,0 +1,248 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="接續 屬性參考 的內容。
+
+      
+
+
+直接指定值或是使用&lt;ref&gt;直接指定參考至其它的Bean，Spring也支援隱式的自動綁定，您可以透過類型（byType）或名稱（b...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="自動綁定">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/AutoWiring.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="接續 屬性參考 的內容。
+
+      
+
+
+直接指定值或是使用&lt;ref&gt;直接指定參考至其它的Bean，Spring也支援隱式的自動綁定，您可以透過類型（byType）或名稱（b...">
+
+
+    <title>自動綁定</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="AutoWiring.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自動綁定</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+接續 <a href="RefBean.html">屬性參考</a> 的內容。<br>
+
+      <br>
+
+
+直接指定值或是使用&lt;ref&gt;直接指定參考至其它的Bean，Spring也支援隱式的自動綁定，您可以透過類型（byType）或名稱（byName）將Bean綁定至其它Bean上對應的屬性，下面是個byType的例子：
+ <br>
+
+
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;  <br>    &lt;bean id="dateBean" class="java.util.Date"/&gt;<br>    &lt;bean id="helloBean" <br>          class="onlyfun.caterpillar.HelloBean" <span style="font-weight: bold;"><br>          autowire="byType"</span>&gt; <br>        &lt;property name="helloWord"&gt; <br>            &lt;value&gt;Hello!&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt; <br>&lt;/beans&gt;</code></pre>
+
+
+
+
+
+      <br>
+
+      
+
+
+
+在定義檔中，並沒有指定helloBean的Date屬性，而是透過自動綁定，由於autowire指定了byType，所以會根據helloBean的
+Date屬性所接受的型態，判斷是否有類似的型態物件，並將之綁定至helloBean的Date屬性上，如果byType無法完成綁定，則丟出
+org.springrframework.beans.factory.UnsatisfiedDependencyExcpetion例外。<br>
+
+      <br>
+
+
+您也可以指定byName來綁定，則Spring會根據bean的別名與屬性名稱是否符合來進行自動綁定，舉個例子來說，如果是byName而Date屬性要完成依賴注入的話，則必須修改一下第一個Bean的id值為date： 
+      <br>
+
+
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;  <br>    &lt;bean id=<span style="font-weight: bold;">"date"</span> class="java.util.Date"/&gt;<br>    &lt;bean id="helloBean" <br>          class="onlyfun.caterpillar.HelloBean" <br>          <span style="font-weight: bold;">autowire="byName"</span>&gt; <br>        &lt;property name="helloWord"&gt; <br>            &lt;value&gt;Hello!&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt; <br>&lt;/beans&gt;</code></pre>
+
+
+
+
+
+
+      <br>
+
+      
+如果byName無法完成綁定，則屬性維持未綁定狀態。<br>
+
+      <br>
+
+      在建構方法上，也可以嘗試進行自動綁定，例如若HelloBean.java修改如下：
+
+
+
+
+      <br>
+
+
+      
+      <ul>
+
+        <li>HelloBean.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar; <br><br>import java.util.Date; <br><br>public class HelloBean { <br>    private String helloWord; <br>    private Date date; <br>    <br>    public HelloBean() {<br>    }<br>    <br>    public HelloBean(Date date) {<br>        this.date = date;<br>    }<br>    <br>    public void setHelloWord(String helloWord) { <br>        this.helloWord = helloWord; <br>    } <br>    public String getHelloWord() { <br>        return helloWord; <br>    } <br>    public void setDate(Date date) { <br>        this.date = date; <br>    }    <br>    public Date getDate() { <br>        return date; <br>    } <br>}</code></pre>
+
+
+      <br>
+
+      
+您可以如下定義beans-config.xml：<br>
+
+
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;  <br>    &lt;bean id="date" class="java.util.Date"/&gt;<br>    &lt;bean id="helloBean" <br>          class="onlyfun.caterpillar.HelloBean" <br>          <span style="font-weight: bold;">autowire="constructor"</span>&gt; <br>        &lt;property name="helloWord"&gt; <br>            &lt;value&gt;Hello!&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+
+
+      <br>
+
+      
+由於autowire設定為constructor，在建立綁定關係時，Spring容器會試圖比對容器中的Bean及相關的建構方法，在型態上是否有符
+合，如果有的話，則選用該建構方法來建立Bean實例，例如上例中，HelloBean的帶參數建構方法與date這個Bean的型態相符，於是選用該建
+構方法來建構實例，並將date這個Bean注入給它，如果無法完成綁定，則丟出
+org.springframework.beans.factory.UnsatisfiedDependencyException例外。<br>
+
+      <br>
+
+
+還想再偷懶的話。就使用autodetect，例如：
+      <br>
+
+
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;  <br>    &lt;bean id="date" class="java.util.Date"/&gt;<br>    &lt;bean id="helloBean" <br>          class="onlyfun.caterpillar.HelloBean" <br>          <span style="font-weight: bold;">autowire="autodetect"</span>&gt; <br>        &lt;property name="helloWord"&gt; <br>            &lt;value&gt;Hello!&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+
+
+      <br>
+
+      
+使用autodetect時，會嘗試使用constructor，然後使用byType，哪一個先符合就先用。<br>
+
+      <br>
+
+
+隱式的自動綁定沒辦法從定義檔中，清楚的看到是否每個屬性都完成設定，我們可以加入相依檢查，在&lt;bean&gt;上加入dependency-
+check，有四種相依檢查方式：simple、objects、all、none。第一個只檢查簡單的屬性，像是原生（primitive）資料型態或
+字串物件，objects檢查物件屬性，all則檢查全部的屬性，none是預設，表示不檢查相依性，例如：
+      <br>
+
+
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;  <br>    &lt;bean id="date" class="java.util.Date"/&gt;<br>    &lt;bean id="helloBean" <br>          class="onlyfun.caterpillar.HelloBean" <br>          autowire="autodetect"  <br>          <span style="font-weight: bold;">dependency-check="all"</span>&gt; <br>        &lt;property name="helloWord"&gt; <br>            &lt;value&gt;Hello!&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+
+
+      <br>
+
+      
+如果相依檢查發現有未完成的依賴關係，則運行時會丟出org.springframework.beans.factory.UnsatisfiedDependencyException。
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="若 a 模組 requires 了 b 模組，那 a 模組依賴在 b 模組，a 模組可以讀取 b 模組，或說 a 模組對 b 模組是可讀取的（readable），有讀取能力不代表有存取能力">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Java::模組與反射" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/jpms/reflection/" />
+    <meta property="og:description" content="若 a 模組 requires 了 b 模組，那 a 模組依賴在 b 模組，a 模組可以讀取 b 模組，或說 a 模組對 b 模組是可讀取的（readable），有讀取能力不代表有存取能力" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Java::模組與反射" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/jpms/reflection/" />
+    <meta name="twitter:description" content="若 a 模組 requires 了 b 模組，那 a 模組依賴在 b 模組，a 模組可以讀取 b 模組，或說 a 模組對 b 模組是可讀取的（readable），有讀取能力不代表有存取能力" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443683" type="image/x-icon">
+    <title> Java  :: 模組與反射</title>
+    <link href="../../../css/nucleus.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443683.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443683.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443683"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/java/jpms/reflection/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/java/" title="Java" class="dd-item parent"><a href="../../index.html">Java</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/" title="Java 平台概論" class="dd-item"><a href="../../platform/index.html">| Java 平台概論</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/history/" title="Java 版本遷移" class="dd-item"><a href="../../platform/history/index.html">Java 版本遷移</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/spec-impl/" title="JDK 規範與實作" class="dd-item"><a href="../../platform/spec-impl/index.html">JDK 規範與實作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/jdk-jre-jvm/" title="JVM、JRE 與 JDK" class="dd-item"><a href="../../platform/jdk-jre-jvm/index.html">JVM、JRE 與 JDK</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/" title="路徑／套件／模組" class="dd-item"><a href="../../path-package-module/index.html">| 路徑／套件／模組</a><ul>
+          <li data-nav-id="/zh-tw/java/path-package-module/hello/" title="Hello, Java" class="dd-item"><a href="../../path-package-module/hello/index.html">Hello, Java</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/version/" title="JDK／JRE／類別版本" class="dd-item"><a href="../../path-package-module/version/index.html">JDK／JRE／類別版本</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/class-source/" title="類別／原始碼路徑" class="dd-item"><a href="../../path-package-module/class-source/index.html">類別／原始碼路徑</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/package-import/" title="package 與 import" class="dd-item"><a href="../../path-package-module/package-import/index.html">package 與 import</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/module/" title="初探模組" class="dd-item"><a href="../../path-package-module/module/index.html">初探模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/" title="語法基礎" class="dd-item"><a href="../../syntax-abc/index.html">| 語法基礎</a><ul>
+          <li data-nav-id="/zh-tw/java/syntax-abc/type/" title="型態" class="dd-item"><a href="../../syntax-abc/type/index.html">型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/variable/" title="變數" class="dd-item"><a href="../../syntax-abc/variable/index.html">變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/operator/" title="運算子" class="dd-item"><a href="../../syntax-abc/operator/index.html">運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/conversion/" title="型態轉換" class="dd-item"><a href="../../syntax-abc/conversion/index.html">型態轉換</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/if-else-switch/" title="if/else、switch" class="dd-item"><a href="../../syntax-abc/if-else-switch/index.html">if/else、switch</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/for-while/" title="for、while 迴圈" class="dd-item"><a href="../../syntax-abc/for-while/index.html">for、while 迴圈</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/object/" title="類別與物件" class="dd-item"><a href="../../object/index.html">| 類別與物件</a><ul>
+          <li data-nav-id="/zh-tw/java/object/class/" title="定義類別" class="dd-item"><a href="../../object/class/index.html">定義類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/scanner-bigdecimal/" title="使用 Scanner、BigDecimal" class="dd-item"><a href="../../object/scanner-bigdecimal/index.html">使用 Scanner、BigDecimal</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/primitive-wrapper/" title="基本型態包裹器" class="dd-item"><a href="../../object/primitive-wrapper.html">基本型態包裹器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/array/" title="陣列" class="dd-item"><a href="../../object/array/index.html">陣列</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/string/" title="字串" class="dd-item"><a href="../../object/string/index.html">字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/unicode/" title="Java 與 Unicode" class="dd-item"><a href="../../object/unicode/index.html">Java 與 Unicode</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/" title="封裝" class="dd-item"><a href="../../encapsulation/index.html">| 封裝</a><ul>
+          <li data-nav-id="/zh-tw/java/encapsulation/data-method/" title="流程與資料的封裝" class="dd-item"><a href="../../encapsulation/data-method/index.html">流程與資料的封裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/public-constructor-overload/" title="public／建構式／重載" class="dd-item"><a href="../../encapsulation/public-constructor-overload/index.html">public／建構式／重載</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/this-static/" title="this 與 static" class="dd-item"><a href="../../encapsulation/this-static/index.html">this 與 static</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/argument-innerclass/" title="不定長度引數／內部類別" class="dd-item"><a href="../../encapsulation/argument-innerclass/index.html">不定長度引數／內部類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/record/" title="資料載體與 record" class="dd-item"><a href="../../encapsulation/record/index.html">資料載體與 record</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/" title="繼承" class="dd-item"><a href="../../inheritance/index.html">| 繼承</a><ul>
+          <li data-nav-id="/zh-tw/java/inheritance/is-a/" title="共同行為與 is a" class="dd-item"><a href="../../inheritance/is-a/index.html">共同行為與 is a</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/override-abstract/" title="重新定義／abstract" class="dd-item"><a href="../../inheritance/override-abstract/index.html">重新定義／abstract</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/protected-super/" title="protected／super" class="dd-item"><a href="../../inheritance/protected-super/index.html">protected／super</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/final-object-instanceof/" title="final／Object／instanceof" class="dd-item"><a href="../../inheritance/final-object-instanceof/index.html">final／Object／instanceof</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/sealed-class/" title="sealed 類別" class="dd-item"><a href="../../inheritance/sealed-class/index.html">sealed 類別</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/" title="介面" class="dd-item"><a href="../../interface/index.html">| 介面</a><ul>
+          <li data-nav-id="/zh-tw/java/interface/protocol/" title="定義行為外觀" class="dd-item"><a href="../../interface/protocol/index.html">定義行為外觀</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/maintenance/" title="解決需求變化" class="dd-item"><a href="../../interface/maintenance/index.html">解決需求變化</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/syntax/" title="介面語法細節" class="dd-item"><a href="../../interface/syntax/index.html">介面語法細節</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/enum/" title="使用 enum 列舉" class="dd-item"><a href="../../interface/enum/index.html">使用 enum 列舉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/sealed-interface/" title="sealed 介面" class="dd-item"><a href="../../interface/sealed-interface/index.html">sealed 介面</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/" title="例外" class="dd-item"><a href="../../exception/index.html">| 例外</a><ul>
+          <li data-nav-id="/zh-tw/java/exception/try-catch/" title="try/catch 例外處理" class="dd-item"><a href="../../exception/try-catch/index.html">try/catch 例外處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/throw/" title="要抓還是要拋？" class="dd-item"><a href="../../exception/throw/index.html">要抓還是要拋？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/stacktrace-assert/" title="堆疊追蹤與 assert" class="dd-item"><a href="../../exception/stacktrace-assert/index.html">堆疊追蹤與 assert</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/finally/" title="finally 資源關閉" class="dd-item"><a href="../../exception/finally/index.html">finally 資源關閉</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/" title="泛型" class="dd-item"><a href="../../generics/index.html">| 泛型</a><ul>
+          <li data-nav-id="/zh-tw/java/generics/syntax/" title="定義與使用泛型" class="dd-item"><a href="../../generics/syntax/index.html">定義與使用泛型</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/producer-extends/" title="Producer extends" class="dd-item"><a href="../../generics/producer-extends/index.html">Producer extends</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/consumer-super/" title="Consumer super" class="dd-item"><a href="../../generics/consumer-super/index.html">Consumer super</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/" title="Lambda" class="dd-item"><a href="../../lambda/index.html">| Lambda</a><ul>
+          <li data-nav-id="/zh-tw/java/lambda/syntax/" title="初試 Lambda" class="dd-item"><a href="../../lambda/syntax/index.html">初試 Lambda</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/functional-interface/" title="Lambda 運算式與函式介面" class="dd-item"><a href="../../lambda/functional-interface/index.html">Lambda 運算式與函式介面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/this-final/" title="this 與 final" class="dd-item"><a href="../../lambda/this-final/index.html">this 與 final</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/method-reference/" title="方法與建構式參考" class="dd-item"><a href="../../lambda/method-reference/index.html">方法與建構式參考</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/" title="Collection API" class="dd-item"><a href="../../collection/index.html">| Collection API</a><ul>
+          <li data-nav-id="/zh-tw/java/collection/hierarchy/" title="認識 Collection 架構" class="dd-item"><a href="../../collection/hierarchy/index.html">認識 Collection 架構</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/iterator/" title="Iterator 與 Iterable" class="dd-item"><a href="../../collection/iterator/index.html">Iterator 與 Iterable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/comparator/" title="Comparable 與 Comparator" class="dd-item"><a href="../../collection/comparator/index.html">Comparable 與 Comparator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/immutable/" title="不可變特性" class="dd-item"><a href="../../collection/immutable/index.html">不可變特性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/" title="Functional API" class="dd-item"><a href="../../functional-api/index.html">| Functional API</a><ul>
+          <li data-nav-id="/zh-tw/java/functional-api/functional-interface/" title="Consumer／Function／Predicate／Supplier" class="dd-item"><a href="../../functional-api/functional-interface/index.html">Consumer／Function／Predicate／Supplier</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/optional/" title="Optional API" class="dd-item"><a href="../../functional-api/optional/index.html">Optional API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/stream/" title="Stream API" class="dd-item"><a href="../../functional-api/stream/index.html">Stream API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/flatmap/" title="Optional／Stream 的 flatMap" class="dd-item"><a href="../../functional-api/flatmap/index.html">Optional／Stream 的 flatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/" title="深入模組化" class="dd-item parent"><a href="../index.html">| 深入模組化</a><ul>
+          <li data-nav-id="/zh-tw/java/jpms/name/" title="模組名稱" class="dd-item"><a href="../name/index.html">模組名稱</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/reflection/" title="模組與反射" class="dd-item active"><a href="index.html">模組與反射</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/service/" title="模組與 ServiceLoader" class="dd-item"><a href="../service/index.html">模組與 ServiceLoader</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Java</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">深入模組化</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">模組與反射</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#模組圖">模組圖</a></li>
+    <li><a href="index.html#exports-套件">exports 套件</a></li>
+    <li><a href="index.html#opens-套件或-open-模組">opens 套件或 open 模組</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/module/">module</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/jdk/">JDK</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>模組與反射</h1>
+
+ <i class="space fa fa-calendar"> September 28, 2022</i> 
+<p>若 <code>a</code> 模組 <code>requires</code> 了 <code>b</code> 模組，那 <code>a</code> 模組依賴在 <code>b</code> 模組，<code>a</code> 模組可以讀取 <code>b</code> 模組，或說 <code>a</code> 模組對 <code>b</code> 模組是可讀取的（readable），有讀取能力不代表有存取能力，<code>b</code> 模組還得 <code>exports</code> 套件，<code>a</code> 模組對 <code>b</code> 模組才有存取能力，也就是可以操作公開的類別、方法或值域。</p>
+<p>那麼反射呢？對於 JDK8 以前，就算開發者不願意，只要程式庫的使用者運用反射，就可以訪問類別定義的成員，這包括了公開、受保護與私有成員，事實上，在 Java 的生態圈中，有不少程式庫或框架，都依賴在這種深層反射（Deep reflection）機制上運作。</p>
+<p>然而 JDK9 以後的模組是為了強封裝，若反射機制依舊可以這般自由，那麼模組就失去了強封裝的意義，然而，也必須考慮現存程式庫或框架依賴於深層反射的現況，否則這些程式庫或框架將不會考慮遷移至 JDK9 以後的平台。</p>
+<p>就結論而言，模組的設計者可以決定是否允許反射，而過去對反射的認識，在應付同一模組中的類別，以及 <code>java.base</code> 的公開對象時還夠，然而，對 <code>java.base</code> 模組做深層反射時就會遇上問題，因為 <code>java.base</code> 預設並不允許深層反射，而在跨模組反射時也會面臨一些問題，因為依賴的模組可能不允許反射某些套件中的 API 了。</p>
+<p>接下來為了示範跨模組的反射，會使用 <a href="https://github.com/JustinSDK/java9-jmps-examples/tree/master/labs/ReflectModule/">ReflectModule</a> src 裡的程式，逐步瞭解跨模組下對於反射的權限控制。</p>
+<p>在 ReflectModule 專案中有 <code>cc.openhome</code> 與 <code>cc.openhome.reflect</code> 兩個模組，如果這兩個模組都會是在模組路徑之中，在 <code>cc.openhome.reflect</code> 模組有 <code>cc.openhome.reflect.Some</code> 類別，原始碼如下所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome.reflect<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Some</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String some<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Some</span><span style="color:#f92672">(</span>String some<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">some</span> <span style="color:#f92672">=</span> some<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doSome</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>some<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>如果你想在 <code>cc.openhome</code> 模組的 <code>cc.openhome.Main</code> 類別，使用 <code>Class.forName</code> 來取得 <code>Some</code> 的 <code>Class</code> 實例，在程式碼的撰寫上可以是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ClassNotFoundException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>現在運行 Main 的話，你會得到以下會錯誤訊息：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>Exception in thread &#34;main&#34; java.lang.ClassNotFoundException: cc.openhome.reflect.Some
+</span></span><span style="display:flex;"><span>    at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:582)
+</span></span><span style="display:flex;"><span>    at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:185)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:496)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.Class.forName0(Native Method)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.Class.forName(Class.java:292)
+</span></span><span style="display:flex;"><span>    at cc.openhome/cc.openhome.Main.main(Main.java:5)
+</span></span></code></pre></div><h2 id="模組圖">模組圖</h2>
+<p>為什麼？<code>cc.openhome.reflect</code> 不是在模組路徑之中嗎？因為一個模組在模組路徑之中，只是表示 JVM 可以找到模組描述檔（module-info.class），不代表模組圖（Module graph）中有這個模組，模組圖中不存在的模組，自然就找不到模組中的類別，目前 <code>cc.openhome</code> 模組的模組描述檔沒有撰寫任何設定，因此目前的模組圖如下：</p>
+<p><img src="images/reflection-1.jpg" alt="模組與反射"></p>
+<p>這個模組圖表示，目前包含程式進入點的啟動模組 <code>cc.openhome</code> 是唯一的根模組（Root module），而它依賴在 <code>java.base</code> 模組。</p>
+<p>要將模組加入模組圖的方式之一，是在執行 <code>java</code> 指令啟動 JVM 時，使用 <code>--add-modules</code> 引數加入其他模組作為根模組，如果執行 <code>java</code> 指令指定了 <code>--add-modules cc.openhome.reflect</code>，重新執行範例，就不會出現 <code>ClassNotFoundException</code>，這時的模組圖如下：</p>
+<p><img src="images/reflection-2.jpg" alt="模組與反射"></p>
+<p>透過 <code>--add-modules</code> 結合反射機制，可以讓 <code>cc.openhome</code> 模組不依賴在 <code>cc.openhome.reflect</code> 的情況下載入類別，<code>--add-modules</code> 是執行時期調整模組的彈性機制之一（另一方式是透過 <code>require static</code>，之後有機會再介紹）。</p>
+<p>另一個將指定模組加入模組圖方式是，就在模組描述檔中加入 <code>requires</code> 設定，也就是〈<a href="../../path-package-module/module/index.html">初探模組</a>〉範例中的方式，現有模組會依賴在 <code>requires</code> 的模組之上，現有模組可以讀取（read）該模組，或稱現在模組對該模組有讀取能力（Readability），例如，在 <code>cc.openhome</code> 模組的 module-info.java 中設定如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>module cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    requires cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span><span style="color:#f92672">.</span><span style="color:#a6e22e">reflect</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>如下設定之後，重新執行範例（執行 <code>java</code> 指令不指定 <code>--add-modules cc.openhome.reflect</code>），就不會出現 <code>ClassNotFoundException</code>，這時的模組圖會如下：</p>
+<p><img src="images/reflection-3.jpg" alt="模組與反射"></p>
+<p>現在，如果進一步地，將 <code>cc.openhome.Main</code> 修改如下呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Constructor<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Constructor constructor <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>執行程式時並不會發生問題，接著進一步使用 <code>Constructor</code> 的 <code>newInstance</code> 來建立實例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Constructor<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Constructor constructor <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object target <span style="color:#f92672">=</span> constructor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Some object&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>執行時就會出現以下的錯誤了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>Exception in thread &#34;main&#34; java.lang.IllegalAccessException: class cc.openhome.Main (in module cc.openhome) cannot access class cc.openhome.reflect.Some (in module cc.openhome.reflect) because module cc.openhome.reflect does not export cc.openhome.reflect to module cc.openhome
+</span></span><span style="display:flex;"><span>    at java.base/jdk.internal.reflect.Reflection.newIllegalAccessException(Reflection.java:361)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.AccessibleObject.checkAccess(AccessibleObject.java:589)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:479)
+</span></span><span style="display:flex;"><span>    at cc.openhome/cc.openhome.Main.main(Main.java:6)    
+</span></span></code></pre></div><h2 id="exports-套件">exports 套件</h2>
+<p>為什麼？雖然可以載入類別，也可以取得公開的建構式的 <code>Constructor</code> 實例，然而，若模組能允許其他模組對指定的公開成員進行操作，必須在模組描述檔使用 <code>exports</code> 定義哪些套件中的類別是可以允許此動作，更確切的說法是，指定此模組中哪些套件中的公開成員可以存取（Accessibility），否則的話，就算 <code>public</code>，透過反射也是不能存取的。</p>
+<p>因此你必須在 <code>cc.openhome.reflect</code> 模組的 module-info.java 中如下撰寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>module cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span><span style="color:#f92672">.</span><span style="color:#a6e22e">reflect</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    exports cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span><span style="color:#f92672">.</span><span style="color:#a6e22e">reflect</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>就可以允許其他模組在反射時可操作指定的公開成員，例如現在將 <code>cc.openhome.Main</code> 修改如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Constructor<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Constructor constructor <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object target <span style="color:#f92672">=</span> constructor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Some object&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;doSome&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>target<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>執行時就可以順利出現底下的結果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>Some object
+</span></span></code></pre></div><p>接著，嘗試來取得私有值域的 <code>Field</code> 實例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Constructor<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Field<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Constructor constructor <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object target <span style="color:#f92672">=</span> constructor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Some object&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;doSome&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>target<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Field field <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredField</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>執行時並沒有問題，若是要取得私有值域的值呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> java.lang.System.out<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Constructor<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.lang.reflect.Field<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Class clz <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cc.openhome.reflect.Some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Constructor constructor <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredConstructor</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object target <span style="color:#f92672">=</span> constructor<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Some object&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;doSome&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>target<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Field field <span style="color:#f92672">=</span> clz<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredField</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;some&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        field<span style="color:#f92672">.</span><span style="color:#a6e22e">setAccessible</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        out<span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>field<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>target<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>執行時就會出現以下的錯誤訊息：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>Exception in thread &#34;main&#34; java.lang.reflect.InaccessibleObjectException: Unable to make field private java.lang.String cc.openhome.reflect.Some.some accessible: module cc.openhome.reflect does not &#34;opens cc.openhome.reflect&#34; to module cc.openhome
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:337)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:281)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.Field.checkCanSetAccessible(Field.java:176)
+</span></span><span style="display:flex;"><span>    at java.base/java.lang.reflect.Field.setAccessible(Field.java:170)
+</span></span><span style="display:flex;"><span>    at cc.openhome/cc.openhome.Main.main(Main.java:15)
+</span></span></code></pre></div><h2 id="opens-套件或-open-模組">opens 套件或 open 模組</h2>
+<p>若模組能允許其他模組在反射時，對指定的非公開成員進行操作，必須在模組描述檔使用 <code>opens</code> 定義哪些套件中的類別是可以允許此動作，因此你必須在 <code>cc.openhome.reflect</code> 模組的 module-info.java 中如下撰寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>module cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span><span style="color:#f92672">.</span><span style="color:#a6e22e">reflect</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    opens cc<span style="color:#f92672">.</span><span style="color:#a6e22e">openhome</span><span style="color:#f92672">.</span><span style="color:#a6e22e">reflect</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>再次執行程式的話，就可以出現以下的結果了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>Some object
+</span></span><span style="display:flex;"><span>Some object
+</span></span></code></pre></div><p>除了使用 <code>opens</code> 指定要開放的套件之外，也可以使用 <code>open module</code>，表示開放這個模組中全部的套件，如果使用了 <code>open module</code>，那麼 <code>module</code> 中的定義就不能再有 <code>opens</code> 的獨立設定（因為你已經開放整個模組了），被設定為 <code>open module</code> 的模組被稱為開放模組（Open Module），相對地，沒有 <code>open</code> 的模組稱為一般模組（Normal module），它們都屬於顯式模組。</p>
+<p><code>java.base</code> 模組中的套件使用了 <code>exports</code>，沒有設定 <code>opens</code> 的套件，也沒有直接 <code>open module java.base</code>，因此若採取模組化設計，就不允許其他模組在反射時，對指定的非公開成員進行操作。</p>
+<p><img src="images/reflection-4.jpg" alt="模組與反射"></p>
+<p>先前談到，未具名模組可以讀取其他模組，然而能不能存取或深層反射，要視其他模組是否 <code>exports</code> 或 <code>opens</code>，而未具名模組對其他模組來說，就像是 <code>open</code> 全部套件，因此執行時期，任何模組都可以存取與深層反射未具名模組，不過，因為未具名模組沒有名稱，因此顯式模組無法 <code>requires</code>，也就不能存取（也不能讀取）未具名模組。</p>
+<p>那麼自動模組呢？自動模組可以讀取其他模組，然而能不能存取或深層射，要視其他模組是否 <code>exports</code> 或 <code>opens</code>，自動模組對其他模組來說，則像是 <code>open</code> 全部套件，因此可以存取與深層反射自動模組，自動模組是具名模組，顯式模組也可以 <code>requires</code> 自動模組。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/java/jpms/reflection/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/java/jpms/reflection/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Java%3a%3a%e6%a8%a1%e7%b5%84%e8%88%87%e5%8f%8d%e5%b0%84&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjava%2fjpms%2freflection%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../name/index.html" title="模組名稱"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../service/index.html" title="模組與 ServiceLoader"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443683"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443683"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443683"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443683"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443683"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443683"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443683"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443683"></script>
+  </body>
+</html>

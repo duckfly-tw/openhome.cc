@@ -1,0 +1,149 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="正如〈Inversion of Control？〉中談到的，控制、熟悉應用程式的流程走向，是很重要的一部份，這對於評估是否使用某個框架，瞭解換取而來的益處是否超越了犧牲掉的流程自由度是有幫助的，這才能...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="在 DI 之前">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/BeforeDI.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="正如〈Inversion of Control？〉中談到的，控制、熟悉應用程式的流程走向，是很重要的一部份，這對於評估是否使用某個框架，瞭解換取而來的益處是否超越了犧牲掉的流程自由度是有幫助的，這才能...">
+
+    <title>在 DI 之前</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BeforeDI.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>在 DI 之前</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>正如〈<a href="IoC.html">Inversion of Control？</a>〉中談到的，控制、熟悉應用程式的流程走向，是很重要的一部份，這對於評估是否使用某個框架，瞭解換取而來的益處是否超越了犧牲掉的流程自由度是有幫助的，這才能使得框架選用具有意義。</p>
+<p>在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/exercises/Core/BeforeDI">BeforeDI</a> 這個範例專案中，為了要能連線 H2 資料庫，在 <a href="https://github.com/JustinSDK/Spring5Tutorial/blob/master/labs/exercises/Core/BeforeDI/src/main/java/cc/openhome/Main.java">cc.openhome.Main</a> 寫了底下的流程：</p>
+<pre class="prettyprint"><code lang="java">Properties prop = new Properties();
+prop.load(Main.class.getClassLoader().getResourceAsStream("jdbc.properties"));        
+
+JdbcDataSource dataSource = new JdbcDataSource();
+dataSource.setURL(prop.getProperty("cc.openhome.jdbcUrl"));
+dataSource.setUser(prop.getProperty("cc.openhome.user"));
+dataSource.setPassword(prop.getProperty("cc.openhome.password"));
+
+AccountDAO acctDAO = new AccountDAOJdbcImpl(dataSource);
+MessageDAO messageDAO = new MessageDAOJdbcImpl(dataSource);
+
+UserService userService = new UserService(acctDAO, messageDAO);
+
+userService.messages("caterpillar")
+           .forEach(message -&gt; {
+               System.out.printf("%s\t%s%n",
+                   message.getLocalDateTime(),
+                   message.getBlabla());
+           });
+</code></pre>
+<p>這個片段從類別路徑中的 jdbc.properties 中讀取設定，建立了 <code>JdbcDataSource</code>，作為 <code>AccountDAO</code>、<code>MessageDAO</code> 建構實作物件之用，接著再將兩個 DAO，作為 <code>UserService</code> 的依賴物件，然後才使用 <code>UserService</code> 來做些操作。</p>
+<p>物件的建立與相依注入，當然是建立應用程式時必要的關切點，只不過當過程太過冗長，模糊了商務流程之時，應該適當地將之分離。</p>
+<p>就這個片段來說，真正的目的其實是取得 <code>UserService</code> 來做些操作，若想隔離相依注入這個關切點，也許建立一個工廠方法會比較好：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.IOException;
+import java.util.Properties;
+
+import org.h2.jdbcx.JdbcDataSource;
+
+import cc.openhome.model.AccountDAO;
+import cc.openhome.model.AccountDAOJdbcImpl;
+import cc.openhome.model.MessageDAO;
+import cc.openhome.model.MessageDAOJdbcImpl;
+import cc.openhome.model.UserService;
+
+public class Service {
+    public static UserService getUserService() throws IOException {
+        Properties prop = new Properties();
+        prop.load(Main.class.getClassLoader().getResourceAsStream("jdbc.properties"));      
+
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL(prop.getProperty("cc.openhome.jdbcUrl"));
+        dataSource.setUser(prop.getProperty("cc.openhome.user"));
+        dataSource.setPassword(prop.getProperty("cc.openhome.password"));
+
+        AccountDAO acctDAO = new AccountDAOJdbcImpl(dataSource);
+        MessageDAO messageDAO = new MessageDAOJdbcImpl(dataSource);
+
+        UserService userService = new UserService(acctDAO, messageDAO);
+        return userService;
+    }
+}
+</code></pre>
+<p>這麼一來，商務流程的部份，就可以藉由這個工廠方法來取得 <code>UserService</code>，不用在乎如何建立、相依注入等細節：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.IOException;
+import cc.openhome.model.UserService;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        UserService userService = Service.getUserService();
+
+        userService.messages("caterpillar")
+                   .forEach(message -&gt; {
+                       System.out.printf("%s\t%s%n",
+                           message.getLocalDateTime(),
+                           message.getBlabla());
+                   });
+
+    }
+}
+</code></pre>
+<p>如此之來，程式碼的流程清晰了，而且即使是不懂 JDBC 或 <code>DataSource</code> 等的開發者，只要透過這樣的方式，也可以直接取得 <code>UserService</code> 進行操作。</p>
+<p>上面的 <code>Service</code> 當然是特定用途，隨著打算開始整合各種程式庫或方案，你會遇到各種物件建立與相依設定需求，為此，你可能會重構 <code>Service</code>，使之越來越通用，像是可透過組態檔來進行相依設定，甚至成為一個通用於各式物件建立與相依設定的容器，實際上這類容器，在 Java 的世界中早已存在，且有多樣性的選擇，而最有名的實現之一就是 Spring 框架。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

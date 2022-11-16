@@ -1,0 +1,73 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果你可以定義 案例類別（Case class），那麼你可以運用模式比對的特性，完成如下的變數指定動作：case class Apple(price: Int, weight: Int)val app...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="apply() 與 unapply() 方法">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/ApplyUnApply.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果你可以定義 案例類別（Case class），那麼你可以運用模式比對的特性，完成如下的變數指定動作：case class Apple(price: Int, weight: Int)val app...">
+
+
+    <title>apply() 與 unapply() 方法</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ApplyUnApply.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>apply() 與 unapply() 方法</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            如果你可以定義 <a href="CaseClass.html">案例類別（Case class）</a>，那麼你可以運用模式比對的特性，完成如下的變數指定動作：<br><pre class="prettyprint"><code lang="scala">case class Apple(price: Int, weight: Int)<br><br>val apple = Apple(10, 20)<br>val Apple(p, w) = apple<br>println(p)    // 10<br>println(w)    // 20</code></pre><br>定義案例類別的問題之一，在於你必須實際定義出暴露出成員資訊的類別，有時這並不是你想要的，或者你沒辦法定義出這樣的類別。舉個例子來說，字串就是一個例子，如果你有一些學生資料，每筆是"B123456,Justin,Kaohsiung"的格式，你希望分別取得學號、名稱與出生地資訊，基本的作法是：<br><pre class="prettyprint"><code lang="scala">def separate(s: String) = {<br>    val parts = s.split(",")<br>    if(parts.length == 3) (parts(0), parts(1), parts(2)) else None<br>}<br><br>val (number, name, addr) = separate("B123456,Justin,Kaohsiung")<br>println(number)   // B123456<br>println(name)     // Justin<br>println(addr)     // Kaohsiung</code></pre><br>&nbsp;separate()函式傳回三個元素的Tuple，你運用了Tuple模式比對的特性傳回分割後的個別字串。然而，如果你可以這麼作的話，程式看起來會更清楚：<br><pre class="prettyprint"><code lang="scala">// 這有可能嗎？<br>val Student(number, name, addr) = "B123456,Justin,Kaohsiung"</code></pre><br>這看起來像是上面案例類別的模式比對，問題是字串根本不是案例類別，怎麼可能這麼作？事實上是可行的，你可以定義一個單例物件如下，就可以執行這樣的模式比對功能：<br><pre class="prettyprint"><code lang="scala"><span style="font-weight: bold;">object Student {</span><br><span style="font-weight: bold;">    def unapply(str: String): Option[(String, String, String)] = {</span><br><span style="font-weight: bold;">        val parts = str.split(",")</span><br><span style="font-weight: bold;">        if (</span><span style="font-weight: bold;">parts</span><span style="font-weight: bold;">.length == 3) Some(</span><span style="font-weight: bold;">parts</span><span style="font-weight: bold;">(0), </span><span style="font-weight: bold;">parts</span><span style="font-weight: bold;">(1), </span><span style="font-weight: bold;">parts</span><span style="font-weight: bold;">(2)) else None</span><br><span style="font-weight: bold;">    }</span><br><span style="font-weight: bold;">}</span><br><br>val <span style="font-weight: bold;">Student(number, name, addr)</span> = "B123456,Justin,Kaohsiung"<br>println(number)   // B123456<br>println(name)     // Justin<br>println(addr)     // Kaohsiung</code></pre><br>unapply()方法可以接受你所提供的物件（在這邊是以字串為例，事實上可以是任何類型），經用你所定義的unapply()方法內容處理後傳回Option物件，事實上，在上例的例子中，編譯器會作如下的處理：<br><pre class="prettyprint"><code lang="scala">val Some((number, name, addr)) = Student.unapply("B123456,Justin,Kaohsiung")</code></pre><br>unapply()方法稱之為<span style="font-weight: bold;">提取方法（Extraction method）</span>，而像Student這樣只具備提取方法的物件稱之為<span style="font-weight: bold;">提取器（Extractor）</span>，提取器讓你對非案例類別的實例，也可以進行模式比對，例如搭配match運算式的一個例子如下：<br><pre class="prettyprint"><code lang="scala">val students = List(<br>                   "B123456,Justin,Kaohsiung",<br>                   "B98765,Monica,Kaohsiung",<br>                   "B246819,Bush,Taipei"<br>               )<br><br>students.foreach(_ match {<br>    case Student(nb, name, addr) =&gt; println(nb + ", " + name + ", " + addr)<br>})</code></pre><br>也可以進一步使用模式比對的各種特性，例如使用 <a href="VariableBindingPatternGuard.html">模式防護（Pattern guard）</a>，找出住在高雄的學生姓名：<br><pre class="prettyprint"><code lang="scala">val students = List(<br>                   "B123456,Justin,Kaohsiung",<br>                   "B98765,Monica,Kaohsiung",<br>                   "B246819,Bush,Taipei"<br>               )<br>               <br>students.foreach(_ match {<br>    case Student(_, name, addr) if addr == "Kaohsiung" =&gt; println(name)<br>    case _ =&gt;<br>})</code></pre><br>相對於unapply()方法，apply()方法則稱之為<span style="font-weight: bold;">注入方法（Injection method）</span>，提取方法與注入方法通常同時存在（但非必要），apply()方法與unapply()方法的作用通常是相反的，例如：<br><pre class="prettyprint"><code lang="scala">object Student {<br>    def apply(number: String, name: String, addr: String) = {<br>        number + "," + name + "," + addr<br>    }<br>    <br>    def unapply(str: String) = {<br>        val parts = str.split(",")<br>        if (parts.length == 3) Some(parts(0), parts(1), parts(2)) else None<br>    }<br>}</code></pre><br>例如，你可以讀入文字檔案，使用提取方法來取出每筆資料的學號、名稱、出生地，反過來，如果輸入學生資料的學號、名稱、出生地，利用注入方法組合字串，再寫出至檔案中：<br><pre class="prettyprint"><code lang="scala">val number = readLine<br>val name = readLine<br>val addr = readLine<br><br>val data = Student(number, name, addr)<br>println(data)   // 實際也許是寫入文字檔案</code></pre><br><br>
+        
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

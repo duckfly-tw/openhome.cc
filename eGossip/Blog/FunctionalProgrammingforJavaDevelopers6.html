@@ -1,0 +1,189 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Well...functional programming has one important feature - laziness, ignored in our previous articles...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Functional Programming for Java Developers, Part 6 - Laziness">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/FunctionalProgrammingforJavaDevelopers6.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Well...functional programming has one important feature - laziness, ignored in our previous articles...">
+
+
+    <title>Functional Programming for Java Developers, Part 6 - Laziness</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionalProgrammingforJavaDevelopers6.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Functional Programming for Java Developers, Part 6 - Laziness</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      <br>
+      Well...functional programming has one important feature - laziness, ignored in our previous articles. Let's take Haskell for example again. For simplicity, <span
+
+        class="courier">let addOne = map (+1)</span>, what will happen if you do <span
+
+        class="courier">addOne \$ addOne \$ addOne [1, 2, 3, 4, 5]</span>? Will you get a list <span
+
+        class="courier">[2, 3, 4, 5, 6]</span> and pass it into <span class="courier">addOne</span> to get a list <span
+
+        class="courier">[3, 4, 5, 6, 7]</span>? Will Haskell pass it to <span
+
+        class="courier">addOne</span> again to get the final result <span
+
+        class="courier">[4, 5, 6, 7, 8]</span>? No! Haskell won't execute functions until it's really forced to give you a result. <br>
+      <br>
+      When evaluating <span class="courier">addOne \$ addOne \$ addOne [1, 2, 3, 4, 5]</span>, the right most <span
+
+        class="courier">addOne</span> function will not be evaluated immediately. It just says "Hey, I know my job, but I'll do it later!” The second <span
+
+        class="courier">addOne</span> is the same. When the leftmost <span
+
+        class="courier">addOne</span> function needs adding 1 to the first element, the second <span
+
+        class="courier">addOne</span> function asks the rightmost one to return a calculated element. When the leftmost <span
+
+        class="courier">addOne</span> function needs adding 1 to the next element, the same thing happens. Haskell is lazy so it just has to go through the list once. It doesn't produce three lists so improves the performance.<br>
+      <br>
+      Let's get back to <a href="FunctionalProgrammingforJavaDevelopers3.html">Functional Programming for Java Developers, Part 3</a>. The <span
+
+        class="courier">map</span> or <span class="courier">filter</span> method performs mapping or filtering eagerly. If you define an <span
+
+        class="courier">addOne</span> method as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">public static List&lt;Integer&gt; addOne(List&lt;Integer&gt; lt) {<br>
+        &nbsp;&nbsp;&nbsp; return map(lt, x -&gt; x + 1);<br>
+        }</div>
+      <br>
+      Executing <span class="courier">addOne(addOne(addOne(list(1, 2, 3, 4, 5))))</span> will produce three lists. That is, we get a complete mapped or filtered list every time the respective method is returned. <br>
+      <br>
+      Think about a question. You may map a list of something, for example, a thousand of integers. In some conditions, what you want may be the first element of the mapped list. The <span
+
+        class="courier">map</span> method is obviously not efficient for that. If filtering or mapping operations can be performed lazily, we may get significant performance improvements. A realistic example can be drawn from Python. For example, you may draw something from a database, perform mapping and an operation like the following:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">...<br>
+        for person in map(lambda id : get_person_from_database(id) , ids):<br>
+        &nbsp;&nbsp;&nbsp; if(person.luckyNumber == generatedLuckyNumber):<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return person<br>
+        ...</div>
+      <br>
+      If you're using Python 3, the <span class="courier">map</span> function doesn't return a complete mapped list but returns a <span
+
+        class="courier">map</span> object. The <span class="courier">get_person_from_database</span> function is called only if the <span
+
+        class="courier">__next__</span> method of the <span class="courier">map</span> object is called, which is what the <span
+
+        class="courier">for in</span> loop does. If the <span class="courier">luckyNumber</span> of the first <span
+
+        class="courier">person</span> equals the <span class="courier">generatedLuckyNumber</span>, the <span
+
+        class="courier">person</span> will be returned. We don't have to use the remaining <span
+
+        class="courier">ids</span> to call the <span class="courier">get_person_from_database</span> function so save the unnecessary mapping operations.<br>
+      <br>
+      Most of the time, mapping and filtering are just intermediate steps for calculating our final result. For languages not supporting laziness directly, we may design an intermediate object to be the result of mapping or filtering, such as the <span
+
+        class="courier">map</span> object in Python. When implementing this feature in Java, the questions are what type should the object be and where should the object be produced?&nbsp; <br>
+      <br>
+      In <a href="http://cr.openjdk.java.net/%7Ebriangoetz/lambda/collections-overview.html">State of the Lambda: Libraries Edition (April 2012)</a>, the type was <span
+
+        class="courier">Iterable</span> with lazy operations and the object was produced from methods defined on <span
+
+        class="courier">Iterable</span>. So, we can have a coding style as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span>List&lt;String&gt; names = ...;<br>
+          names.filter(s -&gt; s.length() &lt; 3)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp; .forEach(s -&gt; out.println(s));</span></div>
+      <br>
+      But, <span class="courier">Iterable</span> has the meaning of iterating its implementation sequentially. Defining a bunch of methods, such as <span
+
+        class="courier">filter</span> and <span class="courier">map</span>, also makes <span
+
+        class="courier">Iterable</span> having too much responsibility. One more question is, writing code above makes us confused. Is the <span
+
+        class="courier">filter</span> method implemented eagerly, lazily or even in parallel? Without looking the API documentation, we don't know that. <br>
+      <br>
+      Implicit is not the style of Java. In <a href="http://cr.openjdk.java.net/%7Ebriangoetz/lambda/sotc3.html">State of the Lambda: Libraries Edition (November 2012)</a>, JDK8 defines an interface <span
+
+        class="courier">Stream</span> where most of those intermediate operations are defined on. For data management problems, a <span
+
+        class="courier">stream</span> method used to produce a <span class="courier">Stream</span> instance is defined on <span
+
+        class="courier">Collection</span>. So in JDK8, we have to write code as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">List&lt;String&gt; names = ...;<br>
+        names.<strong>stream()</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp; .filter(s -&gt; s.length() &lt; 3)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp; .forEach(s -&gt; out.println(s));</div>
+      <br>
+      The <span class="courier">stream</span> method returns a sequential <span
+
+        class="courier">Stream</span> with this collection as its source. Methods such <span
+
+        class="courier">map</span> and <span class="courier">filter</span> are defined on it. There's also a <span
+
+        class="courier">parallelStream</span> method defined on <span class="courier">Collection</span>. The <span
+
+        class="courier">parallelStream</span> method returns a possibly parallel <span
+
+        class="courier">Stream</span> with this collection as its source. A sequential <span
+
+        class="courier">Stream</span> instance may use the <span class="courier">parallel</span> method to return an equivalent stream that is parallel. A parallel <span
+
+        class="courier">Stream</span> instance may use the <span class="courier">sequential</span> method to return an equivalent stream that is sequential. Making everything explicit is the intent of Java.<br>
+      <br>
+      Finally, we reach the end of <a href="index.html#FunctionalProgrammingforJavaDevelopers">Functional Programming for Java Developers</a> series. Can we use JDK8 Lambda without knowing what functional programming is? Of course! But, knowing functional programming makes us using JDK8 Lambda better. <br>
+      <br>
+      Many concepts are applicable to both imperative programming and functional programming. Actually, many languages support multi-paradigm programming. They may lend features or learn concepts from each other. Java still can adopt elements from functional programming, even if Java is an imperative language, supports abstract data types and provides mutable variables and objects. The only question is, can you manage those features? Or, the more precise question may be, can you understand the real meaning of those concepts from functional programming? <br>
+      <br>
+      So, why functional programming matters?<br>
+      <br>
+<div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

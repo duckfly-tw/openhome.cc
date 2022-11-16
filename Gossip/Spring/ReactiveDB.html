@@ -1,0 +1,262 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在逐步應用 Reactive 風格之後，自然地，就會面對如何銜接至資料庫處理上的問題，有些資料庫提供非同步的驅動程式，例如 MongoDB，在銜接至 Reactor 或者是 WebFlux 上，也能有...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Reactive 與資料庫">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/ReactiveDB.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在逐步應用 Reactive 風格之後，自然地，就會面對如何銜接至資料庫處理上的問題，有些資料庫提供非同步的驅動程式，例如 MongoDB，在銜接至 Reactor 或者是 WebFlux 上，也能有...">
+
+    <title>Reactive 與資料庫</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ReactiveDB.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Reactive 與資料庫</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在逐步應用 Reactive 風格之後，自然地，就會面對如何銜接至資料庫處理上的問題，有些資料庫提供非同步的驅動程式，例如 MongoDB，在銜接至 Reactor 或者是 WebFlux 上，也能有實質的益處。</p>
+<p>當然，像 MongoDB 提供的非同步驅動程式，並不是 JDBC 標準規範，畢竟 JDBC 本身並沒有非同步的概念，如果想基於 JDBC 來處理資料庫，該怎麼做呢？一個簡單的想法是，透過 <code>Flux</code>、<code>Mono</code> 的一些方法，像是 <code>defer</code> 來轉接，並使用 <code>subscribeOn</code> 令資料流在訂閱時，會是在另一執行緒上。</p>
+<p>問題是該在哪一層轉接？這就看怎麼處理比較方便，或者比較能增加點效益了，以〈<a href="GossipDataJdbc.html">套用 Spring Data JDBC</a>〉有關資料庫處理的部份來說，或許在服務層，也就是 <code>UserService</code> 上處理會比較方便，修改一下大概就會像是：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...略
+
+@Service
+public class UserService {
+    @Autowired
+    private AccountDAO accountDAO;
+
+    @Autowired
+    private MessageDAO messageDAO;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private Scheduler scheduler;
+
+
+    public Mono&lt;Account&gt; tryCreateUser(String email, String username, String password)  {
+        return Mono.defer(() -&gt; {
+            if(accountDAO.accountByEmail(email).isPresent() || accountDAO.accountByUsername(username).isPresent()) {
+                return Mono.empty();
+            }
+            return createUser(username, email, password);
+        }).subscribeOn(scheduler);
+    }
+
+    private Mono&lt;Account&gt; createUser(String username, String email, String password) {
+        return Mono.defer(
+            () -&gt; Mono.just(
+                accountDAO.save(
+                    new Account(
+                        username, 
+                        email, 
+                        passwordEncoder.encode(password), 
+                        0, 
+                        "ROLE_MEMBER"
+                    )
+               )
+           )
+        );
+    }
+
+    public Flux&lt;Message&gt; messages(String username) {
+        return Flux.defer(() -&gt; {
+            List&lt;Message&gt; messages = messageDAO.messagesBy(username);
+            messages.sort(Comparator.comparing(Message::getMillis).reversed());
+            return Flux.fromIterable(messages);
+        }).subscribeOn(scheduler);
+    }   
+
+    public Mono&lt;Message&gt; addMessage(String username, String blabla) {
+        return Mono.defer(() -&gt; Mono.just(
+                messageDAO.save(
+                    new Message(username, Instant.now().toEpochMilli(), blabla)
+                )
+            )
+        ).subscribeOn(scheduler);
+
+    }    
+
+    public Mono&lt;Void&gt; deleteMessage(String username, String millis) {
+        return Mono.defer(() -&gt; {
+            messageDAO.deleteMessageBy(username, millis);
+            return Mono.&lt;Void&gt;empty();
+        }).subscribeOn(scheduler);
+    }
+
+    public Mono&lt;Boolean&gt; userExisted(String username) {
+        return Mono.defer(() -&gt; {
+            return Mono.just(accountDAO.accountByUsername(username).isPresent());
+        }).subscribeOn(scheduler);
+    }
+
+    public Flux&lt;Message&gt; newestMessages(int n) {
+        return Flux.defer(() -&gt; Flux.fromIterable(messageDAO.newestMessages(n)))
+                   .subscribeOn(scheduler);
+    }
+
+    public Mono&lt;Boolean&gt; emailExisted(String email) {
+        return Mono.defer(() -&gt; {
+            return Mono.just(accountDAO.accountByEmail(email).isPresent());
+        }).subscribeOn(scheduler);
+
+    }
+
+    public Mono&lt;Account&gt; verify(String email, String token) {
+        return Mono.defer(() -&gt; {
+            Optional&lt;Account&gt; optionalAcct= accountDAO.accountByEmail(email);
+            if(optionalAcct.isPresent()) {
+                Account acct = optionalAcct.get();
+                if(acct.getPassword().equals(token)) {
+                    accountDAO.activateAccount(acct.getName());
+                    return Mono.just(acct);
+                }
+            }
+            return Mono.empty();
+        }).subscribeOn(scheduler);
+    }
+
+    public Mono&lt;Account&gt; accountByNameEmail(String name, String email) {
+        return Mono.defer(() -&gt; {
+            Optional&lt;Account&gt; optionalAcct = accountDAO.accountByUsername(name);
+            if(optionalAcct.isPresent() &amp;&amp; optionalAcct.get().getEmail().equals(email)) {
+                return Mono.just(optionalAcct.get());
+            }
+            return Mono.empty();
+        }).subscribeOn(scheduler);
+    }
+
+    public Mono&lt;Void&gt; resetPassword(String name, String password) {
+        return Mono.defer(() -&gt; {
+            accountDAO.updatePassword(name, passwordEncoder.encode(password));
+            return Mono.&lt;Void&gt;empty();
+        }).subscribeOn(scheduler);
+    }
+}
+</code></pre>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/WebFlux/ReactiveJDBC">ReactiveJDBC</a> 找到以上的專案，基本上，透過這類的方法，也可以將其他同步的資源轉為非同步。</p>
+<p>當然，就上例來說，也可以進一步，在 <code>AccountDAO</code>、<code>MessageDAO</code> 的層次，修改其介面，令相關方法傳回 <code>Flux</code>、<code>Mono</code>，由 <code>AccountDAO</code>、<code>MessageDAO</code> 的實作類別來進行轉接的動作，只不過相對來說，就會麻煩一些，因為等於要封裝 JDBC 的相關細節，有的程式庫做了這類的動作，例如 <a href="https://github.com/davidmoten/rxjava2-jdbc">rxjava2-jdbc</a>，有興趣瞭解的話，可以看看〈<a href="https://medium.com/netifi/spring-webflux-and-rxjava2-jdbc-83a94e71ba04">Spring WebFlux and rxjava2-jdbc</a>〉。</p>
+<p>rxjava2-jdbc 這類程式庫，底層還使用 JDBC，不過透過其實現的非阻斷式連線池，以及一些資料流封裝，在實現自己的 DAO（Repository）時會比較輕鬆一些。</p>
+<p>在 Java 商標的擁有者 Oracle 這方面，正在推行 <a href="https://blogs.oracle.com/java/jdbc-next:-a-new-asynchronous-api-for-connecting-to-a-database">Asynchronous Database Access API</a>，簡稱 ADBA，也就是非同步的資料庫驅動程式，希望可以成為未來的標準，只是目前來說，可用性還未知，就看到的示範程式碼來看，是基於 <code>CompletableFuture</code> 之類來實現。</p>
+<p>只是 Spring 看來不怎麼認同 ADBA，他們希望能基於 Reactive 風格，而不是單純的非同步，<code>CompletableFuture</code> 到底算不算是 Reactive 是個爭議，後來 Spring 在 2018 的 SpringOne 大會上，提出了 <a href="https://github.com/r2dbc">R2DBC</a>，當然，基於自家的 Reactor，在〈<a href="https://spring.io/blog/2018/12/07/reactive-programming-and-relational-databases">Reactive Programming and Relational Databases</a>〉中，可以略為看到 ADBA 與 R2DBC 的 API 比較。</p>
+<p>Spring 官方直言，R2DBC 目的之一，就是要影響 ADBA 規範，在〈<a href="https://www.infoq.com/news/2018/10/springone-r2dbc">Experimental Reactive Relational Database Connectivity Driver, R2DBC, Announced at SpringOne</a>〉報導中可以看到，Ben Hale 還蠻嗆地提到：</p>
+<blockquote><p>Spring doesn’t generate specs. We aren’t spec leads and we don’t host specifications. This project's entire goal is a way to influence the ADBA spec, and that is the best possible scenario. But make no mistake, I am not the sort of person who is going to tolerate the ADBA spec being bad. If they don’t take our advice, if they don’t see that Reactive is different from being async, then this is something that the Spring team will do.</p>
+</blockquote>
+<p>當然，Spring 本身有 Spring Data，如果 Spring Data 的設計模型，能適時封裝底層，讓 API 運用上更一致一些就好了，事實上，對於一些本身有提供非同步驅動程式的資料庫，Spring Data 提供了 Reactive 的 Repository 版本，例如，MongoDB 就有 <code>ReactiveMongoRepository</code>，它實現了 <a href="https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/reactive/ReactiveCrudRepository.html"><code>ReactiveCrudRepository</code></a>，從 API 文件上可以看到，都是傳回 <code>Flux</code> 或 <code>Mono</code>。</p>
+<p>在 R2DBC 這部份，也有 <a href="https://spring.io/projects/spring-data-r2dbc">Spring Data R2DBC</a>，不過就撰寫本身的這個時候，R2DBC 還在開發，未正式釋出的階段，Spring Data R2DBC 也就還不完整，不過我試出了查詢方面的操作，例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+
+import reactor.core.publisher.Mono;
+
+public interface AccountDAO extends ReactiveCrudRepository&lt;Account, Integer&gt; {
+    @Query("SELECT * FROM account WHERE name = $1")
+    Mono&lt;Account&gt; accountByUsername(String name);
+
+    @Query("SELECT * FROM account WHERE email = $1")
+    Mono&lt;Account&gt; accountByEmail(String email);
+}
+</code></pre>
+<p>有了這類 DAO，<code>UserService</code> 寫來就會輕鬆一些：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Service
+public class UserService {
+    @Autowired
+    private AccountDAO accountDAO;
+
+    @Autowired
+    private MessageDAO messageDAO;
+
+    public Flux&lt;Message&gt; messages(String username) {
+        return messageDAO.messagesBy(username);
+    }   
+
+    public Mono&lt;Boolean&gt; userExisted(String username) {
+        return accountDAO.accountByUsername(username)
+                         .map(acct -&gt; true)
+                         .switchIfEmpty(Mono.just(false));
+    }
+
+    public Flux&lt;Message&gt; newestMessages(int n) {
+        return messageDAO.newestMessages(n);
+    }
+
+    public Mono&lt;Boolean&gt; emailExisted(String email) {
+        return accountDAO.accountByEmail(email)
+                .map(acct -&gt; true)
+                .switchIfEmpty(Mono.just(false));
+    }
+
+    public Mono&lt;Account&gt; accountByNameEmail(String name, String email) {
+        return accountDAO.accountByUsername(name)
+                         .flatMap(acct -&gt; acct.getEmail().equals(email) ? Mono.just(acct) : Mono.empty());
+    }
+}
+</code></pre>
+<p>就撰寫本文的這時間點來說，儲存的部份還有些問題，如果你想看看實際的專案怎麼設定，可以參考 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/WebFlux/ReactiveR2DBC">ReactiveR2DBC</a>，當然，這日後還會再變動，而且未來應該會與 Spring Boot 整合的更好，相關設定應會省事許多。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

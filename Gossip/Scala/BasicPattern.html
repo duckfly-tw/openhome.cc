@@ -1,0 +1,72 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="基本模式可以單獨運用，也可以彼此組合，以形成更複雜的模式。這將將介紹的基本模式包括了：常數模式（Constant pattern）萬用字元模式（Wildcard pattern）建構式模式（Const...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="基本模式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/BasicPattern.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="基本模式可以單獨運用，也可以彼此組合，以形成更複雜的模式。這將將介紹的基本模式包括了：常數模式（Constant pattern）萬用字元模式（Wildcard pattern）建構式模式（Const...">
+
+
+    <title>基本模式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BasicPattern.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>基本模式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            基本模式可以單獨運用，也可以彼此組合，以形成更複雜的模式。這將將介紹的基本模式包括了：<br><ul><li><span style="font-weight: bold;">常數模式（Constant pattern）</span></li><li><span style="font-weight: bold;">萬用字元模式（Wildcard pattern）</span></li><li><span style="font-weight: bold;">建構式模式（Constructor pattern）</span></li><li><span style="font-weight: bold;">變數模式（Variable pattern）</span></li><li><span style="font-weight: bold;">型別模式（Typed pattern）</span></li></ul><span style="font-weight: bold;"></span><br>模式中最簡單的種類是<span style="font-weight: bold;">常數模式（Constant pattern）</span>，你可以在Scala中寫下的字面常量（Literal）都可以作為模式比對，例如：<br><pre class="prettyprint"><code lang="scala">def what(a: Any) = a match {<br>    case 10     =&gt; "整數"<br>    case 0.1    =&gt; "浮點數"<br>    case 'A'    =&gt; "字元"<br>    case true   =&gt; "布林值"<br>    case "text" =&gt; "字串"<br>    case Nil    =&gt; "空串列" <br>    case _      =&gt; "？"<br>}<br></code></pre><br>使用match運算式時，如果無法比對成功，會丟出<span style="font-weight: bold;">MatchError</span>。你可以在最後的case放一個_，這表示符合任何對象，這是<span style="font-weight: bold;">萬用字元模式（Wildcard pattern）</span>的一個應用。以下也是個萬用字元模式的運用，你只想知道傳入的是Point或不是Point：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br><br>def what(a: Any) = a match {<br>    case Point(<span style="font-weight: bold;">_</span>, <span style="font-weight: bold;">_</span>)   =&gt; "圓"<br>    case <span style="font-weight: bold;">_</span>             =&gt; "不是圓"<br>}<br><br>println(what(Point(1, 2)))   // 顯示圓<br>println(what(Point(3, 4)))   // 顯示圓<br>println(what("圓？"))         // 顯示不是圓</code></pre><br>實際上，上面先使用<span style="font-weight: bold;">建構式模式（Constructor pattern）</span>，看看傳入的物件是不是Point所建構，如果是的話，再進一步來到了萬用字元模式，所以不在乎x或y值為何。<br><br>來看看<span style="font-weight: bold;">變數模式（Variable pattern）</span>運用的一個例子：<br><pre class="prettyprint"><code lang="scala">def what(i: Any) = i match {<br>    case 100        =&gt; "滿分"<br>    case 90         =&gt; "A"<br>    case <span style="font-weight: bold;">something</span>  =&gt; "不及格？" + something<br>}<br><br>println(what(100))   // 滿分<br>println(what(90))    // A <br>println(what(80))    // 不及格？80</code></pre>&nbsp;<br>在不是100或90的情況下，則符合最後的case，而且會將比對的物件指定給something這個變數。這個例子看不出變數模式的實際運用，來看看這個例子：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br><br>def what(a: Any) = a match {<br>    case Point(x, y)   =&gt; "圓 (" + x + ", " + y + ")"<br>    case _             =&gt; "不是圓"<br>}<br><br>println(what(Point(1, 2)))   // 圓 (1, 2)<br>println(what(Point(3, 4)))   // 圓 (3, 4)<br>println(what("圓？"))         // 不是圓</code></pre><br>上面先使用<span style="font-weight: bold;">建構式模式（Constructor pattern）</span>，看看傳入的物件是不是Point所建構，如果是的話，再進一步將Point中的值分別指定給x與y變數，在=&gt;之中就可以直接取用x與y的值。<br><br>在使用常數模式時，需注意別與變數模式混淆，例如你也許以為下面這個程式是常數模式比對：<br><pre class="prettyprint"><code lang="scala">val <span style="font-weight: bold;">x</span> = 10<br>def what(i: Int) = i match {<br>    case <span style="font-weight: bold;">x</span>   =&gt; "10"<br>    case _   =&gt; "不是 10"<br>}<br><br>println(what(10))<br>println(what(20))</code></pre><br>但事實是，你使用了變數模式，x是match中的一個變數，而不是你在第一行所宣告的x，上面的程式會編譯錯誤：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">error: unreachable code</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; case _&nbsp;&nbsp; =&gt; "不是 10"</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^</span><br></div><br>變數模式一定會先匹配到，所以之後的萬用字元模式永遠不會被匹配到。<span style="font-weight: bold;">在Scala中，一個常數在命名時，首字母必須大寫，這不僅是慣例，也是在某些場合被認定為常數的要件。</span>例如以下的程式就可以執行：<br><pre class="prettyprint"><code lang="scala">val <span style="font-weight: bold;">X</span> = 10<br>def what(i: Int) = i match {<br>    case <span style="font-weight: bold;">X</span>   =&gt; "10"<br>    case _   =&gt; "不是 10"<br>}<br>println(what(10))  // 10<br>println(what(20))  // 不是 10</code></pre><br>變數X是首字大寫，在match中會被認定為常數模式，因此可以編譯成功並執行。<br><br>再繼續來看到建構式模式，它可以形成巢狀，例如：<br><pre class="prettyprint"><code lang="scala">case class Point(x: Int, y: Int)<br>case class Circle(p: Point, r: Int)<br>case class Cylinder(c: Circle, h: Int)<br><br>def what(a: Any) = a match {<br>    case Point(_, _)                         =&gt; "點"<br>    case Circle(Point(_, _), _)              =&gt; "圓"<br>    case Cylinder(Circle(Point(_, _), _), _) =&gt; "柱"<br>}<br><br>println(what(Point(10, 10)))                            // 點<br>println(what(Circle(Point(10, 10), 10)))                // 圓<br>println(what(Cylinder(Circle(Point(10, 10), 10), 10)))  // 柱</code></pre><br>上例中使用了建構式模式與萬用字元模式，以傳入Cylinder為例，會使用建構式模式比對Cylinder，符合後再使用建構式模式比較內層的Circle，符合後再使用建構式比較更內層的Point，最後使用萬用字元比對。<br><br>再來看到<span style="font-weight: bold;">型別模式（Typed pattern）</span>，直接使用<a href="OverrideEquals.html"> 重新定義 equals() 方法</a> 中的一個例子作說明：<br><pre class="prettyprint"><code lang="scala">class Point(val x: Int, val y: Int) {<br>    override def equals(a: Any) = a match {<br><span style="font-weight: bold;">        </span>case <span style="font-weight: bold;">that: Point</span> =&gt; this.x == that.x &amp;&amp; this.y == that.y<br>        case _ =&gt; false<br>    }<br>    override def hashCode = 41 * (41 + x) + y<br>}</code></pre><br>在第一個case中的比對中，傳入的物件型態必須符合Point型別，如果是的話，指定給that變數。這個例子如果不使用型別模式，則你可以這麼撰寫：<br><pre class="prettyprint"><code lang="scala">class Point(val x: Int, val y: Int) {<br>    override def equals(a: Any) = {<br>        if(a.<span style="font-weight: bold;">isInstanceOf[Point]</span>) {<br>            val that = a.<span style="font-weight: bold;">asInstanceOf[Point]</span><br>            this.x == that.x &amp;&amp; this.y == that.y<br>        }<br>        false<br>    }<br>    <br>    override def hashCode = 41 * (41 + x) + y<br>}</code></pre><br>一般來說，不鼓勵直接進行型態檢查與型態轉換，寫來也比較冗長，建議還是採用模式匹配的方式。<br><br>在使用型別模式時，若想匹配List、Set、Map等型態，可以使用以下的方式：<br><pre class="prettyprint"><code lang="scala">def what(a: Any) = a match {<br>    case str : String    =&gt; "字串"<br>    case list: List[_]   =&gt; "串列"<br>    case set : Set[_]    =&gt; "集合"<br>    case map : Map[_, _] =&gt; "字典"<br>    case _               =&gt; "別的東西"<br>}<br><br>println(what("text"))         // 字串<br>println(what(List(1, 2)))     // 串列<br>println(what(Set(1, 2, 3)))   // 集合</code></pre><br>但是你沒辦法指匹配群集中別元素型態，例如：<br><pre class="prettyprint"><code lang="scala">def what(a: Any) = a match {<br>    case list: List[String]  =&gt; "字串串列"<br>    case _                   =&gt; "別的東西"<br>}</code></pre><br>這在編譯時會出現警示訊息：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">warning: there were unchecked warnings; re-run with -unchecked for details</span><span style="font-weight: bold;"></span><br></div><br>你可以在編譯時加以-unchecked引數，看到詳細的警示訊息：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">warning: non variable type-argument String in type pattern is unchecked since it is eliminated by erasure</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; case list: List[String]&nbsp; =&gt; "字串串列"</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^</span><br></div><br>理由在於，Scala的泛型（Generic）採用的是<span style="font-weight: bold;">型別抹除（Type erasure）</span>的作法，加入群集後的物件基本上就失去型態資訊了（如果你熟悉Java，這跟物件加入Java群集中意思是一樣的，所有的物件失去的型態資訊）。如果你執意運行以下的程式，結果將不正確：<br><pre class="prettyprint"><code lang="scala">def what(a: Any) = a match {<br>    case list: List[String]  =&gt; "字串串列"<br>    case _                   =&gt; "別的東西"<br>}<br>val list1 = List("text")<br>val list2 = List(1)<br>println(what(list1))  // 字串串列<br>println(what(list2))  // 字串串列</code></pre><br>唯一的例外是陣列，陣列沒有採用型別抹除，因為陣列在Scala中處理的方式特意與Java中陣列相同，所以下面的寫法是可行的：<br><span style="font-family: Courier New,Courier,monospace;"></span><pre class="prettyprint"><code lang="scala">def what(a: Any) = a match {<br>    case arr: Array[Int]     =&gt; "整數陣列"<br>    case arr: Array[String]  =&gt; "字串陣列"<br>    case _                   =&gt; "別的東西"<br>}<br><br>val arr1 = Array(1)<br>val arr2 = Array("text")<br>println(what(arr1))  // 整數陣列<br>println(what(arr2))  // 字串陣列</code></pre><br><br>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

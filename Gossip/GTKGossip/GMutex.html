@@ -1,0 +1,322 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="您必須同步資料對物件的更新，也就是在有一個執行緒正在設定user物件的資料時，不可以又被另一個執行緒同時進行設定，您可以使用GMutex來進行這個動作...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="GMutex">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/GTKGossip/GMutex.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="您必須同步資料對物件的更新，也就是在有一個執行緒正在設定user物件的資料時，不可以又被另一個執行緒同時進行設定，您可以使用GMutex來進行這個動作...">
+
+
+    <title>GMutex</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GMutex.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/GTKGossip/">回 GTK 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>GMutex</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             如果您的程式只是一個單執行緒，單一流程的程式，那麼通常您只要注意到程式邏輯的正確，您的程式通常就可以正確的執行您想要的功能，但當您的程式是多執行緒程式，多流程同時執行時，那麼您就要注意到更多的細節，例如在多執行緒共用同一物件的資料時。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+如果一個物件所持有的資料可以被多執行緒同時共享存取時，您必須考慮到<span style="font-weight: bold;">「資料同步」</span>的
+問題，所謂資料同步指的是兩份資料的整體性一致，例如物件A有
+name與id兩個屬性，而有一份A1資料有name與id的資料要更新物件A的屬性，如果A1的name與id設定給A物件完成，則稱A1與A同步，如
+果A1資料在更新了物件的name屬性時，突然插入了一份A2資料更新了A物件的id屬性，則顯然的A1資料與A就不同步，A2資料與A也不同步。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+資料在多執行緒下共享時，就容易因為同時多個執行緒可能更新同一個物件的資訊，而造成物件資料的不同步，因為資料的不同步而可能引發的錯誤通常不易察覺，
+而且可能是在您程式執行了幾千幾萬次之後，才會發生錯誤，而這通常會發生在您的產品已經上線之後，甚至是程式已經執行了幾年之後。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      
+
+
+
+
+
+這邊舉個簡單的例子：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+      
+      <ul>
+
+        <li>gmutex_demo.c</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;glib.h&gt;<br><br>struct _User {<br>    GString *name;<br>    GString *id;<br>    glong count;    <br>};<br>typedef struct _User User;<br><br>void user_set_name_id(User *user, GString *name, GString *id) {<br>    user-&gt;name = name;<br>    user-&gt;id = id;<br>    if(!user_check_name_id(user)) {<br>        g_print("%d: illegal name or id....\n", user-&gt;count);<br>    }<br>    user-&gt;count++;<br>}<br><br>gboolean user_check_name_id(User *user) {    <br>    return user-&gt;name-&gt;str[0] == user-&gt;id-&gt;str[0];<br>}<br><br>gpointer thread1(gpointer user) {<br>    GString *name = g_string_new("Justin Lin");<br>    GString *id = g_string_new("J.L.");<br>    while(TRUE) {<br>        user_set_name_id(user, name, id);<br>    }<br>}<br><br>gpointer thread2(gpointer user) {<br>    GString *name = g_string_new("Shang Hwang");<br>    GString *id = g_string_new("S.H.");<br>    while(TRUE) {<br>        user_set_name_id(user, name, id);<br>    }<br>}<br><br>int main(int argc, char *argv[]) {<br>    GMainLoop *mloop;<br>    <br>    if(!g_thread_supported()) {<br>        g_thread_init(NULL);<br>    }<br>    <br>    User user;<br>    <br>    mloop = g_main_loop_new(NULL, FALSE);<br><br>    g_thread_create(thread1, &amp;user, FALSE, NULL);<br>    g_thread_create(thread2, &amp;user, FALSE, NULL);<br>    <br>    g_main_loop_run(mloop);<br>    <br>    return 0;<br>}</code></pre>
+
+
+
+
+
+      
+      
+      
+      <br>
+
+      在這個程式中，您可以設定使用者的名稱與縮寫id，並簡單檢查一下名稱與id的第一個字是否相同，單就這個程式本身而言，user_set_name_id()並沒有任何的錯誤，但如果它被
+用於多執行緒的程式中，而且同一個物件被多個執行存取時，就會"有可能"發生錯誤，一個執行的可能結果如下（為簡化範例，並無設置停止條件，請直接Ctrl+C結束程式）：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);">51307: illegal name or id....<br>
+
+94812: illegal name or id....<br>
+
+140423: illegal name or id....<br>
+
+174257: illegal name or id....<br>
+
+214260: illegal name or id....<br>
+
+214260: illegal name or id....<br>
+
+259266: illegal name or id....<br>
+
+314738: illegal name or id....<br>
+
+350144: illegal name or id....<br>
+
+402701: illegal name or id....<br>
+
+444026: illegal name or id....<br>
+
+481165: illegal name or id....<br>
+
+....</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+      看到了嗎？如果以單執行緒的觀點來看，上面的訊息在測試中根本不可能出現，然而在這個程式中卻出現了錯誤，而且重點是，第一次錯誤是發生在第51307次的設定（您的電腦上可能是不同的數字），如果您在程式完成並開始應用之後，這個時間點可能是幾個月甚至幾年之後。<br>
+
+      <br>
+
+      問題出現哪？在於這邊：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">void user_set_name_id(User *user, GString *name, GString *id) {</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; user-&gt;name = name;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; user-&gt;id = id;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if(!user_check_name_id(user)) {</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g_print("%d: illegal name or id....\n", user-&gt;count);</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; user-&gt;count++;</span><br>
+
+      <span style="font-weight: bold;">}</span><br>
+
+      </div>
+
+      <br>
+
+      <br>
+
+      
+
+      雖然您設定給它的參數並沒有問題，在某個時間點時，thread1設定了"Justin Lin",
+"J.L."給name與id，在進行測試的前一刻，thread2可能此時剛好呼叫user_set_name_id()，在name被設定為"Shang Hwang"時，user_check_name_id()開始執行，此時name等於"Shang
+Hwang"，而id還是"J.L."，所以user_check_name_id()就會傳回FALSE，結果就顯示了錯誤訊息。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+您必須同步資料對物件的更新，也就是在有一個執行緒正在設定user物件的資料時，不可以又被另一個執行緒同時進行設定，您可以使用GMutex來進行這個動作，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>gmutex_demo.c</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;glib.h&gt;<br><br><span style="font-weight: bold;">GMutex *mutex = NULL;</span><br><br>struct _User {<br>    GString *name;<br>    GString *id;<br>    glong count;    <br>};<br>typedef struct _User User;<br><br>void user_set_name_id(User *user, GString *name, GString *id) {<br>    if(<span style="font-weight: bold;">g_mutex_trylock(mutex)</span>) {<br>        user-&gt;name = name;<br>        user-&gt;id = id;<br>        if(!user_check_name_id(user)) {<br>            g_print("%d: illegal name or id....\n", user-&gt;count);<br>        }<br>        user-&gt;count++;<br><span style="font-weight: bold;">        g_mutex_unlock(mutex);</span><br>    }<br>    else {<br>        g_usleep(1000);<br>    }<br>}<br><br>gboolean user_check_name_id(User *user) {    <br>    return user-&gt;name-&gt;str[0] == user-&gt;id-&gt;str[0];<br>}<br><br>gpointer thread1(gpointer user) {<br>    GString *name = g_string_new("Justin Lin");<br>    GString *id = g_string_new("J.L.");<br>    while(TRUE) {<br>        user_set_name_id(user, name, id);<br>    }<br>}<br><br>gpointer thread2(gpointer user) {<br>    GString *name = g_string_new("Shang Hwang");<br>    GString *id = g_string_new("S.H.");<br>    while(TRUE) {<br>        user_set_name_id(user, name, id);<br>    }<br>}<br><br>int main(int argc, char *argv[]) {<br>    GMainLoop *mloop;<br>    <br>    if(!g_thread_supported()) {<br>        g_thread_init(NULL);<br>    }<br>    <br>    User user;<br>    <br>    mloop = g_main_loop_new(NULL, FALSE);<br><br><span style="font-weight: bold;">    mutex = g_mutex_new();</span><br><br>    g_thread_create(thread1, &amp;user, FALSE, NULL);<br>    g_thread_create(thread2, &amp;user, FALSE, NULL);<br>    <br>    g_main_loop_run(mloop);<br>    <br>    return 0;<br>}</code></pre>
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;"></span></div>
+
+      <br>
+g_mutex_trylock()會嘗試鎖定GMutex，如果成功就傳回TRUE，並繼續執行程式碼，若此時有其它的執行
+緒也嘗試&#37980;定GMutex，則會傳回FALSE，並無法執行GMutex現已鎖定的程式碼範圍，在這個程式中，則是使用if-else，在無法鎖定時，先
+睡眠1毫秒後再嘗試。<br>
+
+      <br>
+
+      <br>
+
+ 
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

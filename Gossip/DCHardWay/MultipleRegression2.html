@@ -1,0 +1,212 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="接續〈多元線性迴歸（一）〉，來進一步探討 sklearn 的 LinearRegression 進階使用方式。既然 LinearRegression 可以用來求多元線性迴歸，那麼只有一個變數當然也行得...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="多元線性迴歸（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/MultipleRegression2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="接續〈多元線性迴歸（一）〉，來進一步探討 sklearn 的 LinearRegression 進階使用方式。既然 LinearRegression 可以用來求多元線性迴歸，那麼只有一個變數當然也行得...">
+
+    <title>多元線性迴歸（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MultipleRegression2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多元線性迴歸（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>接續〈<a href="MultipleRegression.html">多元線性迴歸（一）</a>〉，來進一步探討 sklearn 的 <code>LinearRegression</code> 進階使用方式。既然 <code>LinearRegression</code> 可以用來求多元線性迴歸，那麼只有一個變數當然也行得通，例如〈<a href="PolynomialRegression.html">多項式迴歸</a>〉中線性的範例，也可以改用 <code>LinearRegression</code>：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.linear_model import LinearRegression
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+linreg = LinearRegression()    # 負責線性迴歸
+# 擬合
+linreg = linreg.fit(
+    data_x.reshape((data_x.size, 1)),  # 符合 fit 要求的形狀
+    data_y
+) 
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+
+x = [0, 50]
+y = linreg.predict([[0], [50]])  # 符合 predict 要求的形狀
+plt.plot(x, y)
+
+plt.show()
+</code></pre>
+<p>基本上要注意的就是，符合 <code>LinearRegression</code> 的 API 要求，例如必須符合 <code>fit</code> 與 <code>predict</code> 接受的陣列形狀。</p>
+<p>雖說 <code>LinearRegression</code> 字面上是線性，不過結合 <code>sklearn.preprocessing.PolynomialFeatures</code> 的話，可以用來求非線性迴歸。</p>
+<p><code>PolynomialFeatures</code> 正如其名，將原本的特徵，基於多項式的階數轉換為另一組特徵，例如，對於一元函式來說，f<sub>Θ</sub>(x) = Θ<sub>0</sub> + Θ<sub>1</sub> * x，它的特徵是 (1, x)，對於 f<sub>Θ</sub>(x) = Θ<sub>0</sub> + Θ<sub>1</sub> * x + Θ<sub>2</sub> * x<sup>2</sup>，它的特徵會是 (1, x, x<sup>2</sup>)。</p>
+<p><code>PolynomialFeatures</code> 的階數預設為 2，可以借由 <code>degree</code> 指定，來看看實際計算特徵值的例子：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; from sklearn.preprocessing import PolynomialFeatures
+&gt;&gt;&gt; poly = PolynomialFeatures()
+&gt;&gt;&gt; poly.fit_transform([[1], [2], [3]])
+array([[1., 1., 1.],
+       [1., 2., 4.],
+       [1., 3., 9.]])
+&gt;&gt;&gt;
+</code></pre>
+<p>可以看到，當變數只有一個時，若變數值各為 1、2、3，可以透過 <code>fit_transform</code> 計算 (1, x, x<sup>2</sup>) 的 特徵值，<code>fit_transform</code> 會進行 <code>fit</code> 與 <code>transform</code>，<code>fit</code> 是計算特徵數量，<code>transform</code> 是將給定的變數值轉換為特徵值。</p>
+<p>對於某一組特徵值，例如 2 對應的 (1, 2, 4)，若 2 對應的值是 7，那麼 7 = Θ<sub>0</sub> + Θ<sub>1</sub> * 2 + Θ<sub>2</sub> * 4 就只是線性關係。</p>
+<p>也就是說，當你將資料來源中，橫軸值轉換為特徵值後，就可以用來求特徵值與縱軸值的線性迴歸。例如，將〈<a href="PolynomialRegression.html">多項式迴歸</a>〉中二次的範例，改使用 sklearn 來求：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+poly = PolynomialFeatures()     # 二次多項式
+feature = poly.fit_transform(data_x.reshape([data_x.size, 1])) # 特徵值
+linreg = LinearRegression()          # 線性迴歸
+linreg = linreg.fit(feature, data_y) # 擬合   
+
+x = np.linspace(0, 50, 50)
+y = linreg.predict(
+    # 記得是特徵值與縱軸的線性關係
+    poly.fit_transform(x.reshape((x.size, 1)))
+)
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+plt.plot(x, y)
+
+plt.show()
+</code></pre>
+<p>分別轉換特徵後進行擬合，看來蠻麻煩，明明就是依序操作罷了，你可以使用 <code>make_pipeline</code> 將之串起來：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+# 管線化
+poly_model = make_pipeline(PolynomialFeatures(), LinearRegression())
+poly_model.fit(data_x.reshape([data_x.size, 1]), data_y)
+
+x = np.linspace(0, 50, 50)
+y = poly_model.predict(x.reshape((x.size, 1)))
+
+plt.gca().set_aspect(1)
+plt.scatter(data_x, data_y)
+plt.plot(x, y)
+
+plt.show()
+</code></pre>
+<p>從另一個角度來看，上例的原特徵維度是一（也就是 x），被 <code>PolynomialFeatures</code> 轉換後的特徵維度為三（也就是 (1, x, x<sup>2</sup>)），轉換後的特徵值可以更好地被線性模型 <code>LinearRegression</code> 擬合，這種將特徵提高維度的作法，其實跟後續文件要談到的核方法（Kernel method）有關係。</p>
+<p>因為轉換後第一個維度總是 1，故且忽略第一個維度，用 (x, x<sup>2</sup>) 與 <code>data_y</code> 畫出來：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+img = cv2.imread('data.jpg', cv2.IMREAD_GRAYSCALE)
+idx = np.where(img &lt; 127)       # 黑點的索引
+
+data_x = idx[1]
+data_y = -idx[0] + img.shape[0] # 反轉 y 軸
+
+poly = PolynomialFeatures()     # 二次多項式
+feature = poly.fit_transform(data_x.reshape([data_x.size, 1])) # 特徵值
+linreg = LinearRegression()          # 線性迴歸
+linreg = linreg.fit(feature, data_y) # 擬合   
+
+derived_x = poly.fit_transform(data_x.reshape((data_x.size, 1)))
+
+ax = plt.axes(projection='3d')
+
+ax.scatter(data_x, data_y, np.zeros(len(data_x)))
+ax.scatter(derived_x[:,1], derived_x[:,2], data_y)
+
+plt.show()
+</code></pre>
+<p>這會呈現以下的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultipleRegression2-1.JPG" alt="多元線性迴歸（二）"  /></div></div></p>
+<p>試著旋轉來觀察一下，某個角度下，視覺上可以找到一個線性關係，這意謂著可以尋找一個超平面作為線性迴歸的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultipleRegression2-2.JPG" alt="多元線性迴歸（二）"  /></div></div></p>
+<p><code>PolynomialFeatures</code> 可以套用至多元多次，例如二元（兩個變數 x<sub>1</sub>、x<sub>2</sub>）二次的話，特徵值的計算會是 （1, x<sub>1</sub>, x<sub>2</sub>, x<sub>1</sub><sup>2</sup>, x<sub>1</sub> * x<sub>2</sub>, x<sub>2</sub><sup>2</sup>），如果給定一組變數值，也可以透過可以求得 <code>PolynomialFeatures</code> 對應的特徵值：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; from sklearn.preprocessing import PolynomialFeatures
+&gt;&gt;&gt; poly = PolynomialFeatures()
+&gt;&gt;&gt; poly.fit_transform([[1, 2], [3, 4], [5, 6]])
+array([[ 1.,  1.,  2.,  1.,  2.,  4.],
+       [ 1.,  3.,  4.,  9., 12., 16.],
+       [ 1.,  5.,  6., 25., 30., 36.]])
+&gt;&gt;&gt;
+</code></pre>
+<p>也就是說，高維度的多元迴歸應該也可以做到，只不過高維度的多元迴歸，事先應該很難觀察出趨勢吧！…XD</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,308 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈身為複合值的陣列〉中看過陣列，有的場合需要陣列，然而，若只想處理陣列中某片區域，或者以更高階的觀點看待一片資料（而不是從固定長度的陣列觀點），那麼可以使用 slice。
+建立一個 slice
+如果...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="底層為陣列的 slice">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/Slice.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈身為複合值的陣列〉中看過陣列，有的場合需要陣列，然而，若只想處理陣列中某片區域，或者以更高階的觀點看待一片資料（而不是從固定長度的陣列觀點），那麼可以使用 slice。
+建立一個 slice
+如果...">
+
+    <title>底層為陣列的 slice</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Slice.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>底層為陣列的 slice</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="http://openhome.cc/Gossip/Go/Array.html">身為複合值的陣列</a>〉中看過陣列，有的場合需要陣列，然而，若只想處理陣列中某片區域，或者以更高階的觀點看待一片資料（而不是從固定長度的陣列觀點），那麼可以使用 slice。</p>
+<h1>建立一個 slice</h1>
+<p>如果需要一個 slice，可以使用 <code>make</code> 函式，舉個例子來說，可以如下建立一個長度與容量皆為 5 的 slice，並傳回 <code>slice</code> 的參考，型態為 <code>[]int</code>：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    s1 := make([]int, 5)
+    s2 := s1
+    fmt.Println(s1) // [0 0 0 0 0]
+    fmt.Println(s2) // [0 0 0 0 0]
+    s1[0] = 1
+    fmt.Println(s1) // [1 0 0 0 0]
+    fmt.Println(s2) // [1 0 0 0 0]
+    s2[1] = 2
+    fmt.Println(s1) // [1 2 0 0 0]
+    fmt.Println(s2) // [1 2 0 0 0]
+}
+</code></pre>
+<p>如上所示，<code>s1</code>、<code>s2</code> 會是個參考（Reference），型態是 <code>[]int</code>，參考至同一個 slice 實例。</p>
+<p>透過 <code>s1</code> 或 <code>s2</code> 操作時，操作的對象是變數參考之實例，就底層來說，<code>make([]int, 5)</code> 在記憶體某位置建立了 slice 實例，而 <code>s1</code> 儲存了該位置，如果改變了 <code>s1</code> 儲存的位址值，那透過 <code>s1</code> 操作時，就會是另一個 slice 實例了。</p>
+<p>將變數的參考對象指定給另一個變數時，底層是將儲存的位址值指定給該變數，在上例中，<code>s2 := s1</code>，就是將 <code>s1</code> 儲存的位址值，指定給 <code>s2</code>，因此透過 <code>s2</code> 操作的對象，與 <code>s1</code> 操作的對象是相同的，透過其中一個名稱來改變 slice 的元素內容，透過另一個名稱取得 slice 的元素值，就會是改變後的值。</p>
+<p>上例也可以寫為：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    var s1 []int = make([]int, 5)
+    var s2 []int    // s2 這時是 nil
+    s2 = s1         // 將 s1 的參考對象指定給 s2
+    fmt.Println(s1) // [0 0 0 0 0]
+    fmt.Println(s2) // [0 0 0 0 0]
+    s1[0] = 1
+    fmt.Println(s1) // [1 0 0 0 0]
+    fmt.Println(s2) // [1 0 0 0 0]
+    s2[1] = 2
+    fmt.Println(s1) // [1 2 0 0 0]
+    fmt.Println(s2) // [1 2 0 0 0]
+}
+</code></pre>
+<p>在 Go 中，參考的預設零值都是 <code>nil</code>。slice 無法進行 <code>==</code> 比較，slice 唯一可以用 <code>==</code> 比較的對象是 <code>nil</code>，儲存 slice 參考的變數也無法進行 <code>==</code> 比較，若真想知道兩個變數參考的是否同一 slice，可以如下透過<a href="Reflect.html">反射機制</a>來得知：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "reflect"
+)
+
+func main() {
+    s1 := make([]int, 5)
+    s2 := s1
+    fmt.Println(reflect.ValueOf(s1).Pointer() == reflect.ValueOf(s2).Pointer())
+}
+</code></pre>
+<p>若事先知道 slice 的值，也可以使用 slice 字面常量：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "reflect"
+)
+
+func main() {
+    s1 := []int{1, 2, 3, 4, 5}
+    a1 := [...]int{1, 2, 3, 4, 5}
+    fmt.Println(reflect.TypeOf(s1)) // []int
+    fmt.Println(reflect.TypeOf(a1)) // [5]int
+}
+</code></pre>
+<p>注意到，建立 slice 時，方括號中是沒有 <code>...</code> 的，如果方括號中有 <code>...</code>，那會是個陣列，而不是個 slice，如上可看到的，<code>s1</code> 的型態會是 <code>[]int</code>，然而，<code>a1</code> 的型態會是 <code>[5]int</code>，<code>s1</code> 是個參考，可以指向某個 slice 實例，<code>s1</code> 本身儲存的位址值可以改變，而 <code>a1</code> 本身就是陣列，從 <code>a1</code> 的位置開始，有連續 5 個 <code>int</code> 空間可用來儲存 <code>int</code> 值，<code>a1</code> 本身的位置是固定的，無法改變。</p>
+<p>使用 slice 字面常量時，還可以初始特定索引處的值。例如：</p>
+<pre class="prettyprint"><code lang="golang">slice := []int{10, 20, 30, 10: 100, 20: 200}
+// 顯示 [10 20 30 0 0 0 0 0 0 0 100 0 0 0 0 0 0 0 0 0 200]
+fmt.Println(slice)
+</code></pre>
+<p>在上面的例子中，索引 0、1、2 被初始為 10、20、30，之後指定索引 10 為 100，索引 20 為 200，其餘未指定處初始為 <code>int</code> 零值 0。</p>
+<h1>從陣列或 slice 建立 slice</h1>
+<p>如果有個現成的陣列，可以從陣列中建立 slice，例如，從陣列的索引 1 到 4（不包括）建立一個 slice 的話，可以如下：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "reflect"
+)
+
+func main() {
+    arr := [...]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    slice := arr[1:4]
+    fmt.Println(reflect.TypeOf(arr))   // [10]int
+    fmt.Println(reflect.TypeOf(slice)) // []int
+    fmt.Println(len(slice))            // 3
+    fmt.Println(cap(slice))            // 9
+
+    fmt.Println(slice)   // [2 3 4]
+    fmt.Println(arr)     // [1 2 3 4 5 6 7 8 9 10]
+
+    slice[0] = 20
+    fmt.Println(slice)   // [20 3 4]
+    fmt.Println(arr)     // [1 20 3 4 5 6 7 8 9 10]
+}
+</code></pre>
+<p>在這邊可以看到，slice 的長度可以使用 <code>len</code> 得知，而容量可以使用 <code>cap</code> 函式得知，如果從陣列中切出 slice，長度是 slice 可參考的元素長度，而容量預設為從 slice 索引 0 處起算的底層陣列元素長度，如圖所示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Slice-1.JPG" alt="slice 與陣列"  /></div></div></p>
+<p>是的！slice 底層實際上還是個陣列，若兩個 slice 底層是共用同一個陣列，從一個 slice 操作，另一個 slice 取得的值也就會反映變化，也因此在上面的例子中，你透過 <code>slice[0]</code> 設定值為 20，底層的陣列也會因而反映出變化，透過 slice 指定索引取得元素值時，不能超出 slice 的長度，不然會出現 index out of range 的錯誤。</p>
+<p>注意，單是宣告 <code>var slice []int</code> 的話，<code>slice</code> 預設零值會是 <code>nil</code>，也就是相當於 <code>var slice []int = nil</code>，也就是 <code>slice</code> 參考至 <code>nil</code>，此時 <code>len(slice)</code> 與 <code>cap(slice)</code> 的結果都會是 0，<code>fmt.Println</code> 的顯示會是 []，<code>==</code> 用於 slice 時，唯一能用來比較的就是 <code>nil</code>。</p>
+<p>方才使用 <code>make([]int, 5)</code> 函式建立 slice 時，只指定了長度為 5，而容量就預設與長度相同，實際上，可以分別指定容量與長度，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    slice := make([]int, 5, 10)
+    fmt.Println(slice)       // [0 0 0 0 0]
+    fmt.Println(len(slice))  // 5
+    fmt.Println(cap(slice))  // 10
+}
+</code></pre>
+<p>指定索引從陣列中產生 slice時，若省略冒號之後的數字，則建立的 slice，預設可取得至陣列尾端的元素，也就是長度將等於容量，例如，若 <code>arr := [...]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}</code>，那麼 <code>arr[3:]</code> 的話，取得的 slice 可以存取的元素為 {4, 5, 6, 7, 8, 9, 10}，長度與容量皆為 7；如果省略冒號之前的數字，預設從索引 0 開始，例如 <code>arr[:2]</code> 會取得 {1, 2}，長度為 2，容量為 10；如果是 <code>arr[:]</code>，那麼就是取得全部陣列內容了，長度與容量皆為 10。</p>
+<p>Go 1.2 開始，可以在 <code>[]</code> 中指定三個數字，以冒號區隔，第三個數字指定的是 slice 以原陣列哪個索引作為邊界。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    arr := [...]int{1, 2, 3, 4, 5}
+    slice1 := arr[0:2:4]
+    fmt.Println(slice1)      // [1 2]
+    fmt.Println(len(slice1)) // 2
+    fmt.Println(cap(slice1)) // 4
+}
+</code></pre>
+<p>第三個數字指定的索引不能超過陣列邊界，不然會發生 invalid slice index 的錯誤。</p>
+<p>也可以從 slice 中產生 slice，產生的 slice 底層還是同一個陣列。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    arr := [...]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    slice1 := arr[:5]
+    slice2 := slice1[:3]
+
+    fmt.Println(slice1) // [1 2 3 4 5]
+    fmt.Println(slice2) // [1 2 3]
+
+    slice2[0] = 10
+    fmt.Println(slice1) // [10 2 3 4 5]
+    fmt.Println(slice2) // [10 2 3]
+    fmt.Println(arr)    // [10 2 3 4 5 6 7 8 9 10]
+}
+</code></pre>
+<h1>slice 的 append</h1>
+<p>可以使用 <code>append</code> 對 slice 附加元素，這會傳回一個 slice 的參考：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    arr := [...]int{1, 2, 3, 4, 5}
+    slice1 := arr[:2]
+    fmt.Println(slice1)      // [1 2]
+    fmt.Println(len(slice1)) // 2
+    fmt.Println(cap(slice1)) // 5
+
+    slice2 := append(slice1, 6)
+    fmt.Println(slice2)      // [1 2 6]
+    fmt.Println(len(slice2)) // 3
+    fmt.Println(cap(slice2)) // 5
+
+    slice2[0] = 10
+    fmt.Println(slice1) // [10 2]
+    fmt.Println(slice2) // [10 2 6]
+    fmt.Println(arr)    // [10 2 6 4 5]
+}
+</code></pre>
+<p>只要附加的元素沒有超出 slice 的容量，傳回的 slice 參考就會是相同的，底層也是同一陣列，因此，改變了 <code>slice2[0]</code> 的值，<code>slice1</code>、<code>arr</code> 取得結果都有了變化。</p>
+<p>如果 <code>append</code> 的時候，附加元素超出了 slice 的容量，那麼底層會建立一個新的陣列，容量為原 slice 容量的兩倍加 2，接著將舊陣列內容複製到新陣列，然後將指定的值附加上去，<code>append</code> 的結果也會傳回新的 slice 參考。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    arr := [...]int{1, 2, 3, 4, 5}
+    slice1 := arr[:]
+    fmt.Println(slice1)      // [1 2 3 4 5]
+    fmt.Println(len(slice1)) // 5
+    fmt.Println(cap(slice1)) // 5
+
+    slice2 := append(slice1, 6)
+    fmt.Println(slice2)      // [1 2 3 4 5 6]
+    fmt.Println(len(slice2)) // 6
+    fmt.Println(cap(slice2)) // 12
+
+    slice2[0] = 10
+    fmt.Println(slice1) // [1 2 3 4 5]
+    fmt.Println(slice2) // [10 2 3 4 5 6]
+    fmt.Println(arr)    // [1 2 3 4 5]
+}
+</code></pre>
+<p>在上面的例子中，由於 <code>slice2</code> 底層的陣列，與 <code>slice1</code> 無關了，因此，透過 <code>slice2[0]</code> 修改了值，並不會影響到透過 <code>slice1</code> 或 <code>arr</code> 取得的值。</p>
+<p>如果想用 <code>append</code> 來直接附加另一個 slice，可以使用 <code>...</code>，將另一個 slice 擴展為一列引數，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    slice1 := []int{1, 2, 3}
+    slice2 := []int{4, 5, 6}
+    fmt.Println(append(slice1, slice2...))  // [1 2 3 4 5 6]
+}
+</code></pre>
+<h1>slice 的 copy</h1>
+<p>可以使用 <code>copy</code> 函式，將一個 slice 的內容，複製至另一個 slice：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    src := []int{1, 2, 3, 4, 5}
+    dest := make([]int, len(src), (cap(src)+1)*2)
+    fmt.Println(copy(dest, src)) // 5
+    fmt.Println(src)             // [1 2 3 4 5]
+    fmt.Println(dest)            // [1 2 3 4 5]
+
+    src[0] = 10
+    fmt.Println(src)  // [10 2 3 4 5]
+    fmt.Println(dest) // [1 2 3 4 5]
+}
+</code></pre>
+<p>複製時，目的 slice 的容量必須足夠，否則會發生 cap out of range 的錯誤，<code>copy</code> 函式若執行成功，會傳回複製的元素個數。</p>
+<p>先前提到，可以從 slice 中產生 slice，然而，由於從 slice 中產生 slice，底層仍會是同一個陣列，因此，要小心一些應用場合，對於一個很大的陣列，若不斷地切出新的 slice，底層參考的陣列還是那麼大，想避免這類問題，應自行使用 <code>make</code> 建立適當大小的 slice，然後從舊 slice 使用 <code>copy</code> 複製元素值，或者使用 <code>append</code>，將舊 slice 的內容附加至新 slice，以避免這類問題。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

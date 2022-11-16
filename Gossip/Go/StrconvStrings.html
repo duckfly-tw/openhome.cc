@@ -1,0 +1,197 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Go 的字串基本上是個 []byte，在程式語言強弱型別的光譜中，Go 位於強型別的一端，對於字串與其他型態之間的轉換，往往得自行處理，在這方面，strconv 套件就提供了不少的函式。
+例如，最常用...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="strconv、strings 套件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/StrconvStrings.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Go 的字串基本上是個 []byte，在程式語言強弱型別的光譜中，Go 位於強型別的一端，對於字串與其他型態之間的轉換，往往得自行處理，在這方面，strconv 套件就提供了不少的函式。
+例如，最常用...">
+
+    <title>strconv、strings 套件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StrconvStrings.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>strconv、strings 套件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Go 的字串基本上是個 <code>[]byte</code>，在程式語言強弱型別的光譜中，Go 位於強型別的一端，對於字串與其他型態之間的轉換，往往得自行處理，在這方面，<a href="https://golang.org/pkg/strconv/"><code>strconv</code> 套件</a>就提供了不少的函式。</p>
+<p>例如，最常用的是將字串剖析為某個型態：</p>
+<pre class="prettyprint"><code lang="golang">func ParseBool(str string) (bool, error)
+func ParseFloat(s string, bitSize int) (float64, error)
+func ParseInt(s string, base int, bitSize int) (i int64, err error)
+func ParseUint(s string, base int, bitSize int) (uint64, error)
+</code></pre>
+<p>若是剖析失敗，傳回的錯誤會是 <code>*NumError</code>：</p>
+<pre class="prettyprint"><code lang="golang">type NumError struct {
+    Func string // 來源函式（ParseBool、ParseInt、ParseUint、ParseFloat）
+    Num  string // 輸入字串
+    Err  error  // 失敗的源由（ErrRange、ErrSyntax 等）
+}
+</code></pre>
+<p>如果要將其他型態附加至字串，可以使用 Append 名稱開頭的函式：</p>
+<pre class="prettyprint"><code lang="golang">func AppendBool(dst []byte, b bool) []byte
+func AppendFloat(dst []byte, f float64, fmt byte, prec, bitSize int) []byte
+func AppendInt(dst []byte, i int64, base int) []byte
+func AppendQuote(dst []byte, s string) []byte
+func AppendQuoteRune(dst []byte, r rune) []byte
+func AppendQuoteRuneToASCII(dst []byte, r rune) []byte
+func AppendQuoteRuneToGraphic(dst []byte, r rune) []byte
+func AppendQuoteToASCII(dst []byte, s string) []byte
+func AppendQuoteToGraphic(dst []byte, s string) []byte
+func AppendUint(dst []byte, i uint64, base int) []byte
+</code></pre>
+<p>以上的附加函式設計上接收 <code>[]byte</code>，Go 字串本質上是個 <code>[]byte</code>，呼叫這些函式時只要明確型態轉換就可以了，例如：</p>
+<pre class="prettyprint"><code lang="golang">b := []byte("bool:")
+b = strconv.AppendBool(b, true)
+fmt.Println(string(b))
+</code></pre>
+<p>對於大量的字串附加處理，可以使用 <a href="https://golang.org/pkg/strings/"><code>strings</code> 套件</a>的 <code>Builder</code>，一來操作上比較方便，二來可看看是否可取得較好的效能表現：</p>
+<pre class="prettyprint"><code lang="golang">type Builder
+    func (b *Builder) Cap() int
+    func (b *Builder) Grow(n int)
+    func (b *Builder) Len() int
+    func (b *Builder) Reset()
+    func (b *Builder) String() string
+    func (b *Builder) Write(p []byte) (int, error)
+    func (b *Builder) WriteByte(c byte) error
+    func (b *Builder) WriteRune(r rune) (int, error)
+    func (b *Builder) WriteString(s string) (int, error)
+</code></pre>
+<p>例如，來個簡單的評測：</p>
+<pre class="prettyprint"><code lang="golang">package mypackage
+
+import (
+    "testing"
+    "strings"
+)
+
+func plusAppend() string {
+    c := ""
+    for i := 0; i &lt; 100000; i++ {
+        c += "test"
+    }
+    return c
+}
+
+func buliderAppend() string {
+    var b strings.Builder
+    for i := 0; i &lt; 100000; i++ {
+        b.WriteString("test")
+    }
+    return b.String()
+}
+
+func BenchmarkPlusAppend(b *testing.B) {
+    for i := 0; i &lt; b.N; i++ {
+        plusAppend()
+    }
+}
+
+func BenchmarkBuilderAppend(b *testing.B) {
+    for i := 0; i &lt; b.N; i++ {
+        buliderAppend()
+    }
+}
+</code></pre>
+<p>看一下效能上是否有差異：</p>
+<pre class="prettyprint"><code lang="golang">C:\workspace\go-exercise&gt;go test -bench="." mypackage
+goos: windows
+goarch: amd64
+pkg: mypackage
+BenchmarkPlusAppend-4                  1        4162865000 ns/op
+BenchmarkBuilderAppend-4            1946            655490 ns/op
+PASS
+ok      mypackage       6.614s
+</code></pre>
+<p>如果想將字串當成是個 <code>io.Reader</code> 來源，可以使用 <code>strings.Reader</code>：</p>
+<pre class="prettyprint"><code lang="golang">type Reader
+    func NewReader(s string) *Reader
+    func (r *Reader) Len() int
+    func (r *Reader) Read(b []byte) (n int, err error)
+    func (r *Reader) ReadAt(b []byte, off int64) (n int, err error)
+    func (r *Reader) ReadByte() (byte, error)
+    func (r *Reader) ReadRune() (ch rune, size int, err error)
+    func (r *Reader) Reset(s string)
+    func (r *Reader) Seek(offset int64, whence int) (int64, error)
+    func (r *Reader) Size() int64
+    func (r *Reader) UnreadByte() error
+    func (r *Reader) UnreadRune() error
+    func (r *Reader) WriteTo(w io.Writer) (n int64, err error)
+</code></pre>
+<p><code>strings</code> 還有個 <code>Replacer</code>，用於一對一的字串取代：</p>
+<pre class="prettyprint"><code lang="golang">type Replacer
+    func NewReplacer(oldnew ...string) *Replacer
+    func (r *Replacer) Replace(s string) string
+    func (r *Replacer) WriteString(w io.Writer, s string) (n int, err error)
+</code></pre>
+<p>什麼是一對一的取代呢？看看官方文件中提到的範例就知道了：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func main() {
+    r := strings.NewReplacer("&lt;", "&amp;lt;", "&gt;", "&amp;gt;")
+    fmt.Println(r.Replace("This is &lt;b&gt;HTML&lt;/b&gt;!"))
+}
+</code></pre>
+<p>其他對於字串的比較、分割、大小寫轉換等處理，<code>strings</code> 中提供了一系列的函式，<a href="https://golang.org/pkg/strings/"><code>strings</code> 套件</a>的文件中都有程式碼示範。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

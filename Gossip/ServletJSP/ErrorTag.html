@@ -1,0 +1,97 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈簡介 EL〉中曾使用一個簡單的加法網頁來示範。在該範例中使用了 errorPage="error.jsp" 設定當錯誤發生時，轉發至 error.jsp 顯示錯誤，若使用者輸入的並非數字時，EL ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="錯誤處理標籤">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/ErrorTag.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈簡介 EL〉中曾使用一個簡單的加法網頁來示範。在該範例中使用了 errorPage="error.jsp" 設定當錯誤發生時，轉發至 error.jsp 顯示錯誤，若使用者輸入的並非數字時，EL ...">
+
+    <title>錯誤處理標籤</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ErrorTag.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>錯誤處理標籤</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ELABC.html">簡介 EL</a>〉中曾使用一個簡單的加法網頁來示範。在該範例中使用了 <code>errorPage="error.jsp"</code> 設定當錯誤發生時，轉發至 error.jsp 顯示錯誤，若使用者輸入的並非數字時，EL 無法進行剖析為基本型態進行加法時，就會發生錯誤，而轉發 error.jsp。</p>
+<p>如果你不想在錯誤發生時，轉發其它網頁來顯示錯誤訊息，而打算在目前網頁捕捉例外，並顯示相關訊息，那該如何進行？</p>
+<p>這個問題的答案似乎很簡單，撰寫 Scriptlet，在當中使用 Java 的 try-catch 語法捕捉例外就可以解決這個需求。不過可以的話實在不希望再出現 Scriptlet，那該怎麼辦？</p>
+<p>你可以使用 JSTL 的 <code>&lt;c:catch&gt;</code> 標籤：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;加法網頁&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;c:catch var="error"&gt;
+            ${param.a} + ${param.b} = ${param.a + param.b}
+        &lt;/c:catch&gt;
+        &lt;c:if test="${error != null}"&gt;
+            &lt;br&gt;&lt;span style="color: red;"&gt;${error.message}&lt;/span&gt;
+            &lt;br&gt;${error}
+        &lt;/c:if&gt;
+    &lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>如果要在發生例外的網頁直接捕捉例外物件，可以使用 <code>&lt;c:catch&gt;</code> 將可能產生例外的網頁段落包起來。若例外真的發生，這個例外物件會設定給 <code>var</code> 屬性所指定的名稱，這樣才有機會使用這個例外物件。</p>
+<p>例如範例中，使用了 <code>&lt;c:if&gt;</code> 標籤測試 <code>error</code> 是否參考至例外物件，如果是的話，由於例外都是 <code>Throwable</code> 的子類別，都擁有 <code>getMessage()</code> 方法，因此才能透過 <code>${error.message}</code> 的方式取得例外相關訊息。</p>
+<p>注意！只有設定 <code>isErrorPage="true"</code> 的JSP網頁才會有 <code>exception</code> 隱含物件，代表錯誤發生的來源網頁所傳進來的 <code>Throwable</code> 物件，所以不可以在上面的範例中，直接使用 <code>exception</code> 隱含物件。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

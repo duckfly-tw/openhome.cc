@@ -1,0 +1,187 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Java/'https://openhome.cc/zh-tw/java/functional-api/stream/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在 Stream 的 reduce 與 collect 中提到 ... Collector的accumulator()之作用，在使用具有平行處理能力的Stream時...嗯？這表示Stream有辦法進...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Stream 與平行化">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Java/ParallelStream.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在 Stream 的 reduce 與 collect 中提到 ... Collector的accumulator()之作用，在使用具有平行處理能力的Stream時...嗯？這表示Stream有辦法進...">
+
+
+    <title>Stream 與平行化</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ParallelStream.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Stream 與平行化</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>在 <a href="Reduction.html"><code>Stream</code> 的 <code>reduce</code> 與 <code>collect</code></a> 中提到 ... <code>Collector</code>的<code>accumulator()</code>之作用，在使用具有平行處理能力的<code>Stream</code>時...嗯？這表示Stream有辦法進行平行處理？是的，這也是JDK8引入Lambda新特性主要目的之一，想要獲得平行處理能力在JDK8中可以說很簡單，例如這段程式碼：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Person&gt; males = persons.stream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(person -&gt; person.getGender() == Person.Gender.MALE)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);</code></p>
+      <p>只要改成以下，就可能擁有平行處理之能力：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Person&gt; males = persons.<strong>parallelStream()</strong><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(person -&gt; person.getGender() == Person.Gender.MALE)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);</code></p>
+      <p><code>Collection</code>的<code>parallelStream()</code>方法，傳回的<code>Stream</code>實例在實作時，會在可能的情況下進行平行處理，JDK8希望你想要進行平行處理時，必須有明確的語義，這也是為什麼會有<code>stream()</code>與<code>parallelStream()</code>兩個方法，前者代表循序（Serial）處理，後者代表平行處理，想要知道<code>Stream</code>是否為平行處理，可以呼叫<code>isParallel()</code>來得知。</p>
+      <h5>天下沒有白吃的午餐 － 留意順序</h5>
+      <p>使用了<code>parallelStream()</code>，不代表一定會平行處理而使得執行必然變快，要呼叫哪個方法，必須思考你的處理過程是否能夠分而治之（Divide and conquer）而後合併結果，在這個例子中，<code>filter()</code>與<code>collect()</code>方法基本上都有可能。</p>
+      <p>類似地，<code>Collectors</code>有<code>groupingBy()</code>與<code>groupingByConcurrent()</code>兩個方法，前者代表循序處理，後者代表平行處理，是否呼叫後者，同樣你得思考處理過程是否能夠分而治之而後合併結果，如果可能，方能從中獲益。例如原先有段程式：</p>
+      <p style="margin-left: 40px;"><code>Map&lt;Person.Gender, List&lt;Person&gt;&gt; males = persons.stream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; groupingBy(Person::getGender));</code></p>
+      <p>想要在可能的情況下進行平行處理，可以改為：</p>
+      <p style="margin-left: 40px;"><code>Map&lt;Person.Gender, List&lt;Person&gt;&gt; males = persons.<strong>parallelStream()</strong><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>groupingByConcurrent</strong>(Person::getGender));</code></p>
+      <p><code>Stream</code>實例若具有平行處理能力，處理過程會分而治之，也就是將任務切割為小任務，這表示每個小任務都是一個管線化操作，因此像以下的程式片段：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          numbers.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .forEach(out::println);</code></p>
+      <p>你得到的顯示順序不會是1、2、3、4、5、6、7、8、9，而可能是任意的順序，就<code>forEach()</code>這個終結操作來說，如果於平行處理時，希望最後順序是照著原來<code>Stream</code>來源的順序，那可以呼叫<code>forEachOrdered()</code>。例如：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          numbers.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .forEachOrdered(out::println);<br>
+        </code></p>
+      <p>在管線化操作時，如果<code>forEachOrdered()</code>中間有其他如<code>filter()</code>的中介操作，會試著平行化處理，然後最終<code>forEachOrdered()</code>會以來源順序處理，因此，使用<code>forEachOrdered()</code>這類的有序的處理時，可能會（或完全失去）失去平行化的一些優勢，實際上中介操作亦有可能如此，例如<code>sorted()</code>方法。</p>
+      <p>使用<code>Stream</code>的<code>reduce()</code>與<code>collect()</code>時，平行處理時也得留意一下順序，API文件上基本上會記載終結操作時是否依來源順序，<code>reduce()</code>基本上是按照來源順序，而<code>collect()</code>得視給予的<code>Collector</code>而定，在以下兩個例子，<code>collect()</code>都是依照來源順序處理：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Person&gt; males = persons.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(person -&gt; person.getGender() == Person.Gender.MALE)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);</code></p>
+      <p style="margin-left: 40px;"><code>List&lt;Person&gt; males = persons.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(person -&gt; person.getGender() == Person.Gender.MALE)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());</code></p>
+      <p>在<code>collect()</code>操作時若想要有平行效果，必須符合以下三個條件：</p>
+      <ul>
+        <li><code>Stream</code>必須有平行處理能力</li>
+        <li>傳入的<code>Collector</code>必須有<code>Collector.Characteristics.CONCURRENT</code>特性。</li>
+        <li><code>Stream</code>是無序的或者是<code>Collector</code>具有<code>Collector.Characteristics.UNORDERED</code>特性。</li>
+      </ul>
+      <p>想要知道<code>Collector</code>具有<code>Collector.Characteristics.UNORDERED</code>或<code>Collector.Characteristics.UNORDERED</code>，可以呼叫<code>Collector</code>的<code>characteristics()</code>方法，平行處理的<code>Stream</code>基本上是無序的，如果不放心，可以呼叫<code>Stream的unordered()</code>方法。</p>
+      <p><code>Colllector</code>具有<code>CONCURRENT</code>與<code>UNORDERED</code>特性的例子之一是<code>Collectors</code>的<code>groupingByConcurrent()</code>方法傳回的實例，因此在最後順序不重要時，使用<code>groupingByConcurrent()</code>來取代<code>groupingBy()</code>方法，對效能上會有所幫助。</p>
+      <h5>天下沒有白吃的午餐 － 不要干擾來源</h5>
+      <p>想要善用JDK8提供的平行處理能力，你的資料處理過程必須能夠分而治之，而後將每個小任務的結果加以合併，這表示當API在處理小任務時，你不應該進行干預，例如：</p>
+      <p style="margin-left: 40px;"><code>numbers.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(number -&gt; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; numbers.add(7);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return number &gt; 5;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .forEachOrdered(out::println);</code></p>
+      <p>無論是基於哪種理由，像這類對來源資料的干擾都令人困惑，實際上無論是否進行平行處理，這樣的程式都會引發<code>ConcurrentModifiedException</code>。</p>
+      <h5>天下沒有白吃的午餐 － 一次做一件事</h5>
+      <p>JDK8提供高階語義的管線化API、在可能的情況下實現惰性、平行處理能力，目的之一是希望你思考處理的過程中，實際上是由哪些小任務組成，在過去，你可能基於（自我想像的）效能增進考量，在迴圈中做了很多件事，因而讓程式變得複雜，現在使用了高階API，就要避免走回頭路。例如，過去你在寫<code>for</code>迴圈時，可能會順便做些動作，像是過濾元素做顯示的同時，將元素作個運算並收集在另一個清單中：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          List&lt;Integer&gt; alsoLt = new ArrayList&lt;&gt;();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          for(Integer number : numbers) {<br>
+          &nbsp;&nbsp;&nbsp; if(number &gt; 5) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alsoLt.add(number + 10);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; out.println(number);<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }</code></p>
+      <p>在JDK8中使用高階API時，記得一次只做一件事：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          <br>
+          List&lt;Integer&gt; biggerThan5 = numbers.stream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(number -&gt; number &gt; 5)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          biggerThan5.forEach(out::println);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          List&lt;Integer&gt; alsoLt = biggerThan5.stream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(number -&gt; number + 10)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());</code></p>
+      <p>避免寫出以下的程式：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          List&lt;Integer&gt; alsoLt = new ArrayList&lt;&gt;();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          numbers.stream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(number -&gt; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boolean isBiggerThan5 = number &gt; 5;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(isBiggerThan5) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alsoLt.add(number + 10);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return isBiggerThan5;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .forEach(out::println);</code></p>
+      <p>這樣的程式不僅不易理解，如果你試圖進行平行化處理時：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          List&lt;Integer&gt; alsoLt = new ArrayList&lt;&gt;();</code></p>
+      <p style="margin-left: 40px;"><code>numbers.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(number -&gt; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boolean isBiggerThan5 = number &gt; 5;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(isBiggerThan5) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alsoLt.add(number + 10);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return isBiggerThan5;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .forEachOrdered(out::println);<br>
+        </code></p>
+      <p>就會發現，<code>alsoLt</code>的順序並不照著<code>numbers</code>的順序，然而上頭一次處理一個任務的版本，可以簡單地改為平行化版本：</p>
+      <p style="margin-left: 40px;"><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);<br>
+          <br>
+          List&lt;Integer&gt; biggerThan5 = numbers.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .filter(number -&gt; number &gt; 5)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          biggerThan5.forEach(out::println);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+          List&lt;Integer&gt; alsoLt = biggerThan5.parallelStream()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(number -&gt; number + 10)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());</code></p>
+      <br>
+      <br>
+      <br>
+      <p> </p>
+      <br>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

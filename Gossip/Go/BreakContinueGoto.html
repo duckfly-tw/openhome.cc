@@ -1,0 +1,186 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="break 可以離開目前 switch、for 以及 select（之後介紹）；continue 只用於 for 迴圈，略過之後陳述句，並回到迴圈開頭進行下一次迴圈，而不是離開迴圈。goto 可以在函...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="break、continue、goto">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/BreakContinueGoto.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="break 可以離開目前 switch、for 以及 select（之後介紹）；continue 只用於 for 迴圈，略過之後陳述句，並回到迴圈開頭進行下一次迴圈，而不是離開迴圈。goto 可以在函...">
+
+    <title>break、continue、goto</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BreakContinueGoto.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>break、continue、goto</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p><code>break</code> 可以離開目前 <code>switch</code>、<code>for</code> 以及 <code>select</code>（之後介紹）；<code>continue</code> 只用於 <code>for</code> 迴圈，略過之後陳述句，並回到迴圈開頭進行下一次迴圈，而不是離開迴圈。<code>goto</code> 可以在函式中，讓流程直接跳至指定標籤；實際上，<code>break</code>、<code>continue</code> 在迴圈中，也可以搭配標籤來使用。</p>
+<h1>break</h1>
+<p>在〈<a href="http://openhome.cc/Gossip/Go/IfSElsewitch.html">if &hellip; else、switch 條件式</a>〉中說明過，<code>switch</code> 的 <code>case</code> 中不必特別使用 <code>break</code>，因為 <code>switch</code> 中預設不會 <code>fallthrough</code>，但 <code>case</code> 中若必要，還是可以使用 <code>break</code>，中斷 <code>break</code> 之後與下個 <code>case</code> 前的流程。</p>
+<p><code>break</code> 使用於 <code>for</code> 迴圈時，會結束迴圈，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    for i := 1; i &lt; 10; i++ {
+        if i == 5 {
+            break
+        }
+        fmt.Printf("i = %d\n", i)
+    }
+}
+</code></pre>
+<p>這段程式會顯示 i = 1 到 i = 4，因為在 i 等於 5 時就會執行 <code>break</code> 而離開 <code>for</code> 迴圈。</p>
+<p><code>break</code> 可以配合標籤使用，例如本來 <code>break</code> 只會離開一層 <code>for</code> 迴圈，若設定標籤，並於 <code>break</code> 時指定標籤，就可以直接離開多層 <code>for</code> 迴圈：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+
+BACK:
+    for j := 1; j &lt; 10; j++ {
+        for i := 1; i &lt; 10; i++ {
+            if i == 5 {
+                break BACK
+            }
+            fmt.Printf("i = %d, j = %d\n", i, j)
+        }
+        fmt.Println("test")
+    }
+}
+</code></pre>
+<p>你可以執行看看上面的範例，之後將 <code>BACK:</code> 與 <code>BACK</code> 拿掉看看，前者 <code>break BACK</code> 時會離開兩層 <code>for</code> 迴圈，後者只會離開內層 <code>for</code> 迴圈。</p>
+<h1>continue</h1>
+<p><code>continue</code> 只用於 <code>for</code> 迴圈，略過之後陳述句，並回到迴圈開頭進行下一次迴圈，例如將先前第一個範例程式的 <code>break</code> 改成 <code>continue</code>：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    for i := 1; i &lt; 10; i++ {
+        if i == 5 {
+            continue
+        }
+        fmt.Printf("i = %d\n", i)
+    }
+}
+</code></pre>
+<p>這段程式會顯示 i = 1 到 4，以及 6 到 9，當 <code>i</code> 等於 5 時，會執行 <code>continue</code> 直接略過之後陳述句，也就是該次的 <code>fmt.Printf()</code> 該行並沒有被執行，直接從 <code>for</code> 開頭執行下一次迴圈，所以 i = 5 沒有被顯示。</p>
+<p><code>continue</code> 也有搭配標籤的用法：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+BACK:
+    for j := 1; j &lt; 10; j++ {
+        for i := 1; i &lt; 10; i++ {
+            if i == 5 {
+                continue BACK
+            }
+            fmt.Printf("i = %d, j = %d\n", i, j)
+        }
+        fmt.Println("test")
+    }
+}
+</code></pre>
+<h1>goto</h1>
+<p>在 C/C++ 中，<code>goto</code> 是一個很方便，但是常不建議使用的語法，因為濫用它的話，經常會破壞程式的架構、使得程式的邏輯混亂，然而，在 Go 中，亦有提供有 <code>goto</code> 語法。</p>
+<p>相對於 <code>break</code> 與 <code>continue</code> 跳躍時，只能前往 <code>for</code> 迴圈開頭處設定的標籤，<code>goto</code> 可以在函式中，從某區塊內跳躍至區塊外任何位置，一個簡單的例子如下：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    var input int
+
+RETRY:
+    fmt.Printf("輸入數字")
+    fmt.Scanf("%d", &amp;input)
+
+    if input == 0 {
+        fmt.Println("除數不得為 0")
+        goto RETRY
+    }
+    fmt.Printf("100 / %d = %f\n", input, 100/float32(input))
+}
+</code></pre>
+<p>如果你輸入 0，程式會顯示錯誤訊息後跳至 <code>RETRY:</code>，再執行一次提示與輸入。</p>
+<p>注意，<code>goto</code> 可以在函式中，從某區塊內跳躍至區塊外任何位置，但不能從某區塊跳入另一區塊內，例如，以下是錯誤的，會發生 goto TEST jumps into block 的錯誤：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    var input int
+
+RETRY:
+    fmt.Printf("輸入數字")
+    fmt.Scanf("%d", &amp;input)
+
+    if input == 0 {
+    TEST:
+        fmt.Println("除數不得為 0")
+        goto RETRY
+    }
+    fmt.Printf("100 / %d = %f\n", input, 100/float32(input))
+    goto TEST
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

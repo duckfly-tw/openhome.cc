@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈基本 2D 操作〉中，談到如何透過 circle、rect 等來建立 2D 幾何資訊，如果需要更複雜的 2D 幾何資訊呢？在談到怎麼做之前，得先來認識一下 CadQuery 採">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="CadQuery::認識 BREP" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/basics/brep/" />
+    <meta property="og:description" content="在〈基本 2D 操作〉中，談到如何透過 circle、rect 等來建立 2D 幾何資訊，如果需要更複雜的 2D 幾何資訊呢？在談到怎麼做之前，得先來認識一下 CadQuery 採" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="CadQuery::認識 BREP" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/basics/brep/" />
+    <meta name="twitter:description" content="在〈基本 2D 操作〉中，談到如何透過 circle、rect 等來建立 2D 幾何資訊，如果需要更複雜的 2D 幾何資訊呢？在談到怎麼做之前，得先來認識一下 CadQuery 採" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443674" type="image/x-icon">
+    <title> CadQuery  :: 認識 BREP</title>
+    <link href="../../../css/nucleus.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443674.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443674.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443674"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/cadquery/basics/brep/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/cadquery/" title="CadQuery" class="dd-item parent"><a href="../../index.html">CadQuery</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/" title="CadQuery 入門" class="dd-item parent"><a href="../index.html">| CadQuery 入門</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/hello/" title="Hello, CadQuery" class="dd-item"><a href="../hello/index.html">Hello, CadQuery</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/conda/" title="使用 conda 安裝" class="dd-item"><a href="../conda/index.html">使用 conda 安裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/workplane/" title="Workplane 入門" class="dd-item"><a href="../workplane/index.html">Workplane 入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/boolop/" title="實體布林操作" class="dd-item"><a href="../boolop/index.html">實體布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/2dop/" title="基本 2D 操作" class="dd-item"><a href="../2dop/index.html">基本 2D 操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/brep/" title="認識 BREP" class="dd-item active"><a href="index.html">認識 BREP</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/stksel/" title="堆疊與選擇器" class="dd-item"><a href="../stksel/index.html">堆疊與選擇器</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/" title="使用 Workplane" class="dd-item"><a href="../../workplane/index.html">| 使用 Workplane</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/workplane/holecut/" title="挖洞與切除" class="dd-item"><a href="../../workplane/holecut/index.html">挖洞與切除</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/shell/" title="殼的建立" class="dd-item"><a href="../../workplane/shell/index.html">殼的建立</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/sweeploft/" title="sweep 與 loft" class="dd-item"><a href="../../workplane/sweeploft/index.html">sweep 與 loft</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/arc/" title="圓弧" class="dd-item"><a href="../../workplane/arc/index.html">圓弧</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/curvesurface/" title="曲線與曲面" class="dd-item"><a href="../../workplane/curvesurface/index.html">曲線與曲面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/mirror/" title="鏡像" class="dd-item"><a href="../../workplane/mirror/index.html">鏡像</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/filletchamfer/" title="fillet 與 chamfer" class="dd-item"><a href="../../workplane/filletchamfer/index.html">fillet 與 chamfer</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/" title="CadQuery 類別" class="dd-item"><a href="../../classes/index.html">| CadQuery 類別</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/classes/brep/" title="操作 BREP 實例" class="dd-item"><a href="../../classes/brep/index.html">操作 BREP 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/polyhedron/" title="實作 polyhedron" class="dd-item"><a href="../../classes/polyhedron/index.html">實作 polyhedron</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/surface/" title="建立網格面" class="dd-item"><a href="../../classes/surface/index.html">建立網格面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/face/" title="Face 布林操作" class="dd-item"><a href="../../classes/face/index.html">Face 布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/text/" title="文字的處理" class="dd-item"><a href="../../classes/text/index.html">文字的處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/extending/" title="擴充 Workplane" class="dd-item"><a href="../../classes/extending/index.html">擴充 Workplane</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/" title="結合 SciPy" class="dd-item"><a href="../../scipy/index.html">| 結合 SciPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/scipy/hull/" title="建立 Convex hull" class="dd-item"><a href="../../scipy/hull/index.html">建立 Convex hull</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/polyline/" title="hull 折線" class="dd-item"><a href="../../scipy/polyline/index.html">hull 折線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/voronoi/" title="Voronoi 2D/3D" class="dd-item"><a href="../../scipy/voronoi/index.html">Voronoi 2D/3D</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/delaunay/" title="Delaunay 三角分割" class="dd-item"><a href="../../scipy/delaunay/index.html">Delaunay 三角分割</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/" title="基於 NumPy" class="dd-item"><a href="../../numpy/index.html">| 基於 NumPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/numpy/matrix/" title="實作轉換矩陣" class="dd-item"><a href="../../numpy/matrix/index.html">實作轉換矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/turtle/" title="3D 海龜繪圖" class="dd-item"><a href="../../numpy/turtle/index.html">3D 海龜繪圖</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/perlin/" title="Perlin 雜訊" class="dd-item"><a href="../../numpy/perlin/index.html">Perlin 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/sweep/" title="多面體版本 sweep" class="dd-item"><a href="../../numpy/sweep/index.html">多面體版本 sweep</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/" title="cqMore plugin" class="dd-item"><a href="../../cqmore/index.html">| cqMore plugin</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/hello/" title="Hello, cqMore" class="dd-item"><a href="../../cqmore/hello/index.html">Hello, cqMore</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/dice/" title="柏拉圖多面骰" class="dd-item"><a href="../../cqmore/dice/index.html">柏拉圖多面骰</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/mobiusband/" title="莫比烏斯帶" class="dd-item"><a href="../../cqmore/mobiusband/index.html">莫比烏斯帶</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/torusknot/" title="環面扭結" class="dd-item"><a href="../../cqmore/torusknot/index.html">環面扭結</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/tree/" title="3D 碎形樹" class="dd-item"><a href="../../cqmore/tree/index.html">3D 碎形樹</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">CadQuery</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">CadQuery 入門</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">認識 BREP</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#brep-術語">BREP 術語</a></li>
+    <li><a href="index.html#brep-與-cadquery-api">BREP 與 CadQuery API</a></li>
+    <li><a href="index.html#多邊形函式">多邊形函式</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/brep/">BREP</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/csg/">CSG</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/polygon/">polygon</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>認識 BREP</h1>
+
+ <i class="space fa fa-calendar"> November 25, 2021</i> 
+<p>在〈<a href="../2dop/index.html">基本 2D 操作</a>〉中，談到如何透過 <code>circle</code>、<code>rect</code> 等來建立 2D 幾何資訊，如果需要更複雜的 2D 幾何資訊呢？在談到怎麼做之前，得先來認識一下 CadQuery 採用的幾個幾何術語與觀念。</p>
+<h2 id="brep-術語">BREP 術語</h2>
+<p>在 CadQuery 的官方文件〈<a href="https://cadquery.readthedocs.io/en/latest/primer.html#d-brep-topology-concepts">3D BREP Topology Concepts</a>〉談到，CadQuery 是以 OpenCascade 作為核心，而 OpenCascade 採用 BREP（Boundary Representation）來表示實體模型，也就是以點、線、面等作為基礎，其相互間的關係來描述模型。</p>
+
+<div class="notices info">
+    <div class="label"></div><p>相對地，<a href="../../../openscad/index.html">OpenSCAD</a> 主要是採用 CSG（Constructive Solid Geometry）來表示實體模型，也就是一個實體模型，可以表示為立方體、圓柱體、球點等基本物體布林操作後的結果，這讓 OpenSCAD 相對而言，初期進入的門檻很低，只不過 OpenSCAD 偏 Functional programming 典範，後期要做複雜模型時，相對就比較不容易了。</p>
+
+</div>
+<p>CadQuery 對 OpenCascade 作了封裝，然而使用 CadQuery 時，若能掌握幾個 BREP 的觀念，在使用上就會很有彈性：</p>
+<ul>
+<li>頂點（vertex）：空間中的一個點。</li>
+<li>邊（edge）：頂點間的連結。</li>
+<li>線（wire）：一組依序相連的邊，通常是包圍著一個面。</li>
+<li>面（face）：線圍成的區域。</li>
+<li>殼（shell）：彼此連結的一組面。</li>
+<li>實體（solid）：可以將一個空間封閉起來的殼。</li>
+<li>複合體（compound）：一組不連續的實體組合。</li>
+</ul>
+<h2 id="brep-與-cadquery-api">BREP 與 CadQuery API</h2>
+<p>來透過畫正方形並擠出為立方體，瞭解一下以上的觀念，正方形的四個頂點是 (1, 1)、(-1, 1)、(-1, -1) 與 (1, -1)，先移到第一個頂點：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p><code>Workplane</code> 會在內部儲存頂點資訊，接著畫一條線到 (-1, 1)：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>現在兩個頂點構成了一個邊，<code>Workplane</code> 會使用 <code>Edge</code> 型態儲存邊的資訊，來繼續畫線：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>		)
+</span></span></code></pre></div><p>這會構成了三個獨立的邊，若要將這三個邊組成一個線，可以使用 <code>wire</code> 方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>wire()
+</span></span><span style="display:flex;"><span>		)
+</span></span></code></pre></div><p><code>Workplane</code> 會使用 <code>Wire</code> 內部型態儲存線的資訊，你可以使用 <code>extrude</code> 來擠出 <code>Wire</code>，這會構成一個 3D 實體，不過就以上的例子來說，擠出後會看到破面。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>wire()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>extrude(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>		)
+</span></span></code></pre></div><p><code>extrude</code> 會透過 <code>Wire</code> 的資訊來計算出必要的面，然而不會檢查這些面構成的殼是否能封閉一個空間，3D 模型的破面就是，無法封閉一個空間的殼：</p>
+<p><img src="images/brep-1.jpg" alt="認識 BREP"></p>
+<p>就以上的程式而言，是因為你只有三個邊，這並沒有圍成一個封閉路徑，你可以明確地再增加一個邊連回 (1, 1)，以構成封閉路徑：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)   <span style="color:#75715e"># 明確地再增加一個邊</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>wire()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>extrude(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>		)
+</span></span></code></pre></div><p>或者呼叫 <code>close()</code>，表示就目前給予的頂點順序構成封閉路徑，這會自動將最後一個頂點連回第一個頂點：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>moveTo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>lineTo(<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>close()        <span style="color:#75715e"># 封閉路徑</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>wire()
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">.</span>extrude(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>		)
+</span></span></code></pre></div><p>這樣擠出後就不會有破面了：</p>
+<p><img src="images/brep-2.jpg" alt="認識 BREP"></p>
+<h2 id="多邊形函式">多邊形函式</h2>
+<p>如果你事先已經有一組頂點資訊了，更簡單的方式是透過 <code>polyline</code> 來建立邊，例如，來寫個 <code>polygon</code> 函式，可以生成多邊形：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">polygon</span>(points):
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>polyline(points)<span style="color:#f92672">.</span>close()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 建立正方形並擠出</span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> polygon([(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), (<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), (<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>), (<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)])<span style="color:#f92672">.</span>extrude(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>在〈<a href="../2dop/index.html">基本 2D 操作</a>〉中談到的 <code>circle</code>、<code>rect</code> 等，會建立封閉路徑的 <code>Wire</code>，可以直接進行擠出，這邊特別要提及的是，世界上其實沒有完全的圓，<code>circle</code> 建立的圓是虛擬的，輸出為 STL 的話，可以看出是正多邊形，若沒有調整 <code>exporters.export</code> 的 <code>tolerance</code> 或 <code>angularTolerance</code> 的話，預設應該是 96 個邊左右，這在一般人的眼睛就覺得是個完美的圓了：</p>
+<p><img src="images/brep-3.jpg" alt="認識 BREP"></p>
+<p>對於一些模型，有時也不用使用到 96 邊的正多邊形作為圓，這時就會想要能自行調整邊數的圓：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> math <span style="color:#f92672">import</span> cos, sin, radians
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">polygon</span>(points):
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>polyline(points)<span style="color:#f92672">.</span>close()
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">circle</span>(r, fn):
+</span></span><span style="display:flex;"><span>	a_step <span style="color:#f92672">=</span> radians(<span style="color:#ae81ff">360</span> <span style="color:#f92672">/</span> fn)
+</span></span><span style="display:flex;"><span>	points <span style="color:#f92672">=</span> [(r <span style="color:#f92672">*</span> cos(a_step <span style="color:#f92672">*</span> i), r <span style="color:#f92672">*</span> sin(a_step <span style="color:#f92672">*</span> i)) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(fn)]
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> polygon(points)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>plate <span style="color:#f92672">=</span> circle(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">12</span>)<span style="color:#f92672">.</span>extrude(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>執行後的結果如下：</p>
+<p><img src="images/brep-4.jpg" alt="認識 BREP"></p>
+<p>實際上，<code>Workplane</code> 本身就有個 <code>polygon</code> 方法，只不過目前只用來建立正多邊形，而這邊自行定義的 <code>polygon</code> 函式，可以用點指定任意的形狀。</p>
+<p>CadQuery 還有一些高階的 2D 操作方法，有些會構成邊，有些會將邊組成線，API 文件中，基本上都會說明，只要掌握以下的觀念，搭配 API 文件，就能彈性地建立各種 2D 幾何資訊。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/cadquery/basics/brep/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/cadquery/basics/brep/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=CadQuery%3a%3a%e8%aa%8d%e8%ad%98%20BREP&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fcadquery%2fbasics%2fbrep%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../2dop/index.html" title="基本 2D 操作"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../stksel/index.html" title="堆疊與選擇器"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443674"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443674"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443674"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443674"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443674"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443674"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443674"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443674"></script>
+  </body>
+</html>

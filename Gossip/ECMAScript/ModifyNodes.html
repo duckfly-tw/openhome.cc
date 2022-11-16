@@ -1,0 +1,151 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/dom/modification/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="瀏覽器剖析完 HTML 後，建立的 DOM 元素會組成樹狀結構，瀏覽器上呈現的畫面，就是根據 DOM 樹繪製出來，只要改變 DOM 樹，瀏覽器就會根據改變後的 DOM 樹重繪畫面，而這就構成動態修改文...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="修改文件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/ModifyNodes.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="瀏覽器剖析完 HTML 後，建立的 DOM 元素會組成樹狀結構，瀏覽器上呈現的畫面，就是根據 DOM 樹繪製出來，只要改變 DOM 樹，瀏覽器就會根據改變後的 DOM 樹重繪畫面，而這就構成動態修改文...">
+
+    <title>修改文件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ModifyNodes.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>修改文件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>瀏覽器剖析完 HTML 後，建立的 DOM 元素會組成樹狀結構，瀏覽器上呈現的畫面，就是根據 DOM 樹繪製出來，只要改變 DOM 樹，瀏覽器就會根據改變後的 DOM 樹重繪畫面，而這就構成動態修改文件的基本原理。</p>
+<p>底下這個範例示範如何動態新增與刪除圖片：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;input id="src" type="text"&gt;&lt;button id="add"&gt;新增圖片&lt;/button&gt;
+    &lt;div id="images"&gt;&lt;/div&gt;
+
+&lt;script type="text/javascript"&gt;
+    document.getElementById('add').onclick = function() {
+      let img = document.createElement('img');
+
+      img.src = document.getElementById('src').value;
+      img.onclick = function() {
+          document.getElementById('images').removeChild(this);
+      };
+
+      document.getElementById('images').appendChild(img);
+    };
+
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/nutuqer">按我看執行結果</a>。</p>
+<p>在原本的 HTML 中，並沒有任何的 <code>&lt;img&gt;</code> 元素，當在文字方塊中輸入圖片的網址並按下按鈕時，會使用 <code>document</code> 的 <code>createElement</code> 來動態建立元素，此時這個元素並沒有繫結至 DOM 樹，所以還不會出現在畫面上。</p>
+<p>接著你設定建立的圖片元素 <code>src</code> 為輸入的網址，並註冊按下圖片時，使用 <code>removeChild</code> 將圖片本身（<code>this</code>）從 <code>id</code> 為 <code>images</code> 的 <code>&lt;div&gt;</code> 中移除。</p>
+<p>最後，將這個動態建立的圖片元素使用 <code>appendChild</code> 附加至 <code>id</code> 為 <code>images</code> 的 <code>&lt;div&gt;</code> 元素成為其子元素，此時瀏覽器根據 DOM 樹結構重繪畫面。</p>
+<p>當使用 JavaScript 動態改變 DOM 樹時，在瀏覽器的檢視網頁原始碼中，是看不到動態調整後的 HTML（那是一開始載入的靜態 HTML），你要使用瀏覽器中的開發者工具，才能看到動態的 DOM 畫面。例如 Chrome 的「開發人員工具」：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifyNodes-1.jpg" alt="修改文件"  /></div></div></p>
+<p>每個節點都只能有一個父節點，如果直接取得 DOM 樹中既有的節點，並使用 <code>appendChild</code> 將之附加至另一個節點，則表示節點會從原有的父節點脫離，再附加至另一節點。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;  
+    容器一：
+    &lt;div id="container1"&gt;
+        &lt;img id="image" src="https://openhome.cc/Gossip/images/caterpillar_small.jpg"/&gt;
+    &lt;/div&gt;&lt;br&gt;
+    容器二：
+    &lt;div id="container2"&gt;&lt;/div&gt;  
+
+&lt;script type="text/javascript"&gt;
+    document.getElementById('image').onclick = function() {
+        let container1 = document.getElementById('container1');
+        let container2 = document.getElementById('container2');
+        if(this.parentNode === container1) {
+            container2.appendChild(this);
+        }
+        else {
+            container1.appendChild(this);
+        }
+    };
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/nogoza">按我看執行結果</a>。</p>
+<p>在這個例子中，點選圖片，會將圖片來回附加於兩個 <code>&lt;div&gt;</code> 之間，由於一個節點只能有一個父節點，所以 <code>appendChild</code> 的動作，會使被附加的節點從原父節點脫離。</p>
+<p><code>createElement</code> 是用來建立標籤對應的元素，如果要建立文字節點，必須使用 <code>createTextNode</code>，如果要動態建立屬性，則使用 <code>createAttribute</code>（少用）。</p>
+<p>例如，若有個 <code>&lt;div id="console"&gt;&lt;/div&gt;</code>，想要在其中附加文字，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">let text = document.createTextNode('your text ....');
+document.getElementById('console').appendChild(text);
+</code></pre>
+<p>也可以使用 <code>insertBefore</code>、<code>replaceChild</code> 等方法來調整 DOM 樹上的節點，各種方法的說明可以參考〈<a href="http://www.w3schools.com/jsref/default.asp">JavaScript and HTML DOM Reference</a>〉。</p>
+<p>要注意的是，只要你將節點附加至 DOM，瀏覽器就會重繪畫面，若有大量的節點要建立，每次建立就附加至 DOM 樹，則會有效能的問題。建議在背景準備好節點樹片段，等樹片段準備好，再將樹片段的根節點繫結至 DOM 樹，如此會有比較好的效能。</p>
+<p>除了自行建立片段之外，也可以使用 <code>createDocumentFragment</code> 來建立 <code>DocumentFragment</code>，利用它在背景作樹片段組織，再一次將 <code>DocumentFragment</code> 附加至 DOM 樹。</p>
+<p>DOM 元素有個非標準的 <code>innerHTML</code> 特性，你可以用之取得標籤中內含的 HTML，也可以指定字串給 <code>innerHTML</code>，瀏覽器會剖析這個字串，並建立對應的 DOM 元素安插至元素中，過去它不是標準特性，但幾乎每個瀏覽器都支援，而 HTML 5 已將 <code>innerHTML</code> 納入標準。</p>
+<p>例如，要在上面提及的 <code>&lt;div&gt;</code> 中建立 <code>&lt;b&gt;哈囉&lt;/b&gt;</code>，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">document.getElementById('console').innerHTML = '&lt;b&gt;哈囉&lt;/b&gt;';
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

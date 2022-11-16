@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="數學會使用集合建構式符號來描述集合（Set），像是有 10 個元素的 5 倍數集合可以表示為 {5 * x | x ∈ N, x ≤ 10}，這也稱為 Set Comprehensi">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::Comprehension 表示" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/abstraction/comprehension/" />
+    <meta property="og:description" content="數學會使用集合建構式符號來描述集合（Set），像是有 10 個元素的 5 倍數集合可以表示為 {5 * x | x ∈ N, x ≤ 10}，這也稱為 Set Comprehensi" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::Comprehension 表示" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/abstraction/comprehension/" />
+    <meta name="twitter:description" content="數學會使用集合建構式符號來描述集合（Set），像是有 10 個元素的 5 倍數集合可以表示為 {5 * x | x ∈ N, x ≤ 10}，這也稱為 Set Comprehensi" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443678" type="image/x-icon">
+    <title> Haskell  :: Comprehension 表示</title>
+    <link href="../../../css/nucleus.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443678.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443678"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/abstraction/comprehension/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item parent"><a href="../index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item active"><a href="index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item"><a href="../../advanced-typeclass/index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../../advanced-typeclass/functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../../advanced-typeclass/applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../../advanced-typeclass/monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../../advanced-typeclass/do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../../advanced-typeclass/composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">流程抽象</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Comprehension 表示</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#map-與-filter">map 與 filter</a></li>
+    <li><a href="index.html#更多-list-comprehension">更多 List Comprehension</a></li>
+    <li><a href="index.html#命令式宣告式">命令式？宣告式？</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/pattern/index.html">pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/comprehension/">comprehension</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Comprehension 表示</h1>
+
+ <i class="space fa fa-calendar"> February 2, 2022</i> 
+<p>數學會使用<a href="http://zh.wikipedia.org/wiki/%E9%9B%86%E5%90%88%E5%BB%BA%E6%A7%8B%E5%BC%8F%E7%AC%A6%E8%99%9F">集合建構式符號</a>來描述集合（Set），像是有 10 個元素的 5 倍數集合可以表示為 {5 * x | x ∈ N, x ≤ 10}，這也稱為 Set Comprehension。</p>
+<p>如果有個需求是產生一個 list，其中的元素就是 {5 * x | x ∈ N, x ≤ 10}，根據〈<a href="../lazy-evaluation/index.html">惰性求值</a>〉的說明，可以使用 <code>take 10 $ [5, 10 ..]</code>，這就會建立 <code>[5,10,15,20,25,30,35,40,45,50]</code>，不過，若寫成 <code>[5 * x | x &lt;- [1 .. 10]]</code>，也能得到相同的結果，寫法與 Set Comprehension 類似，一看就懂，因為產生的結果是個 list，因而稱為 List Comprehension。</p>
+<p>就如從 Set Comprehension 可一眼就看出集合定義，某些 Haskell 程式碼可以改寫為 List Comprehension，讓程式的意圖更明顯，就像方才將 <code>take 10 $ [5, 10 ..]</code> 改為 <code>[5 * x | x &lt;- [1 .. 10]]</code> 那樣。</p>
+<h2 id="map-與-filter">map 與 filter</h2>
+<p>List Comprehension 能做到 <code>map</code> 函式的功能，例如 <code>map (+ 3) [1, 2, 3, 4, 5]</code>，也可以使用 <code>[x + 3 | x &lt;- [1, 2, 3, 4, 5]]</code>，也能使用 List Comprehension 來實作 <code>map'</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> mapper lt <span style="color:#f92672">=</span> [mapper elem <span style="color:#f92672">|</span> elem <span style="color:#f92672">&lt;-</span> lt]
+</span></span></code></pre></div><p>如果 List Comprehension 加上條件式，可以達到單純過濾元素的功能，例如 <code>filter (&gt; 3) [1, 2, 3, 4, 5]</code>，也可以使用 <code>[x | x &lt;- [1, 2, 3, 4, 5], x &gt; 3]</code> 來得到，也能使用 List Comprehension 來實作 <code>filter'</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">filter&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">filter&#39;</span> predicate lt <span style="color:#f92672">=</span> [elem <span style="color:#f92672">|</span> elem <span style="color:#f92672">&lt;-</span> lt, predicate elem]
+</span></span></code></pre></div><p>就簡單的對應與過濾來說，使用 <code>[x + 3 | x &lt;- [1, 2, 3, 4, 5]]</code> 與 <code>[x | x &lt;- [1, 2, 3, 4, 5], x &gt; 3]</code>，不見得比 <code>map (+ 3) [1, 2, 3, 4, 5]</code> 與 <code>filter (&gt; 3) [1, 2, 3, 4, 5]</code> 來得清楚，不過，如果是 <code>map (+ 3) $ filter (&gt; 3) [1, 2, 3, 4, 5]</code> 與 <code>[x + 3 | x &lt;- [1, 2, 3, 4, 5], x &gt; 3]</code> 相比，那後者倒是就清楚許多。</p>
+<h2 id="更多-list-comprehension">更多 List Comprehension</h2>
+<p>來看看更多 List Comprehension 的語法，如果在取得 List 中的元素時，實際上不需要元素值，那麼 <code>&lt;-</code> 左邊可以使用 <code>_</code>，例如，<code>[1 | x &lt;- [1, 2, 3, 4, 5]]</code>，可以寫成 <code>[1 | _ &lt;- [1, 2, 3, 4, 5]]</code>，嗯？這是什麼？例如，來用 List Comprehension 寫個 <code>leng</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">leng</span> <span style="color:#f92672">::</span> [a] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">leng</span> lt <span style="color:#f92672">=</span> sum [<span style="color:#ae81ff">1</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">_</span> <span style="color:#f92672">&lt;-</span> lt]
+</span></span></code></pre></div><p>每取得一個元素就計數 <code>1</code>，最後加總就是 list 的長度，如果要取得三邊長不大於 <code>10</code> 的直角三角形呢？三角不等式定義是兩邊之和大於第三邊，而直角三角型是兩邊的平方和等於斜邊平方。如果你要用 <code>filter</code>、<code>map</code> 兜出這個需求可不容易，如果用 List Comprehension，三邊長不大於 <code>10</code>，可以使用三個 <code>[1..10]</code> 列舉，若以其中一個 <code>[1..10]</code> 作為最長邊，依三角不等式定義，使用 List Comprehension 可以寫成：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>[[a, b, c] <span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>], b <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>], c <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>],
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">&lt;=</span> b, b <span style="color:#f92672">&lt;=</span> c]
+</span></span></code></pre></div><p>List Comprehension 可以列舉多個 list，只要以 <code>,</code> 做區隔，接下來加上直角三角型定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>[[a, b, c] <span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>], b <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>], c <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>],
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">&lt;=</span> b, b <span style="color:#f92672">&lt;=</span> c, 
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">^</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">+</span> b <span style="color:#f92672">^</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> c <span style="color:#f92672">^</span> <span style="color:#ae81ff">2</span>]
+</span></span></code></pre></div><p>最後得到 <code>[[3,4,5],[6,8,10]]</code> 的結果，只要寫下問題定義，Haskell 就會為你求解。</p>
+<h2 id="命令式宣告式">命令式？宣告式？</h2>
+<p>只要寫下問題定義，Haskell 就會為你求解，這樣的風格就是<strong>宣告式（Declarative）</strong>，這是函數式程式設計與命令式（Imperative）程式設計不同之處，在宣告式的設計中，你著重的是 WHAT，而不是 HOW，就像上面求直角三角形的例子，你著重的是「直角三角形是什麼？」，而不是「如何找出直角三角形」，如果是命令式求解，例如 Java 的話，會像是這樣：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var tris <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;();</span>
+</span></span><span style="display:flex;"><span>range<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 11<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>a <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    range<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 11<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>b <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        range<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 11<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>c <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>a <span style="color:#f92672">&lt;=</span> b <span style="color:#f92672">&amp;&amp;</span> b <span style="color:#f92672">&lt;=</span> c <span style="color:#f92672">&amp;&amp;</span> a <span style="color:#f92672">*</span> a <span style="color:#f92672">+</span> b <span style="color:#f92672">*</span> b <span style="color:#f92672">==</span> c <span style="color:#f92672">*</span> c<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                tris<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>asList<span style="color:#f92672">(</span>a<span style="color:#f92672">,</span> b<span style="color:#f92672">,</span> c<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">});</span>
+</span></span></code></pre></div><p>程式碼變成著重在 <code>List</code> 要如何建立，儘管已經使用了 Lambda 相關功能，程式碼仍不見得好懂。</p>
+<p>來舉另一個例子，〈<a href="../../../algorithm/numbers/narcissistic/index.html">阿姆斯壯數</a>〉，其定義為在 <code>n</code> 位的整數中，加總每個數字的 <code>n</code> 次方後等於該整數，例如 <code>153</code> 是個阿姆斯壯數，因為 <code>13 + 53 + 33 = 153</code>。</p>
+<p>如果你的需求是，找出 <code>3</code> 位數的阿姆斯壯數有哪些，那你要定義（宣告）「什麼」是 <code>3</code> 位數的阿姆斯壯數，也就是「在 <code>3</code> 位的整數中，加總每個數字的 <code>3</code> 次方後等於該整數」。</p>
+<p>在〈<a href="../../../algorithm/numbers/narcissistic/index.html">阿姆斯壯數</a>〉，已經示範了一種定義方式，其中需要將 <code>n</code> 位整數分解為各數字，再判斷加總每個數字的 <code>n</code> 次方後等於該整數，這邊可以換另一個方向，首先定義 <code>3</code> 位的整數：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>[x <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> z<span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], y <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], z <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>]]
+</span></span></code></pre></div><p>接下來，加入加總每個數字的 <code>3</code> 次方後等於該整數的定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>[x <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> z<span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], y <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], z <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], 
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> z <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">==</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> z]
+</span></span></code></pre></div><p>List Comprehension 中可以使用 <code>let</code>，例如，可以令 <code>x * 100 + y * 10 + z</code> 為 <code>number</code>，這樣就不用重複計算這個算式了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>[number<span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], y <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], z <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">9</span>], 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> number <span style="color:#f92672">=</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> z, 
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> y <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> z <span style="color:#f92672">^</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">==</span> number]
+</span></span></code></pre></div><p>跟命令式比較一下，例如 Java 的實作，哪個比較清楚呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var numbers <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;();</span>
+</span></span><span style="display:flex;"><span>range<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 10<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>x <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    range<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 10<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>y <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        range<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 10<span style="color:#f92672">).</span><span style="color:#a6e22e">forEach</span><span style="color:#f92672">(</span>z <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            var number <span style="color:#f92672">=</span> x <span style="color:#f92672">*</span> 100 <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> 10 <span style="color:#f92672">+</span> z<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>x <span style="color:#f92672">*</span> x <span style="color:#f92672">*</span> x <span style="color:#f92672">+</span> y <span style="color:#f92672">*</span> y <span style="color:#f92672">*</span> y <span style="color:#f92672">+</span> z <span style="color:#f92672">*</span> z <span style="color:#f92672">*</span> z <span style="color:#f92672">==</span> number<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                numbers<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>number<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">});</span>
+</span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/abstraction/comprehension/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/abstraction/comprehension/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3aComprehension%20%e8%a1%a8%e7%a4%ba&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fabstraction%2fcomprehension%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../lazy-evaluation/index.html" title="惰性求值"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../pattern-matching-guard/index.html" title="模式比對／Guard 運算"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443678"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443678"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443678"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443678"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443678"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443678"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443678"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443678"></script>
+  </body>
+</html>

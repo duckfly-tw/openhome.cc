@@ -1,0 +1,305 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="當
+客戶端要使用Session
+Bean，而客戶端位於容器以外的JVM時，則必須定義其服務介面為遠端介面，即使用@Remote標示，容器會在部署之後，在Bytecode上加入繼
+承java.rm...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="@Remote 與 @Local">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/RemoteLocal.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="當
+客戶端要使用Session
+Bean，而客戶端位於容器以外的JVM時，則必須定義其服務介面為遠端介面，即使用@Remote標示，容器會在部署之後，在Bytecode上加入繼
+承java.rm...">
+
+
+    <title>@Remote 與 @Local</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RemoteLocal.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>@Remote 與 @Local</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            當
+客戶端要使用Session
+Bean，而客戶端位於容器以外的JVM時，則必須定義其服務介面為遠端介面，即使用@Remote標示，容器會在部署之後，在Bytecode上加入繼
+承java.rmi.Remote的動作，你也可以直接自行繼承java.rmi.Remote，例如：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">@Remote</span><br>
+
+
+      <span style="font-weight: bold;">public interface HelloBean extends java.rmi.Remote {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br>
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+不在程式上直接撰寫繼承java.rmi.Remote的好處之一，是不需要撰寫丟出java.rmi.RemoteException，由於實際上
+Bean的取得會是透過RMI機制，因此你的方法呼叫若有參數或傳回值，它們都必須實作java.io.Serializable介面。<br>
+
+
+      <br>
+
+
+由於@Remote底層會使用RMI，所以會有RMI呼叫的負擔，若可以的話，應避免使用@Remote而使用@Local，當客戶端使用Session
+Bean，而客戶端與Session Bean是位於同一個容器（同一個JVM）時，則可以標示Session Bean為@Local。<br>
+
+
+      <br>
+
+
+一個Session Bean的服務介面不能同時是遠端及本地介面，也就是不能同時標示為@Remote及@Local，即以下是不允許的：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">@Local<br>
+
+
+      </span><span style="font-weight: bold;">@Remote</span><br>
+
+
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;">public interface HelloBean {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br>
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+若要讓一個Session Bean實作同時是遠端及本地，則你要分別定義遠端介面及本地介面，例如：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">@Local</span><span style="font-weight: bold;"></span><br>
+
+
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;">public interface HelloBeanLocal {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; String doHello(String message);<br>
+
+
+&nbsp; &nbsp; ....<br>
+
+
+      </span><span style="font-weight: bold;">}</span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;">@Remote</span><span style="font-weight: bold;"></span><br>
+
+
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;">public interface HelloBeanRemote {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; String doHello(String message);</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br>
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+然後讓Session Bean同時實作這兩個介面，例如：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">@Stateless(name="ejb/HelloFacade")</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">public class HelloBeanImpl implements <span style="color: rgb(255, 0, 0);">HelloBeanLocal, HelloBeanRemote</span> {</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; public String doHello(String message) {</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return message + "processed....";</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+本地介面取用時可以使用HelloBeanLocal介面，例如：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">@EJB</span><br>
+
+
+      <span style="font-weight: bold;">private <span style="color: rgb(255, 0, 0);">HelloBeanLocal</span> hello;</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+而遠端介面取用時可以使用HelloBeanRemote介面：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">InitialContext context = new InitialContext();<br>
+
+
+      Object obj = context.lookup("onlyfun.caterpillar.<span style="color: rgb(255, 0, 0);">HelloBeanRemote</span>");<br>
+
+
+      <span style="color: rgb(255, 0, 0);">HelloBeanRemote</span> hello = (HelloBeanRemote) <br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PortableRemoteObject.narrow(obj, <span style="color: rgb(255, 0, 0);">HelloBeanRemote.class</span>);<br>
+
+
+      </div>
+
+
+      <br>
+您也可以在定義介面時，不使用@Local、@Remote，例如：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;">public interface HelloBeanLocal {</span><br>
+      <span style="font-weight: bold;">&nbsp; &nbsp; String doHello(String message);</span><br>
+      <span style="font-weight: bold;">
+
+&nbsp; &nbsp; ....</span><br>
+      <span style="font-weight: bold;">
+
+      </span><span style="font-weight: bold;">}</span><br>
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
+      <span style="font-weight: bold;"></span><span style="font-weight: bold;">public interface HelloBeanRemote {</span><br>
+      <span style="font-weight: bold;">&nbsp; &nbsp; String doHello(String message);</span><br>
+      <span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <br>
+而在實作Session Bean時再加以指定@Local、@Remote：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">@Local({HelloBeanLocal.class})<br>
+      </span><span style="font-weight: bold;">@Remote({HelloBeanRemote.class})</span><br>
+      <span style="font-weight: bold;">@Stateless(name="ejb/HelloFacade")</span><br>
+      <span style="font-weight: bold;">public class HelloBeanImpl implements HelloBean {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public String doHello(String message) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return message + "processed....";</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

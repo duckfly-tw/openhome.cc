@@ -1,0 +1,170 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Qt
+將事件封裝為QEvent實例之後，會呼叫QObject的event()方法並將QEvent實例傳送給它，在某些情況下，您希望物件在執行event
+()處理事件之前，先對一些事件進行處理或過濾...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="事件過濾器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/EventFilter.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Qt
+將事件封裝為QEvent實例之後，會呼叫QObject的event()方法並將QEvent實例傳送給它，在某些情況下，您希望物件在執行event
+()處理事件之前，先對一些事件進行處理或過濾...">
+
+
+    <title>事件過濾器</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="EventFilter.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>事件過濾器</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             Qt
+將事件封裝為QEvent實例之後，會呼叫QObject的event()方法並將QEvent實例傳送給它，在某些情況下，您希望物件在執行event
+()處理事件之前，先對一些事件進行處理或過濾，然後再決定是否呼叫event()方法，這個時
+候您就可以使用事件過濾器。<br>
+
+      <br>
+
+以 <a href="IsAccepted.html">事件接
+受與否、event() 方法</a>
+中所談及的，對QWidget按鍵事件的Tab鍵處理而言，如果您的圖形介面中有很多的元件，每個圖型元件都要如當中的範例重新定義event()方法，
+顯然是非常沒有效率且沒什麼維護性的方法。<br>
+
+      <br>
+
+您可以自定義一個物件繼承QObject（或其子類別），重新定義它的eventFilter()方法，例如您自定義了一個FilterObject，您
+希望Tab鍵可以用來將焦點轉移至下一個子元件：<br>
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">bool
+FilterObject::eventFilter(QObject *object, QEvent *event) {</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;if(</span><span style="font-weight: bold;"></span><span style="font-weight: bold;">event-&gt;type() ==
+QEvent::KeyPress) {</span><br>
+
+      <span style="font-weight: bold;">&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;QKeyEvent *keyEvent =
+static_cast&lt;QKeyEvent *&gt;(event);</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if
+(keyEvent-&gt;key() == Qt::Key_Tab) {</span><br>
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; // 處理Tab鍵</span><br>
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return true;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;}</span><span style="font-weight: bold;"><br>
+
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;}</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;return
+false;</span><br>
+
+      <span style="font-weight: bold;">} </span><br>
+
+      </div>
+
+      <span><br>
+
+      eventFilter()的object參數表示事件發生的來源物件，eventFilter()</span><span>若傳回false，則安裝該事件過濾器的物件之event()就會
+繼續執行，</span><span>若
+傳回true，則安裝該事件過濾器的物件之event()方法就不會被執行，由此進行事件的攔截處理。<br>
+
+      <br>
+
+      要為指定的物件安裝事件過濾器，可以使用物件的installEventFilter()方法，例如：<br>
+
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">QLineEdit *nameEdit = new </span></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QLineEdit;</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QLineEdit *addressEdit = new
+QLineEdit;</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">...</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"><br>
+
+FilterObject filter = new FilterObject;<br>
+
+...<br>
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">nameEdit-&gt;installEventFilter(filter);</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">addressEdit-&gt;installEventFilter(filter);</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">....</span><br>
+
+      </div>
+
+      <span> <br>
+
+      您也可以將事件過濾器安裝在QApplication，在任何的事件發生後呼叫每個物件的event()方法之
+前，會先經過事件過濾器，這給您更多控制應用程式事件的能力。<br>
+
+      <br>
+
+      </span><span>Qt
+的事件迴圈與sendEvent()方法會呼叫QCoreApplication（QApplication的父類別）的notify()以分派事件，</span><span>如果您想要完全控制Qt應用程式的事件，則可以重新定義
+notify()方法</span><span>。</span><span><br>
+
+      <br>
+
+到這邊，可以看出Qt事件處理的五個層次：重新定義事件處理者、重新定義event()方法、為個別物件安裝事件過濾器、為QApplication安裝
+事件過濾器，重新定義QCoreApplication的notify()方法。<br>
+
+       <br>
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

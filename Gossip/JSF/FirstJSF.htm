@@ -1,0 +1,249 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="先看看應用程式開發人員要作些什麼事，我們撰寫一個簡單的JavaBean：
+
+
+
+
+
+
+      
+      
+
+        UserBean.java
+
+      ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="第一個 JSF 程式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JSF/FirstJSF.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="先看看應用程式開發人員要作些什麼事，我們撰寫一個簡單的JavaBean：
+
+
+
+
+
+
+      
+      
+
+        UserBean.java
+
+      ...">
+
+
+    <title>第一個 JSF 程式</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstJSF.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/JSF/">回 JSF 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>第一個 JSF 程式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+先看看應用程式開發人員要作些什麼事，我們撰寫一個簡單的JavaBean：<br>
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>UserBean.java</li>
+
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public class UserBean {<br>    private String name;<br>   <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>   <br>    public String getName() {<br>        return name;<br>    }<br>}</code></pre>
+
+
+      <span><br>
+
+      
+這個Bean將儲存使用者的名稱，編譯好之後放置在/WEB-INF/classes下。<br>
+
+      <br>
+
+
+接下來設計頁面流程，我們將先顯示一個登入網頁/pages/index.jsp，使用者填入名稱並送出表單，之後在 /pages/welcome.jsp中顯示Bean中的使用者名稱與歡迎訊息。<br>
+
+      <br>
+
+
+為了讓JSF知道我們所設計的Bean以及頁面流程，我們定義一個/WEB-INF/faces-config.xml：
+
+      <br>
+
+
+      </span>
+      
+      <ul>
+
+        <li> faces-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0"?&gt;<br>&lt;!DOCTYPE faces-config PUBLIC<br> "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"<br> "http://java.sun.com/dtd/web-facesconfig_1_0.dtd"&gt;<br><br>&lt;faces-config&gt;<br>    &lt;navigation-rule&gt;<br>        &lt;from-view-id&gt;/pages/index.jsp&lt;/from-view-id&gt;<br>        &lt;navigation-case&gt;<br>            &lt;from-outcome&gt;login&lt;/from-outcome&gt;<br>            &lt;to-view-id&gt;/pages/welcome.jsp&lt;/to-view-id&gt;<br>        &lt;/navigation-case&gt;<br>    &lt;/navigation-rule&gt;<br>       <br>    &lt;managed-bean&gt;<br>        &lt;managed-bean-name&gt;user&lt;/managed-bean-name&gt;<br>         &lt;managed-bean-class&gt;<br>             onlyfun.caterpillar.UserBean<br>         &lt;/managed-bean-class&gt;<br>        &lt;managed-bean-scope&gt;session&lt;/managed-bean-scope&gt;<br>    &lt;/managed-bean&gt;<br>&lt;/faces-config&gt;</code></pre>
+
+
+      <span><br>
+
+      
+在&lt;navigation-rule&gt;中，我們定義了頁面流程，當請求來自&lt;from-view-
+id&gt;中指定的頁面，並且指定了&lt;navigation-case&gt;中的&lt;from-outcome&gt;為login時，則
+會將請求導向至&lt;to-view-id&gt;所指定的頁面。<br>
+
+      <br>
+
+
+在&lt;managed-bean&gt;中我們可以統一管理我們的Bean，我們設定Bean物件的存活範圍是session，也就是使用者開啟瀏覽器與程式互動過程中都存活。<br>
+
+      <br>
+
+
+接下來要告訴網頁設計人員的資訊是，他們可以使用的Bean名稱，即&lt;managed-bean-name&gt;中設定的名稱，以及上面所定義的頁面流程。<br>
+
+      <br>
+
+      
+
+
+
+      </span>
+首先網頁設計人員撰寫index.jsp網頁：<br>
+
+
+      
+      <ul>
+
+        <li>index.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@taglib uri="http://java.sun.com/jsf/core" prefix="f" %&gt;<br>&lt;%@taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;<br>&lt;%@page contentType="text/html;charset=Big5"%&gt; <br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;第一個JSF程式&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;f:view&gt;<br>        &lt;h:form&gt;<br>            &lt;h3&gt;請輸入您的名稱&lt;/h3&gt;<br>            名稱: &lt;h:inputText value="#{user.name}"/&gt;&lt;p&gt;<br>            &lt;h:commandButton value="送出" action="login"/&gt;<br>        &lt;/h:form&gt;<br>    &lt;/f:view&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+
+
+      <br>
+
+      
+我們使用了JSF的core與html標籤庫，core是有關於UI元件的處理，而html則是有關於HTML的進階標籤。<br>
+
+      <br>
+
+
+&lt;f:view&gt;與&lt;html&gt;有類似的作用，當您要開始使用JSF元件時，這些元件一定要在&lt;f:
+view&gt;與&lt;/f:view&gt;之間，就如同使用HTML時，所有的標籤一定要在&lt;html&gt;與&lt;
+/html&gt;之間。<br>
+
+      <br>
+
+
+html標籤庫中幾乎都是與HTML標籤相關的進階標籤，&lt;h:form&gt;會產生一個表單，我們使用&lt;h:
+inputText&gt;來顯示user這個Bean物件的name屬性，而&lt;h:commandButton&gt;會產生一個提交按鈕，我們
+在action屬性中指定將根據之前定義的login頁面流程中前往welcome.jsp頁面。<br>
+
+      <br>
+
+
+網頁設計人員不必理會表單傳送之後要作些什麼，他只要設計好歡迎頁面就好了：
+
+
+      <br>
+
+
+      
+      <ul>
+
+        <li>welcome.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %&gt;<br>&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;<br>&lt;%@page contentType="text/html;charset=Big5"%&gt; <br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;第一個JSF程式&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>    &lt;f:view&gt;<br>        &lt;h:outputText value="#{user.name}"/&gt; 您好！<br>        &lt;h3&gt;歡迎使用 JavaServer Faces！&lt;/h3&gt;<br>    &lt;/f:view&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+
+
+      <br>
+
+      
+這個頁面沒什麼需要解釋的了，如您所看到的，在網頁上沒有程式邏輯，網頁設計人員所作的就是遵照頁面流程，使用相關名稱取出資料，而不用擔心實際上程式是如何運作的。<br>
+
+      <br>
+
+
+接下來啟動Container，連接上您的應用程式網址，例如：http://localhost: 8080/jsfDemo/pages/index.faces，填入名稱並送出表單，您的歡迎頁面就會顯示了。
+      
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

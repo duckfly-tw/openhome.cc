@@ -1,0 +1,75 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在定義泛型時，可以定義型態的邊界（Bound）。例如：class Animal {}class Human extends Animal {}class Toy {}class Duck&lt;T e...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="到此為止">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JavaEssence/Bound.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在定義泛型時，可以定義型態的邊界（Bound）。例如：class Animal {}class Human extends Animal {}class Toy {}class Duck&lt;T e...">
+
+
+    <title>到此為止</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Bound.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Essence</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>到此為止</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在定義泛型時，可以定義型態的邊界（Bound）。例如：<br><pre class="prettyprint"><code lang="java">class Animal {}<br>class Human extends Animal {}<br>class Toy {}<br><br>class Duck<span style="font-weight: bold;">&lt;T extends Animal&gt;</span> {}<br><br>public class Main {<br>    public static void main(String[] args) {<br>        Duck&lt;Animal&gt; ad = new Duck&lt;Animal&gt;();<br>        Duck&lt;Human&gt; hd = new Duck&lt;Human&gt;();<br>        Duck&lt;Toy&gt; hd = new Duck&lt;Toy&gt;();  // 編譯錯誤<br>    }<br>}</code></pre><br>在上例中，使用 <span style="font-weight: bold;">extends</span> 定義指定泛型真正型態時，必須是Animal的子類，你可以使用Animal與Human來指定型態，但不可以使用Toy指定型態，因為Toy不是Animal的子類。<br><br>一個實際應用可以用 <a href="../AlgorithmGossip/QuickSort3.htm#Scala">快速排序法</a> 中的例子來說明：<br><pre class="prettyprint"><code lang="java">class Sort {<br>    public void quick(int[] number) {<br>        sort(number, 0, number.length-1);<br>    }<br>    <br>    private void sort(int[] number, int left, int right) {<br>        if(left &lt; right) { <br>            int q = partition(number, left, right); <br>            sort(number, left, q-1); <br>            sort(number, q+1, right); <br>        } <br><br>    }<br><br>    private int partition(int number[], int left, int right) {  <br>        int i = left - 1; <br>        for(int j = left; j &lt; right; j++) { <br>            if(number[j] &lt;= number[right]) { <br>                i++; <br>                swap(number, i, j); <br>            } <br>        } <br>        swap(number, i+1, right); <br>        return i+1; <br>    } <br><br>    private void swap(int[] number, int i, int j) {<br>        int t = number[i]; <br>        number[i] = number[j]; <br>        number[j] = t;<br>    }<br>}</code></pre><br>在這個例子中，是以int來示範演算法的實作，如果要讓這個類別更一般化，可以排序任何型態的物件，則該型態必須具備可比較物件大小的方法，一個方式是要求要排序的物件實作<a href="http://java.sun.com/javase/6/docs/api/java/lang/Comparable.html">java.lang.Comparable&lt;T&gt;</a>介面。所以可以修改類別定義如下：<br><pre class="prettyprint"><code lang="java">class Sort<span style="font-weight: bold;">&lt;T extends Comparable&lt;T&gt;&gt;</span> {<br>    void quick(T[] array) {<br>        sort(array, 0, array.length-1);<br>    }<br>    <br>    private void sort(T[] array, int left, int right) {<br>        if(left &lt; right) { <br>            int q = partition(array, left, right); <br>            sort(array, left, q-1); <br>            sort(array, q+1, right); <br>        } <br><br>    }<br><br>    private int partition(T[] array, int left, int right) {  <br>        int i = left - 1; <br>        for(int j = left; j &lt; right; j++) { <br>            if(array[j].compareTo(array[right]) &lt;= 0) {<br>                i++; <br>                swap(array, i, j); <br>            } <br>        } <br>        swap(array, i+1, right); <br>        return i + 1; <br>    } <br><br>    private void swap(T[] array, int i, int j) {<br>        T t = array[i]; <br>        array[i] = array[j]; <br>        array[j] = t;<br>    }<br>}</code></pre><br>只要你定義的類別實作了java.lang.Comparable&lt;T&gt;，就可以使用這個類別來進行排序，例如字串就實作了java.lang.Comparable&lt;T&gt;：<br><pre class="prettyprint"><code lang="java">public class Main {<br>    public static void main(String[] args) {<br>       Sort&lt;String&gt; sort = new Sort&lt;String&gt;();<br>       String[] strs = {"3", "2", "5", "1"};<br>       sort.quick(strs);<br>       for(String s : strs) {<br>           System.out.println(s);<br>       }<br>    }<br>}</code></pre><br>若extends之後指定了類別或介面後，想再指定其它介面，可以使用<span style="font-weight: bold;">&amp;</span>連接。例如：<br>
+
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">public class Some&lt;T extends Iterable&lt;T&gt; <span style="color: red;">&amp;</span> Comparable&lt;T&gt;&gt; {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ...</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

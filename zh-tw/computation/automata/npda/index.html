@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="如果想要判斷迴文，也就是從前面往後面，或者從後面往前面讀都相同的一段文字，這件事有限狀態機是做不到的，就算加上瞎猜的能力也做不到，因為判斷迴">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="運算隨想::瞎猜的下推機" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/computation/automata/npda/" />
+    <meta property="og:description" content="如果想要判斷迴文，也就是從前面往後面，或者從後面往前面讀都相同的一段文字，這件事有限狀態機是做不到的，就算加上瞎猜的能力也做不到，因為判斷迴" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="運算隨想::瞎猜的下推機" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/computation/automata/npda/" />
+    <meta name="twitter:description" content="如果想要判斷迴文，也就是從前面往後面，或者從後面往前面讀都相同的一段文字，這件事有限狀態機是做不到的，就算加上瞎猜的能力也做不到，因為判斷迴" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443677" type="image/x-icon">
+    <title> 運算隨想  :: 瞎猜的下推機</title>
+    <link href="../../../css/nucleus.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443677.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443677"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/computation/automata/npda/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/computation/" title="運算隨想" class="dd-item parent"><a href="../../index.html">運算隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/" title="lambda 隨想" class="dd-item"><a href="../../lambda-calculus/index.html">| lambda 隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/y-combinator/" title="Y Combinator" class="dd-item"><a href="../../lambda-calculus/y-combinator/index.html">Y Combinator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/adt/" title="代數資料型態" class="dd-item"><a href="../../lambda-calculus/adt/index.html">代數資料型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/pair/" title="頭尾成對" class="dd-item"><a href="../../lambda-calculus/pair/index.html">頭尾成對</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/bool/" title="是的！不是！" class="dd-item"><a href="../../lambda-calculus/bool/index.html">是的！不是！</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/undef/" title="未定義是值嗎？" class="dd-item"><a href="../../lambda-calculus/undef/index.html">未定義是值嗎？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/arithmetic/" title="算術的編碼" class="dd-item"><a href="../../lambda-calculus/arithmetic/index.html">算術的編碼</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/nil/" title="真的未定義？" class="dd-item"><a href="../../lambda-calculus/nil/index.html">真的未定義？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/let/" title="可以不要 let 嗎？" class="dd-item"><a href="../../lambda-calculus/let/index.html">可以不要 let 嗎？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/simple-bool/" title="簡單是非" class="dd-item"><a href="../../lambda-calculus/simple-bool/index.html">簡單是非</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/lang/" title="誰是微語言？" class="dd-item"><a href="../../lambda-calculus/lang/index.html">誰是微語言？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/fixed-point/" title="不動點" class="dd-item"><a href="../../lambda-calculus/fixed-point/index.html">不動點</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/equivalence/" title="等價匿名函式？" class="dd-item"><a href="../../lambda-calculus/equivalence/index.html">等價匿名函式？</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/" title="圖靈隨想" class="dd-item parent"><a href="../index.html">| 圖靈隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/automata/brainfuck/" title="空想 Brainfuck" class="dd-item"><a href="../brainfuck/index.html">空想 Brainfuck</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/brainfuck-js/" title="打造 Brainfuck" class="dd-item"><a href="../brainfuck-js/index.html">打造 Brainfuck</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/input/" title="Brainfuck 看輸入" class="dd-item"><a href="../input/index.html">Brainfuck 看輸入</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/state/" title="Brainfuck 看狀態" class="dd-item"><a href="../state/index.html">Brainfuck 看狀態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/rule/" title="Brainfuck 看規則" class="dd-item"><a href="../rule/index.html">Brainfuck 看規則</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/dtm/" title="特定機器" class="dd-item"><a href="../dtm/index.html">特定機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/utm/" title="通用機器" class="dd-item"><a href="../utm/index.html">通用機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/halting-problem/" title="停或不停？" class="dd-item"><a href="../halting-problem/index.html">停或不停？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/pda/" title="只能堆疊的機器" class="dd-item"><a href="../pda/index.html">只能堆疊的機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/dfa/" title="沒有記憶的機器" class="dd-item"><a href="../dfa/index.html">沒有記憶的機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/nfa/" title="瞎猜的狀態機" class="dd-item"><a href="../nfa/index.html">瞎猜的狀態機</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/npda/" title="瞎猜的下推機" class="dd-item active"><a href="index.html">瞎猜的下推機</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/non-deterministic/" title="外部神秘力量" class="dd-item"><a href="../non-deterministic/index.html">外部神秘力量</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">運算隨想</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">圖靈隨想</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">瞎猜的下推機</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#非確定性下推自動機">非確定性下推自動機</a></li>
+    <li><a href="index.html#非確定性轉為確定性">非確定性轉為確定性</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/automata/">automata</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/non-deterministic/">non-deterministic</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/randomness/">randomness</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>瞎猜的下推機</h1>
+
+ <i class="space fa fa-calendar"> December 17, 2021</i> 
+<p>如果想要判斷迴文，也就是從前面往後面，或者從後面往前面讀都相同的一段文字，這件事有限狀態機是做不到的，就算加上瞎猜的能力也做不到，因為判斷迴文必須記得曾經看過哪些符號，才能比對兩側文字是否一一對應。</p>
+<h2 id="非確定性下推自動機">非確定性下推自動機</h2>
+<p>這件事看來下推自動機做得到，如果文字寫在紙帶上，有人將紙帶對折並從中剪開，然後用一個代表著中點文字的紙片，再將被剪開的紙帶接合起來，這麼一來，只要將中點紙片前看到的符號放到堆疊，中點紙帶後的文字用來比對、取出堆疊中的文字，若不符合就非迴文，最後若堆疊為空就是迴文。</p>
+<p>例如，若文字僅由 <code>a</code>、<code>b</code> 兩種符號組成，中點文字為 <code>_</code>，上述的機器可以如下構造：</p>
+<p><img src="images/npda-1.jpg" alt="瞎猜的下推機"></p>
+<p>不過，機器目的是為了去除人的因素，如果沒有人對折、剪開、接合紙帶，機器就必須有能力自行判斷是否已經讀了一半文字，然後轉移至狀態 2，但是機器無法事先知道文字的長度，又怎麼可能知道什麼時候該轉移狀態…這就只能瞎猜了。</p>
+<p><img src="images/npda-2.jpg" alt="瞎猜的下推機"></p>
+<h2 id="非確定性轉為確定性">非確定性轉為確定性</h2>
+<p>如果機器可以，而且一定可以猜中什麼時候已讀完一半文字，自動轉移至狀態 2，這台機器就可以完成迴文判斷的任務，在規則表示上，這機器可以猜中什麼時候不讀取任何輸入，自動轉移至狀態 2，因而就造成了機器在狀態 1 時有兩個以上可遵循的規則，這樣的神機稱為非確定性下推自動機（Nondeterministic PushDown Automata）。</p>
+<p>每次都準確猜中的神機當然是不存在的，就演算法而言是絕對無法設計出來，然而，若能接受運氣不好沒猜中的情況，至少還有能回答「這是迴文」以及「這可能不是迴文」，沒有猜測能力，機器就完全無法判斷迴文了。</p>
+<p>這時你可能會想，在〈<a href="../nfa/index.html">瞎猜的狀態機</a>〉中曾經談過，一個每猜必中的神奇狀態機，都能轉換為確定性的狀態機，那一個每猜必中的神奇下推機可以轉換為確定性的下推機嗎？</p>
+<p>這就要來思考一下，每猜必中的神奇狀態機能轉換為確定性的狀態機，是因為可以合併狀態，也就是執行過程中若機器的環境資訊相同，不過它是讀了多少符號才有了當時的環境資訊，對機器來說都是沒有差別的。</p>
+<p>然而，下推自動機的環境資訊中，不單只是狀態，還包含了堆疊目前擁有的符號，下推自動機並沒有限制堆疊的容量，因此就算組態圖中的狀態是有限的，然而環境資訊因為必須包含堆疊，因而不一定可以找出機器運行過程中相同的環境資訊來進行合併，從而不一定能建構對應的確定性下推機。</p>
+<p>有限狀態機因為沒有存放裝置，因此環境資訊就只有組態圖中的狀態，合併環境資訊等同於合併狀態來構造出對應的確定性狀態機；下推機因為有存放裝置，不一定有相同的環境資訊可以合併，使用合併環境資訊這條路，來構造對應的確定性下推機不可行。</p>
+<p>也許你會想到另一種方式，就是試圖列出各種可能的執行路徑，每個路徑都執行過一遍，看看哪個執行路徑下可以令機器達到接受狀態，這也做不到，每個路徑都執行過一遍的前題時，某路徑執行完後可以將環境資訊回溯至路徑分叉點，然而因為堆疊這個存放狀置，限制了資料只能在堆疊頂端讀寫，一但資料從堆疊中取出，就永遠消失了，又如何能回溯環境資訊呢？</p>
+<p>結論就是，非確定性下推機可以處理確定下推機無法處理的問題，就現實而言，加上一個隨機猜測，若結果可以接受「是」、「可能不是」或「可能是」、「不是」的答案，非確定性下推機的構造概念，就算是可以解決問題了。</p>
+<p>如果借助圖靈機的能力，可以在套用非確定性下推自動機規則的過程中，收集接下來的可能環境資訊，在輸入完成後，看看最後收集到的可能環境資訊中，是否包含接受狀態，透過這種方式來模擬非確定性下推機，好處是可以直接撰寫非確定性下推機的規則。</p>
+<p>不過要小心的是，收集接下來的可能環境資訊並不等於合併環境資訊，接下來的模擬程式也已經不是下推機了，因為它用到了 <code>SimpleSet</code> 這個記憶裝置，只是個方便驗證規則撰寫是否正確的程式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleSet</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">array</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">elems</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">reduce</span>(
+</span></span><span style="display:flex;"><span>            (<span style="color:#a6e22e">acc</span>, <span style="color:#a6e22e">elem</span>) =&gt; {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">acc</span>.<span style="color:#a6e22e">some</span>(<span style="color:#a6e22e">e</span> =&gt; <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">equals</span>(<span style="color:#a6e22e">elem</span>)) <span style="color:#f92672">?</span> <span style="color:#a6e22e">acc</span> <span style="color:#f92672">:</span> <span style="color:#a6e22e">acc</span>.<span style="color:#a6e22e">concat</span>([<span style="color:#a6e22e">elem</span>])
+</span></span><span style="display:flex;"><span>            }, 
+</span></span><span style="display:flex;"><span>        []);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">get</span> <span style="color:#a6e22e">size</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">elems</span>.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Stack</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">array</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">array</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">elem</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Stack</span>([<span style="color:#a6e22e">elem</span>].<span style="color:#a6e22e">concat</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pushAll</span>(<span style="color:#a6e22e">elems</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Stack</span>(<span style="color:#a6e22e">elems</span>.<span style="color:#a6e22e">concat</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pop</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Stack</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#ae81ff">1</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">get</span> <span style="color:#a6e22e">top</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>[<span style="color:#ae81ff">0</span>];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">toString</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#39; &#39;</span>);
+</span></span><span style="display:flex;"><span>    }    
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">equals</span>(<span style="color:#a6e22e">that</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">that</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">map</span>((<span style="color:#a6e22e">v</span>, <span style="color:#a6e22e">i</span>) =&gt; <span style="color:#a6e22e">v</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">that</span>.<span style="color:#a6e22e">array</span>[<span style="color:#a6e22e">i</span>])
+</span></span><span style="display:flex;"><span>                            .<span style="color:#a6e22e">every</span>(<span style="color:#a6e22e">eq</span> =&gt; <span style="color:#a6e22e">eq</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Context</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">state</span>, <span style="color:#a6e22e">stack</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">state</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">stack</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">stack</span>; 
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">isAcceptable</span>(<span style="color:#a6e22e">acceptables</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">acceptables</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">state</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">equals</span>(<span style="color:#a6e22e">that</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">that</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">stack</span>.<span style="color:#a6e22e">equals</span>(<span style="color:#a6e22e">that</span>.<span style="color:#a6e22e">stack</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Rule</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>({<span style="color:#a6e22e">state</span>, <span style="color:#a6e22e">input</span>, <span style="color:#a6e22e">top</span>, <span style="color:#a6e22e">pushBacks</span>, <span style="color:#a6e22e">nextState</span>}) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">state</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">input</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">input</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">top</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">top</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">pushBacks</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">nextState</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">nextState</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">isApplicableTo</span>(<span style="color:#a6e22e">context</span>, <span style="color:#a6e22e">input</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">state</span> <span style="color:#f92672">&amp;&amp;</span> 
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">input</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">input</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">top</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">stack</span>.<span style="color:#a6e22e">top</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next_context</span>(<span style="color:#a6e22e">context</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">next_stack</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">stack</span>.<span style="color:#a6e22e">pop</span>()
+</span></span><span style="display:flex;"><span>                                        .<span style="color:#a6e22e">pushAll</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">pushBacks</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Context</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">nextState</span>, <span style="color:#a6e22e">next_stack</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Manual</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">rules</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">rules</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">rules</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">freeMove</span>(<span style="color:#a6e22e">contexts</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">frees</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleSet</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">collectContexts</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#66d9ef">null</span>));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">frees</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">?</span> <span style="color:#a6e22e">contexts</span> <span style="color:#f92672">:</span> <span style="color:#a6e22e">frees</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">collectContexts</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">input</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">contexts</span>.<span style="color:#a6e22e">elems</span>
+</span></span><span style="display:flex;"><span>                        .<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">context</span> =&gt; {
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">rules</span>.<span style="color:#a6e22e">filter</span>(<span style="color:#a6e22e">rule</span> =&gt; <span style="color:#a6e22e">rule</span>.<span style="color:#a6e22e">isApplicableTo</span>(<span style="color:#a6e22e">context</span>, <span style="color:#a6e22e">input</span>))
+</span></span><span style="display:flex;"><span>                                                .<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">rule</span> =&gt; <span style="color:#a6e22e">rule</span>.<span style="color:#a6e22e">next_context</span>(<span style="color:#a6e22e">context</span>));
+</span></span><span style="display:flex;"><span>                        })
+</span></span><span style="display:flex;"><span>                        .<span style="color:#a6e22e">reduce</span>((<span style="color:#a6e22e">acc</span>, <span style="color:#a6e22e">ctxs</span>) =&gt; <span style="color:#a6e22e">acc</span>.<span style="color:#a6e22e">concat</span>(<span style="color:#a6e22e">ctxs</span>), []);                  
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next_contexts</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">input</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">ctxs</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">collectContexts</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">input</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">frees</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">freeMove</span>(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleSet</span>(<span style="color:#a6e22e">ctxs</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleSet</span>(<span style="color:#a6e22e">ctxs</span>.<span style="color:#a6e22e">concat</span>(<span style="color:#a6e22e">frees</span>.<span style="color:#a6e22e">elems</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Machine</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">manual</span>, <span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">acceptables</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">manual</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">manual</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">contexts</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleSet</span>(<span style="color:#a6e22e">contexts</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">acceptables</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">acceptables</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">canAccept</span>(<span style="color:#a6e22e">text</span>) { 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">manual</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">manual</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">digest</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">txt</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">contexts</span>.<span style="color:#a6e22e">size</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">txt</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">contexts</span>;
+</span></span><span style="display:flex;"><span>            } 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">ctxs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">manual</span>.<span style="color:#a6e22e">next_contexts</span>(<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">txt</span>[<span style="color:#ae81ff">0</span>]);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">digest</span>(<span style="color:#a6e22e">ctxs</span>, <span style="color:#a6e22e">txt</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#ae81ff">1</span>));
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">digest</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">contexts</span>, <span style="color:#a6e22e">text</span>)
+</span></span><span style="display:flex;"><span>		         .<span style="color:#a6e22e">elems</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">context</span> =&gt; <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">acceptables</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">state</span>))
+</span></span><span style="display:flex;"><span>                       .<span style="color:#a6e22e">some</span>(<span style="color:#a6e22e">acceptable</span> =&gt; <span style="color:#a6e22e">acceptable</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">manual</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Manual</span>([
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;$&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;$&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;a&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;$&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#39;$&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#39;b&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;b&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#39;a&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    }),           
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;a&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    }),    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;b&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    }),       
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;$&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;$&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    }),       
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    }),  
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    }),           
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Rule</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">state</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">input</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">top</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;$&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">pushBacks</span> <span style="color:#f92672">:</span> [<span style="color:#e6db74">&#39;$&#39;</span>], 
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">nextState</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>    })      
+</span></span><span style="display:flex;"><span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">stack</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Stack</span>([<span style="color:#e6db74">&#39;$&#39;</span>]);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">context</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Context</span>(<span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">stack</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">machine</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Machine</span>(<span style="color:#a6e22e">manual</span>, [<span style="color:#a6e22e">context</span>], [<span style="color:#ae81ff">3</span>]);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">machine</span>.<span style="color:#a6e22e">canAccept</span>(<span style="color:#e6db74">&#39;babbab&#39;</span>));
+</span></span></code></pre></div><p>再次強調，這個程式在行為上看似非確定性下推機，因為它的規則不是確定性的，然而其實不是非確定性下推，因為程式借助了圖靈機的儲存裝置，才使得結果一定能給出「是」或「不是」的答案，如果不使用圖靈機的儲存裝置，是不可能打造出這種機器的！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/computation/automata/npda/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/computation/automata/npda/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e9%81%8b%e7%ae%97%e9%9a%a8%e6%83%b3%3a%3a%e7%9e%8e%e7%8c%9c%e7%9a%84%e4%b8%8b%e6%8e%a8%e6%a9%9f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fcomputation%2fautomata%2fnpda%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../nfa/index.html" title="瞎猜的狀態機"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../non-deterministic/index.html" title="外部神秘力量"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443677"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443677"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443677"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443677"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443677"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443677"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443677"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443677"></script>
+  </body>
+</html>

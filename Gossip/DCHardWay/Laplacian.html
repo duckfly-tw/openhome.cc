@@ -1,0 +1,177 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="先前一系列文件談過，可以透過傅立葉轉換來尋找影像邊緣，不過那只是方式之一，還有幾個方式也可以尋找影像邊緣，這邊來談談 Laplacian 運算。
+OpenCV 提供了 cv2.Laplacian，可以...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Laplacian 運算（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/Laplacian.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="先前一系列文件談過，可以透過傅立葉轉換來尋找影像邊緣，不過那只是方式之一，還有幾個方式也可以尋找影像邊緣，這邊來談談 Laplacian 運算。
+OpenCV 提供了 cv2.Laplacian，可以...">
+
+    <title>Laplacian 運算（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Laplacian.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Laplacian 運算（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>先前一系列文件談過，可以透過傅立葉轉換來尋找影像邊緣，不過那只是方式之一，還有幾個方式也可以尋找影像邊緣，這邊來談談 Laplacian 運算。</p>
+<p>OpenCV 提供了 <code>cv2.Laplacian</code>，可以用來尋找影像邊緣，使用上並不困難，不過在使用之前，可以來認識一下原理，這也有助於認識其他尋找影像邊緣的方式。</p>
+<p>首先，必須來認識一下導數的定義，根據維基百科〈<a href="https://zh.wikipedia.org/wiki/%E5%AF%BC%E6%95%B0">導數</a>〉條目，函式 f(x) 在 x<sub>0</sub> 處的導數可以定義為：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-1.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>簡單來說，與 x<sub>0</sub> 極短距離內 f(x) 的變化，可視為 f(x) 在 x<sub>0</sub> 處的斜率。</p>
+<p>如果今天想將導數的概念用於圖像處理，因為圖像是以像素為單位，像素座標的差距最小只能是 1，因此對於導數可以簡化為：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-2.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>簡單來說，若是個灰階圖，與 x 平行橫切一刀，灰階值變化可使用 f(x) 描述的話，那麼這一刀每個點的導數，就是像素間灰階值的差。</p>
+<p>來看看正弦波，若 x、y 都是整數，來觀察一下每個點的斜率變化：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+to = 25       # 取樣範圍 0 ~ to
+freq = 1      # 範圍內振動幾次，也就是頻率
+
+x = np.linspace(0, to, to + 1)
+y = (127 * np.sin(freq / to * 2 * np.pi * x) + 127).astype('int')
+
+plt.subplot(2, 1, 1)
+plt.plot(y)
+
+derivative = y[1:] - y[0:-1] # 導數
+plt.subplot(2, 1, 2)
+plt.stem(derivative)
+
+plt.show()
+</code></pre>
+<p>這可以畫出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-3.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>可以發現，若 x 由左至右時，y 是處於爬昇中，那麼導數都會是正（也就是斜率都是正），若 y 處於下降中，導數都會是負（也就是斜率都是負），至於爬昇或下降的幅度，可以從導數的絕對值大小得知（也就是斜率的絕對值大小）。</p>
+<p>在〈<a href="Fourier3.html">傅立葉轉換（三）</a>〉中開始討論起圖像的頻率，當時以一個方向有灰階變化的圖為例，並使用了這張圖來示範，頻率越高，視覺上界線越分明：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Fourier3-6.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>如果你將方才的程式範例 <code>freq</code> 調高，也就是調高頻率，在範圍不變的情況下，會發現導數的絕對值增加了，也就是斜率變化更為劇烈了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-4.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>這代表著，斜率變化幅度與頻率是相關的，頻率高斜率變化幅度就高，頻率低斜率變化幅度就小，而斜率變化幅度，可以由兩個點的導數相減得到。</p>
+<p>就方才的範例來說，這聽起來可以藉由 <code>derivative[1:] - derivative[0:-1]</code> 來計算，不過實際上，可以直接求二階導數，想想看，f'(x<sub>0</sub>) 是 f(x) 在 x<sub>0</sub> 的導數，那麼 f'(x) 在 x<sub>0</sub> 的導數呢？</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-5.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>f'(x<sub>0</sub>) 稱為一階導數，而 f''(x<sub>0</sub>) 稱為二階導數，就以上的公式來看，二階導數就是斜率的變化速度，由於用於圖像處理時，圖像是以像素為單位，像素座標的差距最小只能是 1，因此二階導數可以簡化為：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-6.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>而方才已經知道，一階導數的簡化形式：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-2.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>因此可以知道：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-7.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>為了便於計算，可以取某像素、往左、往右各一格：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-8.JPG" alt="Laplacian 運算"  /></div></div></p>
+<p>也就是說，可以透過 <code>[1, -2, 1]</code> 在 <code>y</code> 上滑動來計算，例如：</p>
+<pre class="prettyprint"><code lang="python">c1, c2, c3 = [1, -2, 1]
+for i in range(1, len(y) - 1):
+    derivative2 = c1 * y[i + 1] + c2 * y[i] + c3 * y[i - 1]
+</code></pre>
+<p>若是透過 NumPy，可以使用以下的程式來實作：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+to = 25      # 取樣範圍 0 ~ to
+freq = 1     # 範圍內振動幾次
+
+x = np.linspace(0, to, to + 1)
+y = (127 * np.sin(freq / to * 2 * np.pi * x) + 127).astype('int')
+
+plt.subplot(2, 1, 1)
+plt.plot(y)
+
+derivative2 = y[2:] - 2 * y[1:-1] + y[0:-2] # 二階導數
+plt.subplot(2, 1, 2)
+plt.stem(np.linspace(1, to - 1, to - 1), derivative2)
+
+plt.show()
+</code></pre>
+<p>這會顯示以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-9.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>可以觀察到，就函式繪出來的曲線來說，凹向下的部份，二階導數都是負的，代表斜率正在減少，波凹向上的部份，二階導數都是正的，代表斜率正在增加，在拐點的地方，二階導數為 0 等關係&hellip;</p>
+<p>二階導數是斜率的變化速度，而方才談到，對於一個圖像來說，斜率的變化速度與頻率是相關，頻率高的話，斜率的變化幅度就大，如果拿二階導數的絕對值來畫灰階圖，變化幅度大的地方會比較亮，變化幅度小的地方會比較暗，是否可凸顯影像邊緣呢？</p>
+<p>是可以的，不過，雖然可以拿〈<a href="Fourier3.html">傅立葉轉換（三）</a>〉中的正弦波灰階圖來示範，不過畫出來也會是一條一條，可能會讓人誤以為沒什麼用，以實際的照片來試試看會比較好：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import cv2
+
+# 讀入後的灰階值是以 8 位元無號整數儲存（也就是 uint8）  
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+# 使用 filter2D，因為求出來會有負值，目標影像深度使用 16 位元有號整數
+derivative2 = cv2.filter2D(img, cv2.CV_16S, np.array([
+    [0, 0, 0],
+    [1, -2, 1],
+    [0, 0, 0]
+]))
+
+# 轉為絕對值、8 位元無號整數
+# 使用 edge = np.abs(derivative2).astype('uint8') 也可以
+edge = cv2.convertScaleAbs(derivative2) 
+
+cv2.imshow('caterpillar', img)
+cv2.imshow('edge', edge)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>雖然說直接使用迴圈，對 <code>img</code> 逐列（row）求二階導數也可以，不過，這邊是透過 <code>cv2.filter2D</code>，使用矩陣指定核（kernel），核會以中心元素對齊目標像素，然後進行捲積（convolution），也就是對應元素與對應的像素灰階值相乘後相加，由於這邊只處理一個方向，因此核只有中間那列為 <code>[1, -2, 1]</code>。</p>
+<p>（實際上，先前〈<a href="ImageNoise3.html">圖片雜訊處理（三）</a>〉，均值濾波或中值濾波等，也可以透過 <code>cv2.filter2D</code> 自行指定核來運算，只不過有 <code>blur</code>、<code>medianBlur</code> 函式可以使用，使用這些函式比較方便。）</p>
+<p>由於 <code>cv2.imread</code> 以灰階方式讀入時，會以 8 位元無號整數儲存灰階值，然而，二階導數運算後會有負值，因此目標影像深度（也就是儲存像素資訊時可用的位元數）不能只是 8 位元無號整數，範例中指定了 <code>cv2.CV_16S</code>，也就是 16 位元有號整數。</p>
+<p>繪圖時需要的是變化的幅度，可以取絕對值並轉為 <code>uint8</code>，自己寫 <code>np.abs(derivative2).astype('uint8')</code>，然而使用 <code>cv2.convertScaleAbs</code> 會比較方便。</p>
+<p>下圖是執行後的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Laplacian-10.JPG" alt="Laplacian 運算（一）"  /></div></div></p>
+<p>由於只處理 x 軸方向，因此在 y 軸的方向，可以看到邊緣並沒有呈現，如果要處理二維，需要能對 f(x, y) 求二階導數，這就在下篇文件來討論吧！&hellip;</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

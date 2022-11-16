@@ -1,0 +1,285 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 Servlet/JSP 中，如果想要進行會話管理，可以使用 HttpServletRequest 的 getSession() 方法取得 HttpSession 物件。例如：
+HttpSessio...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 HttpSession">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/HttpSession.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 Servlet/JSP 中，如果想要進行會話管理，可以使用 HttpServletRequest 的 getSession() 方法取得 HttpSession 物件。例如：
+HttpSessio...">
+
+    <title>使用 HttpSession</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HttpSession.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 HttpSession</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 Servlet/JSP 中，如果想要進行會話管理，可以使用 <code>HttpServletRequest</code> 的 <code>getSession()</code> 方法取得 <code>HttpSession</code> 物件。例如：</p>
+<pre class="prettyprint"><code>HttpSession session = request.getSession();
+</code></pre>
+<p><code>getSession()</code> 方法有兩個版本，另一個版本可以傳入布林值，預設是 <code>true</code>，表示若尚未存在 <code>HttpSession</code> 實例時，直接建立一個新的物件。若傳入 <code>false</code>，若尚未存在 <code>HttpSession</code> 實例，則直接傳回 <code>null</code>。</p>
+<p><code>HttpSession</code> 上最常使用的方法大概就是 <code>setAttribute()</code> 與 <code>getAttribute()</code>，從名稱上你應該可以猜到，這與 <code>HttpServletRequest</code>（及 <code>ServletContext</code>）的 <code>setAttribute()</code> 與 <code>getAttribute()</code> 類似，可以讓你在物件中設置及取得屬性。</p>
+<p>如果你想要在瀏覽器與Web應用程式的會話期間，保留請求之間的相關訊息，則可以使用 <code>HttpSession</code> 的 <code>setAttribute()</code> 方法將相關訊息設置為屬性。在會話期間，就可以當作 Web 應用程式「記得」客戶端的資訊，如果想取出這些資訊，則透過 <code>HttpSession</code> 的 <code>getAttribute()</code> 就可以取出。</p>
+<p>以下的範例是將〈<a href="HiddenField.html">隱藏欄位</a>〉線上問卷，從隱藏欄位方式改用 <code>HttpSession</code> 方式來實作會話管理：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/questionnaire")
+public class Questionnaire extends HttpServlet {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
+                      throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;head&gt;");
+        out.println("&lt;meta charset='UTF-8'&gt;");
+        out.println("&lt;/head&gt;");
+        out.println("&lt;body&gt;");
+
+        String page = request.getParameter("page");
+        out.println("&lt;form action='questionnaire' method='post'&gt;");
+
+        if("page1".equals(page)) {          // 第一頁問卷
+            out.println("問題一：&lt;input type='text' name='p1q1'&gt;&lt;br&gt;");
+            out.println("問題二：&lt;input type='text' name='p1q2'&gt;&lt;br&gt;");
+            out.println("&lt;input type='submit' name='page' value='page2'&gt;");
+        }
+        else if("page2".equals(page)) {    // 第二頁問卷
+            String p1q1 = request.getParameter("p1q1");
+            String p1q2 = request.getParameter("p1q2");
+            request.getSession().setAttribute("p1q1", p1q1);
+            request.getSession().setAttribute("p1q2", p1q2);
+            out.println("問題三：&lt;input type='text' name='p2q1'&gt;&lt;br&gt;");
+            out.println("&lt;input type='submit' name='page' value='finish'&gt;");
+        }
+        else if("finish".equals(page)) {    // 最後答案收集
+            out.println(request.getSession().getAttribute("p1q1") + "&lt;br&gt;");
+            out.println(request.getSession().getAttribute("p1q2") + "&lt;br&gt;");
+            out.println(request.getParameter("p2q1") + "&lt;br&gt;");
+        }
+        out.println("&lt;/form&gt;");
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    } 
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        processRequest(request, response);
+    } 
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        processRequest(request, response);
+    }
+}
+</code></pre>
+<p>程式改寫時，分別利用 <code>HttpSession</code> 的 <code>setAttribute()</code> 來設置第一頁的問卷答案，以及 <code>getAttribute()</code> 來取得第一頁的問卷答案。從程式流程來看，不用考慮 HTTP 無狀態特性，而親自動手對瀏覽器發送隱藏欄位的 HTML。</p>
+<p>預設在關閉瀏覽器前，所取得的 <code>HttpSession</code> 都是相同的實例。如果你想要在此次會話期間，直接讓目前的 <code>HttpSession</code> 失效，則可以執行 <code>HttpSession</code> 的 <code>invalidate()</code> 方法。一個使用的時機就是實作登出機制，如以下的範例所示範的，首先是登入的 Servlet 實作：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/login")
+public class Login extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                      throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String passwd = request.getParameter("passwd");
+        if("caterpillar".equals(name) &amp;&amp; "123456".equals(passwd)) {
+            if(request.getSession(false) != null) {
+                request.changeSessionId();
+            }
+            request.getSession().setAttribute("login", name);
+            response.sendRedirect("user");
+        }
+        else {
+            response.sendRedirect("login.html");
+        }
+    }
+} 
+</code></pre>
+<p>在登入時，如果名稱與密碼正確，就取得 <code>HttpSession</code>，基於 Web 安全考量，建議在登入成功後改變 Session ID，原理在之後的文件中會說明，想改變 Session ID，可以透過 Servlet 3.1 於 <code>HttpServletRequest</code> 上新增的 <code>changeSessionId()</code> 來達到。</p>
+<p>至於 Servlet 3.0 之前的版本，必須自行取出 <code>HttpSession</code> 中的屬性，令目前的 <code>HttpSession</code> 失效，然後取得 <code>HttpSession</code> 並設定屬性，例如：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/login")
+public class Login extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                      throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String passwd = request.getParameter("passwd");
+        if("caterpillar".equals(name) &amp;&amp; "123456".equals(passwd)) {
+            if(request.getSession(false) != null) {
+                changeSessionId(request);
+            }               
+            request.getSession().setAttribute("login", name);
+            response.sendRedirect("user");
+        }
+        else {
+            response.sendRedirect("login.html");
+        }
+    }
+
+    private void changeSessionId(HttpServletRequest request) {
+        HttpSession oldSession = request.getSession();
+
+        Map&lt;String, Object&gt; attrs = new HashMap&lt;&gt;();
+        for(String name : Collections.list(oldSession.getAttributeNames())) {
+            attrs.put(name, oldSession.getAttribute(name));
+            oldSession.removeAttribute(name);
+        }
+        oldSession.invalidate(); // 令目前 Session 失效
+
+        HttpSession newSession = request.getSession(); 
+        for(String name : attrs.keySet()) {
+            newSession.setAttribute(name, attrs.get(name));
+        }
+    }
+} 
+</code></pre>
+<p>執行 <code>HttpSession</code> 的 <code>invalidate()</code> 之後，容器就會銷毀回收 <code>HttpSession</code> 物件，如果你再次透過  <code>HttpServletRequest</code> 的 <code>getSession()</code>，取得的 <code>HttpSession</code> 就是另一個新的物件了。</p>
+<p>登入成功之後，為了之後免於重複驗證使用者是否登入，可以設定一個 <code>login</code> 屬性，用以代表使用者作完成登入的動作，其他的 Servlet/JSP 如果可以從 <code>HttpSession</code> 取得 <code>login</code> 屬性，基本上就可以確定是個已登入的使用者，這類用來辨識使用者是否登入的屬性，通常稱之為登入字符（Login Token）。上面這個範例在登入成功之後，會轉發至使用者頁面：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/user")
+public class User extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                       throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Optional&lt;Object&gt; token = Optional.ofNullable(session.getAttribute("login"));
+
+        if(token.isPresent()) {
+            userHtml(request, response);
+        } else {
+            response.sendRedirect("login.html");
+        }
+    }
+
+    private void userHtml(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;head&gt;");
+        out.println("&lt;meta charset='UTF-8'&gt;");
+        out.println("&lt;/head&gt;");
+        out.println("&lt;body&gt;");
+        out.println("&lt;h1&gt;" + request.getSession().getAttribute("login") + "已登入&lt;/h1&gt;&lt;br&gt;");
+        out.println("&lt;a href='logout'&gt;登出&lt;/a&gt;");
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+} 
+</code></pre>
+<p>如果有瀏覽器請求使用者頁面，程式會先嘗試取得 <code>HttpSession</code> 中的 <code>login</code> 屬性，如果無法取得，表示使用者尚未登入，則要求瀏覽器重新導向至登入表單，使用 Token 的方式來確認使用者是否登入，只是免於處處要求使用者進行驗證的困擾，然而，重要或敏感性的操作之前，最好再次進行身份確認，像是要求另一組密碼之類的。</p>
+<p>如果可以取得 <code>login</code> 屬性，則顯示使用者頁面，頁面中有一個可以執行登出的 URL 超鏈結，按下後會執行以下的程式。</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/logout")
+public class Logout extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+         request.getSession().invalidate();
+         response.sendRedirect("login.html");
+    } 
+}
+</code></pre>
+<p>由於執行了 <code>HttpSession</code> 的 <code>invalidate()</code> 方法，當時的 <code>HttpSession</code> 失效，後續再取得新的 <code>HttpSession</code>，當中當然不會有先前的 <code>login</code> 屬性，所以你再直接請求使用者頁面，就會因找不到 <code>login</code> 屬性，而被重新導向至登入表單。</p>
+<p>注意，<code>HttpSession</code> 並非執行緒安全，所以必須注意屬性設定時共用存取的問題。最後，別忘了在這類使用者登入的資料傳送上，使用 HTTPS 加密連線。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

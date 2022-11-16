@@ -1,0 +1,203 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="In Hello Module, Wat can use type to define the Type section; however, the Type section is often gen...">
+
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Table">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/eGossip/WebAssembly/Table.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="In Hello Module, Wat can use type to define the Type section; however, the Type section is often gen...">
+
+    <title>Table</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Table.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/WebAssembly/index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Table</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>In <a href="Module.html">Hello Module</a>, you've known that Wat can use <code>type</code> to define the Type section; however, the Type section is often generated automatically according to the content of Wat. For example, given a simple function.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main)
+)
+</code></pre>
+<p>After using <code>wasm2wat</code>, you have a wat file.</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (type (;0;) (func))
+  (func (;0;) (type 0)))
+</code></pre>
+<p>Functions with the same signature will have the same type. If every function has a type, is it a value? Can it be stored?</p>
+<p>You cannot push a function onto the stack or set to a variable. Use <code>table</code> to define a table. You can store function references in a table. In the MVP, a module can only define a table.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (table $tb 2 anyfunc)
+    ...
+)
+</code></pre>
+<p>In <code>(table $tb 2 anyfunc)</code>, the 2 is the initial size of the table meaning it will store two references. An optional number can be put after the initial size to limit the maximum size. <code>anyfunc</code> means &ldquo;any function signature&rdquo; and is the only valid element type in the MVP. More element types might be added in the future.</p>
+<p>You can use <code>elem</code> to store function references in a table. For example:</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (table $tb 2 anyfunc)
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+    ...
+)
+</code></pre>
+<p><code>(i32.const 0)</code> is the offset from the index 0 so <code>$f1</code> would be stored at index 0 and <code>$f2</code> is at 1. Exporting a table is allowed if you want. For example:</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (table $tb 2 anyfunc)
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+    (export "tb" (table $tb))
+)
+</code></pre>
+<p>The exported table is an instance of <code>WebAssembly.Table</code>. You can pass an index to the <code>get</code> method to get the function reference.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+    const importObj = {
+        env: {
+            log(n) {
+                console.log(n);
+            }
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj)
+               .then(prog =&gt; {
+                   const f1 = prog.instance.exports.tb.get(0);
+                   const f2 = prog.instance.exports.tb.get(1);
+                   f1(10);
+                   f2(10);
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>You can create a <code>WebAssembly.Table</code> instance, store function references and then import the table into WebAssembly modules. Only WebAssembly functions can be stored in the table.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+
+    const tb = new WebAssembly.Table({initial:2, element:"anyfunc"});
+    const importObj = {
+        env: {
+            log(n) {
+                console.log(n);
+            },
+            tb : tb
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj)
+               .then(_ =&gt; {
+                   let f1 = tb.get(0);
+                   let f2 = tb.get(1);
+                   f1(10);
+                   f2(10);
+
+                   tb.set(0, f2); // only WebAssembly functions can be stored in the table
+                   tb.set(1, f1);
+
+                   f1 = tb.get(0);
+                   f2 = tb.get(1);
+                   f1(10);
+                   f2(10);
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>In the above script, you create <code>WebAssembly.Table</code> and import to the module. After initializing the module which stores function in the table, you invoke functions in JavaScript. The module is shown below.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (import "env" "tb" (table $tb 2 anyfunc))
+    (func $f1 (param $p i32)
+        (i32.add (get_local $p) (i32.const 10))
+        call $log
+    )
+    (func $f2 (param $p i32)
+        (i32.add (get_local $p) (i32.const 20))
+        call $log
+    )
+    (elem (i32.const 0) $f1 $f2)
+)
+</code></pre>
+<p>Since storing functions in <code>WebAssembly.Table</code> is allowed and multiple instances can share the same table, run-time dynamic linking of multiple modules is possible.</p>
+<p>As for how to invoke functions stored in a table, I'll talk in the later document.</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

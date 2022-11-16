@@ -1,0 +1,214 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web 應用程式會話管理的基本方式，就是在此次請求中，將下一次請求時伺服器所應知道的資訊，先回應給瀏覽器，由瀏覽器在之後的請求再一併發送給應用程式，如此應用程式就可以「得知」多次請求間的相關資料。
+C...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Cookie">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/Cookie.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Web 應用程式會話管理的基本方式，就是在此次請求中，將下一次請求時伺服器所應知道的資訊，先回應給瀏覽器，由瀏覽器在之後的請求再一併發送給應用程式，如此應用程式就可以「得知」多次請求間的相關資料。
+C...">
+
+    <title>Cookie</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Cookie.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Cookie</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Web 應用程式會話管理的基本方式，就是在此次請求中，將下一次請求時伺服器所應知道的資訊，先回應給瀏覽器，由瀏覽器在之後的請求再一併發送給應用程式，如此應用程式就可以「得知」多次請求間的相關資料。</p>
+<p>Cookie 是在瀏覽器儲存訊息的一種方式，伺服器可以回應瀏覽器 <code>set-cookie</code> 標頭，瀏覽器收到這個標頭與數值後，會將之儲存為電腦上的一個檔案，這個檔案就稱之為 Cookie。</p>
+<p>你可以設定給 Cookie 一個存活期限，保留一些有用然而非機密的訊息在客戶端，如果關閉瀏覽器之後，再度開啟瀏覽器並連接伺服器，而 Cookie 仍在有效期限中，瀏覽器會使用 <code>cookie</code> 標頭自動將 Cookie 發送給伺服器，伺服器就可以得知一些先前瀏覽器請求的相關訊息。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Cookie-1.JPG" alt="Cookie"  /></div></div></p>
+<p>瀏覽器基本上被預期能為每個網站儲存 20 個 Cookie，總共可儲存 300 個 Cookie，而每個 Cookie 的大小不超過 4KB（前面這些數字實際依瀏覽器而有所不同），因此 Cookie 實際上可儲存的資訊也是有限的。</p>
+<p>Cookie 可以設定存活期限，所以在客戶端儲存的資訊可以活得更久一些（除非使用者主動清除 Cookie 資訊）。有些購物網站常使用 Cookie 來記錄 使用者的瀏覽歷程，雖然使用者沒有實際購買商品，但在下次使用者造訪時，仍可以根據 Cookie 中所儲存的瀏覽歷程為使用者建議購物清單。</p>
+<p>Servlet 本身提供了建立、設定與讀取 Cookie 的 API。如果你要建立 Cookie，可以使用 <code>Cookie</code> 類別，建立時指定 <code>Cookie</code> 中的名稱與數值，並使用 <code>HttpServletResponse</code> 的 <code>addCookie()</code> 方法在回應中新增 <code>Cookie</code> 物件。例如：</p>
+<pre class="prettyprint"><code>Cookie cookie = new Cookie("user", "caterpillar");
+cookie.setMaxAge(7 * 24 * 60 * 60); // 一星期內有效
+response.addCookie(cookie);
+</code></pre>
+<p>HTTP 中 Cookie 的設定是透過 <code>set-cookie</code> 標頭，所以必須在實際回應瀏覽器之前使用 <code>addCookie()</code> 來新增 <code>Cookie</code> 實例，在瀏覽器輸出 HTML 回應之後再執行 <code>addCookie()</code> 是沒有作用的。</p>
+<p>如範例中所示，建立 <code>Cookie</code> 之後，你可以使用 <code>setMaxAge()</code> 來設定 Cookie 的有效期限，設定的單位是「秒」。預設是關閉瀏覽器之後 Cookie 就失效。如果要取得瀏覽器上儲存的 Cookie，則可以從 <code>HttpServletRequest</code> 的 <code>getCookies()</code> 來取得，這可取得屬於該網頁所屬網域（domain）的所有Cookie，所以傳回值是 <code>Cookie[]</code> 型態。取得 <code>Cookie</code> 物件後，可以使用 <code>Cookie</code> 的 <code>getName()</code> 與 <code>getValue()</code> 方法，分別取得 Cookie 的名稱與數值。例如：</p>
+<pre class="prettyprint"><code>Cookie[] cookies = request.getCookies();
+if(cookies != null) {
+    for(Cookie cookie : cookies) {
+        String name = cookie.getName();
+        String value = cookie.getValue();
+        ...
+    }
+}
+</code></pre>
+<p>既然是基於 Java EE 8，也可以使用 Java SE 8 的 Lambda 風格：</p>
+<pre class="prettyprint"><code>Optional&lt;Cookie[]&gt; cookies = Optional.ofNullable(request.getCookies());
+if(cookies.isPresent()) {
+    Stream.of(cookies.get())
+          .forEach(cookie -&gt; {
+              String name = cookie.getName();
+              String value = cookie.getValue();
+              ...
+          });
+
+}
+</code></pre>
+<p>運用 Cookie 的一個常見應用就是實作使用者自動登入（Login）功能。在使用者登入表單上，你應該經常看到有個自動登入的選項，登入時若有核取該選項，下次再造訪同一網頁，就不再需要輸入名稱密碼，而可以直接登入網頁。</p>
+<p>以下將實作一個簡單的範例來示範 Cookie API 的使用。當使用者造訪使用者頁面時，會檢查使用者有自動登入的 Cookie，如果是的話，就直接顯示使用者頁面，否則重定向至登入頁面。</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/user")
+public class User extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                       throws ServletException, IOException {
+
+        Optional&lt;Cookie&gt; userCookie = 
+                Optional.ofNullable(request.getCookies())
+                        .flatMap(this::userCookie);
+
+        if(userCookie.isPresent()) {
+            Cookie cookie = userCookie.get();
+            request.setAttribute(cookie.getName(), cookie.getValue());
+            userHtml(request, response);
+        } else {
+            response.sendRedirect("login.html");
+        }
+
+    }
+
+    private Optional&lt;Cookie&gt; userCookie(Cookie[] cookies) {
+        return Stream.of(cookies)
+                     .filter(cookie -&gt; "user".equals(cookie.getName()) &amp;&amp; "caterpillar".equals(cookie.getValue()))
+                     .findFirst();
+    }
+
+    private void userHtml(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;head&gt;");
+        out.println("&lt;meta charset='UTF-8'&gt;");
+        out.println("&lt;/head&gt;");
+        out.println("&lt;body&gt;");
+        out.println("&lt;h1&gt;" + request.getAttribute("user") + "已登入&lt;/h1&gt;");
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+} 
+</code></pre>
+<p>當使用者造訪首頁時，會先取得所有的 Cookie。然後一個一個檢查是否有 Cookie 儲存名稱 <code>"user"</code> 而值為 <code>"caterpillar"</code>，如果是的話，表示先前使用者登入時，曾經核取「自動登入」的選項，因此直接轉發至使用者網頁。如果沒有對應的 Cookie，表示使用者是未登入過，或者 Cookie 已過期，因而重定向至登入表單：</p>
+<pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;form action="login" method="post"&gt;
+            名稱：&lt;input type="text" name="name"&gt;&lt;br&gt;
+            密碼：&lt;input type="password" name="passwd"&gt;&lt;br&gt;
+    &lt;input type="submit" value="送出"&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>登入表單會發送至負責處理登入請求的 Servlet，其實作如下所示：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/login")
+public class Login extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                      throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String passwd = request.getParameter("passwd");
+        if("caterpillar".equals(name) &amp;&amp; "123456".equals(passwd)) {
+            Cookie cookie = new Cookie("user", "caterpillar");
+            cookie.setMaxAge(7 * 24 * 60 * 60);
+            response.addCookie(cookie);
+            response.sendRedirect("user");
+        }
+        else {
+            response.sendRedirect("login.html");
+        }
+    }
+} 
+</code></pre>
+<p>程式很簡單，當登入名稱與密碼正確時，設定 Cooke 並重定向至使用者頁面，否則重定向至登入頁面。</p>
+<p>注意，這個自動登入只是個範例，用來示範自動登入的原理，然而，只憑 Cookie 中簡單的 <code>"user"</code>、<code>"caterpillar"</code> 作為自動登入的 Token 是危險的，這表示任何客戶端只要能發送這簡單的 Cookie，就能觀看使用者頁面了。</p>
+<p>在實際的應用程式中，你必須設計一個安全性更高的 Token，讓惡意使用者無法猜測，例如，Token 可以是使用者名稱結合過期時間、來源位址加上一個隨機數，然後透過單向雜湊演算來產生，隨機數必須另存在某個地方，在允許自動登入的頁面中，取得使用者名稱、Cookie 過期時間、來源位址與先前存下來對應的隨機數，算出單向雜湊值之後，再與 Cookie 中送來的雜湊值比對，確認是否符合來判斷是否自動登入。</p>
+<p>當然，這類 Cookie 要避免被竊取，可以透過 <code>Cookie</code> 的 <code>setSecure()</code> 設定 <code>true</code>，那麼就只會在連線有加密（HTTPS）的情況下傳送 Cookie。</p>
+<p>在 Servlet 3.0 中，<code>Cookie</code> 類別新增了 <code>setHttpOnly()</code> 方法，可以將 Cookie 標示為僅用於 HTTP，也就是在 <code>set-cookie</code>標頭上附加 <code>HttpOnly</code> 屬性，在瀏覽器支援的情況下，這個 <code>Cookie</code> 將不會被客戶端腳本（例如JavaScript）讀取，可以使用 <code>isHttpOnly()</code> 來得知 Cookie 是否被 <code>setHttpOnly()</code> 標示為僅用於 HTTP。</p>
+<p>如果你使用 Tomcat，在 Cookie 的使用上，必須留意 Tomcat 規格與 Java EE 規格的差異（照理說應該遵照 Java EE 規格啦！）。一直到 Java EE 8，<a href="https://javaee.github.io/javaee-spec/javadocs/javax/servlet/http/Cookie.html">官方 API 的 Cookie 文件</a> 一直都是寫：</p>
+<blockquote><p>This class supports both the Version 0 (by Netscape) and Version 1 (by RFC 2109) cookie specifications. By default, cookies are created using Version 0 to ensure the best interoperability.</p>
+</blockquote>
+<p>在<a href="https://tomcat.apache.org/tomcat-8.0-doc/servletapi/javax/servlet/http/Cookie.html">Tomcat 8.0 的 Cookie 文件</a> 也是這麼寫，不過，<a href="https://tomcat.apache.org/tomcat-8.5-doc/servletapi/javax/servlet/http/Cookie.html">Tomcat 8.5 的 Cookie 文件</a>改成了：</p>
+<blockquote><p>This class supports both the RFC 2109 and the RFC 6265 specifications. By default, cookies are created using RFC 6265.</p>
+</blockquote>
+<p>因此 Tomcat 8.5 之後，如果你的 Cookie 在設定時，不符合 RFC 6265 的規範，就有可能發生錯誤，若必須使用舊的 Cookie Processor，必須在 context.xml 中設定。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,131 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="In Creating memory, I've provided some information about how to implementing strings. In an example,...">
+
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="About strings">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/eGossip/WebAssembly/String.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="In Creating memory, I've provided some information about how to implementing strings. In an example,...">
+
+    <title>About strings</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="String.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/WebAssembly/index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>About strings</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>In <a href="Memory.html">Creating memory</a>, I've provided some information about how to implementing strings. In an example, <code>(data (i32.const 0) "\48\65\6C\6C\6F")</code> stores five bytes in memory. When being viewed as unsigned 8-bits integers, they are the same as Unicode numbers of characters <code>"Hello"</code>. In JavaScript, you read the first 5 bytes from <code>ArrayBuffer</code> of the exported memory and use <code>String.fromCharCode</code> to get their respective string.</p>
+<p><code>String.fromCharCode</code> converts a Unicode number into a string. <code>"\48\65\6C\6C\6F"</code> is a way to literally specify bytes in memory. Each character in <code>"Hello"</code> coincidentally requires only one byte to represent its own Unicode number.</p>
+<p>How about non-ascii characters? For example, how to store <code>'良'</code> in memory?</p>
+<p>The Unicode number of <code>'良'</code> is 33391 in decimal format or 826F in hexadecimal format. WebAssembly uses Little-endian so remember to store the least significant byte first and the most significant byte last. You have to write <code>"6F82"</code> in the <code>data</code> section.</p>
+<p>For example, the Unicode number of <code>'葛'</code> is 845B and <code>'格'</code> is 683C. If you use <code>String.fromCharCode</code> and want to print <code>"良葛格"</code> in console, you have to write <code>"\6F\82\5B\84\3C\68"</code>.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (memory $mem 1)
+    (data (i32.const 0) "\6F\82\5B\84\3C\68")
+    (export "mem" (memory $mem))
+    (func $nope)
+)
+</code></pre>
+<p>Because each character uses 2 bytes, you use <code>Uint16Array</code> in JavaScript.</p>
+<pre class="prettyprint"><code lang="wat">WebAssembly.instantiateStreaming(fetch('program.wasm'))
+            .then(prog =&gt; {
+                console.log(String.fromCharCode.apply(null, 
+                    new Uint16Array(prog.instance.exports.mem.buffer, 0, 48)
+                ));
+            });
+</code></pre>
+<p>You may use characters to specify data in memory. For example:</p>
+<pre class="prettyprint"><code lang="wat">(data (i32.const 0) "Hello")
+</code></pre>
+<p>Wat files use UTF-8 encoding. When storing a wat, <code>"Hello"</code> is actually saved as <code>"\48\65\6C\6C\6F"</code>. Each character in <code>"Hello"</code> coincidentally requires only one byte to represent its own Unicode number.</p>
+<p>What happens when writing non-ascii characters?</p>
+<pre class="prettyprint"><code lang="wat">(data (i32.const 0) "良葛格")
+</code></pre>
+<p>Because the file uses UTF-8 encoding, <code>"良葛格"</code> is saved as <code>"\e8\89\af\e8\91\9b\e6\a0\bc"</code>. Of course, you can write <code>"\e8\89\af\e8\91\9b\e6\a0\bc"</code> when using the <code>data</code> instruction. Two written forms have the same effect.</p>
+<pre class="prettyprint"><code lang="wat">(data (i32.const 0) "\e8\89\af\e8\91\9b\e6\a0\bc"))
+</code></pre>
+<p>In this example, UTF-8 uses three bytes for a character. <code>"\e8\89\af"</code> is the UTF-8 encoding of <code>'良'</code>. Don't mix Unicode up with encodings. A valid code point in Unicode can have different encodings, such as UTF-8, UTF-16 and UTF-32. The Unicode number of <code>'良'</code> is 826F; However, its UTF-8 encoding is <code>"\e8\89\af"</code>.</p>
+<p>That is, the following code has the same effect as above.</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (memory $mem 1)
+    (export "mem" (memory $mem))
+    (func $main
+        ;; 良
+        (i32.store8 (i32.const 0) (i32.const 0xE8))
+        (i32.store8 (i32.const 1) (i32.const 0x89))
+        (i32.store8 (i32.const 2) (i32.const 0xAF))
+        ;; 葛
+        (i32.store8 (i32.const 3) (i32.const 0xE8))
+        (i32.store8 (i32.const 4) (i32.const 0x91))
+        (i32.store8 (i32.const 5) (i32.const 0x9B))
+        ;; 格
+        (i32.store8 (i32.const 6) (i32.const 0xE6))
+        (i32.store8 (i32.const 7) (i32.const 0xA0))
+        (i32.store8 (i32.const 8) (i32.const 0xBC))                
+    )
+    (start $main)
+)
+</code></pre>
+<p>In this case, don't use <code>String.fromCharCode</code> to decode data in memory. You can use <code>TextDecoder</code> API to do the task.</p>
+<pre class="prettyprint"><code lang="wat">WebAssembly.instantiateStreaming(fetch('program.wasm'))
+            .then(prog =&gt; {
+                var bytes = new Uint8Array(prog.instance.exports.mem.buffer, 0, 9);
+                var string = new TextDecoder('utf8').decode(bytes);
+                console.log(string);
+            });
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

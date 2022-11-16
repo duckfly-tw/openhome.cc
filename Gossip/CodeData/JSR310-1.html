@@ -1,0 +1,168 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="【Joda-Time 與 JSR310 】系列，將會以我在 2013 Java TWO 分享的 Joda-Time &amp; JSR 310 內容為基礎。
+日期與時間處理 API，在各種語言中，可能...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="【Joda-Time 與 JSR310 】（1）Date 與 Calendar 怎麼了？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JSR310-1.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="【Joda-Time 與 JSR310 】系列，將會以我在 2013 Java TWO 分享的 Joda-Time &amp; JSR 310 內容為基礎。
+日期與時間處理 API，在各種語言中，可能...">
+
+    <title>【Joda-Time 與 JSR310 】（1）Date 與 Calendar 怎麼了？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JSR310-1.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 CodeData</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Joda-Time 與 JSR310 】（1）Date 與 Calendar 怎麼了？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>【Joda-Time 與 JSR310 】系列，將會以我在 2013 Java TWO 分享的 <a href="https://www.slideshare.net/JustinSDK/2013-java-developer-day-joda-timejsr310">Joda-Time &amp; JSR 310</a> 內容為基礎。</p>
+<p>日期與時間處理 API，在各種語言中，可能都只是個不起眼的 API，如果你沒有較複雜的時間處理需求，可能只是利用日期與時間處理 API 取得系統時間，簡單地做些顯示罷了，然而如果真的要認真看待日期與時間，其複雜程度可能會遠超過你的想像，<strong>天文、地理、歷史、政治、文化等因素，都會影響到你對時間的處理</strong>。</p>
+<p>在 Java 的世界中，處理日期最基本的 API 就是 <code>java.util.Date</code>，這個遠從 JDK 1.0 就已存在的古老 API，如果你只是要取得日期時間作些顯示，也許還沒有問題，如果你打算以它作為基礎進行日期時間，那就很可能落人陷阱，來舉個實際遇過的例子：</p>
+<pre class="prettyprint"><code lang="code">import java.util.*;
+import java.text.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        DateFormat dateFormat = 
+            new SimpleDateFormat("yyyy-MM-dd"); 
+        Date birthDate = dateFormat.parse(args[0]);
+        Date nowDate = new Date();
+        long lifeMillis = nowDate.getTime() - birthDate.getTime();
+        System.out.printf("你今年的歲數為：%d%n", 
+                  lifeMillis / (365 * 24 * 60 * 60 * 1000));
+    }
+}
+</code></pre>
+<p>看來沒什麼問題？從命令列引數取得日期格式字串並剖析為 <code>Date</code> 實例，<strong>取得 1970 年 1 月 1 日起始至今的毫秒數進行相減，就是目前你目前活了毫秒數，真的嗎？一年的毫秒數真的是 <code>(365 * 24 * 60 * 60 * 1000)</code> 嗎？</strong>別的不說，我輸入 <code>"1975-05-26"</code>，算出來可是 800 多歲呢！… 原因？<code>(365 * 24 * 60 * 60 * 1000)</code> 溢位（Overflow）了 … 詳細原因可以參考 <a href="http://openhome.cc/Gossip/JavaEssence/PromotionCast.html">Promotion 與 Cast</a>，如果單是解決溢位問題，就在分母加個 <code>L</code> 就可以了：</p>
+<pre class="prettyprint"><code lang="code">System.out.printf("你今年的歲數為：%d%n", 
+          lifeMillis / (365 * 24 * 60 * 60 * 1000L));
+</code></pre>
+<p>其實在建構 <code>Date</code> 實例時也有些陷阱，例如，你想表示 <code>"2013-08-02"</code>，這麼寫就不對了 …</p>
+<pre class="prettyprint"><code lang="code">Date date = new Date(13, 8, 2);
+DateFormat dateFormat = DateFormat.getDateInstance();
+System.out.printf("Taiwan Java Developer Day is %s.%n", 
+    dateFormat.format(date));
+</code></pre>
+<p>如果真要用 <code>Date</code> 建構式建立實例，那年份的部份，必須是西元年減去 1900，也就是說，如果你想表示的是 2013 年，那要 <code>new Date(113, 8, 2)</code> 才對，很奇怪對吧！實際上這個建構式早就被廢棄（Deprecated），編譯時你應該看一下警示訊息（不過應該很多人根本不看的吧！）…</p>
+<p>應該會有人告訴你，如果你要設置日期，應該使用 <code>java.util.Calendar</code>，像是這樣 …</p>
+<pre class="prettyprint"><code lang="code">Calendar calendar = Calendar.getInstance();
+calendar.set(2013, 8, 2);
+DateFormat dateFormat = DateFormat.getDateInstance();
+System.out.printf("Taiwan Java Developer Day is %s.%n", 
+    dateFormat.format(calendar.getTime()));
+</code></pre>
+<p>如果你想表達的還是 <code>"2013-08-02"</code>，這麼寫就又不對了 … <code>Calendar</code> 的 <code>set</code> 方法第二個參數，數字起算是從 0 開始，所以要表示 8 月應該給 7 這個數字才對，不想搞混的話，就用個列舉常數吧！</p>
+<pre class="prettyprint"><code lang="code">calendar.set(2013, Calendar.AUGUST, 2);
+</code></pre>
+<p><code>Calendar</code> 這個東西，是有一些計算日期時間的方法，不過還是得小心有些陷阱，下面這個程式是用來計算兩個日期之間的天數：</p>
+<pre class="prettyprint"><code lang="code">public static void main(String[] args) {
+    Calendar birth = Calendar.getInstance();
+    birth.set(1975, Calendar.MAY, 26);
+    Calendar now = Calendar.getInstance();
+    System.out.println(daysBetween(birth, now));
+    System.out.println(daysBetween(birth, now)); // 顯示 0？
+ }  
+
+public static long daysBetween(Calendar begin, Calendar end) {
+    long daysBetween = 0;
+    while(begin.before(end)) {
+        begin.add(Calendar.DAY_OF_MONTH, 1);
+        daysBetween++;
+    }
+    return daysBetween;
+}
+</code></pre>
+<p><code>daysBetween</code> 有點問題，如果連續計算兩個 <code>Date</code> 實例的話，第二次會取得 0，什麼情況下，會想要連續計算呢？總是會有這類的情況 … 無論如何，因為 <code>Calendar</code> 狀態是可變的，考慮會重複計算的場合，最好是複製出一個新的 <code>Calendar</code>：</p>
+<pre class="prettyprint"><code lang="code">public static long daysBetween(Calendar begin, Calendar end) {
+    Calendar calendar = (Calendar) begin.clone(); // 複製
+    long daysBetween = 0;
+    while(calendar.before(end)) {
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        daysBetween++;
+    }
+    return daysBetween;
+}
+</code></pre>
+<p>陷阱還蠻多的 … 實際要探討下去，其實問題會更多，總之 …</p>
+<p>雖然叫作 <code>Date</code>，然而 <strong><code>Date</code> 實例真正代表的並不是日期</strong>，如果你認真去解讀它，</p>
+<blockquote><p><code>Date</code> 實例真正代表的概念，最接近的應該是特定的瞬時（a specific instant in time），時間精度是毫秒，例如 … 1375430498832 代表從 “the epoch&rdquo;，也就是 UTC 時間 1970 年 1 月 1 日零時零分零毫秒至今經過 1375430498832 毫秒數的特定瞬時，嗯 … “the epoch&rdquo; 與 UTC 這兩個玩意兒後面也都還要說明 …</p>
+</blockquote>
+<p>總之，在 JDK 1.1 之前，Date 可用來將特定的瞬時剖析為年、月、日、時、分、秒等，不過值的表示有些奇怪，像是 …</p>
+<ul>
+<li>年的數字表示西元年減去 1900</li>
+<li>時、分、秒從 0 開始計數可以理解，那為什麼月也是從 0 開始計數？</li>
+</ul>
+<p>後來，從 JDK 1.1 開始，將特定的瞬時剖析為年、月、日、時、分、秒等的方法都被廢棄了，看來 <code>Date</code> 單純可以表示瞬時了？事實上並非如此，<code>Date</code> 的 <code>setTime</code> 方法沒有被廢棄，也就是說，<strong><code>Date</code> 的狀態仍是可變的</strong>，如果你在 API 之間傳遞它而不想改變它的狀態，就得祈禱 API 別去動它，另一方面，要手動利用 <code>Date</code> 計算日期時間，實在是太麻煩也容易出錯 …</p>
+<p><code>Calendar</code> 是提供了一些計算日期時間的方法，不過 … 使用 <code>Calendar</code> 實在是太麻煩、太痛苦了，你得用一堆列舉常數，像是 <code>YEAR</code>、<code>MONTH</code>、<code>DAY_OF_MONTH</code>、<code>HOUR</code> 等，不然就得小心那些從 0 開始計算的日期時間，像是月份，另一方面，<strong><code>Calendar</code> 狀態可變</strong>，有時也會造成前述的類似問題 …</p>
+<p>至於 <code>Calendar</code> 相關的 API 為什麼這麼難用，這當中還有一些八掛歷史 … 查看一下 <code>Calendar</code> 的原始碼，你會看到這個註解：</p>
+<pre class="prettyprint"><code lang="code">/*
+ * (C) Copyright Taligent, Inc. 1996-1998 - All Rights Reserved
+ * (C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
+ *
+ *   The original version of this source code and documentation is copyrighted
+ * and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+ * materials are provided under terms of a License Agreement between Taligent
+ * and Sun. This technology is protected by multiple US and International
+ * patents. This notice and attribution to Taligent may not be removed.
+ *   Taligent is a registered trademark of Taligent, Inc.
+ *
+ */
+</code></pre>
+<p>有些人可能知道，<code>Calendar</code> 相關 API 是 IBM 捐出的，只是 Taligent 是什麼單位？過去有篇文章 The Seven Habits of Highly Dysfunctional Design，其中 Useless data types: Date, Date, Time and Timestamp 有談到一些 <code>Calendar</code> 的歷史，可惜的是文章已經消失在網路之中了…不過，有興趣還是可以搜尋一下「Java Calendar IBM Taligent」，還是可以找到些蛛絲馬跡…</p>
+<p>實際上，無論你是使用 <code>Date</code>、<code>Calendar</code>，或者是使用後面要介紹的 Joda-Time、JSR310 等，都得瞭解更多日期時間的歷史與概念，才能清楚知道那些 API 代表了什麼，這會是下篇要討論的內容 …</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

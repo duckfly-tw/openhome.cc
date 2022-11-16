@@ -1,0 +1,709 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="樣式處理也許是瀏覽器中最複雜的部份，將所有細節予以封裝一定是個不錯的想法，為此，可以建立一個 Style-1.0.0.js，首先來看看 css 函式，它可以使用物件來一次設定想要的樣式：
+// 可透過...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="封裝樣式處理">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/StyleLibrary.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="樣式處理也許是瀏覽器中最複雜的部份，將所有細節予以封裝一定是個不錯的想法，為此，可以建立一個 Style-1.0.0.js，首先來看看 css 函式，它可以使用物件來一次設定想要的樣式：
+// 可透過...">
+
+    <title>封裝樣式處理</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StyleLibrary.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>封裝樣式處理</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>樣式處理也許是瀏覽器中最複雜的部份，將所有細節予以封裝一定是個不錯的想法，為此，可以建立一個 Style-1.0.0.js，首先來看看 <code>css</code> 函式，它可以使用物件來一次設定想要的樣式：</p>
+<pre class="prettyprint"><code lang="javascript">// 可透過物件以 key : value（CSS）形式來設定樣式
+function css(elem, props) {     
+    Object.keys(props)
+          .forEach(name =&gt; elem.style[name] = props[name]);
+}
+</code></pre>
+<p>接著將〈<a href="TopLeft.html">存取元素位置</a>〉中的 <code>offset</code> 放進去：</p>
+<pre class="prettyprint"><code lang="javascript">// 取得元素確實位置
+function offset(elem) {
+    let x = 0;
+    let y = 0;
+    for(let e = elem; e; e = e.offsetParent) {
+        x += e.offsetLeft;
+        y += e.offsetTop;
+    }
+
+    //  修正捲軸區域的量
+    for(let e = elem.parentNode; e &amp;&amp; e != document.body; e = e.parentNode) {
+        if(e.scrollLeft) {
+            x -= e.scrollLeft;
+        }
+        if(e.scrollTop) {
+            y -= e.scrollTop;
+        }
+    }
+
+    return { 
+        x, 
+        y, 
+        toString() {
+            return `(${this.x}, ${this.y})`;
+        }
+    };
+}
+</code></pre>
+<p>然後準備處理〈<a href="DisplayVisibilityOpacity.html">顯示、可見度與透明度</a>〉中 <code>hide</code>、<code>show</code> 函式，不過在這之前要想想，原本的 <code>hide</code>、<code>show</code> 函式直接在原生元素上新增了特性，這並不是個建議的方式（除非是為了相容性而修補物件，使之有相容於標準的新功能）。</p>
+<p>必須要有個方法，可以為元素儲存相關特性，然而並非在元素本身，這時可以用上〈<a href="SetMap.html">Set 與 Map</a>〉中談過的 <code>WeakMap</code>：</p>
+<pre class="prettyprint"><code lang="javascript">// 儲存元素對應的資料
+let elemData = new WeakMap();
+function storage(elem, data) {
+    if(data === undefined) {
+        return elemData.get(elem);
+    } else {
+        elemData.set(elem, data);
+    }
+}
+
+// 設定元素的相關屬性，但此實作不是直接儲存在元素上
+function prePropOf(elem, prop, value) {
+    if(value === undefined) {
+        let data = storage(elem);
+        return data === undefined ? undefined : data[prop];
+    } else {
+        let data = storage(elem);
+        if(data) {
+            data[prop] = value;
+        } 
+        else {
+            data = {[prop] : value};
+        }
+        storage(elem, data);
+    }   
+}
+</code></pre>
+<p>使用 <code>WeakMap</code> 的原因在於，如果元素已經不再被程式其他部份參考住，就可以直接 GC，<code>WeakMap</code> 也不會再有該元素，這可以避免記憶體洩漏的問題。</p>
+<p>接著，就可以實現 <code>hide</code>、<code>show</code> 函式，以及 <code>fadeOut</code>、<code>fadeIn</code>函式：</p>
+<pre class="prettyprint"><code lang="javascript">function computedStyle(elem, name, pseudoClz = null) {
+    return window.getComputedStyle(elem, pseudoClz)[name];
+}
+
+// 顯示元素
+function show(elem, pseudoClz = null) {
+    elem.style.display = prePropOf(elem, 'display') || '';
+    if(computedStyle(elem, 'display', pseudoClz) === 'none') {
+        // 在 DOM 樹上建立元素，取得 display 預設值後移除
+        let node = document.createElement(elem.nodeName);
+        document.body.appendChild(node);
+        elem.style.display = style(node, 'display');
+        document.body.removeChild(node);
+    }
+}
+
+// 隱藏元素
+function hide(elem, pseudoClz = null) {
+    let display = computedStyle(elem, 'display', pseudoClz);
+    prePropOf(elem, 'display', display);
+    elem.style.display = 'none';
+}
+
+// 取得透明度的數字
+function opacity(elem, pseudoClz = null) {
+    let opt = computedStyle(elem, 'opacity', pseudoClz);
+    return opt === '' ? 1 : parseFloat(opt);
+}
+
+//speed 是動畫總時間，step 是動畫數
+// 淡出
+function fadeOut(elem, speed = 5000, steps = 10, pseudoClz = null) {
+    let preOpacity = opacity(elem, pseudoClz);
+
+    prePropOf(elem, 'opacity', preOpacity);
+
+    let timeInterval = speed / steps;
+    let valueStep = preOpacity / steps;
+
+    let opt = preOpacity;
+    setTimeout(function next() {
+        opt -= valueStep;
+        if(opt &gt; 0) {
+            elem.style.opacity = opt;
+            setTimeout(next, timeInterval);
+        }
+        else {
+            elem.style.opacity = 0;
+        }
+    }, timeInterval);
+} 
+
+// 淡入
+function fadeIn(elem, speed = 5000, steps = 10, pseudoClz = null) {
+    let targetValue = prePropOf(elem, 'opacity') || 1;
+
+    let timeInterval = speed / steps;
+    let valueStep = targetValue / steps;
+
+    let opt = 0;
+    setTimeout(function next() {
+        opt += valueStep;
+        if(opt &lt; targetValue) {
+            elem.style.opacity = opt;
+            setTimeout(next, timeInterval);
+        }
+        else {
+            elem.style.opacity = targetValue;
+        }
+    }, timeInterval);
+}  
+</code></pre>
+<p>接著就是將一些先前文件中看過的其他樣式相關函式放進去了：</p>
+<pre class="prettyprint"><code lang="javascript">// 是否有指定類別
+function hasClass(elem, clz) {
+    let clzs = elem.className;
+    if(!clzs) {
+        return false;
+    } else if(clzs === clz) {
+        return true;
+    }
+    return clzs.search(`\\b${clz}\\b`) !== -1;
+}
+
+// 新增類別
+function addClass(elem, clz) {
+    if(!hasClass(elem, clz)) {
+        if(elem.className) {
+            clz = ` ${clz}`;
+        }
+        elem.className += clz;
+    }
+}
+
+// 移除類別
+function removeClass(elem, clz) {
+    elem.className = elem.className.replace(
+      new RegExp(`\\b${clz}\\b\\s*`, 'g'), '');
+}
+
+function toggleClass(elem, clz1, clz2) {
+    if(hasClass(elem, clz1)) {
+        removeClass(elem, clz1);
+        addClass(elem, clz2);
+    }
+    else if(hasClass(elem, clz2)) {
+        removeClass(elem, clz2);
+        addClass(elem, clz1);
+    }
+}
+
+// 集中取得維度用的方法
+class Dimension {
+    static screen() {
+        return {
+            width: screen.width,
+            height: screen.height
+        };
+    }
+
+    static screenAvail() {
+        return {
+            width: screen.availWidth,
+            height: screen.availHeight
+        };        
+    }
+
+    static browser() {
+        return {
+            width: window.outerWidth,
+            height: window.outerHeight
+        };
+    }
+
+    static html() {
+        return {
+            width: window.documentElement.scrollWidth,
+            height: window.documentElement.scrollHeight
+        };        
+    }
+
+    static body() {
+        return {
+            width: window.body.scrollWidth,
+            height: window.body.scrollHeight
+        };        
+    }
+
+    static viewport() {
+        return {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };        
+    }
+}
+
+// 集中取得座標用的方法
+class Coordinate {
+    static browser() {
+        return {
+            x: window.screenX,
+            y: window.screenY
+        };                
+    }
+
+    static scroll() {
+        return {
+            x: window.pageXOffset,
+            y: window.pageYOffset
+        };        
+    }
+}
+</code></pre>
+<p>匯出的名稱有以下這些：</p>
+<pre class="prettyprint"><code lang="javascript">export {css, offset, hide, show, fadeOut, fadeIn};
+export {hasClass, addClass, removeClass, toggleClass};
+export {Dimension, Coordinate};
+</code></pre>
+<p>再來就是處理 XD-1.2.0.js 了，首先匯入相關名稱：</p>
+<pre class="prettyprint"><code lang="javascript">import {css, offset, hide, show, fadeOut, fadeIn} from './Style-1.0.0.js';
+import {hasClass, addClass, removeClass, toggleClass} from './Style-1.0.0.js';
+</code></pre>
+<p>在 <code>ElemCollection</code> 上添增一些方法：</p>
+<pre class="prettyprint"><code lang="javascript">class ElemCollection {
+
+    ...
+
+    // 如果 value 為 undefined，取得元素 style 特性上對應的樣式
+    // 否則在元素的 style 上設定特性           
+    style(name, value) { 
+        let elems = this.elems;
+        let propName = PROPS.has(name) ? PROPS.get(name) : name;
+
+        if(value === undefined) {
+            return elems[0] ? elems[0].style[propName] : null;
+        } else {
+            elems.filter(elem =&gt; !isTextNode(elems[0]) &amp;&amp; !isCommentNode(elems[0]))
+                 .forEach(elem =&gt; elem.style[propName] = value);
+            return this;
+        }
+    }
+
+    // 取得計算樣式，不寫在 style() 方法中的理由在於
+    // 從計算樣式與 style() 方法傳回值是否為 undefined
+    // 可以知道樣式是來自樣式表或者是 style 設定
+    // 明確化來源是其目的
+    computedStyle(name, pseudoClz = null) {
+        let elems = this.elems;
+        let propName = PROPS.has(name) ? PROPS.get(name) : name;
+        return elems[0] &amp;&amp; !isTextNode(elems[0]) &amp;&amp; !isCommentNode(elems[0]) ?
+                    window.getComputedStyle(elems[0], pseudoClz)[propName] : null;
+    }
+
+    // 可透過物件以 key : value（CSS）形式來設定樣式
+    css(props) {
+        let standardized =
+              Object.keys(props)
+                    .reduce((acc, name) =&gt; {
+                         acc[PROPS.has(name) ? PROPS.get(name) : name] = props[name];
+                         return acc;
+                    }, {});
+
+        this.elems.forEach(elem =&gt; css(elem, standardized));
+        return this;
+    }
+
+    // 取得元素確實位置 
+    offset() {
+        let elems = this.elems;
+        return elems[0] ? offset(elems[0]) : null;
+    }
+
+    // 隱藏元素
+    hide(pesudoClz = null) {
+        this.elems.forEach(elem =&gt; hide(elem, pesudoClz));
+        return this;
+    }
+
+    // 顯示元素
+    show(pesudoClz = null) {
+        this.elems.forEach(elem =&gt; show(elem, pesudoClz));
+        return this;
+    }
+
+    // 淡出
+    fadeOut(speed = 5000, steps = 10, pseudoClz = null) {
+        this.elems.forEach(elem =&gt; fadeOut(elem, speed, steps, pseudoClz));
+        return this;
+    }
+
+    // 淡入
+    fadeIn(speed = 5000, steps = 10, pseudoClz = null) {
+        this.elems.forEach(elem =&gt; fadeIn(elem, speed, steps, pseudoClz));
+        return this;
+    }
+
+    // 第一個元素是否有指定類別
+    hasClass(clz) {
+        let elems = this.elems;
+        return elems[0] ? hasClass(elems[0], clz) : null;
+    }
+
+    // 加入類別
+    addClass(clz) {
+        this.elems.forEach(elem =&gt; addClass(elem, clz)); 
+        return this;
+    }
+
+    // 移除類別
+    removeClass() {
+        this.elems.forEach(elem =&gt; removeClass(elem, clz)); 
+        return this;
+    }
+
+    // 切換類別
+    toggleClass(clz1, clz2) {
+        this.elems.forEach(elem =&gt; toggleClass(elem, clz1, clz2));
+        return this;        
+    }
+}
+</code></pre>
+<p>XD-1.2.0.js 實際上是作為一個門戶（Facade），對於 Style-1.0.0.js 中的 <code>Dimension</code> 與 <code>Coordinate</code> 直接匯出就可以了：</p>
+<pre class="prettyprint"><code lang="javascript">export {Dimension, Coordinate} from './Style-1.0.0.js';
+</code></pre>
+<p>然而，XD-1.2.0.js 作為一個門戶，也必須考量到的是，<code>ElemCollection</code> 會不會擔負了太多職責了？在未來你可能繼續在上頭添增一些方便的方法，而使得 <code>ElemCollection</code> 成為一個無所不能的超級或上帝類別（God class）？</p>
+<p>這是個必須考量的問題，就目前來說，為了簡化範例才這麼做，然而，實際上，應該讓 <code>ElemCollection</code> 只處理一些基礎事務，像 <code>hide</code>、<code>show</code>、<code>fadeOut</code>、<code>fadeIn</code> 這些是基礎事務嗎？雖然目前都放在 <code>ElemCollection</code> 的話，寫起程式來會很爽，然而，它們應該不太算是基礎事務，而算是特效之類的東西。</p>
+<p>因此比較好的作法是，基於 XD-1.2.0.js 上，建構一個 <code>Effect</code> 模組來專門處理特效，將 Style-1.0.0.js 中 <code>hide</code>、<code>show</code>、<code>fadeOut</code>、<code>fadeIn</code> 函式放到 <code>Effect</code> 模組中，而 <code>ElemCollection</code> 上的  <code>hide</code>、<code>show</code>、<code>fadeOut</code>、<code>fadeIn</code> 方法，在 <code>Effect</code> 模組中設計一個物件或者是相關函式來處理，在必須用到特效時，可以從 <code>ElemCollection</code> 建構出特效物件，將特效的職責分離出來。</p>
+<p>這也有助於 Style-1.0.0.js 瘦身，ES6 並不鼓勵一個模組匯出太多東西，而成為一個超級模組，就目前來說，Style-1.0.0.js 匯出的東西算是比較多一些了，只是為了簡化範例，暫且沒將特效的東西分離出來而已，未來 Style-1.0.0.js 中的東西越來越多時，應避免它成為一個超級模組。</p>
+<p>分離職責的東西，就交給你自己來試試了，你可以在 <a href="https://openhome.cc/Gossip/ECMAScript/samples/js/XD-1.2.0.js">XD-1.2.0.js</a>、<a href="https://openhome.cc/Gossip/ECMAScript/samples/js/Style-1.0.0.js">Style-1.0.0.js</a> 與 <a href="https://openhome.cc/Gossip/ECMAScript/samples/js/Evt-1.0.0.js">Evt-1.0.0.js</a> 下載到目前已封裝之程式庫。</p>
+<p>現在先來看看，基於目前的程式庫封裝，可以如何簡化先前看過的範例，首先是〈<a href="Style.html">存取樣式資訊</a>〉中第一個範例的改寫（你的瀏覽器必須支援 ES6 模組）：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="message"&gt;這是一段訊息&lt;/div&gt;
+
+&lt;script type="module"&gt;
+    import {elemsById} from './js/XD-1.2.0.js';
+    elemsById('message').css({
+                    color : '#ffffff',
+                    backgroundColor : '#ff0000',
+                    width : '300px',
+                    height : '200px',
+                    paddingLeft : '250px',
+                    paddingTop : '150px'
+                });
+
+&lt;/script&gt;  
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-1.html">按我觀看結果</a>。</p>
+<p>再來是〈<a href="Style.html">存取樣式資訊</a>〉中最後一個範例：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+    &lt;style type="text/css"&gt;
+        #message {
+            color: #ffffff; 
+            background-color: #ff0000; 
+            width: 500px; 
+            height: 200px; 
+            padding-left: 250px; 
+            padding-top: 150px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;div id="message"&gt;這是一段訊息&lt;/div&gt;
+    &lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script type="module"&gt;
+    import {elemsById} from './js/XD-1.2.0.js';
+
+    let color = elemsById('message').computedStyle('backgroundColor');
+    elemsById('console').html(color);
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-2.html">按我觀看結果</a>。</p>
+<p>以下是〈<a href="TopLeft.html">存取元素位置</a>〉的第三個範例改寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+    &lt;style type="text/css"&gt;
+         #container {
+             color: #ffffff;
+             background-color: #ff0000;
+             height: 50px;
+             position: absolute;
+             top: -100px;
+             left:-100px;
+         }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;div id="container"&gt;這是一段訊息&lt;/div&gt;
+    &lt;hr&gt;
+    搜尋：&lt;input id="search" type="text"&gt;
+
+&lt;script type="module"&gt;
+    import x from './js/XD-1.2.0.js';
+    let doc = x(document);
+
+    let input = doc.elemsById('search');
+    let offsetWidth = input.attr('offsetWidth');
+    let offsetHeight = input.attr('offsetHeight');
+    let search = input.offset();
+
+    doc.elemsById('container')
+       .css({
+           left  : `${search.x}px`,
+           top   : `${search.y + offsetHeight}px`,
+           width : `${offsetWidth}px`
+       });
+
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-3.html">按我觀看結果</a>。</p>
+<p>以下是〈<a href="DisplayVisibilityOpacity.html">顯示、可見度與透明度</a>〉第一個範例的改寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+
+    &lt;style type="text/css"&gt;
+        #message {
+            color: #ffffff;
+            background-color: #ff0000;
+            border-width: 10px;
+            border-color: black;
+            border-style: solid;
+            width: 100px;
+            height: 50px;
+            padding: 50px;
+        }
+    &lt;/style&gt;  
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;button id='toggle'&gt;切換顯示狀態&lt;/button&gt;
+    &lt;hr&gt;
+    這是一些文字！這是一些文字！這是一些文字！這是一些文字！這是一些文字！
+    &lt;div id="message"&gt;這是訊息一&lt;/div&gt;
+    這是其他文字！這是其他文字！這是其他文字！這是其他文字！這是其他文字！
+
+&lt;script type="module"&gt;
+    import {elemsById} from './js/XD-1.2.0.js';
+
+    elemsById('toggle').addEvt('click', evt =&gt; {
+        let message = elemsById('message');
+        if(message.computedStyle('display') === 'none') {
+             message.show();
+        } else {
+             message.hide();
+        }
+    });
+
+&lt;/script&gt;  
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-4.html">按我觀看結果</a>。</p>
+<p>以下是〈<a href="DisplayVisibilityOpacity.html">顯示、可見度與透明度</a>〉第二個範例的改寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;button id='fadeOut'&gt;淡出&lt;/button&gt;
+    &lt;button id='fadeIn'&gt;淡入&lt;/button&gt;&lt;br&gt;
+    &lt;img id="image" src="https://openhome.cc/Gossip/images/caterpillar_small.jpg"&gt;  
+
+&lt;script type="module"&gt;
+    import {elemsById} from './js/XD-1.2.0.js';
+
+    let image = elemsById('image');
+    elemsById('fadeOut').addEvt('click', evt =&gt; {
+        image.fadeOut();
+    });
+
+    elemsById('fadeIn').addEvt('click', evt =&gt; {
+        image.fadeIn();
+    });
+&lt;/script&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-5.html">按我觀看結果</a>。</p>
+<p>以下是〈<a href="ClassName.html">操作 class 屬性</a>〉中的範例改寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+    &lt;style type="text/css"&gt;
+        .released {
+            border-width: 1px;
+            border-color: red;
+            border-style: dashed;
+        }
+
+        .pressed {
+            border-width: 5px;
+            border-color: black;
+            border-style: solid;
+        }
+  &lt;/style&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;img id="logo" class='released' 
+       src="https://openhome.cc/Gossip/images/caterpillar_small.jpg"&gt;  
+
+&lt;script type="module"&gt;
+    import {elemsById} from './js/XD-1.2.0.js';
+
+    let logo = elemsById('logo');
+
+    logo.addEvt('click', evt =&gt; {
+        logo.toggleClass('released', 'pressed');
+    });
+
+&lt;/script&gt;  
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-6.html">按我觀看結果</a>。</p>
+<p>以下是〈<a href="WindowDimension.html">取得視窗維度資訊</a>〉中的範例改寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+    &lt;style type="text/css"&gt;
+        #message1 {
+            text-align: center;
+            vertical-align: middle;
+            color: #ffffff;
+            background-color: #ff0000;
+            width: 100px;
+            height: 50px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    這些是一些文字&lt;br&gt;這些是一些文字&lt;br&gt;這些是一些文字&lt;br&gt;
+    &lt;button&gt;其他元件&lt;/button&gt;
+    &lt;div id="message1"&gt;
+        看點廣告吧！&lt;br&gt;&lt;br&gt;
+        &lt;button id="confirm"&gt;確定&lt;/button&gt;
+    &lt;/div&gt;
+
+&lt;script type="module"&gt;
+
+    import {elemsById, Dimension} from './js/XD-1.2.0.js';
+
+    let {width, height} = Dimension.viewport();
+    let message1 = elemsById('message1');
+
+    message1.css({
+        opacity : 0.5,
+        width   : `${width}px`,
+        height  : `${height / 2}px`,       
+        paddingTop : `${height / 2}px`
+    });
+
+    elemsById('confirm').addEvt('click', evt =&gt; {
+        message1.css({
+            width   : '0px',
+            height  : '0px',       
+            paddingTop : '0px',
+            display : 'none'
+        });        
+    });
+
+
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/StyleLibrary-7.html">按我觀看結果</a>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

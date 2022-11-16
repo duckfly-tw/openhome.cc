@@ -1,0 +1,238 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="子類別繼承父類別，可用來避免重複的行為，不過並非為了避免重複定義行為就使用繼承，濫用繼承而導致程式維護上的問題時有所聞，如何正確判斷使用繼承的時機，以及繼承之後如何活用多型，才是學習繼承時的重點。
+無...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="繼承共同行為">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Inheritance.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="子類別繼承父類別，可用來避免重複的行為，不過並非為了避免重複定義行為就使用繼承，濫用繼承而導致程式維護上的問題時有所聞，如何正確判斷使用繼承的時機，以及繼承之後如何活用多型，才是學習繼承時的重點。
+無...">
+
+    <title>繼承共同行為</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Inheritance.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>繼承共同行為</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>子類別繼承父類別，可用來避免重複的行為，不過並非為了避免重複定義行為就使用繼承，濫用繼承而導致程式維護上的問題時有所聞，如何正確判斷使用繼承的時機，以及繼承之後如何活用多型，才是學習繼承時的重點。</p>
+<p>無論如何，先來看看行為重複是怎麼一回事，假設你在正開發一款 RPG（Role-playing game）遊戲，一開始設定的角色有劍士與魔法師。首先你定義了劍士類別：</p>
+<pre class="prettyprint"><code lang="c++">class SwordsMan {
+    string name;   // 角色名稱
+    int level;     // 角色等級
+    int blood;     // 角色血量
+
+public:
+    SwordsMan(string name, int level, int blood)
+     : name(name), level(level), blood(blood) {}
+
+    void fight() {
+        cout &lt;&lt; "揮劍攻擊" &lt;&lt; endl;
+    }
+
+    string to_string() {
+        return "(" + 
+            this-&gt;name + ", " + 
+            std::to_string(this-&gt;level) + ", " + 
+            std::to_string(this-&gt;blood) + 
+        ")";
+    };
+};
+</code></pre>
+<p>接著你為魔法師定義類別：</p>
+<pre class="prettyprint"><code lang="c++">class Magician {
+    string name;   // 角色名稱
+    int level;     // 角色等級
+    int blood;     // 角色血量
+
+public:
+    Magician(string name, int level, int blood)
+     : name(name), level(level), blood(blood) {}
+
+    void fight() {
+        cout &lt;&lt; "魔法攻擊" &lt;&lt; endl;
+    }
+
+    void cure() {
+        cout &lt;&lt; "魔法治療" &lt;&lt; endl;
+    }
+
+    string to_string() {
+        return "(" + 
+            this-&gt;name + ", " + 
+            std::to_string(this-&gt;level) + ", " + 
+            std::to_string(this-&gt;blood) + 
+        ")";
+    };
+};
+</code></pre>
+<p>你注意到什麼呢？因為只要是遊戲中的角色，都會具有角色名稱、等級與血量，類別中也都為名稱、等級與血量定義了取值方法與設值方法，<code>Magician</code> 與 <code>SwordsMan</code> 有許多程式碼重複了。</p>
+<p>重複在程式設計上，就是不好的訊號。舉個例子來說，如果要將 <code>name</code>、<code>level</code>、<code>blood</code> 改為其他名稱，那就要修改 <code>SwordsMan</code> 與 <code>Magician</code> 兩個類別，如果有更多類別具有重複的程式碼，那就要修改更多類別，造成維護上的不便。</p>
+<p>如果要改進，可以把相同的程式碼提昇（Pull up）為父類別：</p>
+<pre class="prettyprint"><code lang="c++">class Role {
+    string name;   // 角色名稱
+    int level;     // 角色等級
+    int blood;     // 角色血量
+
+public:
+    Role(string name, int level, int blood)
+     : name(name), level(level), blood(blood) {}
+
+    string to_string() {
+        return "(" + 
+            this-&gt;name + ", " + 
+            std::to_string(this-&gt;level) + ", " + 
+            std::to_string(this-&gt;blood) + 
+        ")";
+    };
+};
+</code></pre>
+<p>這個類別在定義上沒什麼特別的新語法，只不過是將 <code>SwordsMan</code> 與 <code>Magician</code> 中重複的程式碼複製過來。接著 <code>SwordsMan</code> 可以如下繼承 <code>Role</code>：</p>
+<pre class="prettyprint"><code lang="c++">class SwordsMan : public Role {
+public:
+    SwordsMan(string name, int level, int blood) : Role(name, level, blood) {}
+
+    void fight() {
+        cout &lt;&lt; "揮劍攻擊" &lt;&lt; endl;
+    }
+};
+</code></pre>
+<p>在定義 <code>SwordsMan</code> 類別時，<code>:</code> 指出會 <code>SwordsMan</code> 會擴充 <code>Role</code> 的行為，<code>:</code> 右邊的 <code>public</code> 表示，會以公開的方式繼承 <code>Role</code>，這表示繼承而來的 <code>Role</code> 成員，權限控制最大是 <code>public</code>，也就是 <code>Role</code> 繼承而來的相關成員維持既有的權限控制。</p>
+<p>在繼承類別時，還可以在 <code>:</code> 右邊指定 <code>protected</code> 或 <code>private</code>，表示繼承而來的 <code>Role</code> 成員權限控制最大是 <code>protected</code> 或 <code>private</code>，例如若 <code>:</code> 右邊指定 <code>private</code>，<code>Role</code> 的 <code>protected</code> 或 <code>public</code> 成員在子類中，權限就會被限縮為 <code>private</code>。</p>
+<p>繼承時設定的權限預設會套用至各個成員，然而，可以使用 <code>using</code> 指出哪些成員要維持父類中設定之權限。例如，若父類 <code>P</code> 中有 <code>public</code> 的 <code>publicMember</code> 及 <code>protected</code> 的 <code>protectedMember</code>：</p>
+<pre class="prettyprint"><code lang="c++">class D : private P {
+public:
+    using P::publicMember;    // 維持 public
+
+protected:
+    using P::protectedMember; // 維持 protected
+};
+</code></pre>
+<p>如果繼承時沒有指定 <code>public</code>、<code>protected</code>、<code>private</code>，若子類別定義時使用 <code>struct</code>，那預設就是 <code>public</code> 繼承，若子類別定義時使用 <code>class</code>，那預設就是 <code>private</code> 繼承。</p>
+<p>定義類別時，<code>protected</code> 成員，是表示只能被子類存取。</p>
+<p>在方才的程式碼中，<code>SwordsMan</code> 定義了建構式，建構時指定的 <code>name</code>、<code>level</code>、<code>blood</code> 指定給 <code>Role</code> 的建構式，<code>SwordsMan</code> 也定義了自己的 <code>fight</code> 方法。</p>
+<p>類似地，<code>Magician</code> 可以如下繼承 <code>Role</code> 類別：</p>
+<pre class="prettyprint"><code lang="c++">class Magician : public Role {
+public:
+    Magician(string name, int level, int blood) : Role(name, level, blood) {}
+
+    void fight() {
+        cout &lt;&lt; "魔法攻擊" &lt;&lt; endl;
+    }
+
+    void cure() {
+        cout &lt;&lt; "魔法治療" &lt;&lt; endl;
+    }
+};
+</code></pre>
+<p>如何看出確實有繼承了呢？以下簡單的程式可以看出：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;string&gt; 
+using namespace std;
+
+... 方才的 Role、SwordsMan、Magician 程式碼
+
+int main() { 
+    SwordsMan swordsMan("Justin", 1, 1000);
+    Magician magician("Magician", 1, 800);
+
+    swordsMan.fight();
+    magician.fight();
+    magician.cure();
+
+    cout &lt;&lt; "SwordsMan" &lt;&lt; swordsMan.to_string() &lt;&lt; endl;
+    cout &lt;&lt; "Magician" &lt;&lt; magician.to_string() &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>雖然 <code>SwordsMan</code> 與 <code>Magician</code> 並沒有定義 <code>to_string</code> 方法，但從 <code>Role</code> 繼承了，所以可以直接使用，執行的結果如下：</p>
+<pre class="prettyprint"><code lang="c++">揮劍攻擊
+魔法攻擊
+魔法治療
+SwordsMan(Justin, 1, 1000)
+Magician(Magician, 1, 800)
+</code></pre>
+<p>繼承的好處之一，就是若要將 <code>name</code>、<code>level</code>、<code>blood</code> 等值域改名為其他名稱，那就只要修改 <code>Role</code> 就可以了，繼承 <code>Role</code> 的子類別無需修改。</p>
+<p>在 <code>SwordsMan</code>、<code>Magician</code> 中定義了建構式，並呼叫了父類 <code>Role</code> 建構式，實際上建構式本體沒寫什麼，在這種情況下，你可能會想直接繼承 <code>Role</code> 定義的建構流程，這可以透過 <code>using</code> 指定父類名稱來達到，例如：</p>
+<pre class="prettyprint"><code lang="c++">class SwordsMan : public Role {
+public:
+    using Role::Role;
+
+    void fight() {
+        cout &lt;&lt; "揮劍攻擊" &lt;&lt; endl;
+    }
+};
+
+class Magician : public Role {
+public:
+    using Role::Role;
+
+    void fight() {
+        cout &lt;&lt; "魔法攻擊" &lt;&lt; endl;
+    }
+
+    void cure() {
+        cout &lt;&lt; "魔法治療" &lt;&lt; endl;
+    }
+};
+</code></pre>
+<p>這麼一來，<code>SwordsMan("Justin", 1, 1000)</code>、<code>Magician("Magician", 1, 800)</code> 的建構流程，就直接走 <code>Role</code> 中相同簽署的建構流程了，不過，就繼承意義而言，這才是實質地繼承了建構式，不過這種方式，不能繼承預設、複製與移動建構式，若需要這些建構式，子類必須自行定義。</p>
+<p>在物件導向中，繼承是個雙面刃，想判斷繼承的運用是否正確，有許多角度可以探討，最基本的，就是看看父子類別是否為「是一種（is-a）」的關係，就上例來說，<code>SwordsMan</code> 是一種 <code>Role</code>，<code>Magician</code> 是一種 <code>Role</code>，符合最低限度的關係。</p>
+<p>就這邊的範例說，建構子類實例時，會先執行父類建構式，接著是子類建構式，而解構的時候相反，會先執行子類解構式，接著才是父類解構式。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

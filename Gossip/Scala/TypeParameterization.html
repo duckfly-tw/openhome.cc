@@ -1,0 +1,72 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="考慮你要製作一個節點物件，節點可內含的物件可以參數化（就如同List、Set等可進行型態參數化），你可以如下進行定義：class Node[T] {    var next: Node[T]     ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="型態參數基礎">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/TypeParameterization.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="考慮你要製作一個節點物件，節點可內含的物件可以參數化（就如同List、Set等可進行型態參數化），你可以如下進行定義：class Node[T] {    var next: Node[T]     ...">
+
+
+    <title>型態參數基礎</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TypeParameterization.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>型態參數基礎</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            考慮你要製作一個節點物件，節點可內含的物件可以參數化（就如同List、Set等可進行型態參數化），你可以如下進行定義：<br><pre class="prettyprint"><code lang="scala">class Node<span style="font-weight: bold;">[T]</span> {<br>    var next: Node<span style="font-weight: bold;">[T]</span>      = _<br>    private[this] var v: <span style="font-weight: bold;">T</span> = _<br>    def value: <span style="font-weight: bold;">T</span> = v<br>    def value_=(v: <span style="font-weight: bold;">T</span>) { this.v = v }  <br>}</code></pre><br>你使用[]括住一個代表型態的名稱，之後就可以先使用該名稱來宣告變數，名稱所代表的型態是未定的，你要在建立物件時指定型態，例如指定型態為String：<br><pre class="prettyprint"><code lang="scala">val first = new Node<span style="font-weight: bold;">[String]</span><br>first.value = "Justin"<br>first.next = new Node<span style="font-weight: bold;">[String]</span><br>first.next.value = "momor"</code></pre><br>在上例中，將Node定義中的T參數化為String，所以value傳回String，而value_()方法可以接受String，v的型態也是String。你也可以指定別的型態：<br><pre class="prettyprint"><code lang="scala">val first = new Node<span style="font-weight: bold;">[Int]</span><br>first.value = 100<br>first.next = new Node<span style="font-weight: bold;">[Int]</span><br>first.next.value = 200</code></pre><br>在上例中，將Node定義中的T參數化為Int，所以value傳回Int，而value_()方法可以接受Int，v的型態也是Int。型態參數也可以用在函式定義上，例如在 <a href="../AlgorithmGossip/MultiToOneDim.htm#Scala">多維矩陣轉一維矩陣</a> 的例子中，若想讓函式更一般化，則可以如下撰寫：<br><pre class="prettyprint"><code lang="scala">def toOneByRow<span style="font-weight: bold;">[T]</span>(array: Array[Array[<span style="font-weight: bold;">T</span>]]): Array[<span style="font-weight: bold;">T</span>] = {<br>    val arr = new Array[<span style="font-weight: bold;">T</span>](array.length * array(0).length)<br>    for(row &lt;- 0 until array.length; column &lt;- 0 until array(0).length) {<br>        arr(row * array(0).length + column) = array(row)(column)<br>    }<br>    arr    <br>}<br><br>val arr1 = Array(<br>              Array(1, 2, 3),<br>              Array(4, 5, 6)<br>           )<br>          <br>toOneByRow<span style="font-weight: bold;">[Int]</span>(arr1).foreach(println)<br><br>val arr2 = Array(<br>              Array("one" , "two"  , "three"),<br>              Array("four", "five" , "six")<br>           )<br>           <br>toOneByRow<span style="font-weight: bold;">[String]</span>(arr2).foreach(println))</code></pre><br>在定義或使用型態參數時，也可以結合類型推斷（Type inference），讓程式撰寫起來比較簡潔一些，例如：<br><pre class="prettyprint"><code lang="scala">def toOneByRow[T](array: Array[Array[T]]) = {<br>    val arr = new Array[T](array.length * array(0).length)<br>    for(row &lt;- 0 until array.length; column &lt;- 0 until array(0).length) {<br>        arr(row * array(0).length + column) = array(row)(column)<br>    }<br>    arr    <br>}<br><br>val arr1 = Array(<br>              Array(1, 2, 3),<br>              Array(4, 5, 6)<br>           )<br>          <br>toOneByRow(arr1).foreach(println)  // 因為類型推斷作用，無須寫明型態資訊</code></pre><br>型態參數也可以用來宣告 <a href="OverloadLocalRepeat.html">重複參數</a>，例如：<br><pre class="prettyprint"><code lang="scala">def show[T](values: <span style="font-weight: bold;">T*</span>) = {<br>    values.foreach(println)<br>}<br><br>show(1, 2, 3)<br>show("one", "two", "three", "four", "five")</code></pre><br>在定義特徵（Trait）時，也可以宣告型態參數，例如在 <a href="TraitAsCommImpl.html">作為共用實作的特徵</a> 就看過的 scala.Ordered[A]：<br><div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">package scala</span><br><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">trait Ordered<span style="color: red;">[A]</span> {</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp; &nbsp;def compare(that: <span style="color: red;">A</span>): Int</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; def &lt;&nbsp; (that: <span style="color: red;">A</span>): Boolean = (this compare that) &lt;&nbsp; 0</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; def &gt;&nbsp; (that: <span style="color: red;">A</span>): Boolean = (this compare that) &gt;&nbsp; 0</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; def &lt;= (that: <span style="color: red;">A</span>): Boolean = (this compare that) &lt;= 0</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; def &gt;= (that: <span style="color: red;">A</span>): Boolean = (this compare that) &gt;= 0</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; def compareTo(that: <span style="color: red;">A</span>): Int = compare(that)</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br></div><br>Ordered[A]可以在使用時宣告A的型態，一個在 <a href="TraitAsCommImpl.html">作為共用實作的特徵</a> 看過的例子如下： <pre class="prettyprint"><code lang="scala">class Ball(val radius: Int) <span style="font-weight: bold;">extends Ordered[Ball]</span> {<br>    def volume = 4 * Math.Pi * Math.pow(radius, 3) / 3<br><span style="font-weight: bold;">    def compare(that: Ball) = this.radius - that.radius</span><br>    override def equals(a: Any) = a match {<br>        case that: Ball =&gt; this.radius == that.radius;<br>        case _ =&gt; false<br>    }<br>    override def hashCode = 41 * radius<br>}<br><br>val b1 = new Ball(10)<br>val b2 = new Ball(20)<br>println(b1 &gt; b2)       // false<br>println(b1 &gt;= b2)      // false<br>println(b1 &lt; b2)       // true<br>println(b1 &lt;= b2)      // true<br>println(b1 == b2)      // false</code></pre><br>
+       
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

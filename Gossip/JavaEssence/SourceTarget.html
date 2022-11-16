@@ -1,0 +1,76 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果你在新版本的JDK上開發程式，編譯過後的.class檔案，在舊版本的JRE上執行，將會發生以下的錯誤訊息：上面的執行範例中，是在JDK6下編譯出.class，切換PATH至JDK1.4，使用其JR...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="降級你的類別檔案">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JavaEssence/SourceTarget.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果你在新版本的JDK上開發程式，編譯過後的.class檔案，在舊版本的JRE上執行，將會發生以下的錯誤訊息：上面的執行範例中，是在JDK6下編譯出.class，切換PATH至JDK1.4，使用其JR...">
+
+
+    <title>降級你的類別檔案</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SourceTarget.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Essence</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>降級你的類別檔案</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            如果你在新版本的JDK上開發程式，編譯過後的.class檔案，在舊版本的JRE上執行，將會發生以下的錯誤訊息：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-1.jpg" /></div></div><br><br>上面的執行範例中，是在JDK6下編譯出.class，切換PATH至JDK1.4，使用其JRE1.4來載入、執行.class，結果出現<span style="font-weight: bold;">UnsupportedClassVersionError</span>，並指出這個.class的major.minor為50.0。<br><br><span style="font-weight: bold;">編譯器對於每個.class檔案，都會標示主版本號與次版本號，不同的版本號，意味著這個類別檔案是不同版本的JDK編譯出來，而.class的格式可能有所不同。JVM在載入.class前，會先確認其版本號是否在可接受的範圍，否則就不會處理該.class檔案。</span><br><br>class的基本結構如下：<br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ClassFile {</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u4 magic;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: red;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 minor_version;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: red;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 major_version;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 constant_pool_count;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; cp_info constant_pool[constant_pool_count-1];</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 access_flags;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 this_class;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 super_class;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 interfaces_count;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 interfaces[interfaces_count];</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 fields_count;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; field_info fields[fields_count];</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 methods_count;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; method_info methods[methods_count];</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; u2 attributes_count;</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; attribute_info attributes[attributes_count];</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br><br>.class的第1到4位元組是標示類別檔案身份的魔術數字（Magic Number），它的值是<span style="font-weight: bold;">0xCAFEBABE（咖啡寶貝）</span>。<span style="font-weight: bold;">第5到6位元組是minor版本號，第7到第8位元組為major版本號</span>，可以使用十六進位編輯器觀看編好的.class檔案看到：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-2.jpg" /></div></div><br><br>其中00 32轉換為十進位制，就是50，這也就是為什麼剛剛顯示的錯誤訊息中，指出major.minor為50.0。你也可以使用JDK工具程式javap，確認.class的版本號：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-3.jpg" /></div></div><br><br>在 <a href="http://java.sun.com/docs/books/jvms/second_edition/html/VMSpecTOC.doc.html">The Java<sup>TM</sup> Virtual Machine Specification</a> 中 <a href="http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html">The class File Format</a> 最底下的註釋1中指出，<span style="font-weight: bold;">Sun
+JDK
+1.0.2的JVM實作，支援的.class檔案版本號為45.0到45.3。1.1.X則支援45.0到45.65535（向前相容）。1.2則支援
+45.0到46.0。在程式中，可以透過System.getProperty("java.class.version")取得JRE所支援的類別版本
+號.，使用System.getProperty("java.runtime.version")取得JRE版本訊息。</span><br><br>在編譯的時候，可以使用-target指定編譯出來的.class，必須符合所指定平台所允許的版本號，例如：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-4.jpg" /></div></div><br><br>上面這個例子指定了編譯出來的.class必須是1.5平台所接受的版本號（49.0）。<span style="font-weight: bold;">編譯器會有預設的target值</span>，例如在JDK6預設的target就是1.6。在javac時，還可以指定<span style="font-weight: bold;">-source</span>，<span style="font-weight: bold;">-target必須大於-source</span>，JDK5與JDK6沒什麼語法的大改變，<span style="font-weight: bold;">預設的語法版本</span>是1.5，所以上例中，只需要指定-target為1.5即可，但<span style="font-weight: bold;">JDK1.4到JDK5之間的語法改變很大，要在JDK5或JDK6中，編譯.class檔案為1.4平台可接受的版本，還要指定-source引數為1.4</span>，編譯器會檢查是否使用到1.4以外的語法，沒有的話再編譯類別檔案。例如：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-5.jpg" /></div></div><br><br>事實上，並非得切換PATH至較低版本的JDK或JRE，才能測試具較低版本號的類別檔案，<span style="font-weight: bold;">可以在執行時使用-version引數並指定版本</span>，例如：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-6.jpg" /></div></div><br><br>
+&nbsp;如果使用-version指定的版本，實際上無法在系統上找到已安裝的JRE，則會出現Unable to locate JRE meeting specification的錯誤。<br>
+<br>如果使用IDE，其都會有選項設定，讓你指定目標平台，例如Eclipse中設定的畫面：<br><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/SourceTarget-7.jpg" /></div></div><br><br><br>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

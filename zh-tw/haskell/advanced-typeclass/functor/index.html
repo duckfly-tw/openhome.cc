@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈流程抽象〉探討過函數式設計中一些簡單的流程抽象，有些型態具有類似的流程抽象，這類抽象會被進一步抽取出來，定義為型態類別（Typeclas">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::可以映射的 Functor" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/functor/" />
+    <meta property="og:description" content="在〈流程抽象〉探討過函數式設計中一些簡單的流程抽象，有些型態具有類似的流程抽象，這類抽象會被進一步抽取出來，定義為型態類別（Typeclas" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::可以映射的 Functor" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/functor/" />
+    <meta name="twitter:description" content="在〈流程抽象〉探討過函數式設計中一些簡單的流程抽象，有些型態具有類似的流程抽象，這類抽象會被進一步抽取出來，定義為型態類別（Typeclas" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443679" type="image/x-icon">
+    <title> Haskell  :: 可以映射的 Functor</title>
+    <link href="../../../css/nucleus.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443679.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443679"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/advanced-typeclass/functor/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item parent"><a href="../index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item active"><a href="index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">高階行為</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">可以映射的 Functor</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#從-maybe-a-到-maybe-b">從 Maybe a 到 Maybe b</a></li>
+    <li><a href="index.html#從-a-到-b">從 [a] 到 [b]</a></li>
+    <li><a href="index.html#functor-的行為">Functor 的行為</a></li>
+    <li><a href="index.html#從-io-a-到-io-b">從 IO a 到 IO b</a></li>
+    <li><a href="index.html#函式提昇">函式提昇</a></li>
+    <li><a href="index.html#functor-定律">Functor 定律</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/pattern/index.html">pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/functor/">Functor</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>可以映射的 Functor</h1>
+
+ <i class="space fa fa-calendar"> February 11, 2022</i> 
+<p>在〈<a href="../../abstraction/index.html">流程抽象</a>〉探討過函數式設計中一些簡單的流程抽象，有些型態具有類似的流程抽象，這類抽象會被進一步抽取出來，定義為型態類別（Typeclass），而型態成為型態類別的實例。</p>
+<p>流程抽象經由抽取再抽取，會構成一些看似高深莫測的型態類別，不少初學者認為這些行為難以理解，某些程度上，這是因為沒有先去觀察過具體實作，直接從抽象去理解，才會造成這種誤會。</p>
+<p>例如，來看看 <code>Functor</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#66d9ef">Functor</span> f <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> f a <span style="color:#f92672">-&gt;</span> f b
+</span></span></code></pre></div><p>喔！如果你第一次接觸 <code>Functor</code>，一定看不懂這啥鬼！還是先來看看 <code>Maybe</code>！你應該還記得它吧！忘了或沒看過的話，先回頭看看〈<a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a>〉。</p>
+<h2 id="從-maybe-a-到-maybe-b">從 Maybe a 到 Maybe b</h2>
+<p>函式呼叫結果若會有或沒有值時，可以傳回 <code>Maybe</code>，如果你拿到了一個 <code>Maybe</code> 型態的值，基本上要判斷是 <code>Just something</code> 或 <code>Nothing</code> 後採取進一步動作，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> (<span style="color:#66d9ef">Just</span> orderId)  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span> (customer orderId)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> <span style="color:#66d9ef">Nothing</span>         <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>上面的 <code>customName</code> 函式可以給個 <code>Maybe Int</code>，其中 <code>Int</code> 是訂單 id，而 <code>customer</code> 會查找對應訂單的客戶名稱；或許你也會想要取得客戶的住址資訊：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> (<span style="color:#66d9ef">Just</span> orderId)  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span> (address orderId)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> <span style="color:#66d9ef">Nothing</span>         <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>顯然地，兩者具有類似的流程，只是當中使用了 <code>customer</code> 或是 <code>address</code>，既然如此，不如定義一個通用的 <code>fmap</code> 函式，讓使用者可以指定 <code>a -&gt; b</code> 型態的函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">fmap&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> b
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmap&#39;</span> mapper (<span style="color:#66d9ef">Just</span> x) <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span> (mapper x) 
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmap&#39;</span> mapper <span style="color:#66d9ef">Nothing</span>  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>那麼，<code>customerName</code> 與 <code>customerAddress</code> 就可以分別改寫如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> maybeOrderId <span style="color:#f92672">=</span> fmap&#39; customer maybeOrderId
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> maybeOrderId <span style="color:#f92672">=</span> fmap&#39; city maybeOrderId
+</span></span></code></pre></div><p>進一步地，可以寫為 Point free 風格：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerName</span> <span style="color:#f92672">=</span> fmap&#39; customer
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">customerAddress</span> <span style="color:#f92672">=</span> fmap&#39; city
+</span></span></code></pre></div><h2 id="從-a-到-b">從 [a] 到 [b]</h2>
+<p>方才實現的 <code>fmap'</code>，可以指定 <code>a -&gt; b</code> 型態的函式，這句話聽起來很熟悉？<code>map</code> 函式不也是如此？還記得 <code>map</code> 的型態嗎？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t map
+</span></span><span style="display:flex;"><span>map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>方才實現的 <code>fmap'</code>，型態是 <code>(a -&gt; b) -&gt; Maybe a -&gt; Maybe b</code>，而 <code>map</code> 的型態是 <code>(a -&gt; b) -&gt; [a] -&gt; [b]</code>，其實就相當於 <code>(a -&gt; b) -&gt; List a -&gt; List b</code>，兩個函式的型態只差別在一個是 <code>Maybe</code>、一個是 <code>List</code>，而兩個函式的實作一個是針對 <code>Maybe</code>，一個是針對 <code>List</code>。</p>
+<p>在〈<a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a>〉談過，可以將共同行為定義為型態類別，然後由各型態實現行為，既然如此，就來用型態類別定義一個 <code>Functor'</code>，其中 <code>Maybe</code>、<code>List</code> 的部份未定，那就放個型態參數 <code>f</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#66d9ef">Functor&#39;</span> f <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> f a <span style="color:#f92672">-&gt;</span> f b
+</span></span></code></pre></div><p>嗯？這不就像是這篇文件一開始的 <code>Functor</code> 定義嗎？而且，因為已經有 <code>map</code> 函式，要 list 實現 <code>Functor'</code> 的行為，只要令 <code>fmap</code> 為 <code>map</code> 就可以了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Functor&#39;</span> <span style="color:#66d9ef">[]</span> <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap <span style="color:#f92672">=</span> map
+</span></span></code></pre></div><p>Haskell 本身就定義了 <code>Functor</code>，list 就是 <code>Functor</code> 的實例，因此可以使用 <code>fmap</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t fmap
+</span></span><span style="display:flex;"><span>fmap :: Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span></span><span style="display:flex;"><span>ghci&gt; fmap show [1, 2, 3] 
+</span></span><span style="display:flex;"><span>[&#34;1&#34;,&#34;2&#34;,&#34;3&#34;]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>也就是說，你可以指定 <code>a -&gt; b</code> 函式，以便將 <code>f a</code> 對應至 <code>f b</code>，就上例而言，<code>f</code> 就是 <code>List</code> 罷了。</p>
+<h2 id="functor-的行為">Functor 的行為</h2>
+<p>重新來看 Haskell 的 <code>Functor</code> 定義，這邊的 <code>f</code> 是型態參數，f 不是 function 的縮寫，而是代表 <code>Functor</code> 的縮寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#66d9ef">Functor</span> f <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> f a <span style="color:#f92672">-&gt;</span> f b
+</span></span></code></pre></div><p>具有行為 <code>Functor</code> 的型態，要實現 <code>fmap</code> 行為，例如，<code>Maybe</code> 若要自行實現 <code>Functor</code> 行為，可以如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Functor</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> b
+</span></span><span style="display:flex;"><span>    fmap mapper (<span style="color:#66d9ef">Just</span> x) <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span> (mapper x) 
+</span></span><span style="display:flex;"><span>    fmap mapper <span style="color:#66d9ef">Nothing</span>  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>實際上 <code>Maybe</code> 早就是 Haskell 內建 <code>Functor</code> 的實例，因此也可以使用 <code>fmap</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; fmap show (Just 10)
+</span></span><span style="display:flex;"><span>Just &#34;10&#34;
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>也就是說，<code>Functor</code> 的實例必須具有的行為是，能接受一個 <code>a -&gt; b</code> 的函式，以便將 <code>f a</code> 對應至 <code>f b</code>，就以上的例子而言，<code>f</code> 是 <code>Maybe</code>。</p>
+<p>如果將 <code>List</code>、<code>Maybe</code> 看成是值的容器，那麼具有 <code>Functor</code> 行為的型態，其 <code>fmap</code> 實現，可以將容器與值進行映射，成為另一同型態容器與值的組合，像是 <code>Maybe a -&gt; Maybe b</code>，或者是 <code>[a] -&gt; [b]</code>。</p>
+<h2 id="從-io-a-到-io-b">從 IO a 到 IO b</h2>
+<p>在 Haskell 中，你可能寫過以下類似的程式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    input <span style="color:#f92672">&lt;-</span> getLine
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> result <span style="color:#f92672">=</span> (show <span style="color:#f92672">.</span> (<span style="color:#f92672">*</span><span style="color:#ae81ff">2</span>) <span style="color:#f92672">.</span> read) input
+</span></span><span style="display:flex;"><span>    putStrLn result
+</span></span></code></pre></div><p><code>getLine</code> 的傳回型態是 <code>IO String</code>，因此要將結果綁定到一個名稱，以便傳給其他函式，在這邊其他函式是指 <code>read</code>、<code>(*2)</code>、<code>show</code> 這些函式，這些函式最後傳回了一個  <code>Int</code>。</p>
+<p><code>IO</code> 也是 <code>Functor</code> 的實例喔！在實作行為時的定義是這樣的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Functor</span> <span style="color:#66d9ef">IO</span> <span style="color:#66d9ef">where</span> 
+</span></span><span style="display:flex;"><span>    fmap f action <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">&lt;-</span> action 
+</span></span><span style="display:flex;"><span>        return (f result) 
+</span></span></code></pre></div><p>也就是說，<code>IO</code> 可以適用 <code>fmap</code>，你可以指定 <code>a -&gt; b</code> 函式，以便從 <code>IO a</code> 對應至 <code>IO b</code>，因此你可以這麼寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">&lt;-</span> fmap (show <span style="color:#f92672">.</span> (<span style="color:#f92672">*</span><span style="color:#ae81ff">2</span>) <span style="color:#f92672">.</span> read) getLine
+</span></span><span style="display:flex;"><span>    putStrLn result
+</span></span></code></pre></div><p><code>show . (*2) . read</code> 組成了 <code>String -&gt; Int</code> 的函式，因此 <code>fmap (show . (*2) . read) getLine</code> 的結果，就是將 <code>IO String</code> 對應至 <code>IO Int</code>。</p>
+<p>因此，如果想將 <code>IO something</code> 的結果綁定到一個名稱，以便傳給其他函式，可以考慮使用 <code>fmap</code>，讓程式看來簡潔一些。</p>
+<h2 id="函式提昇">函式提昇</h2>
+<p>方才談到，<code>fmap</code> 函式的型態是什麼呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t fmap
+</span></span><span style="display:flex;"><span>fmap :: Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>如果你部份套用 <code>fmap</code> 的話呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let fmapPlus10 = fmap (+ 10)
+</span></span><span style="display:flex;"><span>ghci&gt; :t fmapPlus10
+</span></span><span style="display:flex;"><span>fmapPlus10 :: (Functor f, Num b) =&gt; f b -&gt; f b
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>喔！這可有趣了，你得到了一個 <code>f b -&gt; f b</code> 的函式，<code>f</code> 必須是 <code>Functor</code>，像是 <code>Maybe</code> 或 <code>List</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; fmapPlus10 (Just 10)
+</span></span><span style="display:flex;"><span>Just 20
+</span></span><span style="display:flex;"><span>ghci&gt; fmapPlus10 [10, 20, 30]
+</span></span><span style="display:flex;"><span>[20,30,40]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>來看看另一個例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let fmapShow = fmap show
+</span></span><span style="display:flex;"><span>ghci&gt; :t fmapShow             
+</span></span><span style="display:flex;"><span>fmapShow :: (Functor f, Show a) =&gt; f a -&gt; f String
+</span></span><span style="display:flex;"><span>ghci&gt; fmapShow (Just 100)     
+</span></span><span style="display:flex;"><span>Just &#34;100&#34;
+</span></span><span style="display:flex;"><span>ghci&gt; fmapShow [100, 200, 300]
+</span></span><span style="display:flex;"><span>[&#34;100&#34;,&#34;200&#34;,&#34;300&#34;]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>對 <code>fmap</code> 部份套用 <code>a -&gt; b</code> 函式，就像是給 <code>fmap</code> 一個 <code>a -&gt; b</code> 函式，傳回一個 <code>f a -&gt; f b</code> 的函式，就像是將函式 <code>a -&gt; b</code> 提昇（lift）為 <code>f a -&gt; f b</code>。</p>
+<h2 id="functor-定律">Functor 定律</h2>
+<p><code>Functor</code> 在實作 <code>fmap</code> 時有必須遵合的定律，別被定律這兩個字嚇到，其實就是實作規範，這在 <a href="https://hackage.haskell.org/package/base-4.16.0.0/docs/Data-Functor.html">Data.Functor</a> 的文件中也有定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">fmap</span> id  <span style="color:#f92672">==</span>  id
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmap</span> (f <span style="color:#f92672">.</span> g)  <span style="color:#f92672">==</span>  fmap f <span style="color:#f92672">.</span> fmap g
+</span></span></code></pre></div><p>以上兩條分別對應的陳述就是：</p>
+<ol>
+<li><code>fmap</code> 該做的事，就只是按照指定的函式做對應，不做多餘的事，因此，對 <code>fmap</code> 指定 <code>id</code> 恒等函式，傳回的函式在進行 <code>Functor</code> 的對應，其結果應該與對 <code>Functor</code> 執行 <code>id</code> 相同。</li>
+<li><code>fmap</code> 指定的函式，若為數個函式合成，那對 <code>Functor</code> 的執行結果，應與數個函式分別進行 <code>fmap</code> 相同。</li>
+</ol>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/advanced-typeclass/functor/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/advanced-typeclass/functor/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e5%8f%af%e4%bb%a5%e6%98%a0%e5%b0%84%e7%9a%84%20Functor&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fadvanced-typeclass%2ffunctor%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../index.html" title="高階行為"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../applicative/index.html" title="可以套用函式的 Applicative"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443679"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443679"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443679"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443679"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443679"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443679"></script>
+  </body>
+</html>

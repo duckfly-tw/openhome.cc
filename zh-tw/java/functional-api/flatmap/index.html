@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="程式設計中經常會出現巢狀的流程，就結構來看各層運算往往極為類似，只是運算結果的型態不同，很難抽取流程重用。 Optional 的 flatMap 舉例來說，若方法可能傳回 nu">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Java::Optional／Stream 的 flatMap" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/functional-api/flatmap/" />
+    <meta property="og:description" content="程式設計中經常會出現巢狀的流程，就結構來看各層運算往往極為類似，只是運算結果的型態不同，很難抽取流程重用。 Optional 的 flatMap 舉例來說，若方法可能傳回 nu" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Java::Optional／Stream 的 flatMap" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/functional-api/flatmap/" />
+    <meta name="twitter:description" content="程式設計中經常會出現巢狀的流程，就結構來看各層運算往往極為類似，只是運算結果的型態不同，很難抽取流程重用。 Optional 的 flatMap 舉例來說，若方法可能傳回 nu" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443682" type="image/x-icon">
+    <title> Java  :: Optional／Stream 的 flatMap</title>
+    <link href="../../../css/nucleus.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443682.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443682.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443682"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/java/functional-api/flatmap/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/java/" title="Java" class="dd-item parent"><a href="../../index.html">Java</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/" title="Java 平台概論" class="dd-item"><a href="../../platform/index.html">| Java 平台概論</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/history/" title="Java 版本遷移" class="dd-item"><a href="../../platform/history/index.html">Java 版本遷移</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/spec-impl/" title="JDK 規範與實作" class="dd-item"><a href="../../platform/spec-impl/index.html">JDK 規範與實作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/jdk-jre-jvm/" title="JVM、JRE 與 JDK" class="dd-item"><a href="../../platform/jdk-jre-jvm/index.html">JVM、JRE 與 JDK</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/" title="路徑／套件／模組" class="dd-item"><a href="../../path-package-module/index.html">| 路徑／套件／模組</a><ul>
+          <li data-nav-id="/zh-tw/java/path-package-module/hello/" title="Hello, Java" class="dd-item"><a href="../../path-package-module/hello/index.html">Hello, Java</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/version/" title="JDK／JRE／類別版本" class="dd-item"><a href="../../path-package-module/version/index.html">JDK／JRE／類別版本</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/class-source/" title="類別／原始碼路徑" class="dd-item"><a href="../../path-package-module/class-source/index.html">類別／原始碼路徑</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/package-import/" title="package 與 import" class="dd-item"><a href="../../path-package-module/package-import/index.html">package 與 import</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/module/" title="初探模組" class="dd-item"><a href="../../path-package-module/module/index.html">初探模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/" title="語法基礎" class="dd-item"><a href="../../syntax-abc/index.html">| 語法基礎</a><ul>
+          <li data-nav-id="/zh-tw/java/syntax-abc/type/" title="型態" class="dd-item"><a href="../../syntax-abc/type/index.html">型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/variable/" title="變數" class="dd-item"><a href="../../syntax-abc/variable/index.html">變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/operator/" title="運算子" class="dd-item"><a href="../../syntax-abc/operator/index.html">運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/conversion/" title="型態轉換" class="dd-item"><a href="../../syntax-abc/conversion/index.html">型態轉換</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/if-else-switch/" title="if/else、switch" class="dd-item"><a href="../../syntax-abc/if-else-switch/index.html">if/else、switch</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/for-while/" title="for、while 迴圈" class="dd-item"><a href="../../syntax-abc/for-while/index.html">for、while 迴圈</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/object/" title="類別與物件" class="dd-item"><a href="../../object/index.html">| 類別與物件</a><ul>
+          <li data-nav-id="/zh-tw/java/object/class/" title="定義類別" class="dd-item"><a href="../../object/class/index.html">定義類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/scanner-bigdecimal/" title="使用 Scanner、BigDecimal" class="dd-item"><a href="../../object/scanner-bigdecimal/index.html">使用 Scanner、BigDecimal</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/primitive-wrapper/" title="基本型態包裹器" class="dd-item"><a href="../../object/primitive-wrapper.html">基本型態包裹器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/array/" title="陣列" class="dd-item"><a href="../../object/array/index.html">陣列</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/string/" title="字串" class="dd-item"><a href="../../object/string/index.html">字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/unicode/" title="Java 與 Unicode" class="dd-item"><a href="../../object/unicode/index.html">Java 與 Unicode</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/" title="封裝" class="dd-item"><a href="../../encapsulation/index.html">| 封裝</a><ul>
+          <li data-nav-id="/zh-tw/java/encapsulation/data-method/" title="流程與資料的封裝" class="dd-item"><a href="../../encapsulation/data-method/index.html">流程與資料的封裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/public-constructor-overload/" title="public／建構式／重載" class="dd-item"><a href="../../encapsulation/public-constructor-overload/index.html">public／建構式／重載</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/this-static/" title="this 與 static" class="dd-item"><a href="../../encapsulation/this-static/index.html">this 與 static</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/argument-innerclass/" title="不定長度引數／內部類別" class="dd-item"><a href="../../encapsulation/argument-innerclass/index.html">不定長度引數／內部類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/record/" title="資料載體與 record" class="dd-item"><a href="../../encapsulation/record/index.html">資料載體與 record</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/" title="繼承" class="dd-item"><a href="../../inheritance/index.html">| 繼承</a><ul>
+          <li data-nav-id="/zh-tw/java/inheritance/is-a/" title="共同行為與 is a" class="dd-item"><a href="../../inheritance/is-a/index.html">共同行為與 is a</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/override-abstract/" title="重新定義／abstract" class="dd-item"><a href="../../inheritance/override-abstract/index.html">重新定義／abstract</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/protected-super/" title="protected／super" class="dd-item"><a href="../../inheritance/protected-super/index.html">protected／super</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/final-object-instanceof/" title="final／Object／instanceof" class="dd-item"><a href="../../inheritance/final-object-instanceof/index.html">final／Object／instanceof</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/sealed-class/" title="sealed 類別" class="dd-item"><a href="../../inheritance/sealed-class/index.html">sealed 類別</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/" title="介面" class="dd-item"><a href="../../interface/index.html">| 介面</a><ul>
+          <li data-nav-id="/zh-tw/java/interface/protocol/" title="定義行為外觀" class="dd-item"><a href="../../interface/protocol/index.html">定義行為外觀</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/maintenance/" title="解決需求變化" class="dd-item"><a href="../../interface/maintenance/index.html">解決需求變化</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/syntax/" title="介面語法細節" class="dd-item"><a href="../../interface/syntax/index.html">介面語法細節</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/enum/" title="使用 enum 列舉" class="dd-item"><a href="../../interface/enum/index.html">使用 enum 列舉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/sealed-interface/" title="sealed 介面" class="dd-item"><a href="../../interface/sealed-interface/index.html">sealed 介面</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/" title="例外" class="dd-item"><a href="../../exception/index.html">| 例外</a><ul>
+          <li data-nav-id="/zh-tw/java/exception/try-catch/" title="try/catch 例外處理" class="dd-item"><a href="../../exception/try-catch/index.html">try/catch 例外處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/throw/" title="要抓還是要拋？" class="dd-item"><a href="../../exception/throw/index.html">要抓還是要拋？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/stacktrace-assert/" title="堆疊追蹤與 assert" class="dd-item"><a href="../../exception/stacktrace-assert/index.html">堆疊追蹤與 assert</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/finally/" title="finally 資源關閉" class="dd-item"><a href="../../exception/finally/index.html">finally 資源關閉</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/" title="泛型" class="dd-item"><a href="../../generics/index.html">| 泛型</a><ul>
+          <li data-nav-id="/zh-tw/java/generics/syntax/" title="定義與使用泛型" class="dd-item"><a href="../../generics/syntax/index.html">定義與使用泛型</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/producer-extends/" title="Producer extends" class="dd-item"><a href="../../generics/producer-extends/index.html">Producer extends</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/consumer-super/" title="Consumer super" class="dd-item"><a href="../../generics/consumer-super/index.html">Consumer super</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/" title="Lambda" class="dd-item"><a href="../../lambda/index.html">| Lambda</a><ul>
+          <li data-nav-id="/zh-tw/java/lambda/syntax/" title="初試 Lambda" class="dd-item"><a href="../../lambda/syntax/index.html">初試 Lambda</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/functional-interface/" title="Lambda 運算式與函式介面" class="dd-item"><a href="../../lambda/functional-interface/index.html">Lambda 運算式與函式介面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/this-final/" title="this 與 final" class="dd-item"><a href="../../lambda/this-final/index.html">this 與 final</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/method-reference/" title="方法與建構式參考" class="dd-item"><a href="../../lambda/method-reference/index.html">方法與建構式參考</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/" title="Collection API" class="dd-item"><a href="../../collection/index.html">| Collection API</a><ul>
+          <li data-nav-id="/zh-tw/java/collection/hierarchy/" title="認識 Collection 架構" class="dd-item"><a href="../../collection/hierarchy/index.html">認識 Collection 架構</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/iterator/" title="Iterator 與 Iterable" class="dd-item"><a href="../../collection/iterator/index.html">Iterator 與 Iterable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/comparator/" title="Comparable 與 Comparator" class="dd-item"><a href="../../collection/comparator/index.html">Comparable 與 Comparator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/immutable/" title="不可變特性" class="dd-item"><a href="../../collection/immutable/index.html">不可變特性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/" title="Functional API" class="dd-item parent"><a href="../index.html">| Functional API</a><ul>
+          <li data-nav-id="/zh-tw/java/functional-api/functional-interface/" title="Consumer／Function／Predicate／Supplier" class="dd-item"><a href="../functional-interface/index.html">Consumer／Function／Predicate／Supplier</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/optional/" title="Optional API" class="dd-item"><a href="../optional/index.html">Optional API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/stream/" title="Stream API" class="dd-item"><a href="../stream/index.html">Stream API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/flatmap/" title="Optional／Stream 的 flatMap" class="dd-item active"><a href="index.html">Optional／Stream 的 flatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/" title="深入模組化" class="dd-item"><a href="../../jpms/index.html">| 深入模組化</a><ul>
+          <li data-nav-id="/zh-tw/java/jpms/name/" title="模組名稱" class="dd-item"><a href="../../jpms/name/index.html">模組名稱</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/reflection/" title="模組與反射" class="dd-item"><a href="../../jpms/reflection/index.html">模組與反射</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/service/" title="模組與 ServiceLoader" class="dd-item"><a href="../../jpms/service/index.html">模組與 ServiceLoader</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Java</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">Functional API</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Optional／Stream 的 flatMap</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#optional-的-flatmap">Optional 的 flatMap</a></li>
+    <li><a href="index.html#stream-的-flatmap">Stream 的 flatMap</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/monad/">Monad</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Optional／Stream 的 flatMap</h1>
+
+ <i class="space fa fa-calendar"> September 29, 2022</i> 
+<p>程式設計中經常會出現巢狀的流程，就結構來看各層運算往往極為類似，只是運算結果的型態不同，很難抽取流程重用。</p>
+<h2 id="optional-的-flatmap">Optional 的 flatMap</h2>
+<p>舉例來說，若方法可能傳回 <code>null</code>，你也許會設計出如下的流程：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var company <span style="color:#f92672">=</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">findCompany</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>company <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    var address <span style="color:#f92672">=</span> company<span style="color:#f92672">.</span><span style="color:#a6e22e">findAddress</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>address <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> address<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">;</span>
+</span></span></code></pre></div><p>巢狀的層次可能還會更深，像是 &hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var company <span style="color:#f92672">=</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">findCompany</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>company <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    var address <span style="color:#f92672">=</span> company<span style="color:#f92672">.</span><span style="color:#a6e22e">findAddress</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>address <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var city <span style="color:#f92672">=</span> address<span style="color:#f92672">.</span><span style="color:#a6e22e">findCity</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>city <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">....</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">;</span>
+</span></span></code></pre></div><p>巢狀的層次不深時，也許程式碼看來還算直覺，然後層次加深之後，就容易迷失在層次之中，雖然各層都是判斷值是否為 <code>null</code>，不過因為型態不同，似乎不易於抽取流程重用。</p>
+<p>方法可能沒有值時，不建議使用 <code>null</code>，若能修改 <code>findCompany</code> 傳回 <code>Optional&lt;Company&gt;</code>、<code>findAddress</code> 傳回 <code>Optional&lt;String&gt;</code>，那一開始的程式片段可以先改為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var addr <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>var company <span style="color:#f92672">=</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">findCompany</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>company<span style="color:#f92672">.</span><span style="color:#a6e22e">isPresent</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    var address <span style="color:#f92672">=</span> company<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">findAddress</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>address<span style="color:#f92672">.</span><span style="color:#a6e22e">isPresent</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        addr <span style="color:#f92672">=</span> address<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> addr<span style="color:#f92672">;</span>
+</span></span></code></pre></div><p>看來好像沒有高明到哪去，不過至少每層都是 <code>Optional</code> 型態了，而且都採用了 <code>isPresent</code> 判斷，並將 <code>Optional&lt;T&gt;</code> 轉換為 <code>Optional&lt;U&gt;</code>。</p>
+<p>若將 <code>Optional&lt;T&gt;</code> 轉換為 <code>Optional&lt;U&gt;</code> 的方式可由外部指定，就可以重用 <code>isPresent</code> 的判斷了，實際上 <code>Optional</code> 有個 <code>flatMap</code> 方法，已經幫寫好這個邏輯了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> Optional<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> Optional<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;&gt;</span> mapper<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Objects<span style="color:#f92672">.</span><span style="color:#a6e22e">requireNonNull</span><span style="color:#f92672">(</span>mapper<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>isPresent<span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> empty<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Objects<span style="color:#f92672">.</span><span style="color:#a6e22e">requireNonNull</span><span style="color:#f92672">(</span>mapper<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>value<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>因此，可以如下使用 <code>Optional</code> 的 <code>flatMap</code> 方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">return</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">findCompany</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>Company<span style="color:#f92672">::</span>findAddress<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">orElse</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">);</span>
+</span></span></code></pre></div><p>如果層次不深，也許看不出使用 <code>flatMap</code> 的好處，然而層次加深，好處就顯而易見了，例如一開始第二個程式片段，改寫為以下就清楚多了…</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">return</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">findCompany</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>Company<span style="color:#f92672">::</span>findAddress<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>Address<span style="color:#f92672">::</span>findCity<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">orElse</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">);</span>
+</span></span></code></pre></div><p><code>Optional</code> 的 <code>flatMap</code> 名稱令人困惑，可從 <code>Optional&lt;T&gt;</code> 呼叫 <code>flatMap</code> 後會得到 <code>Optional&lt;U&gt;</code> 來想像一下，<code>flatMap</code> 對目前盒子內含值進行運算，結果交給 Lambda 表示式轉換至新盒子，以便進入下個運算情境，flat 是平坦化的意思，就 <code>Optional</code> 而言，<code>flatMap</code> 的意義就是，對 <code>Optional</code> 內含值進行 <code>null</code> 判斷的運算，有值就套用 Lambda 表示式映射，以便進入下個 <code>null</code> 判斷的運算。</p>
+<p>因此使用者可以只指定感興趣的運算，從而突顯程式碼的意圖，又可流暢地撰寫程式碼，避免巢狀的運算流程。</p>
+<p>若沒辦法修改 <code>findCompany</code>、<code>findAddress</code>、<code>findCity</code> 等傳回 <code>Optional</code> 型態怎麼辦？<code>Optional</code> 有個 <code>map</code> 方法，例如，若參數 <code>order</code> 是 <code>Order</code> 型態，有 <code>null</code> 的可能性，<code>findCompany</code>、<code>findAddress</code>、<code>findCity</code> 等的傳回型態各是 <code>Company</code>、<code>Address</code>、<code>City</code>，也都有可能傳回 <code>null</code>，那麼就可以這麼做：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">return</span> Optional<span style="color:#f92672">.</span><span style="color:#a6e22e">ofNullable</span><span style="color:#f92672">(</span>order<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>               <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>Order<span style="color:#f92672">::</span>findCompany<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>               <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>Company<span style="color:#f92672">::</span>findAddress<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>               <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>Address<span style="color:#f92672">::</span>findCity<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>               <span style="color:#f92672">.</span><span style="color:#a6e22e">orElse</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;n.a.&#34;</span><span style="color:#f92672">);</span>
+</span></span></code></pre></div><p>與 <code>flatMap</code> 的差別在於，<code>map</code> 方法實作中，對 <code>mapper.apply(value)</code> 的結果使用了 <code>Optional.ofNullable</code> 方法（<code>flatMap</code> 中使用的是 <code>Objects.requireNonNull</code>），因此可持續處理 <code>null</code> 的情況：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> Optional<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> mapper<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Objects<span style="color:#f92672">.</span><span style="color:#a6e22e">requireNonNull</span><span style="color:#f92672">(</span>mapper<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>isPresent<span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> empty<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Optional<span style="color:#f92672">.</span><span style="color:#a6e22e">ofNullable</span><span style="color:#f92672">(</span>mapper<span style="color:#f92672">.</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>value<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="stream-的-flatmap">Stream 的 flatMap</h2>
+<p>如果之前的 <code>Order</code> 有個 <code>lineItems</code> 方法，可取得訂單中的產品項目 <code>List&lt;LineItem&gt;</code>，且想取得 <code>LineItem</code> 的名稱時，可以透過 <code>name</code> 取得，若有個 <code>List&lt;Order&gt;</code>，想取得全部產品項目的名稱會怎麼寫？你可能會馬上想到使用迴圈…</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var itemNames <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;();</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var order <span style="color:#f92672">:</span> orders<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var lineItem <span style="color:#f92672">:</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">lineItems</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        itemNames<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>lineItem<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>層次不深時這樣寫可讀性還可以，不過若層次加深，例如，想進一步取得 <code>LineItem</code> 的贈品名稱，又得多一層for迴圈，若是持續加深這類層次，程式碼就會迅速地失去可讀性。</p>
+<p>可以用 <code>List</code>  的 <code>stream</code> 方法取得 <code>Stream</code>，接著運用 <code>flatMap</code> 方法改寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> itemNames <span style="color:#f92672">=</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>order <span style="color:#f92672">-&gt;</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">lineItems</span><span style="color:#f92672">().</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>LineItem<span style="color:#f92672">::</span>name<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>toList<span style="color:#f92672">());</span>
+</span></span></code></pre></div><p>就程式碼閱讀來說，第一個 <code>stream</code> 方法傳回 <code>Stream&lt;Order&gt;</code>，緊接著的 <code>flatMap</code> 傳回 <code>Stream&lt;LineItem&gt;</code>，若將 <code>Stream&lt;Order&gt;</code> 看成盒子，盒中會有一組 <code>Order</code>，<code>flatMap</code> 逐一取得 <code>Order</code>，Lambda 將 <code>Order</code> 轉換為 <code>Stream&lt;LineItem&gt;</code>，<code>flatMap</code> 執行後的傳回值是 <code>Stream&lt;LineItem&gt;</code>，後續可以再逐一取得 <code>LineItem</code>，就上例而言，是再透過 <code>name</code> 取得名稱。</p>
+<p>如果想進一步透過 <code>LineItem</code> 取得複數的贈品呢？可以如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> itemNames <span style="color:#f92672">=</span> orders<span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>order <span style="color:#f92672">-&gt;</span> order<span style="color:#f92672">.</span><span style="color:#a6e22e">lineItems</span><span style="color:#f92672">().</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>lineItem <span style="color:#f92672">-&gt;</span> lineItem<span style="color:#f92672">.</span><span style="color:#a6e22e">premiums</span><span style="color:#f92672">().</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>Premium<span style="color:#f92672">::</span>name<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>toList<span style="color:#f92672">());</span>
+</span></span></code></pre></div><p>基本上，若能瞭解 <code>Optional</code>、<code>Stream</code>（或其他型態）的 <code>flatMap</code> 方法，就是對目前盒子內含值進行運算，結果交給 Lambda 表示式轉換至新盒子，以便進入下個運算情境，在撰寫與閱讀程式碼時，忽略掉 <code>flatMap</code> 這個名稱，就能比較清楚程式碼的意圖。</p>
+
+<div class="notices info">
+    <div class="label"></div><p><code>flatMap</code> 方法的概念，來自於函數程式設計（Functional Programming）中的單子（<a href="https://openhome.cc/zh-tw/tags/monad/">Monad</a>）概念。</p>
+
+</div>
+<p><code>Collectors</code> 的 <code>flatMapping</code> 方法，可指定 <code>flatMap</code> 操作並傳回 <code>Collector</code> 實例，<code>flatMapping</code> 方法用來減少管線操作層次，或者建立可重用的 <code>Collector</code>，例如原先有個操作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> addressLt <span style="color:#f92672">=</span> customers<span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">.</span><span style="color:#a6e22e">flatMap</span><span style="color:#f92672">(</span>customer <span style="color:#f92672">-&gt;</span> customer<span style="color:#f92672">.</span><span style="color:#a6e22e">addressList</span><span style="color:#f92672">().</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>toList<span style="color:#f92672">());</span>
+</span></span></code></pre></div><p>若改用 <code>flatMapping</code> 方法，可以如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> addressLt <span style="color:#f92672">=</span> customers<span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>flatMapping<span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>          customer <span style="color:#f92672">-&gt;</span> customer<span style="color:#f92672">.</span><span style="color:#a6e22e">addressList</span><span style="color:#f92672">().</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">(),</span> toList<span style="color:#f92672">())</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">);</span>
+</span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/java/functional-api/flatmap/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/java/functional-api/flatmap/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Java%3a%3aOptional%ef%bc%8fStream%20%e7%9a%84%20flatMap&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjava%2ffunctional-api%2fflatmap%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../stream/index.html" title="Stream API"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../../jpms/index.html" title="深入模組化"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443682"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443682"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443682"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443682"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443682"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443682"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443682"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443682"></script>
+  </body>
+</html>

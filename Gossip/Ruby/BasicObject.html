@@ -1,0 +1,279 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="先前一直談到，Object是Ruby中所有物件的父類別，如果定義類別時沒有指定父類別，那預設就是繼承Object，然而從Ruby 1.9之後，Object更上層還有一個BasicObject類別：
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="BasicObject">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Ruby/BasicObject.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="先前一直談到，Object是Ruby中所有物件的父類別，如果定義類別時沒有指定父類別，那預設就是繼承Object，然而從Ruby 1.9之後，Object更上層還有一個BasicObject類別：
+...">
+
+
+    <title>BasicObject</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BasicObject.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Ruby 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>BasicObject</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            先前一直談到，<span style="font-family: Courier New,Courier,monospace;">Object</span>是Ruby中所有物件的父類別，如果定義類別時沒有指定父類別，那預設就是繼承<span style="font-family: Courier New,Courier,monospace;">Object</span>，然而從Ruby 1.9之後，<span style="font-family: Courier New,Courier,monospace;">Object更上層還有一個<span style="font-weight: bold;">BasicObject</span></span>類別：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; class Some; end<br>
+</span>=&gt; nil<span style="font-weight: bold;"><br>
+&gt;&gt; Some.superclass<br>
+            </span>=&gt; Object<span style="font-weight: bold;"><br>
+&gt;&gt; Some.superclass.superclass<br>
+            </span>=&gt; BasicObject<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+      <br>
+
+      Object實際上繼承了BasicObject，並含括了<span style="font-weight: bold;">Kernel</span>模組，可以使用<span style="font-weight: bold;">ancestors</span>方法得知類別的父類別與含括的模組。例如：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; Object.ancestors<br>
+</span>=&gt; [Object, Kernel, BasicObject]<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+      <br>
+      BasicObject上定義了少量的實例方法：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; BasicObject.instance_methods<br>
+</span>=&gt; [:==, :equal?, :!, :!=, :instance_eval, :instance_exec, :__send__]<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+      <br>
+      instance_methods可以取得public、protected的實例方法清單，如果傳入false，則可取得該類別階層定義的實例方法。以下可以看出，Object繼承BasicObject後，實際上並沒有定義實例方法：<br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; Object.instance_methods(false)<br>
+</span>=&gt; []<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+      <br>
+Object含括了Kernel模組，每個實例預設的實例方法，實際上都是BasicObject與Kernel模組提供：<span style="font-weight: bold;"></span><br>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);"><span style="font-weight: bold;">&gt;&gt; Object.instance_methods<br>
+=&gt; [:nil?, :===, :=~, :!~, :eql?, :hash, :&lt;=&gt;, :class, :singleton_class, :clone,<br>
+&nbsp;:dup, :initialize_dup, :initialize_clone, :taint, :tainted?, :untaint, :untrust<br>
+, :untrusted?, :trust, :freeze, :frozen?, :to_s, :inspect, :methods, :singleton_<br>
+methods, :protected_methods, :private_methods, :public_methods, :instance_variab<br>
+les, :instance_variable_get, :instance_variable_set, :instance_variable_defined?<br>
+, :instance_of?, :kind_of?, :is_a?, :tap, :send, :public_send, :respond_to?, :re<br>
+spond_to_missing?, :extend, :display, :method, :public_method, :define_singleton<br>
+_method, :__id__, :object_id, :to_enum, :enum_for, :==, :equal?, :!, :!=, :insta<br>
+nce_eval, :instance_exec, :__send__]<br>
+&gt;&gt; method_list = Object.instance_methods - Kernel.instance_methods(false)<br>
+</span>=&gt; [:==, :equal?, :!, :!=, :instance_eval, :instance_exec, :__send__]<span style="font-weight: bold;"><br>
+&gt;&gt; method_list - BasicObject.instance_methods(false)<br>
+            </span>=&gt; []<span style="font-weight: bold;"><br>
+&gt;&gt;</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span></span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+      <br>
+BasicObject幾乎什麼功能都沒有，這代表了你要教它什麼都可以，具體而言，你可以繼承BasicObject，定義出自己的繼承體系，而不用擔心太多方法名稱衝突問題。<br>
+      <br>
+例如，你也許會想要有以下的程式碼：<br>
+      
+      <div style="margin-left: 40px;">xml = Xml.new<br>
+      xml.person do<br>
+      &nbsp;&nbsp;&nbsp; xml.name("caterpillar")<br>
+      &nbsp;&nbsp;&nbsp; xml.phone("0970933933")<br>
+      &nbsp;&nbsp;&nbsp; xml.mail("caterpillar@openhome.cc")<br>
+      &nbsp;&nbsp;&nbsp; xml.address do<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xml.office("台北市....")<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xml.home("高雄市....")<br>
+      &nbsp;&nbsp;&nbsp; end<br>
+      end<br>
+      puts xml.list<br>
+      </div>
+      <br>
+產生出以下的XML：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">&lt;person&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp; &lt;name&gt;caterpillar&lt;/name&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp; &lt;phone&gt;0970933933&lt;/phone&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp; &lt;mail&gt;caterpillar@openhome.cc&lt;/mail&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp; &lt;address&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;office&gt;台北市....&lt;/office&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;home&gt;高雄市....&lt;/home&gt;</span><br>
+      <span style="font-weight: bold;">&nbsp; &lt;/address&gt;</span><br>
+      <span style="font-weight: bold;">&lt;/person&gt;</span><br>
+      </div>
+      <br>
+那麼你可以定義以下的類別：<br>
+      
+      <pre class="prettyprint"><code lang="ruby"># encoding: Big5<br>class Xml &lt; BasicObject<br>    attr_reader :list<br>    def initialize<br>        @list = ""<br>        @level = 0<br>    end<br><br>    def indent<br>        @list &lt;&lt; " " * @level<br>    end<br>    <br>    <span style="font-weight: bold;">def method_missing(mth, *args, &amp;block)</span><br>        indent<br>        @list &lt;&lt; "&lt;#{mth}&gt;"<br>        @list &lt;&lt; "#{args[0]}" if args[0]<br>        @list &lt;&lt; "\n" if block<br>        @level += 2<br>        <br>        yield if block<br>        <br>        @level -= 2<br>        @list &lt;&lt; " " * @level if block<br>        @list &lt;&lt; "&lt;/#{mth}&gt;\n" <br><span style="font-weight: bold;">    end</span><br>end<br></code></pre>
+      
+      <br>
+      <span style="font-weight: bold;">method_missing</span>是BasicObject
+定義的private方法，如果有個訊息傳送給物件，而在物件的方法查找中都沒有方法可以回應該訊息，就會呼叫method_missing方法，傳入方
+法、參數與程式區塊。為了突顯以上Xml繼承BasicObject的好處，可以故意使用與Kernel上定義的實例方法相同的名稱：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">xml = Xml.new</span><br>
+      <span style="font-weight: bold;">xml.hash do</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; xml.public_send("orz")</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; xml.freeze("XD")</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; xml.inspect("zzz")</span><br>
+      <span style="font-weight: bold;">end</span><br>
+      <span style="font-weight: bold;">puts xml.list</span><br>
+      </div>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">由於繼承自BasicObject，不用擔心會與Kernel發生方法上的名稱衝突問題，因而</span>會產生以下的XML：<br>
+      
+      <div style="margin-left: 40px;">&lt;hash&gt;<br>
+      &nbsp; &lt;public_send&gt;orz&lt;/public_send&gt;<br>
+      &nbsp; &lt;freeze&gt;XD&lt;/freeze&gt;<br>
+      &nbsp; &lt;inspect&gt;zzz&lt;/inspect&gt;<br>
+      &lt;/hash&gt;<br>
+      </div>
+      <br>
+      <br>
+      
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

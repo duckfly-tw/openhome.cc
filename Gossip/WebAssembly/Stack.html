@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebAssembly 的主要運算會在堆疊上進行，想要執行某個指令，必須先在堆疊中推入數值，然後執行指令，指令會從堆疊頂端取出必要的數值個數後執行，執行結果是否置回堆疊依個別指令而定。
+例如，若要進行...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="堆疊與數值型態">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Stack.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="WebAssembly 的主要運算會在堆疊上進行，想要執行某個指令，必須先在堆疊中推入數值，然後執行指令，指令會從堆疊頂端取出必要的數值個數後執行，執行結果是否置回堆疊依個別指令而定。
+例如，若要進行...">
+
+    <title>堆疊與數值型態</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Stack.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>堆疊與數值型態</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>WebAssembly 的主要運算會在堆疊上進行，想要執行某個指令，必須先在堆疊中推入數值，然後執行指令，指令會從堆疊頂端取出必要的數值個數後執行，執行結果是否置回堆疊依個別指令而定。</p>
+<p>例如，若要進行 1 + 2 的運算，必須在堆疊中推入 1，接著推入 2，然後執行加法指令，這會取出堆疊頂端兩個數字，相加後置回堆疊。</p>
+<p>當然，真正處理的都是位元，置入堆疊的是一組位元，從堆疊中取出的也是一組位元，對於這組位元要以什麼觀點來看得，就是資料型態的概念，有了資料型態的概念，就可以用具體的概念來操作一組位元，而不是直接處理 0101 的運算。</p>
+<p>就目前來說，WebAssembly 在執行指令時主要分為四種觀點，或說是四種資料型態：</p>
+<ul>
+<li><code>i32</code>：32 位元整數</li>
+<li><code>i64</code>：64 位元整數</li>
+<li><code>f32</code>：32 位元浮點數</li>
+<li><code>f64</code>：64 位元浮點數</li>
+</ul>
+<p>你也許會問，整數是有號還是無號？堆疊中保留的是位元形式，指令會使用某個資料型態的觀點，將一組位元置入堆疊，或者從堆疊中取出一組位元，因此問題不在於整數是有號或無號，而是要看你使用什麼指令。</p>
+<p>例如，要將一個數字以 32 位元整數推入堆疊，可以使用 <code>i32.const</code> 指令：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main
+        i32.const 2147483647
+        drop
+    )
+    (start $main)
+)
+</code></pre>
+<p>2147483647 以二進位表示會是 1111111 11111111 11111111 11111111，<code>i32.const</code> 將 2147483647 以 32 個位元整數看待，因此會將 01111111 11111111 11111111 11111111（以 Little-endian）放入堆疊。</p>
+<p><code>drop</code> 指令是從堆疊中取出一個數值，然後捨棄不用，這是因為這個模組只執行一個函式，函式是一種<a href="Block.html">區塊</a>，而且範例中的函式沒有定義結果型態，此時執行過後堆疊必須是空，否則會發生堆疊非空的錯誤。</p>
+<p>如果數字是 2147483648 呢？</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main
+        i32.const 2147483648
+        drop 
+    )
+    (start $main)
+)
+</code></pre>
+<p>2147483648 以二進位表示會是 10000000 00000000 00000000 00000000，<code>i32.const</code> 將 2147483648 以 32 個位元整數看待，因此會將 10000000 00000000 00000000 00000000（以 Little-endian）放入堆疊，因此，上面的程式碼等同於：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main
+        i32.const -2147483648
+        drop 
+    )
+    (start $main)
+)
+</code></pre>
+<p>因為 WebAssembly 在表示負數時，會使用 2 的補數，因此 -2147483648 的二進位表示，會是 10000000 00000000 00000000 00000000。</p>
+<p>如果將範例中的 <code>i32</code> 改為 <code>i64</code>：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (func $main
+        i64.const 2147483648
+        drop 
+    )
+    (start $main)
+)
+</code></pre>
+<p>2147483648 以二進位表示會是 10000000 00000000 00000000 00000000，<code>i64.const</code> 將 2147483648 以 64 個位元整數看待，因此會將 00000000 00000000 00000000 00000000 10000000 00000000 00000000 00000000 放入堆疊。</p>
+<p>如果資料必須與 JavaScript 環境溝通時，必須留意的是，因為 JavaScript 沒有整數與浮點數的區別，數值都是 〈<a href="http://zh.wikipedia.org/zh/IEEE_754">IEEE 754 標準 64 位元浮點數</a>〉，因而用於整數表示的話，可表達的整數為 -2<sup>53</sup> 到 2<sup>53</sup> 之間（不包含 -2<sup>53</sup> 與 2<sup>53</sup>），因此與 JavaScript 環境溝通時不能使用 <code>i64</code>，例如底下會出錯：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i64)))
+    (func $main
+        i64.const 2147483648
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>使用 <code>f64</code> 就不會有問題：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param f64)))
+    (func $main
+        f64.const 2147483648
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>在數字的撰寫上，除了 10 進位方式之外，可以使用 <code>0x</code> 前置來撰寫 16 進位數字，浮點數的部份，可以使用科學記號表示，<code>inf</code> 表示無限，<code>nan</code> 表示 NaN（Not a number）。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

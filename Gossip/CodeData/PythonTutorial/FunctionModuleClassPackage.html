@@ -1,0 +1,285 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Python 2 Tutorial 第二堂（2）容器、流程、for 包含式&nbsp;&lt;&lt; 前情 
+      
+      
+      在 Python 中，每個東西都是物件，那麼 ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 2 Tutorial 第二堂（3）函式、模組、類別與套件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/FunctionModuleClassPackage.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Python 2 Tutorial 第二堂（2）容器、流程、for 包含式&nbsp;&lt;&lt; 前情 
+      
+      
+      在 Python 中，每個東西都是物件，那麼 ...">
+
+
+    <title>Python 2 Tutorial 第二堂（3）函式、模組、類別與套件</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionModuleClassPackage.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/PythonTutorial/">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 2 Tutorial 第二堂（3）函式、模組、類別與套件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             <br>
+      <a href="http://openhome.cc/Gossip/CodeData/PythonTutorial/ContainerFlowComprehension.html">Python 2 Tutorial 第二堂（2）容器、流程、for 包含式&nbsp;&lt;&lt; 前情 </a>
+      <br>
+      <br>
+      在 Python 中，每個東西都是物件，那麼 Python 是以物件導向作為主要典範嗎？不，Python 之父&nbsp;Guido van Rossum 曾在《Masterminds of Programming》書中談到：
+      <p style="padding-left: 30px;"><em><strong>Python supports procedural programming, to some extent, and OO.&nbsp;</strong></em><em><strong>These two aren’t so different, and Python’s procedural style is still strongly influenced by&nbsp;</strong></em><em><strong>objects (since the fundamental data types are all objects). Python supports a tiny bit of&nbsp;</strong></em><em><strong>functional programming—but it doesn’t resemble any real functional language, and it&nbsp;</strong></em><em><strong>never will.</strong></em></p>
+      基本上，無論採用何種典範，關鍵在於架構程式時應思考的幾個重點，像是…
+      <ul>
+        <li><strong><span style="line-height: 14px; color: #ff0000;">抽象層的封裝與隔離</span></strong></li>
+        <li><strong><span style="color: #ff0000;">物件的狀態</span></strong></li>
+        <li><strong><span style="color: #ff0000;">名稱空間（Namespace）</span></strong></li>
+        <li><strong><span style="color: #ff0000;">資源的實體組織方式，像是原始碼檔案、套件（Package）等</span></strong></li>
+      </ul>
+      只有在腦海中清楚地思考過這幾個重點，才能在程式語言中採用適當的機制來加以實現，或者是在程式語言不支援時，想辦法自行實作類似機制，像是在 JavaScript 中，即使沒有名稱空間及套件機制，仍有開發者依各自需求實現各種風格的機制，來解決對應的問題。
+      <br>
+      <br>
+      幸運地，Python 中對於這幾個思考重點，在實作時提供的機制頗為完整，提供了像是函式（Function）、模組（Module）、類別（Class）與套件等支援。
+      <h1>函式</h1>
+      當發現到兩個程式片段極為類似，只有當中幾個計算用到的數值或變數不同時，例如：
+      <pre class="prettyprint"><code lang="python">...
+max1 = a if a &gt; b else b
+...
+max2 = x if x &gt; y else y
+...</code></pre>
+      <br>
+      可以使用函式來封裝程式片段，將流程中引用不同數值或變數的部份設計為參數，例如：
+      <pre class="prettyprint"><code lang="python">def max(a, b):
+    return a if a &gt; b else b</code></pre>
+      <span style="color: #ff0000;"><strong><br>
+          函式是一種抽象，對流程的抽象</strong></span>，在定義了 <code>max</code> 函式之後，客戶端對求最大值的流程，被抽象為 <code>max(x, y)</code> 這樣的函式呼叫，求值流程實作被隱藏了起來。
+      在上面的 Python 程式碼中定義了一個函式，在 Python 中，函式不單只是定義，也是個值，舉例而言，你可以如下將 <code>max</code> 指向的函式指定給 <code>maximum</code> 變數，透過 <code>maximum</code> 來呼叫：
+      <pre class="prettyprint"><code lang="python">maximum = max
+maximum(10, 20) # 傳回 20</code></pre>
+      <br>
+      在 Python 中，可以使用 <code>lambda</code> 表示式來定義一個函式，像是...
+      <pre class="prettyprint"><code lang="python">lambda a, b: a if a &lt; b else b</code></pre>
+      <br>
+      這樣的函式稱為 <strong>λ 函式</strong>或是<strong>匿名函式（Anonymous function）</strong>，當然，你可以將函式指定給變數：
+      <pre class="prettyprint"><code lang="python">min = lambda a, b: a if a &lt; b else b
+minimum = min
+min(10, 20) # 傳回10
+minimum(10, 20) # 傳回10</code></pre>
+      <h1>模組</h1>
+      如果你有一大堆數學相關的函式與常數定義，像是：
+      <pre class="prettyprint"><code lang="python">def max(a, b):
+    return a if a &gt; b else b
+def min(a, b):
+    return a if a &lt; b else b
+
+def sum(*numbers): # numbers 接受可變長度引數
+    total = 0
+    for number in numbers:
+        total += number
+    return total
+
+pi = 3.141592653589793
+e = 2.718281828459045</code></pre>
+      <br>
+      該怎麼組織它們，讓它們有別於其他開發者撰寫的函式與常數定義？避免名稱空間衝突問題？像是其他開發者也在其他地方定義了自己的 <code>max</code> 函式？
+      <span style="color: #ff0000;"><strong><br>
+          <br>
+          在 Python 中，模組是幾個重要抽象層的機制之一，也許是最自然的機制之一</strong></span>，只要你建立了一個原始碼檔案 modu.py，你就建立了一個模組 <code>modu</code>，原始碼主檔名就是模組名稱。
+      <br>
+      <br>
+      <code>import modu</code> 陳述句會在相同目錄下尋找 modu.py，如果沒找到，則會試著尋找在 <code>sys.path</code> 中遞迴地尋找 modu.py，如果還是沒有，則會引發 <code>ImportError</code> 例外。
+      <br>
+      <br>
+      <span style="color: #ff0000;"><strong>模組提供了名稱空間</strong></span>。模組中的變數、函式與類別，基本上需透過模組的名稱空間來取得。在 Python 中，<strong><code>import</code>、<code>import as</code> 與 <code>from import</code> 是陳述句</strong>，可以出現在程式中陳述句可出現的任何位置，它們基本上用來在現有範疇（Scope）中匯入、設定名稱空間，舉例來說，如果先前程式範例是撰寫於 xmath.py 檔案中，那麼以下是一些 <code>import</code>、<code>import as</code> 與 <code>from import</code> 的使用實例，假設這些程式是撰寫在與 xmath.py 相同目錄的另一個 .py 檔案：
+      <pre class="prettyprint"><code lang="python">import xmath
+print '# import xmath'
+print xmath.pi
+print xmath.max(10, 5)
+print xmath.sum(1, 2, 3, 4, 5)
+
+print '# import xmath as math'
+import xmath as math # 為 xmath 模組取別名為 math
+print math.e
+
+print '# from xmath import min'
+from xmath import min  # 將 min 複製至目前模組，不建議 from modu import *，易造成名稱衝突
+print min(10, 5)</code></pre>
+      <br>
+      結果應該會顯示：<br>
+      <br>
+      &nbsp;<a href="images/python-tutorial-the-2nd-class-3-1.png"><img
+
+          class="alignnone size-full wp-image-3012" alt="python-tutorial-the-2nd-class-3-1"
+
+          src="images/python-tutorial-the-2nd-class-3-1.png" height="143"
+
+          width="542"></a>
+      <h1>類別</h1>
+      對於熟悉物件導向的開發者而言，可能會問：「那類別的應用場合呢？」…嗯…當打算將某些<span style="color: #ff0000;"><strong>狀態</strong></span>與<span
+
+        style="color: #ff0000;"><strong>功能</strong></span>黏在一起時…例如你可能原本有這樣的一個 bank.py：
+      <pre class="prettyprint"><code lang="python">def account(name, number, balance):
+    return {'name': name, 'number': number, 'balance': balance}
+
+def deposit(acct, amount):
+    if amount &lt;= 0:
+         raise ValueError('amount must be positive')
+    acct['balance'] += amount 
+
+def withdraw(acct, amount):
+    if amount &gt; acct['balance']:
+        raise RuntimeError('balance not enough')
+    acct['balance'] -= amount
+
+def to_str(acct):
+    return 'Account:' + str(acct)</code></pre>
+      <br>
+      當中是有關於帳戶建立、存款、提款等函式，你會這麼使用：
+      <pre class="prettyprint"><code lang="python">import bank
+acct = bank.account('Justin', '123-4567', 1000)
+bank.deposit(acct, 500)
+bank.withdraw(acct, 200)
+print bank.to_str(acct)</code></pre>
+      實際上，<code>bank</code> 中的函式操作，都是與傳入的 <code>dict</code> 實例，也就是代表帳戶狀態的物件高度相關，何不將它們組織在一起呢？這樣比較容易使用些，因此你重新使用類別組織了 bank.py 中的函式：
+      <pre class="prettyprint"><code lang="python">class Account:
+    def __init__(self, name, number, balance):
+        self.name = name
+        self.number = number
+        self.balance = balance
+
+    def deposit(self, amount):
+        if amount &lt;= 0:
+             raise ValueError('amount must be positive')
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount &gt; self.balance:
+            raise RuntimeError('balance not enough')
+        self.balance -= amount
+
+    def __str__(self):
+        return 'Account({0}, {1}, {2})'.format(
+            self.name, self.number, self.balance)</code></pre>
+      <br>
+      在 <code>Account</code> 類別中，<code>__init__</code> 定義了物件的初始流程，取代了原本的 <code>account</code> 函式，注意到每個類別中的函式（或說是方法），<span
+
+        style="color: #ff0000;"><strong>首個參數「必定」接受物件本身，慣例上使用 <code>self</code> 名稱</strong></span>，相當於其他程式語言中 <code>this</code> 的概念，你可以說這是 Python 中「<strong>Explicit is better than implicit</strong>」的哲學，不過其實這還有讓類別動態調有時更為方便的實際意義，這是進階議題，這六個小時的課程中就不談了，有機會看看 Python 的專門書籍，應該都會談到…
+      <br>
+      <br>
+      在類別中還定義了 <code>__str__</code>，你應該還記得 <a href="NumericString.html">Python 2 Tutorial 第二堂（1）數值與字串型態</a> 中，談過 <code>__str__</code> 與 <code>__repr__</code> 的差別吧？忘記的話，記得回頭複習一下… 在上面的程式中，實際示範了如何在類別中定義 <code>__str__</code> 函式。
+      如此定義之後，客戶端在使用上就容易得多了…
+      <pre class="prettyprint"><code lang="python">import bank
+acct = bank.Account('Justin', '123-4567', 1000)
+acct.deposit(500)
+acct.withdraw(200)
+print acct</code></pre>
+      <br>
+      是的！<strong>容易使用</strong>！在討論物件導向時，大家總是愛談可重用性（Reusability），然而要談到重用性的話，函式的重用性還高上許多，在考量物件導向時，<span
+
+        style="color: #ff0000;"><strong>易用性（Usability）</strong></span>其實才是它的重點。
+      <h1>套件</h1>
+      假設現在你有一些 .py 檔案，別人同樣也有一堆 .py 檔案，你們的檔案現在得放在同一專案中，那麼檔案名稱衝突是有可能發生的，最好是為你們的 .py 檔案分別開設目錄。使用 Python 時，你可以在開設的目錄中放個 <span
+
+        style="color: #ff0000;"><strong>__init__.py</strong></span> 檔案，這樣 Python 就會將這個目錄視為一個套件，而目錄名稱就是套件名稱。
+      <br>
+      <br>
+      使用 <code>import pack.modu</code> 陳述時，Python 會尋找 pack 目錄，看看裏頭是否有 __init__.py 檔案，然後看看目錄中是否有個 modu.py 檔案。__init__.py 檔案空白也無所謂，實際上當中也可以寫些程式碼，用來執行這個套件中都會需要的初始工作，不過慣例上，除非你有真正不得已的理由，請保持 __init__.py 檔案空白。在找到模組後，實際上會執行其中頂層範疇中的程式碼，之後，模組中的變數、函式、類別等名稱，可以透過 <code>pack.modu</code> 來取得。
+      <strong><span style="color: #ff0000;"><br>
+          <br>
+          練習 5：運用模組、類別與套件來組織程式</span></strong>
+      <br>
+      <br>
+      在練習用的檔案中，有個 exercises/exercise5/main.py，裏頭草草寫了一堆函式與變數，以及執行結果輸出的程式碼，請利用這邊介紹的模組、類別與套件，來重新組織當中可重用的程式碼，讓它們可以位於 <code>pycon</code> 套件中適當的類別與模組，數學相關的函式，請置於 <code>xmath</code> 模組中，而帳戶相關的類別定義，請置於 <code>bank</code> 模組中 …
+      <br>
+      <br>
+      最後，你完成的程式在實體架構上，應該會像是以下的圖片示意（如果不知道怎麼完成實作，記得參考練習用檔案中 solutions/exercise5 的成果&nbsp;）：
+      <br>
+      <br>
+      <a href="images/python-tutorial-the-2nd-class-3-2.png"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" class="alignnone size-full wp-image-3017"
+
+          alt="python-tutorial-the-2nd-class-3-2" src="images/python-tutorial-the-2nd-class-3-2.png"
+
+          height="438" width="402" /></div></div></a>
+      <br>
+      <br>
+      完成這個練習後，第二堂應該時間就差不多到了，休息一下，接下來的第三堂課要來認識 Python 的社群、文件以及更多的 API ...
+      <h1>參考資源</h1>
+      <ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">字串型態</span></li>
+        <ul>
+          <li><a href="http://docs.python.org/2/reference/datamodel.html#object.__repr__%20">http://docs.python.org/2/reference/datamodel.html#object.__repr__&nbsp;</a></li>
+          <li><a href="http://docs.python.org/py3k/library/stdtypes.html#old-string-formatting%20">http://docs.python.org/py3k/library/stdtypes.html#old-string-formatting&nbsp;</a></li>
+          <li><a href="http://docs.python.org/py3k/library/string.html#string-formatting">http://docs.python.org/py3k/library/string.html#string-formatting</a>
+          </li>
+        </ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">清單、集合、字典與元組型態</span></li>
+        <ul>
+          <li><a href="../../Python/ListType.html">https://openhome.cc/Gossip/Python/ListType.html</a></li>
+          <li><a href="../../Python/SetType.html">https://openhome.cc/Gossip/Python/SetType.html</a> </li>
+          <li><a href="../../Python/DictionaryType.html">https://openhome.cc/Gossip/Python/DictionaryType.html</a> </li>
+          <li><a href="../../Python/TupleType.html">https://openhome.cc/Gossip/Python/TupleType.html </a></li>
+        </ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">函式、模組、類別與套件</span></li>
+        <ul>
+          <li><a href="../../Python/ModuleABC.html">https://openhome.cc/Gossip/Python/ModuleABC.html</a> </li>
+          <li><a href="../../Python/Class.html">https://openhome.cc/Gossip/Python/Class.html</a> </li>
+          <li><a href="http://docs.python-guide.org/en/latest/writing/structure/">http://docs.python-guide.org/en/latest/writing/structure/ </a></li>
+        </ul>
+      </ul>
+      <ul>
+        <li>Python 入門的捷徑</li>
+        <ul>
+          <li><a href="http://maxburstein.com/blog/python-shortcuts-for-the-python-beginner/">http://maxburstein.com/blog/python-shortcuts-for-the-python-beginner/</a></li>
+        </ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

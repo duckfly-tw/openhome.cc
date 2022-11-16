@@ -1,0 +1,202 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="為了便於進行後續的範例，在〈使用 Buffer〉中，gl-comm-1.js 的 getGLContext、installProgram 等函式，封裝對象是 Context 的取得、著色器編譯等任務。...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="來個 WebGL 程式庫">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/Lib1.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="為了便於進行後續的範例，在〈使用 Buffer〉中，gl-comm-1.js 的 getGLContext、installProgram 等函式，封裝對象是 Context 的取得、著色器編譯等任務。...">
+
+    <title>來個 WebGL 程式庫</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Lib1.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>來個 WebGL 程式庫</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>為了便於進行後續的範例，在〈<a href="Buffer.html">使用 Buffer</a>〉中，<a href="https://openhome.cc/Gossip/WebGL/samples/gl-comm-1.js">gl-comm-1.js</a> 的 <code>getGLContext</code>、<code>installProgram</code> 等函式，封裝對象是 Context 的取得、著色器編譯等任務。</p>
+<p>同樣地，為了便於進行後續的範例，這邊進一步地針對基本幾何的建立、貼圖的設置等做封裝，例如，希望在建立立方體時，只需要簡單地建立 <code>CubeGeometry</code>，設定面的顏色或貼圖時，只要建立 <code>BasicMaterial</code>、<code>TextureAtlasMaterial</code> 設置 RGBA、頂點數或者是指定 <code>Image</code> 物件等。</p>
+<p>這類的封裝更像是朝著通用的程式庫發展，不過通用性不是目前這個階段之目的，而是為了後續在範例撰寫時，能集中在想認識的觀念上，不用撰寫重複煩瑣的程式碼，由於後續還會需要認識著色器，必須保留與著色器程式溝通的能力，然而同時又可以把一些通用的設定隱藏在介面之下。</p>
+<p>基本上，建議自行嘗試這類的封裝，這會是個好的練習，先試著抽取相同的操作，接著看看是否適用其他範例的撰寫，這時會需要做些重構，藉由重構程式碼過程，對 WebGL 會有更多深刻的認識，最後我這邊重構後的成果是：</p>
+<ul>
+<li><code>Renderer</code>：封裝了 Context 取得、著色器編譯，以及與 Context、著色器溝通（像是貼圖產生、屬性、緩衝區設定等）、圖像渲染等行為。</li>
+<li><code>Geometry</code>：具有頂點、索引特性，用來封裝基本幾何資訊，目前有四面體 <code>TetrahedronGeometry</code>、立方體  <code>CubeGeometry</code>、二十面體 <code>IcosahedronGeometry</code> 等子類別。</li>
+<li><code>BasicMaterial</code>、<code>TextureAtlasMaterial</code>、<code>CubeMapMaterial</code>：各自封裝了顏色、貼圖圖集、CubeMap 資訊與操作，雖然名稱上都有個 Material 結尾，不過目前還沒有發展出共同特性，因此彼此間沒有繼承關係。</li>
+<li><code>Mesh</code>：封裝了 <code>Geometry</code> 子類實例以及 <code>BasicMaterial</code> 等類別實例，是最後被 <code>Renderer</code> 渲染的對象。</li>
+</ul>
+<p>來看看怎麼使用封裝後的成果，例如，試著實現〈<a href="DepthFace.html">深度測試與面剔除</a>〉中的正四面體範例，首先要建立 <code>Renderer</code> 實例：</p>
+<pre class="prettyprint"><code lang="javascript">const canvas = document.getElementById('glCanvas');
+const renderer = new Renderer(
+    shaderSourceById('vertex-shader'), 
+    shaderSourceById('fragment-shader'),
+    canvas);
+
+renderer.uniform1f('aspect', canvas.clientWidth / canvas.clientHeight);
+renderer.setClearColor(0, 0, 0, 1);
+</code></pre>
+<p><code>Renderer</code> 實例建立時必須傳入著色器原始碼與 Canvas 實例，要設置相關屬性時，可以透過 <code>uniform1f</code> 等方法，設置清除色等操作時也是，簡單來說，目前它會負責著與著色器溝通的任務，預設會啟用面剔除與深度測試。</p>
+<p>接著要建立幾何、材質、Mesh 物件：</p>
+<pre class="prettyprint"><code lang="javascript">const geometry = new TetrahedronGeometry(0.5); // 邊長為 0.5
+const material = new BasicMaterial(3, [
+    // 四個面的顏色
+    [1.0,  1.0,  1.0,  1.0],    // 白
+    [1.0,  0.0,  0.0,  1.0],    // 紅
+    [0.0,  1.0,  0.0,  1.0],    // 綠
+    [0.0,  0.0,  1.0,  1.0],    // 藍
+]);
+const tetrahedron = new Mesh(geometry, material);
+</code></pre>
+<p>為了讓事情單純化一些，<code>Geometry</code> 的子類別們，一律採用索引陣列，只要建立對應的 <code>Geometry</code> 實例，就會自動生成頂點與索引；在材質方面，<code>BasicMaterial</code> 用來產生純色面，你要指定每個面會有的頂點數，為了簡化，目前每個面的頂點數必須是相同的；<code>Mesh</code> 目前只是對幾何與材質的簡單封裝，作用是餵給 <code>Renderer</code> 時比較方便。</p>
+<p>接下來必須與著色器做些溝通，因為幾何、顏色資訊等，都各自封裝在 <code>TetrahedronGeometry</code>、<code>BasicMaterial</code> 中，因此只要透過各自對應的特性或方法呼叫取得就可以了：</p>
+<pre class="prettyprint"><code lang="javascript">renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+
+const colorBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.vertexColors(), GL.DYNAMIC_DRAW);
+renderer.enableVertexAttribArray(colorBuffer, 'color', 4);
+
+const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.DYNAMIC_DRAW);
+renderer.enableVertexAttribArray(vertBuffer, 'position', 3);
+</code></pre>
+<p>這邊沒什麼太多需要解釋的，每個方法背後，就是一些 WebGL 相關程式碼的封裝，該談的之前文件都談過了，若你看一下程式庫的原始碼就可以理解，至於為何會是以上的呼叫風格，是因為重構過程中，希望能封裝重複的程式碼同時，也能保有與著色器溝通的彈性。</p>
+<p>接下來就可以繪圖了：</p>
+<pre class="prettyprint"><code lang="javascript">rotateXY(geometry.verteices, Math.PI / 3, 0);
+
+let animation = true;
+function drawTetrahedron() {
+    renderer.clear();
+    renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+    renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+    renderer.render(tetrahedron);
+
+    rotateXY(geometry.verteices, 0, 0.025);
+
+    if(animation) {
+        requestAnimationFrame(drawTetrahedron);
+    }
+}
+
+canvas.addEventListener('mousedown', () =&gt; {
+    animation = !animation;
+    if(animation) {
+        drawTetrahedron();
+    }
+});
+
+drawTetrahedron();
+</code></pre>
+<p>相較於〈<a href="DepthFace.html">深度測試與面剔除</a>〉中的正四面體範例，這邊的範例簡潔許多，可以看看<a href="https://openhome.cc/Gossip/WebGL/samples/Lib1-1.html">完整的範例</a>來瞭解完整的範例怎麼撰寫。</p>
+<p>把有規則的幾何封裝起來，寫程式時就不用數頂點數到眼花，例如，要將上頭的範例改為隨機顏色的二十面體，最主要修改的部份是：</p>
+<pre class="prettyprint"><code lang="javascript">const geometry = new IcosahedronGeometry(0.5);
+const faceColors = [];
+for(let i = 0; i &lt; 20; i++) {
+    faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+}
+const material = new BasicMaterial(3, faceColors);
+const icosahedron = new Mesh(geometry, material);
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/WebGL/samples/Lib1-2.html">可以看看範例網頁</a>，這可以建立以下的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Lib1-1.JPG" alt="來個 WebGL 程式庫"  /></div></div></p>
+<p>那麼貼圖呢？若以〈<a href="TextureAtlas.html">貼圖圖集</a>〉中的範例來說，可以如下建立 <code>TextureAtlasMaterial</code> 等物件：</p>
+<pre class="prettyprint"><code lang="javascript">const image = await downloadImage('images/cube_earth.png');
+
+...
+
+const material = new TextureAtlasMaterial(
+    image, TextureAtlasMaterial.DEFAULT_CUBEMAP_TEXTURE_CORDS);
+const geometry = new CubeGeometry(0.5);
+const cube = new Mesh(geometry, material);
+</code></pre>
+<p><code>TextureAtlasMaterial.DEFAULT_CUBEMAP_TEXTURE_CORDS</code> 是配合 CubeMap 貼圖集合而設定的貼圖座標，當然，如果你有其他的貼圖來源，也可以設定自己的貼圖座標。</p>
+<p>至於其他與著色器的溝通是差不多類似的設定，主要是注意一下，可以使用 <code>Renderer</code> 的 <code>texture2D</code> 來產生貼圖實例：</p>
+<pre class="prettyprint"><code lang="javascript">const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.DYNAMIC_DRAW);
+renderer.enableVertexAttribArray(vertBuffer, 'vertexPosition', 3);
+
+const textureCordBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.textureCords, GL.STATIC_DRAW);
+renderer.enableVertexAttribArray(textureCordBuffer, 'texturePosition', 2);
+
+renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+
+// 使用 Renderer 的 texture2D 來產生貼圖實例
+renderer.bindTexture(GL.TEXTURE_2D, renderer.texture2D(material.image));
+renderer.activeTexture(GL.TEXTURE0);
+renderer.uniform1i('sampler', 0);
+</code></pre>
+<p>因為後續的文件，還是會談談著色器，因此與著色器設定等細節並沒有完全封裝，實際上，你也還是可以從 <code>Renderer</code> 實例上取得 <code>g1</code>、<code>program</code> 特性，直接與之互動。完成的效果可以<a href="https://openhome.cc/Gossip/WebGL/samples/Lib1-3.html">看看範例網頁</a>，效果是相同的。</p>
+<p>依照類似的方式，也可以為四面體貼圖，若想在四個面都貼上同一圖案的話，可以只設定一個貼圖座標，並告知重複幾個面：</p>
+<pre class="prettyprint"><code lang="javascript">const material = new TextureAtlasMaterial(image, [0, 0,  1/2, 1,  1, 0], 4);
+const geometry = new TetrahedronGeometry(0.5);
+const cube = new Mesh(geometry, material);
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/WebGL/samples/Lib1-4.html">完成的範例</a>會有這樣的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Lib1-2.JPG" alt="來個 WebGL 程式庫"  /></div></div></p>
+<p>如果想要利用著色器的 <code>samplerCube</code> 也是可以的話，例如，實現〈<a href="CubeMapping2.html">動態反射</a>〉的例子，這用二十面體來做特別有感：</p>
+<pre class="prettyprint"><code lang="javascript">const geometry = new IcosahedronGeometry(0.5);
+const material = new CubeMapMaterial({
+    posz: await downloadImage('images/cube_yokohama2_posz.jpg'),
+    negz: await downloadImage('images/cube_yokohama2_negz.jpg'),
+    posy: await downloadImage('images/cube_yokohama2_posy.jpg'),
+    negy: await downloadImage('images/cube_yokohama2_negy.jpg'),
+    posx: await downloadImage('images/cube_yokohama2_posx.jpg'),
+    negx: await downloadImage('images/cube_yokohama2_negx.jpg')
+});
+const icosahedronGeometry = new Mesh(geometry, material);
+
+const texture = renderer.textureCubeMap(material.images);
+</code></pre>
+<p><code>CubeMapMaterial</code> 只是封裝了六個 <code>Image</code>，然後提供給 <code>Renderer</code> 的 <code>textureCubeMap</code> 來產生貼圖實例，<a href="https://openhome.cc/Gossip/WebGL/samples/Lib1-5.html">點一下範例網頁的話</a>，就可以看到以下的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Lib1-3.JPG" alt="來個 WebGL 程式庫"  /></div></div></p>
+<p>若有興趣，也可以進一步看看 <a href="https://openhome.cc/Gossip/WebGL/samples/js/gl-comm-2.js">gl-comm-2.js</a> 的原始碼，當然，還可以封裝地更好一些，不過就後續文件在範例的簡化上夠用就好。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

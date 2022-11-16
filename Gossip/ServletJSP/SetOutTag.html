@@ -1,0 +1,151 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JSP 的 &lt;jsp:setProperty&gt; 功能有限，只能用來設定 JavaBean 的屬性。如果想要在 page、request、session、application 等範圍設定一...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="屬性處理與輸出標籤">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/SetOutTag.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="JSP 的 &lt;jsp:setProperty&gt; 功能有限，只能用來設定 JavaBean 的屬性。如果想要在 page、request、session、application 等範圍設定一...">
+
+    <title>屬性處理與輸出標籤</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SetOutTag.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>屬性處理與輸出標籤</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>JSP 的 <code>&lt;jsp:setProperty&gt;</code> 功能有限，只能用來設定 JavaBean 的屬性。如果想要在 <code>page</code>、<code>request</code>、<code>session</code>、<code>application</code> 等範圍設定一個屬性，或者想要設定 <code>Map</code> 物件的鍵與值，則可以使用 <code>&lt;c:set&gt;</code> 標籤。</p>
+<p>例如使用者登入後，想要在 session 範圍中設定一個 <code>"login"</code> 屬性，代表使用者已經登入，則可以如下撰寫：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:set var="login" value="caterpillar" scope="session"/&gt;
+</code></pre>
+<p><code>var</code> 用來設定屬性名稱，而 <code>value</code> 用來設定屬性值。這段標籤設定的作用，相當於：</p>
+<pre class="prettyprint"><code lang="java">&lt;% session.setAttribute("login", "caterpillar"); %&gt;
+</code></pre>
+<p>也可以使用EL來進行設定，例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:set var="login" value="${user}" scope="session"/&gt;
+</code></pre>
+<p>如果 <code>${user}</code> 運算的結果是 <code>User</code> 類別的實例，則儲存的屬性就是 <code>User</code> 物件，也就是相當於以下這段程式碼：</p>
+<pre class="prettyprint"><code lang="java">&lt;%
+    // user 是 User 所宣告的參考名稱，參考至 User 物件
+    session.setAttribute("login", user); 
+%&gt;
+</code></pre>
+<p><code>&lt;c:set&gt;</code> 標籤也可以將 <code>value</code> 的設定改為本體的方式，在所要設定的屬性值冗長時，採用本體的方式會比較容易撰寫。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:set var="details" scope="session"&gt;
+    caterpillar,openhome.cc,caterpillar.onlyfun.net
+&lt;/c:set&gt;
+</code></pre>
+<p><code>&lt;c:set&gt;</code> 不設定 <code>scope</code> 時，則會以 <code>page</code>、<code>request</code>、<code>session</code>、<code>application</code> 的範圍尋找屬性名稱，如果在某個範圍找到屬性名稱，則在該範圍設定屬性。如果所有範圍都沒有找到屬性名稱，則會在 <code>page</code> 範圍中新增屬性。如果要移除某個屬性，則可以使用 <code>&lt;c:remove&gt;</code> 標籤。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:remove var="login" scope="session"/&gt;
+</code></pre>
+<p><code>&lt;c:set&gt;</code> 也可以直接用來設定 JavaBean 的屬性或是 <code>Map</code> 物件的鍵╱值，要設定 JavaBean 或 <code>Map</code> 物件，必須使用 <code>target</code> 屬性進行設定。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:set target="${user}" property="name" value="${param.name}"/&gt;
+</code></pre>
+<p>如果 <code>${user}</code> 運算出來的結果是個 JavaBean，則上例就如同呼叫 <code>setName()</code> 並將請求參數 <code>name</code> 的值傳入。如果 <code>${user}</code> 運算出來的結果是個 <code>Map</code>，則上例就是以 <code>property</code> 屬性作為鍵，而 <code>value</code> 屬性作為值來呼叫 <code>Map</code> 物件的 <code>put()</code> 方法。</p>
+<p>下面這個範例改寫自〈<a href="HttpSession.html">使用 HttpSession</a>〉的問卷網頁，把 Servlet 改為 JSP 實作，並且使用 JSTL 來設置屬性：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;c:set target="${pageContext.request}" property="characterEncoding" value="UTF-8"/&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;Questionnaire&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form action="question.jsp" method="post"&gt;
+            &lt;c:choose&gt;
+                &lt;c:when test="${param.page == 'page1'}"&gt;
+                    問題一：&lt;input type="text" name="p1q1"&gt;&lt;br&gt;
+                    問題二：&lt;input type="text" name="p1q2"&gt;&lt;br&gt;
+                    &lt;input type="submit" name="page" value="page2"&gt;
+                &lt;/c:when&gt;
+                &lt;c:when test="${param.page == 'page2'}"&gt;
+                    &lt;c:set var="p1q1" value="${param.p1q1}" scope="session"/&gt;
+                    &lt;c:set var="p1q2" value="${param.p1q2}" scope="session"/&gt;
+                    問題三：&lt;input type="text" name="p2q1"&gt;&lt;br&gt;
+                    &lt;input type="submit" name="page" value="finish"&gt;
+                &lt;/c:when&gt;
+                &lt;c:when test="${param.page == 'finish'}"&gt;
+                    ${sessionScope.p1q1}&lt;br&gt;
+                    ${sessionScope.p1q2}&lt;br&gt;
+                    ${param.p2q1}&lt;br&gt;
+                &lt;/c:when&gt;
+            &lt;/c:choose&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>因為問卷的答案可能是用中文填寫，為了順利取得中文，必須設定 <code>request</code> 的字元編碼處理方式，也就是呼叫 <code>setCharacterEncoding()</code> 方法設定編碼。在這邊使用 <code>${pageContext.request}</code> 取得 <code>request</code> 物件，並透過 <code>&lt;c:set&gt;</code> 來進行設定。程式中需要判斷顯示哪些問題時，則使用之前學習過的 <code>&lt;c:choose&gt;</code> 與 <code>&lt;c:when&gt;</code> 標籤。問卷過程中需儲存至 session 的答案，則使用 <code>&lt;c:set&gt;</code> 來進行設定。</p>
+<p>再來介紹 <code>&lt;c:out&gt;</code> 物件，它可以讓你輸出指定的文字。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:out value="${param.message}"/&gt;
+</code></pre>
+<p>你也許會想這有什麼意思？為什麼不直接寫 <code>${param.message}</code> 就好，還要加上 <code>&lt;c:out&gt;</code> 標籤，這不是多此一舉嗎？如果 <code>${param.message}</code> 是來自使用者於留言版所發送的訊息，而使用者故意打了 HTML 在訊息，則 <code>&lt;c:out&gt;</code> 會自動將角括號、單引號、雙引號等字元用替代字元取代。這個功能是由 <code>&lt;c:out&gt;</code> 的 <code>escapeXml</code> 屬性來控制，預設是 <code>true</code>，如果設定為 <code>false</code>，就不會作替代字元的取代。</p>
+<p>EL 運算結果為 <code>null</code> 時，並不會顯示任何值，這原本是使用 EL 的好處，但如果你希望在 EL 運算結果為 <code>null</code> 時，可以顯示一個預設值，就目前你所學習到的 JSTL 標籤，你可能會這麼作：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:choose&gt;
+    &lt;c:when test="${param.a != null}"&gt;
+        ${param.a}
+    &lt;/c:when&gt;
+    &lt;c:otherwise&gt;
+        0
+    &lt;/c:otherwise&gt;
+&lt;/c:choose&gt;
+</code></pre>
+<p>如果使用 <code>&lt;c:out&gt;</code> 的話，則可以更簡潔地達到這個目的，可以使用 <code>default</code> 屬性設置 EL 運算結果為 <code>null</code> 時的預設顯示值：</p>
+<pre class="prettyprint"><code lang="java">&lt;c:out value="${param.a}" defalut="0"/&gt;
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

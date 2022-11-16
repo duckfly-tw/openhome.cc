@@ -1,0 +1,419 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="IoC模式基本上是一個高層的概念，在 Martin Fowler 的 Inversion of Control Containers and the Dependency Injection patt...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Dependency Injection">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/DI.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="IoC模式基本上是一個高層的概念，在 Martin Fowler 的 Inversion of Control Containers and the Dependency Injection patt...">
+
+
+    <title>Dependency Injection</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DI.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Dependency Injection</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+IoC模式基本上是一個高層的概念，在 Martin Fowler 的 <a href="http://www.martinfowler.com/articles/injection.html">Inversion of Control Containers and the Dependency Injection pattern</a>
+中談到，實現IoC有兩種方式：Dependency Injection與Service Locator，Spring
+所採用的是Dependency Injection 來實現
+IoC，中文翻譯為依賴注入，依賴注入的意義是：「保留抽象介面，讓組件依賴於抽象介面，當組件要與其它實際的物件發生依賴關係時，藉過抽象介面來注入依
+賴的實際物件。」 <br>
+
+      <br>
+
+
+看看下面這個程式：<br>
+
+      
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public class BusinessObject { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; private FloppyWriter writer = new FloppyWriter(); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void save() { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writer.saveToFloppy(); </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+BusinessObject 依賴於實際的 FloppyWriter，為了讓 BusinessObject 獲得重用性，不讓 BusinessObject 直接依賴於實際的 FloppyWriter，而是依賴於抽象的介面：<br>
+
+      
+
+
+
+
+      
+      <div style="margin-left: 40px; font-weight: bold; font-family: Courier New,Courier,monospace;">public interface IDeviceWriter { <br>
+
+
+&nbsp;&nbsp;&nbsp; public void saveToDevice(); <br>
+
+
+} <br>
+
+
+      <br>
+
+
+public class BusinessObject { <br>
+
+
+&nbsp;&nbsp;&nbsp; private IDeviceWriter writer; <br>
+
+
+      <br>
+
+
+&nbsp;&nbsp;&nbsp; public void setDeviceWriter(IDeviceWriter writer) { <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.writer = writer; <br>
+
+
+&nbsp;&nbsp;&nbsp; } <br>
+
+
+      <br>
+
+
+&nbsp;&nbsp;&nbsp; public void save() { <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writer.saveToDevice(); <br>
+
+
+&nbsp;&nbsp;&nbsp; } <br>
+
+
+} <br>
+
+
+      </div>
+
+
+      <br>
+
+      
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public class FloppyWriter implements IDeviceWriter { </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void saveToDevice() { </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 實際儲存至Floppy的程式碼 </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold;">public class UsbDiskWriter implements IDeviceWriter { </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void saveToDevice() { </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 實際儲存至UsbDisk的程式碼 </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold;">} </span><br>
+
+
+      </div>
+
+
+      <br>
+
+      <br>
+
+
+如果今天BusinessObject想要與UseDiskWriter物件發生依賴關係，可以這麼建立： <br>
+
+      
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">businessObject.setDeviceWriter(new UsbDiskWriter()); </span><br>
+
+
+      </div>
+
+
+      <br>
+
+      <br>
+
+
+由於BusinessObject依賴於抽象介面，在需要建立依賴關係時，可以透過抽象介面注入依賴的實際物件。 <br>
+
+      <br>
+
+
+依賴注入在Martin Fowler的文章中談到了三種實現方式：<span style="font-weight: bold;">Interface injection</span>、<span style="font-weight: bold;">Setter injection </span>與<span style="font-weight: bold;"> Constructor injection</span>。並分別稱其為<span style="font-weight: bold;">Type 1 IoC</span>、<span style="font-weight: bold;">Type 2 IoC </span>與 <span style="font-weight: bold;">Type 3 IoC</span>。 <br>
+
+      <br>
+
+
+上面的BusinessObject所實現的是Type 2 IoC，透過Setter注入依賴關係，而Type 3 IoC，則在是建構式上注入依賴關係，例如： <br>
+
+      
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public class BusinessObject { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; private IDeviceWriter writer; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public BusinessObject(IDeviceWriter writer) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.writer = writer; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void save() { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writer.saveToDevice(); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      </div>
+
+
+      <br>
+
+      <br>
+
+
+Spring 鼓勵的是 Setter injection，但也允許您使用 Constructor injection，使用 Setter 或
+Constructor 來注入依賴關係視您的需求而定，使用 Constructor
+的好處之一是，您可以在建構物件的同時一併完成依賴關係的建立，然而如果要建立的物件關係很多，則會在建構式上留下一長串的參數，這時使用
+Setter 會是個不錯的選擇，另一方面，Setter
+可以有明確的名稱可以瞭解注入的物件會是什麼，像是setXXX()這樣的名稱會比記憶Constructor上某個參數位置代表某個物件來得好。 <br>
+
+      <br>
+
+
+Type 1 IoC是Interface injection，使用Type 1 IoC時會要求實作介面，這個介面是為容器所用的，容器知道介面上所規定的方法，它可以呼叫實作介面的物件來完成依賴關係的注入，例如： <br>
+
+      
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public interface IDependencyInjection { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void createDependency(Map dependObjects); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public class BusinessObject implements IDependencyInjection { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; private Map dependObjects; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void createDependency(Map dependObjects) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.dependObject = dependObjects; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 在這邊實現與BusinessObject的依賴關係 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...... </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void save() { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writer.saveToDevice(); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      </div>
+
+
+      <br>
+
+      <br>
+
+
+如果要完成依賴關係注入的物件，必須實現IDependencyInjection介面，並交由容器管理，容器會呼叫被管理物件的createDependency()方法來完成依賴關係的建立。 <br>
+
+      <br>
+
+
+在上面的例子中，Type 1
+IoC要求BusinessObject實現特定的介面，這就使得BusinessObject依賴於容器，如果日後BusinessObject要脫離
+目前這個容器，就必須修改程式，想想在更複雜的依賴關係中產生更多複雜的介面，組件與容器（框架）的依賴會更加複雜，最後使得組件無法從容器中脫離。 <br>
+
+      <br>
+
+
+所以Type 1 IoC具有強的侵入性，使用它來實現依賴注入會使得組件相依於容器（框架），降低組件的重用性。 <br>
+
+      <br>
+
+
+Spring的核心是個IoC容器，您可以用Setter或Constructor的方式來實現您的業務物件，至於物件與物件之間的關係建立，則透過組態
+設定，讓Spring在執行時期根據組態檔的設定來為您建立物件之間的依賴關係，您不必特地撰寫一些Helper來自行建立這些物件之間的依賴關係，這不
+僅減少了大量的程式撰寫，也降低了物件之間的耦合程度。 
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

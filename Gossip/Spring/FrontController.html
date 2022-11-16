@@ -1,0 +1,293 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在實作 MVC 架構中的控制器時，是否感覺到一些相似的程式邏輯，像是取得請求參數、請求轉發、重新導向等，例如，每一次內部轉發時，總是寫著相同的程式碼：
+request.getRequestDispat...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="簡化控制器">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/FrontController.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在實作 MVC 架構中的控制器時，是否感覺到一些相似的程式邏輯，像是取得請求參數、請求轉發、重新導向等，例如，每一次內部轉發時，總是寫著相同的程式碼：
+request.getRequestDispat...">
+
+    <title>簡化控制器</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FrontController.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡化控制器</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在實作 MVC 架構中的控制器時，是否感覺到一些相似的程式邏輯，像是取得請求參數、請求轉發、重新導向等，例如，每一次內部轉發時，總是寫著相同的程式碼：</p>
+<pre class="prettyprint"><code lang="java">request.getRequestDispatcher(PATH).forward(request, response);
+</code></pre>
+<p>這是一種重複嗎？是的！而且由於採 MVC 架構，如果不是為了重新導向，實際上某些控制器中，並非真正需要 <code>HttpServletResponse</code> 實例，只是為了滿足 <code>RequestDispatcher</code> 的 <code>forward</code> 必須有 <code>HttpServletResponse</code> 實例罷了，而且在路徑設定上，因為微網誌應用程式的 JSP 都是放在 /WEB-INF/jsp 中，這部份也形成了重複的資訊。</p>
+<p>在 Spring MVC 中，前端控制器 <code>DispatcherServlet</code> 可以處理的事情很多，例如這些重複的邏輯與資訊就可以交由它來處理，令實作控制器時更為簡化，更能彰顯程式意圖。</p>
+<p>首先，來處理一下內部轉發的重複邏輯與資訊，這可以先在 <code>WebConfig</code> 中添加一些設定：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+...略
+
+@Configuration
+@EnableWebMvc
+@PropertySource("classpath:path.properties")
+@ComponentScan("cc.openhome.controller")
+public class WebConfig implements WebMvcConfigurer {
+    ...略
+
+    @Bean
+    public ViewResolver viewResolver() {
+        InternalResourceViewResolver resolver =
+                          new InternalResourceViewResolver();
+        resolver.setPrefix("/WEB-INF/jsp/");
+        resolver.setSuffix(".jsp");
+        resolver.setExposeContextBeansAsAttributes(true);
+        return resolver;
+    }     
+} 
+</code></pre>
+<p>在這邊設定了 <code>ViewResolver</code>，它負責解析Spring的視圖（View）相關元件，根據不同的實作類別，可以替換不同的頁面呈現技術，這邊的 <code>InternalResourceViewResolver</code> 負責處理內部轉發，可以設定前置與後置字串，這會與控制器中方法的傳回字串結合，例如，若控制器傳回 <code>"member"</code>，實際上就會轉發至 <code>"/WEB-INF/jsp/member.jsp"</code>，稍後也會看到，如果在控制器的方法中，透過注入的 <code>Model</code> 加入相關屬性，這些屬性會成為 JSP 頁面上可以存取的屬性。</p>
+<p>配合 <code>InternalResourceViewResolve</code> 的設定，path.properties 中的路徑資訊可以調整為：</p>
+<pre class="prettyprint"><code lang="java">path.url.member=/member
+path.url.index=/
+
+path.view.register_success=register_success
+path.view.register_form=register
+path.view.verify=verify
+path.view.forgot=forgot
+path.view.reset_password_form=reset_password
+path.view.reset_password_success=reset_success
+
+path.view.index=index
+path.view.user=user
+path.view.member=member
+</code></pre>
+<p>接著先來簡化 <code>AccessController</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+public class AccessController {
+    @Value("#{'redirect:' + '${path.url.member}'}")
+    private String REDIRECT_MEMBER_PATH;
+
+    @Value("#{'redirect:' + '${path.url.index}'}")
+    private String REDIRECT_INDEX_PATH;
+
+    @Value("${path.view.index}")
+    private String INDEX_PATH;
+
+    @Autowired
+    private UserService userService;
+
+
+    @PostMapping("login")
+    public String login(
+            @RequestParam String username, 
+            @RequestParam String password,
+            HttpServletRequest request) {
+
+        Optional&lt;String&gt; optionalPasswd = userService.encryptedPassword(username, password);
+
+        try {
+            request.login(username, optionalPasswd.get());
+            request.getSession().setAttribute("login", username);
+            return REDIRECT_MEMBER_PATH;
+        } catch(NoSuchElementException | ServletException e) {
+            request.setAttribute("errors", Arrays.asList("登入失敗"));
+            List&lt;Message&gt; newest = userService.newestMessages(10);
+            request.setAttribute("newest", newest);
+            return INDEX_PATH;
+        }
+    }
+
+    @GetMapping("logout")
+    public String logout(HttpServletRequest request) throws ServletException {
+        request.logout(); 
+        return REDIRECT_INDEX_PATH;
+    }
+}
+</code></pre>
+<p>由於有些控制器的方法中會進行頁面重新導向，為了區別重新導向時的路徑，可以在路徑前加上 <code>"redirect:"</code>，看到此字串前置，就知道該進行重新導向，而不是頁面轉發。</p>
+<p>在這邊看到了 <code>@RequestParam</code>，這告訴 Spring MVC 取得並注入與參數名稱相同的請求參數，<code>@RequestParam</code> 的 <code>required</code> 預設為 <code>true</code>，因此瀏覽器必須傳送此請求參數。</p>
+<p>實際上，如果參數名稱與請求參數相同，僅有 <code>@RequestParam String username</code> 的情況下，<code>@RequestParam</code> 也是可以省略的，這就看 <code>@RequestParam</code> 對於程式碼的閱讀上是否有幫助，決定要不要標註了。</p>
+<p>注意到方法的傳回值是 <code>String</code>，Spring 會根據 <code>InternalResourceViewResolve</code> 的設定來轉發至對應之頁面，或者是看到 <code>"redirect:"</code> 開頭字串時進行重新導向，因此不需要自行取得 <code>RequestDispatcher</code> 進行轉發，或者是透過 <code>HttpServletResponse</code> 的 <code>sendRedirect</code> 方法重新導向了。</p>
+<p>因此就這個控制器來說，兩個方法實際上都只需要注入 <code>HttpServletRequest</code> 實例，非必要的受檢例外（Checked Exception）宣告也可以刪除了。</p>
+<p>由於這個應用程式，目前依賴在 Web 容器的安全管理之上，因此還是需要 <code>HttpServletRequest</code> 的 <code>login</code>、<code>logout</code> 方法，然而，透過適當的 Spring 特性，其他的控制器可以簡化到不需要 Servlet API，例如 <code>MemberController</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+import cc.openhome.model.Message;
+import cc.openhome.model.UserService;
+
+@Controller
+public class MemberController {
+    ...略
+
+    @GetMapping("member")
+    @PostMapping("member")
+    public String member(
+            @SessionAttribute("login") String username, 
+            Model model) {
+        List&lt;Message&gt; messages = userService.messages(username);
+        model.addAttribute("messages", messages);
+        return MEMBER_PATH;
+    }
+
+    @PostMapping("new_message")
+    protected String newMessage(
+            @RequestParam String blabla, 
+            @SessionAttribute("login") String username, 
+            Model model)  {
+
+        if(blabla.length() == 0) {
+            return REDIRECT_MEMBER_PATH;
+        }        
+
+        if(blabla.length() &lt;= 140) {
+            userService.addMessage(username, blabla);
+            return REDIRECT_MEMBER_PATH;
+        }
+        else {
+            model.addAttribute("messages", userService.messages(username));
+            return MEMBER_PATH;
+        }
+    }  
+
+    @PostMapping("del_message")
+    protected String delMessage(
+            @RequestParam String millis, 
+            @SessionAttribute("login") String username) {
+
+        if(millis != null) {
+            userService.deleteMessage(username, millis);
+        }
+        return REDIRECT_MEMBER_PATH;
+    }        
+} 
+</code></pre>
+<p><code>MemberController</code> 中的方法，原本需要透過 <code>HttpSession</code> 來取得 <code>"login"</code> 屬性，透過 <code>@SessionAttribute</code> 的話，Spring 會自動取得並注入至方法。</p>
+<p>這邊一併注入了 <code>Model</code> 實例，被添加至 <code>Model</code> 實例中的屬性，在 Spring 處理之後，預設會複製給 <code>HttpServletRequest</code> 成為其屬性之一。</p>
+<p>如此之來，藉由標註與注入物件，可以發現 <code>MemberController</code> 中沒有任何 Servlet API 出現了。</p>
+<p>為什麼強調沒有Servlet API出現？如果需要對控制器進行單元測試，Servlet API 會是個麻煩，因為相關實例是由容器的實作提供，若要自行實作一些假物件，也就是所謂的 Mock 物件，也會有一定的複雜度，然而，像這邊的 <code>MemberController</code>，方法的參數型態是 <code>String</code> 或 <code>Model</code>，後者也只有幾個方法需要實作，進行單元測試時就會簡單許多。</p>
+<p>當然，這得是你真的想進行單元測試啦！不用只是為了去除 Servlet API 而想盡辦法去除 Servlet API，這只是自找麻煩，Spring MVC 終究是基於 Servlet 容器，若使用 Servlet API 可以簡單地解決需求，維護上也方便，使用 Servlet API 並沒有什麼不好。</p>
+<p><code>Model</code> 中添加的屬性，在 Spring 處理之後，預設會複製給 <code>HttpServletRequest</code> 成為其屬性之一，若要令複製給 <code>HttpSession</code> 成為屬性，可以透過 <code>@SessionAttributes</code> 在控制器宣告，例如 <code>AccountController</code> 可以修改為：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+@SessionAttributes("token")
+public class AccountController {
+    ...略
+
+    @GetMapping("reset_password")
+    public String resetPasswordForm(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String token,
+            Model model) {
+
+        Optional&lt;Account&gt; optionalAcct =
+                userService.accountByNameEmail(name, email);
+
+        if(optionalAcct.isPresent()) {
+            Account acct = optionalAcct.get();
+            if(acct.getPassword().equals(token)) {
+                model.addAttribute("acct", acct);
+                model.addAttribute("token", token);
+                return RESET_PASSWORD_FORM_PATH;
+            }
+        }
+        return REDIRECT_INDEX_PATH;
+    }
+
+    ...略
+} 
+</code></pre>
+<p>在 <code>AccountController</code> 上使用 <code>@SessionAttributes</code> 指定了 <code>"token"</code> 會是 <code>HttpSession</code> 的屬性，因此若透過注入的 <code>Model</code> 添加的屬性名稱是 <code>"token"</code>，在 Spring 的處理之後，會複製一份至 <code>HttpSession</code> 成為其屬性之一。</p>
+<p>最後來看看如何簡化 <code>DisplayController</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+public class DisplayController {
+    ...略
+
+    @GetMapping("user/{username}")
+    public String user(
+            @PathVariable("username") String username,
+            Model model) {
+
+        model.addAttribute("username", username);
+        if(userService.userExisted(username)) {
+            List&lt;Message&gt; messages =
+                             userService.messages(username);
+            model.addAttribute("messages", messages);
+        } else {
+            model.addAttribute("errors",
+                  Arrays.asList(String.format("%s 還沒有發表訊息", username)));
+        }
+        return USER_PATH;
+    } 
+} 
+</code></pre>
+<p>在這邊可以看到，<code>@RequestMapping</code> 可以在路徑設定上指定佔位變數，之後就可以透過 <code>@PathVariable</code> 注入變數實際的值，這麼一來，就不用自行解析 URI 來取得使用者名稱了。</p>
+<p>現在可以試著執行應用程式，看看功能是否一切如常，並與先前文件中的控制器程式碼相比較，看看是否簡潔了許多。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/MVC/FrontController/gossip">gossip</a> 中找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

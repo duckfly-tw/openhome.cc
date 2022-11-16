@@ -1,0 +1,368 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在認識 BottomNavigationBar 的同時，往往都會看到 BottomAppBar，不少文件會說，如果 BottomNavigationBar 不能滿足你，想自訂個底部工具列，可以使用 B...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="底部工具列 BottomAppBar">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/BottomAppBar.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在認識 BottomNavigationBar 的同時，往往都會看到 BottomAppBar，不少文件會說，如果 BottomNavigationBar 不能滿足你，想自訂個底部工具列，可以使用 B...">
+
+    <title>底部工具列 BottomAppBar</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BottomAppBar.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>底部工具列 BottomAppBar</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在認識 <code>BottomNavigationBar</code> 的同時，往往都會看到 <code>BottomAppBar</code>，不少文件會說，如果 <code>BottomNavigationBar</code> 不能滿足你，想自訂個底部工具列，可以使用 <code>BottomAppBar</code>，這麼說某些程度上也沒錯啦！</p>
+<p>例如，來模仿一下 <code>BottomNavigationBar</code>，在 bottom_nav_bar.dart 中實作個 <code>BottomNavnBar</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+class BottomNavBar extends StatefulWidget {
+  final items;
+  final Function onTap;
+
+  BottomNavBar({this.items, this.onTap});
+
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _BottomNavBar();
+}
+
+class _BottomNavBar extends State&lt;BottomNavBar&gt; {
+  int selectedIdx = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final barItems = List&lt;Widget&gt;();
+    for(var i = 0; i &lt; widget.items.length; i++) {
+      barItems.add(Column(
+        // 依元件決定最小高度
+        mainAxisSize: MainAxisSize.min,
+        // 從底部排列
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            // 依選中與否，從父裔中取得佈景主題的顏色
+            color: selectedIdx == i ? Theme.of(context).accentIconTheme.color : Colors.black,
+            icon: widget.items[i].icon,
+            onPressed: () {
+              setState(() {
+                selectedIdx = i;
+                widget.onTap(i);
+              });
+            },
+          ),
+          DefaultTextStyle(
+            style: TextStyle(
+              // 依選中與否，從父裔中取得佈景主題的顏色
+              color: selectedIdx == i ? Theme.of(context).accentIconTheme.color : Colors.black,
+            ),
+            child: widget.items[i].title,
+          )
+        ],
+      ));
+    }
+
+    return BottomAppBar(
+      color: Theme.of(context).accentColor,
+      child: Row(
+        // 平均分配空間
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: barItems,
+      )
+    );
+  }
+}
+
+class BottomNavBarItem {
+  Widget title;
+  Icon icon;
+  BottomNavBarItem({this.title, this.icon});
+}
+</code></pre>
+<p>這麼一來，就可以將〈<a href="BottomNavigationBar.html">底部導覽列 BottomNavigationBar</a>〉中的 <code>BottomNavigationBar</code> 用 <code>BottomNavBar</code> 取代：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'bottom_nav_bar.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Home()
+  )
+);
+
+class Home extends StatefulWidget {
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _HomeState();
+}
+
+class _HomeState extends State&lt;Home&gt; {
+  final books = [
+    Book(
+      imgSrc: 'https://openhome.cc/Gossip/images/ACL059300.jpg',
+      name: 'Java SE 14 技術手冊',
+    ),
+    Book(
+      imgSrc: 'https://openhome.cc/Gossip/images/ACL054400.jpg',
+      name: 'Python 3.7 技術手冊',
+    ),
+    Book(
+      imgSrc: 'https://openhome.cc/Gossip/images/AEL022800.jpg',
+      name: 'JavaScript 技術手冊',
+    )
+  ];
+
+  var bookIdx;
+
+  @override
+  void initState() {
+    bookIdx = 0;
+    super.initState();
+  }
+
+  void page(idx) {
+    setState(() {
+      bookIdx = idx;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: books[bookIdx],
+      bottomNavigationBar: BottomNavBar(
+        items: [
+          BottomNavBarItem(title: Text('Java'), icon: Icon(Icons.local_cafe)),
+          BottomNavBarItem(title: Text('Python'), icon: Icon(Icons.local_grocery_store)),
+          BottomNavBarItem(title: Text('JavaScript'), icon: Icon(Icons.local_pizza)),
+        ],
+        onTap: page,
+      ),
+    );
+  }
+}
+
+class Book extends StatelessWidget {
+  final String imgSrc;
+  final String name;
+
+  Book({this.imgSrc, this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: Image.network(imgSrc),
+        ),
+        Text(name)
+      ],
+    );
+  }
+}
+</code></pre>
+<p>執行結果是差不多的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BottomAppBar-1.gif" alt="底部工具列 BottomAppBar"  /></div></div></p>
+<p>只不過，幹嘛還包個 <code>BottomAppBar</code>？直接將 <code>_BottomNavBar</code> 中 <code>build</code> 裡的 <code>Row</code> 指定給 <code>Scaffold</code> 的 <code>bottomNavigationBar</code> 不就好了？沒錯！如果只是要自訂底部工具列，根本就不需要 <code>BottomAppBar</code>，方才只是純綷想玩，模仿一下 <code>BottomNavigationBar</code> 罷了。</p>
+<p>其實 API 文件中寫到，<code>BottomAppBar</code> 主要是為了搭配 <code>Scaffold</code> 的 <code>floatingActionButton</code> 特性，如果 <code>floatingActionButton</code> 蓋到 <code>BottomAppBar</code>，你可以提供一個缺口的繪製效果。例如，在 <code>_BottomNavBar</code> 的 <code>build</code> 做點修改：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+...
+
+class _BottomNavBar extends State&lt;BottomNavBar&gt; {
+  int selectedIdx = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    ...略
+
+    return BottomAppBar(
+      color: Theme.of(context).accentColor,
+      // 設定缺口形狀
+      shape: CircularNotchedRectangle(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: barItems,
+      )
+    );
+  }
+}
+
+...略
+</code></pre>
+<p>然後，設定一下 <code>Scaffold</code> 的 <code>floatingActionButton</code> 與 <code>floatingActionButtonLocation</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'bottom_nav_bar.dart';
+
+void main() =&gt; runApp(
+    MaterialApp(
+        home: Home()
+    )
+);
+
+class Home extends StatefulWidget {
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _HomeState();
+}
+
+class _HomeState extends State&lt;Home&gt; {
+  final books = [
+    Book(
+      imgSrc: 'https://openhome.cc/Gossip/images/ACL059300.jpg',
+      name: 'Java SE 14 技術手冊',
+    ),
+    Book(
+      imgSrc: 'https://openhome.cc/Gossip/images/ACL054400.jpg',
+      name: 'Python 3.7 技術手冊',
+    ),
+  ];
+
+  var bookIdx;
+
+  ...略
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // 設定 FloatingActionButton
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      body: books[bookIdx],
+      bottomNavigationBar: BottomNavBar(
+        items: [
+          BottomNavBarItem(title: Text('Java'), icon: Icon(Icons.local_cafe)),
+          BottomNavBarItem(title: Text('Python'), icon: Icon(Icons.local_grocery_store)),
+        ],
+        onTap: page,
+      ),
+    );
+  }
+}
+
+class Book extends StatelessWidget {
+  ...略
+}
+</code></pre>
+<p>就會出現以下的效果了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BottomAppBar-2.JPG" alt="底部工具列 BottomAppBar"  /></div></div></p>
+<p>要注意的是，缺口效果是畫出來的，顏色是由 <code>BottomAppBar</code> 的 <code>color</code> 決定，也就是說，若想要有缺口效果，自訂 <code>BottomAppBar</code> 時，就不能設定其 <code>child</code> 元件的顏色，例如底下可以呈現缺口：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'bottom_nav_bar.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blue,
+        shape: CircularNotchedRectangle(),
+        child: Container(
+          height: kBottomNavigationBarHeight,
+        )
+      ),
+    )
+  )
+);
+</code></pre>
+<p>執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BottomAppBar-3.JPG" alt="底部工具列 BottomAppBar"  /></div></div></p>
+<p>然而，設定了 <code>Container</code> 的 <code>color</code> 後，就不會有缺口了：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'bottom_nav_bar.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blue,
+        shape: CircularNotchedRectangle(),
+        child: Container(
+          color: Colors.green,  // 設定了顏色
+          height: kBottomNavigationBarHeight,
+        )
+      ),
+    )
+  )
+);
+</code></pre>
+<p>這是因為缺口畫完後，就又被 <code>Container</code> 的顏色繪製給覆蓋過去了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BottomAppBar-4.JPG" alt="底部工具列 BottomAppBar"  /></div></div></p>
+<p>因此正確來說，<code>BottomAppBar</code> 是給你自訂有缺口的工具列，而且是專門為了搭配 <code>Scaffold</code> 的 <code>floatingActionButton</code> 特性。</p>
+<p>那麼可不可以提供按鈕處凸起而不是缺口呢？<code>BottomAppBar</code> 的 <code>shape</code> 接受的 <code>NotchedShape</code>，顧名思義，它應該就是用來做缺口用的，不過，<code>NotchedShape</code> 主要是提供一個 <code>Path</code>：</p>
+<pre class="prettyprint"><code lang="dart">abstract class NotchedShape {
+  const NotchedShape();
+  Path getOuterPath(Rect host, Rect guest);
+}
+</code></pre>
+<p>也就是說，提供一個形狀的路徑資訊，<code>CircularNotchedRectangle</code> 提供的應就是個與矩形計算後，具有缺口的矩形路徑資訊，然後再用來繪圖，因此如果有心研究一下 <code>BottomAppBar</code> 是怎麼利用 <code>NotchedShape</code> 繪圖的話，是可以做出按鈕處凸起的效果，網路上有一些看來不錯的專案，提供這類的效果，搜尋一下「convex bottom bar」應該就能找到。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

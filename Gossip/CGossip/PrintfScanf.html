@@ -1,0 +1,278 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="學習 C 的過程中，通常是從主控台，也就是文字模式下開始，為了與程式互動，在主控台下輸出程式執行結果，或是從主控台取得使用者的輸入資料是基本需求，在 C 中標準輸入輸出是由 stdio.h 提供，這也...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="printf 與 scanf">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CGossip/PrintfScanf.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="學習 C 的過程中，通常是從主控台，也就是文字模式下開始，為了與程式互動，在主控台下輸出程式執行結果，或是從主控台取得使用者的輸入資料是基本需求，在 C 中標準輸入輸出是由 stdio.h 提供，這也...">
+
+    <title>printf 與 scanf</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PrintfScanf.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C 語言目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>printf 與 scanf</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>學習 C 的過程中，通常是從主控台，也就是文字模式下開始，為了與程式互動，在主控台下輸出程式執行結果，或是從主控台取得使用者的輸入資料是基本需求，在 C 中標準輸入輸出是由 stdio.h 提供，這也就是為何要在程式的一開頭總是加上：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+</code></pre>
+<p>將訊息輸出至主控台，稱之為標準輸出（Stand output），C 藉由 <code>printf()</code> 將訊息輸出至主控台，至今已經看過幾個 <code>printf()</code> 函式的應用了，基本上，<code>printf()</code> 就是將指定的文字、數值等輸出至螢幕上，並且執行過後會傳回所輸出的字元數，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int count = printf("This is a test!\n");
+    printf("%d\n", count);
+
+    return 0;
+}
+</code></pre>
+<p><code>"This is a test!\n"</code> 當中包括換行字元，共有 16 個字元，因此 <code>count</code> 的值會是 16，顯示結果如下：</p>
+<pre class="prettyprint"><code lang="c-lang">This is a test!
+16
+</code></pre>
+<p>標準輸出可以被重新導向至檔案，可以在執行程式時使用 <code>&gt;&gt;</code> 將輸出結果導向至指定檔案，例如（假設編譯後的可執行檔為 main）：</p>
+<pre class="prettyprint"><code lang="c-lang">main &gt;&gt; result.txt
+</code></pre>
+<p>如果程式的目的是顯示 <code>"Hello! World!"</code>，則上面的執行會將結果導向至 result.txt，而不會在螢幕上顯示 <code>"Hello! World!"</code>，result.txt中將會有輸出結果 Hello! World!。</p>
+<p>要重新導向標準輸出是用 <code>&gt;</code>,標準輸入則是 <code>&lt;</code>，而 <code>&gt;&gt;</code> 除了重導標準輸出，還有附加的功能，也就是會把輸出附加到被導向的目標檔案後頭，如果目標檔案本來不存在，那麼效果就和 <code>&gt;</code> 一樣。</p>
+<p>如果在使用 <code>printf</code> 時要指定整數、浮點數、字元等進行顯示，要配合格式指定字（format specifier），以下列出幾個可用的格式指定碼：</p>
+<ul>
+<li><code>%c</code>：以字元方式輸出</li>
+<li><code>%d</code>：10 進位整數輸出</li>
+<li><code>%o</code>：以 8 進位整數方式輸出</li>
+<li><code>%u</code>：無號整數輸出</li>
+<li><code>%x</code>、<code>%X</code>：將整數以 16 進位方式輸出</li>
+<li><code>%f</code>：浮點數輸出</li>
+<li><code>%e</code>、<code>%E</code>：使用科學記號顯示浮點數</li>
+<li><code>%g</code>、<code>%G</code>：浮點數輸出，取 <code>%f</code> 或 <code>%e</code>（<code>%f</code> 或 <code>%E</code>），看哪個表示精簡</li>
+<li><code>%%</code>：顯示 %</li>
+<li><code>%s</code>：字串輸出</li>
+<li><code>%lu</code>：<code>long unsigned</code> 型態的整數</li>
+<li><code>%p</code>：指標型態</li>
+</ul>
+<p>基本上，要顯示的是什麼資料型態，就必須搭配對應資料型態的格式指定字，但 <code>%d</code> 若用來輸出某個字元，將顯示其整數編碼值，若 <code>%c</code> 用來顯示某個整數，將顯示該整數對應編碼的字元，一個使用的範例如下所示：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("顯示字元 %c\n", 'A');
+    printf("顯示字元編碼 %d\n", 'A');
+    printf("顯示字元編碼 %c\n", 65);    
+    printf("顯示十進位整數 %d\n", 15);
+    printf("顯示八進位整數 %o\n", 15);
+    printf("顯示十六進位整數 %X\n", 15);
+    printf("顯示十六進位整數 %x\n", 15);    
+    printf("顯示科學記號 %E\n", 0.001234);    
+    printf("顯示科學記號 %e\n", 0.001234);    
+
+    return 0;
+}
+</code></pre>
+<p>顯示結果如下所示：</p>
+<pre class="prettyprint"><code lang="c-lang">顯示字元 A
+顯示字元編碼 65
+顯示字元編碼 A
+顯示十進位整數 15
+顯示八進位整數 17
+顯示十六進位整數 F
+顯示十六進位整數 f
+顯示科學記號 1.234000E-03
+顯示科學記號 1.234000e-03
+</code></pre>
+<p>可以在輸出浮點數時指定精度，例如若為浮點數：</p>
+<pre class="prettyprint"><code lang="c-lang">printf("example:%.2f\n", 19.234);
+</code></pre>
+<p><code>.2</code> 指定小數點後取兩位，執行結果會輸出：</p>
+<pre class="prettyprint"><code lang="c-lang">example:19.23
+</code></pre>
+<p>也可以指定輸出時，至少要預留的字元寬度，無論是數值或字串，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">printf("example:%6.2f\n", 19.234);
+</code></pre>
+<p>整數 6 表示預留 6 個字元寬度，由於預留了 6 個字元寬度，不足的部份要由空白字元補上，執行結果會輸出如下（19.23只佔五個字元，所以補上一個空白在前端）：</p>
+<pre class="prettyprint"><code lang="c-lang">example: 19.23
+</code></pre>
+<p>若在 <code>%</code> 之後指定負號，例如 <code>%-6.2f</code>，表示靠左對齊，沒有指定則靠右對齊，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("example:%6.2f\n", 19.234);
+    printf("example:%-6.2f\n", 19.234);
+
+    return 0;
+}
+</code></pre>
+<p>顯示結果如下：</p>
+<pre class="prettyprint"><code lang="c-lang">example: 19.23
+example:19.23
+</code></pre>
+<p>若事先無法決定字元寬度，則可以使用 <code>*</code>，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("%*d\n", 1, 1);
+    printf("%*d\n", 2, 1);
+    printf("%*d\n", 3, 1);
+
+    return 0;
+}
+</code></pre>
+<p><code>printf()</code> 的 <code>*</code> 將被之後的第一個引數所取代，所以第一個 <code>printf()</code> 將預留一個字元寬度，第二個預留兩個字元寬度，第三個預留三個，顯示結果如下：</p>
+<pre class="prettyprint"><code lang="c-lang">1
+ 1
+  1
+</code></pre>
+<p>若是字串的話，也可以使用 <code>%.*s</code>，這表示要顯示字串中 0 到多個字元，實際的字元數可以在第二個參數指定，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("%.*s\n", 3, "Justin");
+    printf("%.*s\n", 5, "Justin");
+    printf("%.*s\n", 7, "Justin");
+}
+</code></pre>
+<p>執行結果如下：</p>
+<pre class="prettyprint"><code lang="c-lang">Jus
+Justi
+Justin
+</code></pre>
+<p>如果打算取得使用者的輸入，可以使用標準輸入的 <code>scanf</code> 函式，並搭配格式指定字與 <code>&amp;</code> 取址運算子指定給變數，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int input;
+
+    printf("請輸入數字：");
+    scanf("%d", &amp;input);
+
+    printf("你輸入的數字：%d\n", input);
+
+    return 0;
+}
+</code></pre>
+<p>在程式中先宣告了一個整數變數 <code>input</code>，使用 <code>scanf()</code> 函式時，若輸入的數值為整數，則使用格式指定字 <code>%d</code>，若輸入的是其他資料型態，則必須使用對應的格式指定字，如果是 <code>double</code>，特別注意要使用 <code>%lf</code> 來指定。</p>
+<p>你必須告知程式儲存資料的變數位址，為此，必須使用 <code>&amp;</code> 取址運算子，這會將變數的記憶體位址取出，則輸入的數值就知道變數的記憶體位址並儲存之（但字元陣列名稱本身就有位址資訊，故不用 <code>&amp;</code> 來取址，之後說明陣列時會再看到）。</p>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c-lang">請輸入數字：10
+你輸入的數字：10
+</code></pre>
+<p><code>scanf</code> 在接受輸入時，可以接受多個值，也可以指定輸入的格式，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int number1, number2;
+
+    printf("請輸入兩個數字，中間使用空白區隔）：");
+    scanf("%d %d", &amp;number1, &amp;number2);
+    printf("你輸入的數字：%d %d\n", number1, number2);
+
+    printf("請再輸入兩個數字，中間使用-號區隔）：");
+    scanf("%d-%d", &amp;number1, &amp;number2);
+    printf("你輸入的數字：%d-%d\n", number1, number2);
+
+    return 0;
+}
+</code></pre>
+<p>在第一個 <code>scanf</code> 中，指定了使用空白來區隔兩個輸入，而第二個 <code>scanf</code> 中，指定了使用 <code>-</code> 來區隔兩個輸入，一個執行與輸入的結果如下所示：</p>
+<pre class="prettyprint"><code lang="c-lang">請輸入兩個數字，中間使用空白區隔）：10 20
+你輸入的數字：10 20
+請再輸入兩個數字，中間使用-號區隔）：30-40
+你輸入的數字：30-40
+</code></pre>
+<p><code>scanf</code> 還可以指定可接受的字元集合，例如若只想接受 1 到 5 的字元，則可以如下：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    char buf[50];
+
+    printf("請輸入 1 到 5 的字元：");
+    scanf("%[1-5]", buf);
+    printf("輸入的字元為 %s\n", buf);
+
+    fflush(stdin); // 清除輸入緩衝區
+
+    printf("請輸入 XYZ 任一字元：");
+    scanf("%[XYZ]", buf);
+    printf("輸入的字元為 %s\n", buf);
+
+    return 0;
+}
+</code></pre>
+<p>上面的 <code>str</code> 宣告，為 C 語言中的<a href="https://openhome.cc/Gossip/CGossip/String.html">字元陣列與字串</a>，<code>scanf</code> 函式連續讀入符合集合的字元並放到字元陣列中，直到讀到不符合的字元為止，剩下的字元仍會存在輸入緩衝區中，可以直接使用 <code>fflush(stdin)</code> 清除輸入緩衝區，以利進行下一次重新輸入，<code>scanf</code> 函式若成功，則傳回成功填寫的格式指定字數目，否則直接略過輸入而傳回 0，在學會流程控制語法之後，可以據以判斷該作什麼處理（像是使用 <code>if</code> 來針對不接受輸入時的處理）。</p>
+<p>執行結果如下：</p>
+<pre class="prettyprint"><code lang="c-lang">請輸入 1 到 5 的字元：146731
+輸入的字元為 14
+請輸入 XYZ 任一字元：XYZXDX
+輸入的字元為 XYZX
+</code></pre>
+<p>你可以使用 <code>%[0-9]</code> 指定取得 0 至 9 的字元，使用 <code>%[A-z]</code> 指定取得 ASCII 表中的 A 到 z 的字元，如果要排除的話，則使用 <code>^</code>，例如 <code>%[^ABC]</code> 可取得 <code>ABC</code> 字元以外的所有字元。</p>
+<p>在上面的例子中，<code>buf</code> 的長度為 50，輸入的字元最多只能是 49 個（在〈<a href="https://openhome.cc/Gossip/CGossip/String.html">字元陣列與字串</a>〉中會看到，字串是字元陣列，而且最後一個元素必須是空字元），<code>scanf</code> 收到的字元若超出 <code>buf</code>，稱為緩衝區溢位（buffer overflow），會發生不可預期的結果，甚至成為安全弱點。</p>
+<p>預防的方法之一是，限定 <code>scanf</code> 每次執行可以接受的最大字元數，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    char buf[10];
+
+    printf("請輸入字串：");
+    scanf("%9s", buf);
+    printf("輸入的字串：%s\n", buf);
+
+    return 0;
+}
+</code></pre>
+<p>在上例中，若輸入的字元超過 9，<code>buf</code> 也只會收到 9 個字元加上一個空字元，超過的字元會留在輸入緩衝區。</p>
+<p>另一個預防輸入超過 <code>buf</code> 長度的方式，是使用 <code>fgets</code>，這可以參考〈<a href="PutcharGetcharPutsGets.html">putchar、getchar、puts、fgets</a>〉的說明。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

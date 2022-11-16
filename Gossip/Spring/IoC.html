@@ -1,0 +1,86 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Inversion of Control？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/IoC.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制...">
+
+    <title>Inversion of Control？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="IoC.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Inversion of Control？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制之內，你決定了何時要處理請求參數、取得模型物件、轉發請求、顯示頁面等各式流程。</p>
+<p>控制、熟悉應用程式的流程走向，是很重要的一部份，在打算套用框架之前，你必須先認清應用程式的流程走向，至少，你應該寫個原型，試著摸出、掌握大致的流程走向，這對後續框架的選擇、使用會有很大的幫助。</p>
+<p>因為在開始使用框架之後，會發現框架將主導程式運行的某個流程，你必須在框架的規範下定義某些類別，框架會在適當時候調用你實作的程式元件，也就是說，對應用程式的流程控制權會被反轉，框架會規範、限制應用程式流程，框架會呼叫你的程式元件，而不是由你來呼叫框架。</p>
+<p>例如，使用程式庫的話，主要流程的控制是這樣的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/IoC-1.JPG" alt="Inversion of Control？"  /></div></div></p>
+<p>灰色部份是可以自行掌控的流程，並在過程中必要時機，引用各種程式庫，當然，執行程式庫的過程中，會暫時進入程式庫的流程，不過，絕大多數的情況下，你對應用程式的主要流程，還是擁有很大的控制權。</p>
+<p>使用框架的話，主要流程的控制是這樣的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/IoC-2.JPG" alt="Inversion of Control？"  /></div></div></p>
+<p>這就是<strong>控制權反轉（Inverse of Control, IoC）</strong>的解讀之一，使用框架的話必須注意，流程控制權會從你的手中反轉至框架身上！</p>
+<p>當然，框架本質上也是個程式庫，不過會被定位為框架，表示它對程式主要流程擁有更多的控制權，然而，框架本身是個半成品，想要完成整個流程，必須在框架的流程規範下，實現自定義元件，如上圖表示的，灰色部份是可以自行掌控的部份，與使用程式庫相比，對流程控制的自由度少了許多。</p>
+<p>應用程式開發時是否需要使用框架，有很多考量點，然而簡單來說，<strong>使用程式庫時，開發者會擁有較高的自由度；使用框架時，開發者會受到較大的限制</strong>。</p>
+<p>若應用程式本身不複雜，不需要套用任何框架就可以完成這項任務，那麼就不要使用框架，因為若要使用框架，往往必須按照框架的規範實作定義檔、設定相關數值、依一定方式取得元件等，若應用程式本身並不複雜，在享用到框架的益處之前，就會被一堆繁瑣規範或設定給困擾，產生「有必要這麼複雜嗎？」的疑惑，若框架本身又很龐大，光是學習、掌握到熟練框架，也會付出很大的成本。</p>
+<p>然而，如果應用程式在主要流程、組合元件甚至管理元件生命週期管理等需求上，自行撰寫程式碼完成任務已成沉重負擔之時，而框架對這些需求，若能大致符合既有之需求，套用框架可省去自行撰寫、維護元件生命週期等程式碼的麻煩，這時換取而來的益處超越了犧牲掉的流程自由度，才會使得使用框架具有意義。</p>
+<p>類似地，想要套用 Spring MVC 之類的 Web 框架嗎？那要先問自己，應用程式打算遵照或已經是 MVC 流程架構了嗎？如果不是，那使用 Spring MVC 並不會為你帶來益處，反而會感到處處受限，正如股市有句名言：「好的老師帶你上天堂，不好的老師帶你住套房。」用框架時可以這麼想：「好的框架帶你上天堂，不好的框架帶你住套房。」</p>
+<p>在程式設計相關的領域中，名詞多半沒有嚴謹的定義，這邊談到的 Inversion of Control，是在使用任何框架前必須要有的認知，然而，並不是 Spring IoC 核心中的 Inversion of Control 概念，由於經常有人將兩者混淆在一起，後來 Martin Fowler 建議使用 Dependency Injection 來取代 Spring 中 對 IoC 的稱呼。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

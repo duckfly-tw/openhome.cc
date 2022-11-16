@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="不可變（Immutability）是函數式程式設計的基本特性之一，若你試著去瞭解函數式程式設計，會看到有不少說法是這麼描述：「純函數式語言中">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Java::不可變特性" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/collection/immutable/" />
+    <meta property="og:description" content="不可變（Immutability）是函數式程式設計的基本特性之一，若你試著去瞭解函數式程式設計，會看到有不少說法是這麼描述：「純函數式語言中" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Java::不可變特性" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/java/collection/immutable/" />
+    <meta name="twitter:description" content="不可變（Immutability）是函數式程式設計的基本特性之一，若你試著去瞭解函數式程式設計，會看到有不少說法是這麼描述：「純函數式語言中" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443681" type="image/x-icon">
+    <title> Java  :: 不可變特性</title>
+    <link href="../../../css/nucleus.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443681.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443681.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443681"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/java/collection/immutable/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/java/" title="Java" class="dd-item parent"><a href="../../index.html">Java</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/" title="Java 平台概論" class="dd-item"><a href="../../platform/index.html">| Java 平台概論</a><ul>
+          <li data-nav-id="/zh-tw/java/platform/history/" title="Java 版本遷移" class="dd-item"><a href="../../platform/history/index.html">Java 版本遷移</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/spec-impl/" title="JDK 規範與實作" class="dd-item"><a href="../../platform/spec-impl/index.html">JDK 規範與實作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/platform/jdk-jre-jvm/" title="JVM、JRE 與 JDK" class="dd-item"><a href="../../platform/jdk-jre-jvm/index.html">JVM、JRE 與 JDK</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/" title="路徑／套件／模組" class="dd-item"><a href="../../path-package-module/index.html">| 路徑／套件／模組</a><ul>
+          <li data-nav-id="/zh-tw/java/path-package-module/hello/" title="Hello, Java" class="dd-item"><a href="../../path-package-module/hello/index.html">Hello, Java</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/version/" title="JDK／JRE／類別版本" class="dd-item"><a href="../../path-package-module/version/index.html">JDK／JRE／類別版本</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/class-source/" title="類別／原始碼路徑" class="dd-item"><a href="../../path-package-module/class-source/index.html">類別／原始碼路徑</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/package-import/" title="package 與 import" class="dd-item"><a href="../../path-package-module/package-import/index.html">package 與 import</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/path-package-module/module/" title="初探模組" class="dd-item"><a href="../../path-package-module/module/index.html">初探模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/" title="語法基礎" class="dd-item"><a href="../../syntax-abc/index.html">| 語法基礎</a><ul>
+          <li data-nav-id="/zh-tw/java/syntax-abc/type/" title="型態" class="dd-item"><a href="../../syntax-abc/type/index.html">型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/variable/" title="變數" class="dd-item"><a href="../../syntax-abc/variable/index.html">變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/operator/" title="運算子" class="dd-item"><a href="../../syntax-abc/operator/index.html">運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/conversion/" title="型態轉換" class="dd-item"><a href="../../syntax-abc/conversion/index.html">型態轉換</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/if-else-switch/" title="if/else、switch" class="dd-item"><a href="../../syntax-abc/if-else-switch/index.html">if/else、switch</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/syntax-abc/for-while/" title="for、while 迴圈" class="dd-item"><a href="../../syntax-abc/for-while/index.html">for、while 迴圈</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/object/" title="類別與物件" class="dd-item"><a href="../../object/index.html">| 類別與物件</a><ul>
+          <li data-nav-id="/zh-tw/java/object/class/" title="定義類別" class="dd-item"><a href="../../object/class/index.html">定義類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/scanner-bigdecimal/" title="使用 Scanner、BigDecimal" class="dd-item"><a href="../../object/scanner-bigdecimal/index.html">使用 Scanner、BigDecimal</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/primitive-wrapper/" title="基本型態包裹器" class="dd-item"><a href="../../object/primitive-wrapper.html">基本型態包裹器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/array/" title="陣列" class="dd-item"><a href="../../object/array/index.html">陣列</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/string/" title="字串" class="dd-item"><a href="../../object/string/index.html">字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/object/unicode/" title="Java 與 Unicode" class="dd-item"><a href="../../object/unicode/index.html">Java 與 Unicode</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/" title="封裝" class="dd-item"><a href="../../encapsulation/index.html">| 封裝</a><ul>
+          <li data-nav-id="/zh-tw/java/encapsulation/data-method/" title="流程與資料的封裝" class="dd-item"><a href="../../encapsulation/data-method/index.html">流程與資料的封裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/public-constructor-overload/" title="public／建構式／重載" class="dd-item"><a href="../../encapsulation/public-constructor-overload/index.html">public／建構式／重載</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/this-static/" title="this 與 static" class="dd-item"><a href="../../encapsulation/this-static/index.html">this 與 static</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/argument-innerclass/" title="不定長度引數／內部類別" class="dd-item"><a href="../../encapsulation/argument-innerclass/index.html">不定長度引數／內部類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/encapsulation/record/" title="資料載體與 record" class="dd-item"><a href="../../encapsulation/record/index.html">資料載體與 record</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/" title="繼承" class="dd-item"><a href="../../inheritance/index.html">| 繼承</a><ul>
+          <li data-nav-id="/zh-tw/java/inheritance/is-a/" title="共同行為與 is a" class="dd-item"><a href="../../inheritance/is-a/index.html">共同行為與 is a</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/override-abstract/" title="重新定義／abstract" class="dd-item"><a href="../../inheritance/override-abstract/index.html">重新定義／abstract</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/protected-super/" title="protected／super" class="dd-item"><a href="../../inheritance/protected-super/index.html">protected／super</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/final-object-instanceof/" title="final／Object／instanceof" class="dd-item"><a href="../../inheritance/final-object-instanceof/index.html">final／Object／instanceof</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/inheritance/sealed-class/" title="sealed 類別" class="dd-item"><a href="../../inheritance/sealed-class/index.html">sealed 類別</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/" title="介面" class="dd-item"><a href="../../interface/index.html">| 介面</a><ul>
+          <li data-nav-id="/zh-tw/java/interface/protocol/" title="定義行為外觀" class="dd-item"><a href="../../interface/protocol/index.html">定義行為外觀</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/maintenance/" title="解決需求變化" class="dd-item"><a href="../../interface/maintenance/index.html">解決需求變化</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/syntax/" title="介面語法細節" class="dd-item"><a href="../../interface/syntax/index.html">介面語法細節</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/enum/" title="使用 enum 列舉" class="dd-item"><a href="../../interface/enum/index.html">使用 enum 列舉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/interface/sealed-interface/" title="sealed 介面" class="dd-item"><a href="../../interface/sealed-interface/index.html">sealed 介面</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/" title="例外" class="dd-item"><a href="../../exception/index.html">| 例外</a><ul>
+          <li data-nav-id="/zh-tw/java/exception/try-catch/" title="try/catch 例外處理" class="dd-item"><a href="../../exception/try-catch/index.html">try/catch 例外處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/throw/" title="要抓還是要拋？" class="dd-item"><a href="../../exception/throw/index.html">要抓還是要拋？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/stacktrace-assert/" title="堆疊追蹤與 assert" class="dd-item"><a href="../../exception/stacktrace-assert/index.html">堆疊追蹤與 assert</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/exception/finally/" title="finally 資源關閉" class="dd-item"><a href="../../exception/finally/index.html">finally 資源關閉</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/" title="泛型" class="dd-item"><a href="../../generics/index.html">| 泛型</a><ul>
+          <li data-nav-id="/zh-tw/java/generics/syntax/" title="定義與使用泛型" class="dd-item"><a href="../../generics/syntax/index.html">定義與使用泛型</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/producer-extends/" title="Producer extends" class="dd-item"><a href="../../generics/producer-extends/index.html">Producer extends</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/generics/consumer-super/" title="Consumer super" class="dd-item"><a href="../../generics/consumer-super/index.html">Consumer super</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/" title="Lambda" class="dd-item"><a href="../../lambda/index.html">| Lambda</a><ul>
+          <li data-nav-id="/zh-tw/java/lambda/syntax/" title="初試 Lambda" class="dd-item"><a href="../../lambda/syntax/index.html">初試 Lambda</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/functional-interface/" title="Lambda 運算式與函式介面" class="dd-item"><a href="../../lambda/functional-interface/index.html">Lambda 運算式與函式介面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/this-final/" title="this 與 final" class="dd-item"><a href="../../lambda/this-final/index.html">this 與 final</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/lambda/method-reference/" title="方法與建構式參考" class="dd-item"><a href="../../lambda/method-reference/index.html">方法與建構式參考</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/" title="Collection API" class="dd-item parent"><a href="../index.html">| Collection API</a><ul>
+          <li data-nav-id="/zh-tw/java/collection/hierarchy/" title="認識 Collection 架構" class="dd-item"><a href="../hierarchy/index.html">認識 Collection 架構</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/iterator/" title="Iterator 與 Iterable" class="dd-item"><a href="../iterator/index.html">Iterator 與 Iterable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/comparator/" title="Comparable 與 Comparator" class="dd-item"><a href="../comparator/index.html">Comparable 與 Comparator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/collection/immutable/" title="不可變特性" class="dd-item active"><a href="index.html">不可變特性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/" title="Functional API" class="dd-item"><a href="../../functional-api/index.html">| Functional API</a><ul>
+          <li data-nav-id="/zh-tw/java/functional-api/functional-interface/" title="Consumer／Function／Predicate／Supplier" class="dd-item"><a href="../../functional-api/functional-interface/index.html">Consumer／Function／Predicate／Supplier</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/optional/" title="Optional API" class="dd-item"><a href="../../functional-api/optional/index.html">Optional API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/stream/" title="Stream API" class="dd-item"><a href="../../functional-api/stream/index.html">Stream API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/functional-api/flatmap/" title="Optional／Stream 的 flatMap" class="dd-item"><a href="../../functional-api/flatmap/index.html">Optional／Stream 的 flatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/" title="深入模組化" class="dd-item"><a href="../../jpms/index.html">| 深入模組化</a><ul>
+          <li data-nav-id="/zh-tw/java/jpms/name/" title="模組名稱" class="dd-item"><a href="../../jpms/name/index.html">模組名稱</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/reflection/" title="模組與反射" class="dd-item"><a href="../../jpms/reflection/index.html">模組與反射</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/java/jpms/service/" title="模組與 ServiceLoader" class="dd-item"><a href="../../jpms/service/index.html">模組與 ServiceLoader</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Java</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">Collection API</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">不可變特性</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#淺談不可變">淺談不可變</a></li>
+    <li><a href="index.html#unmodifiablexxx-方法">unmodifiableXXX 方法</a></li>
+    <li><a href="index.html#of-方法">of 方法</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/immutable/">immutable</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>不可變特性</h1>
+
+ <i class="space fa fa-calendar"> September 29, 2022</i> 
+<p>不可變（Immutability）是函數式程式設計的基本特性之一，若你試著去瞭解函數式程式設計，會看到有不少說法是這麼描述：「純函數式語言中的變數是不可變的。」是這樣的嗎？基本上沒錯，在純函數式語言中（像是 Haskell），當你說 <code>x = 1</code>，那麼無法再修改它的值，<code>x</code> 就是 <code>1</code>，<code>1</code> 的名稱（而不是變數）就是 <code>x</code>，不會再是其他的東西，實際上，在純函數式語言中，並沒有變數的概念存在。</p>
+<h2 id="淺談不可變">淺談不可變</h2>
+<p>Java 並不是以函數式作為主要典範，一開始沒有不可變的概念與特性，在 Java 中想使用變數來模仿不可變特性，通常會是把變數加上 <code>final</code> 修飾，然後試圖在這樣的限制之上，將程式目的實現出來。</p>
+<p>談到不可變特性，就會相對應地談到副作用（Side effect），一個具有副作用的方法會改變物件狀態，例如 <code>Collections</code> 的 <code>sort</code> 方法，會調整 <code>List</code> 實例的元素順序，這就使得 <code>List</code> 實例的狀態改變，因而 <code>sort</code> 方法是有副作用的方法，而 <code>List</code> 本身的 <code>add</code> 方法，會增加內含元素的數量，這就使得 <code>List</code> 實例的狀態改變，因而 <code>List</code> 本身的 <code>add</code> 方法是有副作用的方法。</p>
+<p>一個 Java 應用程式在運行期間，系統本身的狀態是在不斷變化的，而系統的狀態就是由許多物件的狀態來組成，如果程式語言本身有變數的概念，在撰寫時就容易調整變數值，從而容易調整物件狀態，也就容易變更整個系統狀態。</p>
+<p>然而，副作用是個雙面刃，在一個設計不良的系統中，若沒有適當地控管副作用，追蹤物件的狀態就會越來越困難，最後系統的狀態就會難以掌握，常見的問題是除錯困難，難以追查系統發生錯誤的原因，更可怕的是，你明明知道程式應該是寫錯了，系統卻能正常運作，只能擔憂著哪天踏到裏頭的地雷而爆出系統大洞。</p>
+<p>如果變數不可變，那設計出來的方法就不會有副作用，物件狀態也會是不可變，不可變物件（Immutable object）有許多好處，像是在並行（Concurrent）程式設計時，就不用擔心那些執行緒共用競爭的問題；在面對資料處理問題若需要一些 <code>Collection</code> 物件，像是有序的 <code>List</code>、收集不重複物件的 <code>Set</code> 等，如果這些物件不可變，那麼就有可能共用資料結構，達到節省時間及空間之目的。</p>
+<p>Java 畢竟不是以函數式為主要典範，在設計 <code>Collection</code> 框架時，並沒有為不可變物件設計專用型態，看看 <code>Collection</code> 介面就知道了，那些 <code>add</code>、<code>remove</code> 等方法就直接定義在上頭。有趣的是，在〈<a href="http://docs.oracle.com/javase/9/docs/api/java/util/doc-files/coll-overview.html">Collections Framework Overview</a>〉中談到了，有些方法操作都是選用的（optional），如果不打算提供實作的方法，可以丟出 <code>UnsupportedOperationException</code>，而實作物件必須在文件上指明，支援哪些操作。</p>
+<p>雖然 Java 不是以函數式為主要典範，然而有時在設計上，為了限制副作用的發生，會希望某些物件具有不可變的特性，以便易於掌握物件狀態，從而使得系統的某個部份容易掌握其狀態。</p>
+<p>由於 <code>Collections</code> 與 <code>Map</code> 在程式中會用來收集與管理物件，為了容易掌握這些物件的狀態，在 JDK8 以及先前的版本上，會透過 <code>Collections</code> 上提供的 <code>unmodifiableCollection</code>、<code>unmodifiableList</code>、<code>unmodifiableSet</code>、<code>unmodifiableMap</code> 等 <code>static</code> 方法來取得一個無法修改的（unmodifiable）物件，然而這還不夠，為了更進一步支援不可變特性，JDK9 以後在 <code>List</code>、<code>Set</code>、<code>Map</code> 上直接提供了 <code>of</code> 方法，用以建立不可變的 <code>List</code>、<code>Set</code> 或 <code>Map</code> 實作物件。</p>
+<p>就實務面上，兩者都應該認識，而認識 <code>Collections</code> 的 <code>unmodifiableXXX()</code> 方法，也會比較清楚瞭解到，為何 JDK9 以後在 <code>List</code>、<code>Set</code>、<code>Map</code> 上要提供 <code>of</code> 方法以建立不可變的 <code>List</code>、<code>Set</code> 或 <code>Map</code> 實作物件。</p>
+<h2 id="unmodifiablexxx-方法">unmodifiableXXX 方法</h2>
+<p>如果原本有個 <code>Collection</code> 或 <code>Map</code> 已收集了一些元素，現在打算傳遞這個物件，而且不希望拿到此物件的任何一方對它做出修改（Modify）操作，那麼可以使用 <code>Collections</code> 上提供的 <code>unmodifiableXXX</code> 方法，那些方法會傳回一個不可修改的物件，如果單純只是取得元素是沒問題，如果呼叫了有副作用的 <code>add</code>、 <code>remove</code> 等方法，則會丟出 <code>UnsupportedOperationException</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; List&lt;String&gt; names = new ArrayList&lt;&gt;();
+</span></span><span style="display:flex;"><span>names ==&gt; []
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; names.add(&#34;Monica&#34;);
+</span></span><span style="display:flex;"><span>$2 <span style="color:#f92672">==</span>&gt; true
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; names.add(&#34;Justin&#34;);
+</span></span><span style="display:flex;"><span>$3 <span style="color:#f92672">==</span>&gt; true
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; List&lt;String&gt; unmodifiableNames = Collections.unmodifiableList(names);
+</span></span><span style="display:flex;"><span>unmodifiableNames ==&gt; [Monica, Justin]
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; unmodifiableNames.get(0);
+</span></span><span style="display:flex;"><span>$5 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Monica&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; unmodifiableNames.add(&#34;Irene&#34;)
+</span></span><span style="display:flex;"><span>|  java.lang.UnsupportedOperationException thrown:
+</span></span><span style="display:flex;"><span>|        at Collections$UnmodifiableCollection.add (Collections.java:1056)
+</span></span><span style="display:flex;"><span>|        at (#6:1)
+</span></span></code></pre></div><p>那麼，透過 <code>unmodifiableXXX</code> 方法傳回的物件是不可變嗎？不是，傳回的物件只是無法修改（Unmodifiable），也就是僅僅不支援修改操作罷了，這是什麼意思？以上面的程式片段來說，如果我直接呼叫 <code>names.add(&quot;Irene&quot;)</code>，<code>unmodifiableNames</code> 的內容也就跟著變動了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; names.add(&#34;Irene&#34;);
+</span></span><span style="display:flex;"><span>$7 <span style="color:#f92672">==</span>&gt; true
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; unmodifiableNames;
+</span></span><span style="display:flex;"><span>unmodifiableNames ==&gt; [Monica, Justin, Irene]
+</span></span></code></pre></div><p>之所以會如此，是因為 <code>get</code>、<code>containsAll</code> 這類方法，只是單純委託給 <code>unmodifiableXXX</code> 接收之物件（而 <code>add</code> 等方法直接撰寫 <code>throw new UnsupportedOperationException</code>），例如 <code>unmodifiableCollection</code> 方法的實作是這樣的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Collection<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">unmodifiableCollection</span><span style="color:#f92672">(</span>Collection<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> c<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> UnmodifiableCollection<span style="color:#f92672">&lt;&gt;(</span>c<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UnmodifiableCollection</span><span style="color:#f92672">&lt;</span>E<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">implements</span> Collection<span style="color:#f92672">&lt;</span>E<span style="color:#f92672">&gt;,</span> Serializable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> serialVersionUID <span style="color:#f92672">=</span> 1820017752578914078L<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">final</span> Collection<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> E<span style="color:#f92672">&gt;</span> c<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    UnmodifiableCollection<span style="color:#f92672">(</span>Collection<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> E<span style="color:#f92672">&gt;</span> c<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>c<span style="color:#f92672">==</span><span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> NullPointerException<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">c</span> <span style="color:#f92672">=</span> c<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    略<span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>E e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> UnsupportedOperationException<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>Object o<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> UnsupportedOperationException<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">containsAll</span><span style="color:#f92672">(</span>Collection<span style="color:#f92672">&lt;?&gt;</span> coll<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> c<span style="color:#f92672">.</span><span style="color:#a6e22e">containsAll</span><span style="color:#f92672">(</span>coll<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>    
+</span></span><span style="display:flex;"><span>    略<span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>不可變從來也沒在 <code>Collections</code> 上那些 <code>unmodifiableXXX</code> 方法的保證中，畢竟名稱上也指出了，傳回的物件是不可修改，而不是不可變動。無論這是不是在玩文字遊戲，如果你要的是更進一步的不可變特性，那麼使用 <code>Collections</code> 的 <code>unmodifiableXXX</code> 傳回的物件，顯然是有所不足。</p>
+<h2 id="of-方法">of 方法</h2>
+<p>JDK9 以後在 <code>List</code>、<code>Set</code>、<code>Map</code> 等，都提供了 <code>of</code> 方法，表面上看來，它們似乎只是建立 <code>List</code>、<code>Set</code>、<code>Map</code> 實例的便捷方法，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; List&lt;String&gt; nameLt = List.of(&#34;Justin&#34;, &#34;Monica&#34;);
+</span></span><span style="display:flex;"><span>nameLt ==&gt; [Justin, Monica]
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; Set&lt;String&gt; nameSet = Set.of(&#34;Justin&#34;, &#34;Monica&#34;);
+</span></span><span style="display:flex;"><span>nameSet ==&gt; [Monica, Justin]
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; Map&lt;String, Integer&gt; scoreMap = Map.of(&#34;Justin&#34;, 95, &#34;Monica&#34;, 100);
+</span></span><span style="display:flex;"><span>scoreMap ==&gt; {Justin=95, Monica=100}
+</span></span></code></pre></div><p>比較特別的是 <code>Map.of</code>，它是採取 <code>Map.of(K1, V1, K2, V2)</code> 的方式建立，也就是鍵、值、鍵值的方式來指定。<code>List</code>、<code>Set</code>、<code>Map</code> 的 <code>of</code> 方法建立的是不可變物件，你不能對它們呼叫有副作用的方法，否則會拋出 <code>UnsupportedOperationException</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; nameLt.add(&#34;Irene&#34;);
+</span></span><span style="display:flex;"><span>|  java.lang.UnsupportedOperationException thrown:
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections.uoe (ImmutableCollections.java:70)
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections$AbstractImmutableList.add (ImmutableCollections.java:76)
+</span></span><span style="display:flex;"><span>|        at (#5:1)
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; nameSet.add(&#34;Irene&#34;);
+</span></span><span style="display:flex;"><span>|  java.lang.UnsupportedOperationException thrown:
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections.uoe (ImmutableCollections.java:70)
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections$AbstractImmutableSet.add (ImmutableCollections.java:280)
+</span></span><span style="display:flex;"><span>|        at (#6:1)
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; scoreMap.put(&#34;Irene&#34;, 100);
+</span></span><span style="display:flex;"><span>|  java.lang.UnsupportedOperationException thrown:
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections.uoe (ImmutableCollections.java:70)
+</span></span><span style="display:flex;"><span>|        at ImmutableCollections$AbstractImmutableMap.put (ImmutableCollections.java:557)
+</span></span><span style="display:flex;"><span>|        at (#7:1)
+</span></span></code></pre></div><p>那麼可以避免方才 <code>Collections</code> 的 <code>unmodifiableXXX</code> 上提到之問題嗎？這些 <code>of</code> 方法多數都是採可變長度引數的方式定義，而是重載了多個不同參數個數的版本，以 <code>List</code> 的 <code>of</code> 方法為例：</p>
+<p><img src="images/immutable-1.jpg" alt="不可變特性"></p>
+<p>在引數少於 10 個的情況下，會使用對應個數的 <code>of</code> 版本，因而不會有參考原 <code>List</code> 實例的問題，至於那個 <code>of(E… elements)</code> 版本，內部並不會直接參考原本 <code>elements</code> 參考的實例，而是建立一個新陣列，然後對 <code>elements</code> 的元素逐一淺層複製，底下列出 JDK 中的原始碼實作片段以便瞭解：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ListN<span style="color:#f92672">(</span>E<span style="color:#f92672">...</span> input<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// copy and check manually to avoid TOCTOU
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@SuppressWarnings</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;unchecked&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    E<span style="color:#f92672">[]</span> tmp <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>E<span style="color:#f92672">[])</span><span style="color:#66d9ef">new</span> Object<span style="color:#f92672">[</span>input<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">];</span> <span style="color:#75715e">// implicit nullcheck of input
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        tmp<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> Objects<span style="color:#f92672">.</span><span style="color:#a6e22e">requireNonNull</span><span style="color:#f92672">(</span>input<span style="color:#f92672">[</span>i<span style="color:#f92672">]);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">elements</span> <span style="color:#f92672">=</span> tmp<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>因此在資料結構上，就算對該版本的 <code>of</code> 方法直接傳入陣列，也沒有參考至原 <code>elements</code> 參考之物件的疑慮，從而更進一步支援了不可變特性，然而要注意，因為是元素是淺層複製，如果你直接變更了元素的狀態，<code>of</code> 方法傳回的物件還是會反應出對應的狀態變更。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; class Student {
+</span></span><span style="display:flex;"><span>    ...&gt;     String name;
+</span></span><span style="display:flex;"><span>    ...&gt; }
+</span></span><span style="display:flex;"><span>|  created class Student
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; Student student = new Student();
+</span></span><span style="display:flex;"><span>student ==&gt; Student@cb644e
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; student.name = &#34;Justin&#34;;
+</span></span><span style="display:flex;"><span>$3 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Justin&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; List&lt;Student&gt; students = List.of(student);
+</span></span><span style="display:flex;"><span>students ==&gt; [Student@cb644e]
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; students.get(0).name;
+</span></span><span style="display:flex;"><span>$5 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Justin&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; student.name = &#34;Monica&#34;;
+</span></span><span style="display:flex;"><span>$6 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Monica&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; students.get(0).name;
+</span></span><span style="display:flex;"><span>$7 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Monica&#34;</span>
+</span></span></code></pre></div><p>以上面的程式片段來說，如果你想要更進一步的不可變特性，應該令 <code>Student</code> 類別在定義時也支援不可變特性，如此一來，使用 <code>List.of</code> 方法才有意義，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; class Student {
+</span></span><span style="display:flex;"><span>    ...&gt;     final String name;
+</span></span><span style="display:flex;"><span>    ...&gt;     Student(String name) {
+</span></span><span style="display:flex;"><span>    ...&gt;         this.name = name;
+</span></span><span style="display:flex;"><span>    ...&gt;     }
+</span></span><span style="display:flex;"><span>    ...&gt; }
+</span></span><span style="display:flex;"><span>|  created class Student
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; Student student = new Student(&#34;Justin&#34;);
+</span></span><span style="display:flex;"><span>student ==&gt; Student@cb644e
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; List&lt;Student&gt; students = List.of(student);
+</span></span><span style="display:flex;"><span>students ==&gt; [Student@cb644e]
+</span></span></code></pre></div><p>你也許會想到 <code>Arrays.asList</code> 方法，似乎與 <code>List.of</code> 方法很像，<code>Arrays.asList</code> 方法傳回的物件長度固定，確實也是無法修改，由於方法定義時使用不定長度引數，也可以直接指定陣列作為引數，這就會引發類似的問題：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>jshell&gt; String[] names = {&#34;Justin&#34;, &#34;Monica&#34;};
+</span></span><span style="display:flex;"><span>names ==&gt; String[2] { &#34;Justin&#34;, &#34;Monica&#34; }
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; List&lt;String&gt; nameLt = Arrays.asList(names);
+</span></span><span style="display:flex;"><span>nameLt ==&gt; [Justin, Monica]
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; names[0] = &#34;Irene&#34;;
+</span></span><span style="display:flex;"><span>$3 <span style="color:#f92672">==</span>&gt; <span style="color:#e6db74">&#34;Irene&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>jshell&gt; nameLt;
+</span></span><span style="display:flex;"><span>nameLt ==&gt; [Irene, Monica]
+</span></span></code></pre></div><p>會發生這個問題的理由類似，<code>Arrays.asList</code> 傳回的物件，內部參考了 <code>names</code> 參考之物件（你可以試著查看 Arrays.java 的原始碼實作來驗證）；如果你需要的是不可變物件，而不是無法修改的物件，那麼在 JDK9 以後，建議改用 <code>List.of</code>，而不是 <code>Arrays.asList</code> 了。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/java/collection/immutable/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/java/collection/immutable/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Java%3a%3a%e4%b8%8d%e5%8f%af%e8%ae%8a%e7%89%b9%e6%80%a7&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjava%2fcollection%2fimmutable%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../comparator/index.html" title="Comparable 與 Comparator"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../../functional-api/index.html" title="Functional API"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443681"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443681"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443681"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443681"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443681"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443681"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443681"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443681"></script>
+  </body>
+</html>

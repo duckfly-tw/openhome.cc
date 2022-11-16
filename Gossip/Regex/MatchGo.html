@@ -1,0 +1,137 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Regex/'https://openhome.cc/zh-tw/regex/go/match/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Go 的 regexp 套件提供的規則表示式的支援，至於可使用的規則表示式，在 regexp/syntax 有說明。
+在 Go 中要撰寫規則表示式，使用反引號（`）是比較方便的做法，這樣就不用轉譯 \...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Match 比對">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Regex/MatchGo.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Go 的 regexp 套件提供的規則表示式的支援，至於可使用的規則表示式，在 regexp/syntax 有說明。
+在 Go 中要撰寫規則表示式，使用反引號（`）是比較方便的做法，這樣就不用轉譯 \...">
+
+    <title>Match 比對</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MatchGo.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">迴 Regex</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Match 比對</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Go 的 <a href="https://golang.org/pkg/regexp/"><code>regexp</code></a> 套件提供的規則表示式的支援，至於可使用的規則表示式，在 <a href="https://golang.org/pkg/regexp/syntax/"><code>regexp/syntax</code></a> 有說明。</p>
+<p>在 Go 中要撰寫規則表示式，使用反引號（`）是比較方便的做法，這樣就不用轉譯 <code>\</code>。</p>
+<p>詮譯字元在規則表示式中有特殊意義，例如 <code>$ ^ * ( ) + = { } [ ] | \ : . ?</code> 等，若要比對這些字元，則必須加上轉義（Escape）符號，即使 Python 有原始字串表示，自己處理這些事也還是麻煩，這時可以使用 <code>regexp</code> 的 <code>QuoteMeta</code> 函式來代勞：</p>
+<pre class="prettyprint"><code lang="golang">func QuoteMeta(s string) string
+</code></pre>
+<p>例如：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(regexp.QuoteMeta(`main.exe`)) // main\.exe
+</code></pre>
+<p>在 <code>regexp</code> 套件中提供其他函式，主要就是比對來源中，是否有符合規則表示式的部份，來源可以是 <code>[]byte</code>、<code>io.RuneReader</code> 或者是 <code>string</code>，比對結果會是布林值，若是規則表示式有誤，錯誤就不會是 <code>nil</code>：</p>
+<pre class="prettyprint"><code lang="golang">func Match(pattern string, b []byte) (matched bool, err error)
+func MatchReader(pattern string, r io.RuneReader) (matched bool, err error)
+func MatchString(pattern string, s string) (matched bool, err error)
+</code></pre>
+<p>例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "regexp"
+)
+
+func main() {
+    matched, err := regexp.MatchString(`\d{3}`, "Kaohsiung 803, Road 12")
+    fmt.Println(matched, err)
+    matched, err = regexp.MatchString(`\d{4}-\d{6}`, "0970-168168")
+    fmt.Println(matched, err)
+    matched, err = regexp.MatchString(`\d{4}-\d{6}`, "Phone: 0970-168168")
+    fmt.Println(matched, err)
+}
+</code></pre>
+<p>可以在規則表示式中使用嵌入旗標表示法（Embedded Flag Expression）。例如 <code>(?i)dog</code>，表示不區分大小寫，若想對特定分組嵌入旗標，可以使用 <code>(?i:dog)</code> 這樣的語法。</p>
+<p>至於 Go 中可用的 POSIX 字元類：</p>
+<ul>
+<li><code>[[:alnum:]]</code>：字母與數字（等於 <code>[0-9A-Za-z]</code>）</li>
+<li><code>[[:alpha:]]</code>：字母（等於 <code>[A-Za-z]</code>）</li>
+<li><code>[[:ascii:]]</code>：ASCII（等於 <code>[\x00-\x7F]</code>）</li>
+<li><code>[[:blank:]]</code>：空白或 Tab（等於 <code>[\t ]</code>）</li>
+<li><code>[[:cntrl:]]</code>：控制字元（等於 <code>[\x00-\x1F\x7F]</code>）</li>
+<li><code>[[:digit:]]</code>：數字（等於 <code>[0-9]</code>）</li>
+<li><code>[[:graph:]]</code>：可見字元（等於 <code>[!-~] == [A-Za-z0-9!"#$%&amp;'()*+,\-./:;&lt;=&gt;?@[\\\]^_</code>{|}~]`）</li>
+<li><code>[[:lower:]]</code>：小寫字母（等於 <code>[a-z]</code>）</li>
+<li><code>[[:print:]]</code>：可列印字元（等於 <code>[ -~]</code>、<code>[ [:graph:]]</code>）</li>
+<li><code>[[:punct:]]</code>：標點符號（等於 <code>[!-/:-@[-</code>{-~]`）</li>
+<li><code>[[:space:]</code>]：全部的空白（等於 <code>[\t\n\v\f\r ]</code>）</li>
+<li><code>[[:upper:]]</code>：大寫（等於 <code>[A-Z]</code>）</li>
+<li><code>[[:word:]]</code>：單字字元（等於 <code>[0-9A-Za-z_]</code>）</li>
+<li><code>[[:xdigit:]]</code>：十六進位數字（等於 <code>[0-9A-Fa-f]</code>）</li>
+</ul>
+<p>在 <a href="http://www.unicode.org/reports/tr18/#Categories">Unicode 特性</a>的支援上，使用 <code>\p</code>、<code>\P</code> 的方式，表示具有或不具有指定的特性，<code>\pN</code>、<code>\PN</code> 的 <code>N</code> 是單一字母，若要多個字母組合，可以使用 <code>\p{...}</code>、<code>\P{...}</code>。</p>
+<p>例如〈<a href="MatchGo.html">一般分類特性</a>〉，<code>\pL</code> 表示字母（Letter），<code>\pN</code> 表示數字（Number）等，若要進一步指定子特性，例如 <code>\p{Lu}</code> 表示大寫字母、<code>\p{Ll}</code> 表示小寫字母：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(regexp.MatchString(`\p{Ll}`, "a")) // true &lt;nil&gt;
+fmt.Println(regexp.MatchString(`\p{Lu}`, "a")) // false &lt;nil&gt;
+</code></pre>
+<p>來個有趣的比對吧！<code>𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼</code> 都是十進位數字：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(regexp.MatchString(`\p{Nd}`, "𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼")) // true &lt;nil&gt;
+</code></pre>
+<p>數字呢？<code>²³¹¼½¾𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼㉛㉜㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ</code> 都是：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(regexp.MatchString(`\p{N}`, "²³¹¼½¾𝟏𝟐𝟑𝟜𝟝𝟞𝟩𝟪𝟫𝟬𝟭𝟮𝟯𝟺𝟻𝟼㉛㉜㉝ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿ")) // true &lt;nil&gt;
+</code></pre>
+<p>有的語言可能會使用多種文字來書寫，例如日語就包含了漢字、平假名、片假名等文字，有的語言只使用一種文字，例如泰文。Unicode 將碼點群組為文字（script）特性上，測試時只要寫上文字特性名稱就可以了，例如測試漢字、希臘文：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(regexp.MatchString(`\p{Han}`, "林"))  // true &lt;nil&gt;
+fmt.Println(regexp.MatchString(`\p{Greek}`, "α")) // true &lt;nil&gt;
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,122 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：從JDK時間API演進，看時間處理
+      
+      各語言平台都會提供時間處理API，視程式需求而定，它可能是個不起眼的API，然而如果經常處理時間，就會知道時間...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="從JDK時間API演進，看時間處理">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/DateTime.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：從JDK時間API演進，看時間處理
+      
+      各語言平台都會提供時間處理API，視程式需求而定，它可能是個不起眼的API，然而如果經常處理時間，就會知道時間...">
+
+
+    <title>從JDK時間API演進，看時間處理</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DateTime.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>從JDK時間API演進，看時間處理</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/node/80076">從JDK時間API演進，看時間處理</a><br>
+      <br>
+      各語言平台都會提供時間處理API，視程式需求而定，它可能是個不起眼的API，然而如果經常處理時間，就會知道時間處理包含許多複雜因素。JDK目前在<code>java.util</code>套件提供<code>Date</code>與<code>Calendar</code>來處理時間，為了應付複雜的時間處理，JDK8納入了規範新時間處理API的JSR310。觀察從<code>Date</code>、<code>Calendar</code>到JSR310的演進，我們可瞭解到時間處理有哪些基本要素需要考量。<br>
+      <br>
+      <dl>
+        <dt>幾個需要知道的時間概念</dt>
+      </dl>
+      <br>
+      多數程式語言或電腦系統計算時間的基準，是以epoch，也就是西元1970年1月1日0時起算的秒數或毫秒數，時間字串表示通常會顯示GMT字樣，GMT是指「格林威治標準時間」（Greenwich Mean Time），它是以觀察地球自轉而得，並以格林威治天文台為時間原點。實際上，epoch是使用UTC（Coordinated Universal Time），又稱為「世界統一時間」，也就是原子鐘的西元1970年1月1日0時。因為地球自轉會受到其它天體、自身潮汐等影響而出現偏差，為了讓UTC符合GMT，每隔一段時間UTC必須插入閏秒（Leap second），讓UTC與GMT保持在0.9秒之內的誤差，由於差別細微，多數情況下UTC與GMT意義相同，不過有些API會採用或區別不同名稱。<br>
+      <br>
+      世界各地是以格林威治天文台時間為基準，然而每個國家或地區的日出時間有所不同，因此必須有所調整，稱之為「時差」，通常是以小時為單位。以台灣而言，位於格林威治天文台東邊，日出時間會快八個小時，因此時間表示會顯示「GMT +0800」。日出時間並非國家或地區制訂統一時間的標準，例如美國國土廣大，地區各自以日出時間為準反而會有所困擾，因而僅制定六個「時區」（Time zone），而中國現今只有一個時區，以北京時間為標準。除了時差與時區的考量之外，有些國家或地區還實施日光節約時間（Daylight saving time, DST），又稱為夏令時間，這是為了利用夏日較長的日照時間，達到節約能源的考量，各國實行規定並不相同，以美國為例，自2007年起，3月的第二個星期至11月的第一個星期日將時間提前一小時。<br>
+      <br>
+      目前多數國家或地區採用的歷法為格里高利曆法（Gregorian calendar），為改革歐洲過去使用的儒略曆法（Julian calendar）而來，由教宗格列高利十三世在1582年頒行，改曆時將儒略曆1582年10月4日星期四的次日，訂為格里曆1582年10月15日星期五，每個國家改曆的時間不一，美國與英國都是在格里曆1752年9月14日星期四（也就是儒略曆1752年9月2日星期三的次日）改曆，Unix/Linux的cal指令支援改曆，因此在Unix/Linux中執行<code>cal 1752</code>，可看到9月的憑空少了11天。<br>
+      <br>
+      <dl>
+        <dt>被廢棄的<code>java.util.Date</code>？</dt>
+      </dl>
+      <br>
+      <code>Date</code>類別實例反映的是UTC，建構<code>Date</code>實例時給予的long整數，代表著從epoch開始歷經的毫秒數，如果沒有給定就是依賴於JVM時間（透過<code>System.currentTimeMillis()</code>取得）。在JDK1.1前，<code>Date</code>還允許指定年、月、日、時、分、秒，也允許從字串剖析而得<code>Date</code>實例，或者是將<code>Date</code>實例格式化為字串表示，然而這兩個功能的建構式或相關方法，並不利於國際化（Internationalization），像是無法調整時區設定、自訂格式或進行本地化（Localization）等。被廢棄的相關方法之職責，轉由<code>java.util.Calendar</code>、<code>java.text.DateFormat</code>取代。<br>
+      <br>
+      <code>Date</code>類別上大多數建構式與方法被廢棄，並不代表<code>Date</code>類別被廢棄。<code>Date</code>類別保留了<code>Date()</code>以及<code>Date(long date)</code>建構式。除了重新定義<code>Object</code>類別的五個方法之外，未被廢棄的方法僅留<code>getTime()</code>與<code>setTime(long time)</code>。這表示<code>Date</code>實例最後留下的職責就是作為值物件（Value object），用以代表某個瞬時（Instant）狀態，時間的年、月、日等訊息，為必要時才計算出來，這樣的物件容易傳遞，也是不少方法在介面上仍採用<code>Date</code>類別的原因之一。<br>
+      <br>
+      然而可以看出，Date除了代表某個瞬時狀態外，並沒有計算其它時間資訊的能力，像是計算兩個<code>Date</code>的時間差、某個<code>Date</code>經過七天之後的時間等，單是使用<code>Date</code>來運算的話，開發者必須親自撰寫演算法，若對時間的需求涉及時差、時區或甚至日光節約時間時，程式將會更複雜。<br>
+      <br>
+      <dl>
+        <dt>接替職責的java.util.Calendar</dt>
+      </dl>
+      <br>
+      JDK1.1發佈時，接替<code>Date</code>被廢棄方法職責的為<code>java.util.Calendar</code>與<code>java.text.DateFormat</code>。從<code>Calendar</code>的建構式<code>Calendar(TimeZone zone, Locale aLocale)</code>就可看出，它支援時區與本地化，並可以進行時間資訊計算，像是某設定時間歷經若干年、月、日後的時間，與另一時間物件進行比較等。<code>Calendar</code>實際上是個抽象類別，JDK提供的標準實作是<code>java.util.GregorianCalendar</code>，從名稱上可知實作了格里高利曆法，可透過工廠方法<code>Calendar.getInstance()</code>取得，預設改歷時間為1582年10月15日，可藉由<code>setGregorianChange()</code>方法指定。<br>
+      <br>
+      <code>GregorianCalendar</code>需要時區資訊，以<code>TimeZone</code>類別代表，藉由時區資訊可得知當地實際時間，並支援如日光節約時間之運算，例如若時區設定為Asia/Taipei，而<code>Calendar</code>實例設定為1975年3月31日0時，使用add方法增加1日，會發現<code>Calendar</code>實例的時間是1975年4月1日1時，平白多了一個小時，這是因為台灣於某些時期也曾經實行過日光節約時間。<br>
+      <br>
+      <code>Calendar</code>提供了時間計算的彈性，然而使用上過於複雜，如果只是需要電腦上的本地時間，不在乎時差或時區等相關資訊，或者想加上某個時段並格式化輸出，還得搭配<code>DateFormat</code>、<code>Locale</code>等寫上冗長的程式。<br>
+      &nbsp;&nbsp;&nbsp; <br>
+      <dl>
+        <dt>依時間概念分工的Joda-time與JSR310</dt>
+      </dl>
+      <br>
+      使用<code>Date</code>來代表瞬時的問題，在於它的狀態是可變動的（Muttable），也就是說，若有個類別在建構實例時接受<code>Date</code>實例，即使該類別沒有提供其它方法來修改封裝的<code>Date</code>實例，依舊可透過<code>Date</code>的<code>setTime()</code>方法來修改<code>Date</code>狀態。類似地，<code>Calendar</code>也是可變動的，並有使用時API過於複雜問題，這使得開發者尋求其他時間API選擇。2005年Stephen Colebourne開發了Joda-Time，用以替代JDK的<code>Date</code>與<code>Calendar</code>，Stephen後來向JCP提交了JSR310，並成為該規格領導人，JSR310原本預計包括在JDK7，後來延遲至JDK8中兌現。<br>
+      <br>
+      JSR310主要基於Joda-Time API，相關API座落在<code>java.time</code>套件，重要概念是基於不連續時間線（Discrete timeline），時間線上特定點為瞬間，由<code>Instant</code>類別代表，大致對應於<code>Date</code>，也就是相對於epoch的偏移量，不過支援至奈秒；時間線上的兩個瞬間的差為持續期間，由<code>Duration</code>類別定義，可精確至奈秒等級，如果有段程式需要34.5秒這樣的持續時間，就可以使用<code>Duration</code>實例作為代表；有些時間資訊是不完全的（Partial），例如5月26日就是不完全的時間資訊，代表任何年中的5月26日，可以使用<code>MonthDay</code>實例代表。容易與持續期間混淆的概念之一是時段，使用<code>Period</code>類別代表，基於日曆的年、月、日概念制訂，與持續期間區別的方式之一，就是思考日曆上不會有奈秒這樣的概念，因而像是兩天、三個月或四年，就可使用<code>Period</code>實例代表。<br>
+      <br>
+      許多程式需要的時間概念並不需要時區或UTC偏移量，<code>Calendar</code>強迫你要接受或者自行抽取資訊，JSR310則將時區與UTC偏移量區隔出來，像是<code>LocalDateTime</code>、<code>LocalDate</code>、<code>LocalTime</code>是不帶有時區及UTC偏移量資訊的時間代表，<code>OffsetDateTime</code>、<code>OffsetTime</code>是加入UTC偏移量的代表，而<code>ZonedDateTime</code>則加入了時區規則，以上提及的JSR310等類別都設計為不可變動（Immutable），避免了上述<code>Date</code>與<code>Calendar</code>的問題。<br>
+      <br>
+      從以上可看出，時間處理本身是很複雜的議題，事實上若要整個瞭解JSR310，也會是個龐大的工作，然而實際上應需求而定，你需要的也許僅是時間處理議題中某個部份。Joda-time或JSR310主要是將各種常用時間概念加以區分，如果你只是需要某個時間概念的表現或運算，只需要取用特定部份的API，從而化解了處理時間的繁瑣。JSR310也提供了<code>Date</code>與<code>Calendar</code>的銜接，讓開發者只需修改時間計算部份，而不需修改既有程式介面。作為JSR310參考實作，ThreeTen原始碼可在Github取得，目前已整合至OpenJDK中。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

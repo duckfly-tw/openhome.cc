@@ -1,0 +1,407 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈趣改 gossip（一）〉中，已經將基於 Spring MVC 的 gossip 專案，在盡量少的修改下，令其可在 WebFlux 的環境下跑起來，不過，流程基本仍是阻斷式的，接著就是想辦法運用 ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="趣改 gossip（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/ReactiveGossip2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈趣改 gossip（一）〉中，已經將基於 Spring MVC 的 gossip 專案，在盡量少的修改下，令其可在 WebFlux 的環境下跑起來，不過，流程基本仍是阻斷式的，接著就是想辦法運用 ...">
+
+    <title>趣改 gossip（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ReactiveGossip2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>趣改 gossip（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ReactiveGossip1.html">趣改 gossip（一）</a>〉中，已經將基於 Spring MVC 的 gossip 專案，在盡量少的修改下，令其可在 WebFlux 的環境下跑起來，不過，流程基本仍是阻斷式的，接著就是想辦法運用 Reactor 的 API，以 Reactive 資料流、非阻斷的風格的概念，修改應用程式。</p>
+<p>首先要處理的是涉及資料庫連線的部份，因為 gossip 是基於 JDBC 來連線 H2，R2DBC 目前還不成熟，因此這邊決定還是先用 <code>defer</code>、<code>subscribeOn</code> 的方式來銜接 DAO，也就是運用〈<a href="ReactiveDB.html">Reactive 與資料庫</a>〉第一個 <code>UserService</code> 的修改成果。</p>
+<p>接著來修改控制器，<code>DisplayController</code> 比較簡單，先看看修改後的成果：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+
+@Controller
+public class DisplayController {
+    ...略
+
+//    @GetMapping("/")
+//    public String index(Model model) {
+//        model.addAttribute("newest", reactiveUserService.newestMessages(10));
+//        return INDEX_PATH;
+//    }
+
+    @GetMapping("/")
+    public Mono&lt;String&gt; index(Model model) {
+        return userService
+                    .newestMessages(10)
+                    .collectList()
+                    .map(messages -&gt; model.addAttribute("newest", messages))
+                    .then(Mono.just(INDEX_PATH));
+
+    }
+
+    @GetMapping("user/{username}")
+    public Mono&lt;String&gt; user(
+            @PathVariable("username") String username,
+            Model model) {
+
+        return userService
+                   .userExisted(username)
+                   .doOnNext(isExisted -&gt; {
+                       if(isExisted) {
+                           model.addAttribute("messages", userService.messages(username));
+                       }
+                       else {
+                           model.addAttribute("errors", Arrays.asList(String.format("%s 還沒有發表訊息", username)));
+                       }
+                   })
+                   .then(Mono.just(USER_PATH));
+    }
+}
+</code></pre>
+<p>控制器的處理器方法可以傳回 <code>Mono</code> 或字串，現在問題來了，該傳回哪個？這關乎兩個考量，一是 API 的銜接，二是儘早執行完處理器方法，讓流程控制權儘早回到 <code>DispatcherHandler</code>，從其 <code>handler</code> 方法返回，進而讓 Netty 儘早釋放它分配的執行緒，如果你的操作涉及 IO 等阻斷，可以儘量運用資料流相關 API 來達到此目的。</p>
+<p>那麼像上頭被註解掉的部份，就有選擇性了，<code>reactiveUserService.newestMessages(10)</code> 傳回 <code>Flux&lt;Message&gt;</code>，發佈流程還沒有觸發，你要使用註解部份的寫法，或者是沒被註解的 <code>index</code> 方法，兩者是一樣的。</p>
+<p>然而，阻斷不一定是因為 IO，也有可能是 CPU 密集性的計算過久，若處理器方法中有這類計算，也可以考慮將整個處理器中的流程，封裝至一個 <code>Mono</code> 中，例如，<code>MemberController</code> 就特意這麼做：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...
+
+@Controller
+public class MemberController {
+    @Value("${path.view.member}")
+    private String MEMBER_PATH;
+
+    @Value( "#{'redirect:' + '${path.url.member}'}")
+    private String REDIRECT_MEMBER_PATH;
+
+    @Autowired
+    private UserService userService;    
+
+    @GetMapping("member")
+    @PostMapping("member")
+    public Mono&lt;String&gt; member(
+            Principal principal, 
+            Model model) {
+        return userService
+                   .messages(principal.getName())
+                   .collectList()
+                   .map(messages -&gt; model.addAttribute("messages", messages))
+                   .then(Mono.just(MEMBER_PATH));
+    }
+
+    @PostMapping("new_message")
+    protected Mono&lt;String&gt; newMessage(
+            ServerWebExchange webExchange, 
+            Principal principal, 
+            Model model)  {
+
+        return webExchange
+                   .getFormData()
+                   .map(valueMap -&gt; valueMap.getFirst("blabla"))
+                   .flatMap(blabla -&gt; {
+                       if(blabla.length() == 0) {
+                           return Mono.just(REDIRECT_MEMBER_PATH);
+                       }     
+
+                       String username = principal.getName();
+                       if(blabla.length() &lt;= 140) {
+                           return userService
+                                    .addMessage(username, blabla)
+                                    .then(Mono.just(REDIRECT_MEMBER_PATH));
+                       }
+                       else {
+                           return userService.messages(username)
+                                    .collectList()
+                                    .doOnSuccess(messages -&gt; {
+                                        model.addAttribute("messages", messages);
+                                        model.addAttribute("blabla", blabla);
+                                    })
+                                    .then(Mono.just(MEMBER_PATH));
+                       }  
+                   });
+    } 
+
+    @PostMapping("del_message")
+    protected Mono&lt;String&gt; delMessage(
+            ServerWebExchange webExchange, 
+            Principal principal) {
+
+        return webExchange
+                   .getFormData()
+                   .flatMap(valueMap -&gt; userService.deleteMessage(principal.getName(), valueMap.getFirst("millis")))
+                   .then(Mono.just(REDIRECT_MEMBER_PATH));
+    }   
+}
+</code></pre>
+<p>像 <code>newMessage</code> 中對 <code>blabla</code> 的計算，是可以不用封裝到 <code>flatMap</code> 中的，不過，假設這類計算很耗成本，對流程儘早回到 <code>DispatcherHandler</code> 的手中，這種寫法應該會有些幫助。</p>
+<p>接下來，<code>EmailService</code> 也要是 Reactive 風格：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+import reactor.core.publisher.Mono;
+
+public interface EmailService {
+    public Mono&lt;Void&gt; validationLink(Account acct);
+    public Mono&lt;Void&gt; failedRegistration(String acctName, String acctEmail);
+    public Mono&lt;Void&gt; passwordResetLink(Account account);
+}
+</code></pre>
+<p><code>GmailService</code> 也做出對應的修改：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+...略
+
+@Service
+public class GmailService implements EmailService {
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private Scheduler scheduler;
+
+    @Override
+    public Mono&lt;Void&gt; validationLink(Account acct) {
+        String link = String.format(
+            "http://localhost:8080/verify?email=%s&amp;token=%s", 
+             uriEncode(acct.getEmail()), uriEncode(acct.getPassword())
+        );
+
+        String anchor = String.format("&lt;a href='%s'&gt;驗證郵件&lt;/a&gt;", link);
+        String html = String.format("請按 %s 啟用帳戶或複製鏈結至網址列：&lt;br&gt;&lt;br&gt; %s", anchor, link);
+
+        return sendMessage(acct.getEmail(), "Gossip 註冊結果", html);
+    }
+
+   ...略
+
+
+    private String uriEncode(String text) {
+        try {
+            return URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } 
+    }
+}
+</code></pre>
+<p>你會在意呼叫 <code>sendMessage</code> 的成本嗎？同樣地，若在意的話，可以自行將之封裝至 <code>Mono</code> 之中。</p>
+<p>接著，要修改 <code>AccountController</code>，其實與先前控制器的修改類似，不過要注意的是，在我嘗試修改的過程中，<code>@SessionAttributes</code> 會失效，雖然有查到 <a href="https://jira.spring.io/browse/SPR-15887">SPR-15887</a> 中曾經提出這問題，看來似乎也有解決，不過就撰寫本文的時間點來說，我還是試不出來。</p>
+<p>這倒無妨，改使用 <code>ServerWebExchange</code> 的 <code>getSession</code> 來處理就可以了：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+...略
+
+@Controller
+public class AccountController {
+
+    ...略
+
+    @GetMapping("register")
+    public String registerForm() {
+        return REGISTER_FORM_PATH;
+    }
+
+    @PostMapping("register")
+    public Mono&lt;String&gt; register(
+            @Valid RegisterForm form,
+            BindingResult bindingResult,
+            Model model) {
+
+        return toList(bindingResult)
+                   .flatMap(errors -&gt; {
+                       if(errors.isEmpty()) {
+                            return userService
+                                        .tryCreateUser(form.getEmail(), form.getUsername(), form.getPassword())
+                                        .flatMap(acct -&gt; emailService.validationLink(acct))
+                                        .switchIfEmpty(emailService.failedRegistration(form.getUsername(), form.getEmail()))
+                                        .then(Mono.just(REGISTER_SUCCESS_PATH));
+                       } 
+                       model.addAttribute("errors", errors);
+                       return Mono.just(REGISTER_FORM_PATH);
+                   });
+    }
+
+    @GetMapping("verify")
+    public Mono&lt;String&gt; verify(
+            @RequestParam String email,
+            @RequestParam String token,
+            Model model) {
+
+        return userService.verify(email, token)
+                          .doOnNext(acct -&gt; model.addAttribute("acct", acct))
+                          .then(Mono.just(VERIFY_PATH));
+    }
+
+    @PostMapping("forgot")
+    public Mono&lt;String&gt; forgot(
+            ServerWebExchange webExchange, 
+            Model model) {
+
+        return webExchange
+                   .getFormData()
+                   .flatMap(formData -&gt; {
+                        String name = formData.getFirst("name");
+                        String email = formData.getFirst("email");
+                        model.addAttribute("email", email);
+                        return userService.accountByNameEmail(name, email);
+                   })
+                   .flatMap(acct -&gt; emailService.passwordResetLink(acct))
+                   .then(Mono.just(FORGOT_PATH));
+    }
+
+    @GetMapping("reset_password")
+    public Mono&lt;String&gt; resetPasswordForm(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String token,
+            ServerWebExchange webExchange, 
+            Model model) {
+
+        return userService
+                    .accountByNameEmail(name, email)
+                    .filter(acct -&gt; acct.getPassword().equals(token))
+                    .flatMap(acct -&gt; {              
+                        model.addAttribute("acct", acct);
+                        return webExchange.getSession()
+                                    .map(webSession -&gt; webSession.getAttributes().put("token", token))
+                                    .then(Mono.just(RESET_PASSWORD_FORM_PATH));
+                    })
+                    .switchIfEmpty(Mono.just(REDIRECT_INDEX_PATH));
+    }
+
+    @PostMapping("reset_password")
+    public Mono&lt;String&gt; resetPassword( 
+            @Valid ResetPasswordForm form,
+            BindingResult bindingResult,
+            @SessionAttribute(name = "token") String storedToken,
+            Model model) {
+
+        if(storedToken == null || !storedToken.equals(form.getToken())) {
+            return Mono.just(REDIRECT_INDEX_PATH);
+        }
+
+        return toList(bindingResult)
+                    .flatMap(errors -&gt; {
+                        if(!errors.isEmpty()) {
+                            model.addAttribute("errors", errors);
+                            model.addAttribute("name", form.getName());
+                            model.addAttribute("email", form.getEmail());
+                            return Mono.just(RESET_PASSWORD_FORM_PATH);
+                        } 
+                        return userService
+                                     .resetPassword(form.getName(), form.getPassword())
+                                     .then(Mono.just(RESET_PASSWORD_SUCCESS_PATH)); 
+                    });
+    } 
+
+    private Mono&lt;List&lt;String&gt;&gt; toList(BindingResult bindingResult) {
+        return Mono.fromCallable(() -&gt; {
+            List&lt;String&gt; errors = new ArrayList&lt;&gt;(); 
+            if(bindingResult.hasErrors()) {
+                bindingResult.getFieldErrors().forEach(err -&gt; {
+                    errors.add(err.getDefaultMessage());
+                });
+            }
+            return errors;
+        });
+    }    
+}
+</code></pre>
+<p>在〈<a href="ReactiveGossip1.html">趣改 gossip（一）</a>〉中曾經談過 <code>HtmlSanitizer</code> 可以有更簡單的寫法，沒有沒有呼叫 <code>block</code> 進行阻斷的情況下，可以在 <code>getFormData</code> 之後直接進行 <code>map</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.aspect;
+
+...
+
+@Component
+@Aspect
+public class HtmlSanitizer {
+    @Autowired
+    private PolicyFactory policy;
+
+    @Around("execution(* cc.openhome.controller.MemberController.newMessage(..))")
+    public Object around(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        Object[] args = proceedingJoinPoint.getArgs();
+        ServerWebExchange decorated = new SanitizedServerWebExchange((ServerWebExchange) args[0]);
+        args[0] = decorated;
+        return proceedingJoinPoint.proceed(args);
+    }
+
+    class SanitizedServerWebExchange extends ServerWebExchangeDecorator {
+        public SanitizedServerWebExchange(ServerWebExchange origin) {
+            super(origin);
+        }
+
+        @Override
+        public Mono&lt;MultiValueMap&lt;String, String&gt;&gt; getFormData() {
+            return super.getFormData()
+                         .map(multiValueMap -&gt; {
+                                multiValueMap.computeIfPresent("blabla", (param, values) -&gt; {
+                                     values.set(0, policy.sanitize(values.get(0)));
+                                     return values;
+                                });
+                                return multiValueMap;
+                         });
+        }   
+    }
+}
+</code></pre>
+<p>這樣應該就沒問題了，你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/WebFlux/ReactiveGossip2/gossip">gossip</a> 找到以上的範例專案，當然，如果要再積極一些，或許可以設定之後，繼續修改為 REST 風格，搭配前端非同步處理，以發揮 WebFlux （號稱）的優點，這就自己試了吧！</p>
+<p>就撰寫本文的這個時間點來說，我不是很建議真的投入 WebFlux 的使用，主要的問題之一在於文件，官方網站上的文件有點不可靠，特別是 Spring MVC 註解模型的部份，感覺有點像是直接從 Spring MVC 本身的文件抄過來，有些東西號稱可以用，然而也許實際試不出來，另外，你想做的東西，文件上可能沒有，通常就只能憑經驗，翻翻 WebFlux、Security 等的原始碼，想辦法拆解出做法。</p>
+<p>另一個問題在於生態系還有待形成，如果 WebFlux 真有其效率上的優點，應用程式其他部件也很配合才能發揮，Reactive 寫出來的程式，在某些地方很有用，然而，全面採行的話，維護性是個爭議點，例如，就程式的可讀性等方面來說，懂 Reactive 與熟練 Functional Programming 風格的開發者，可能覺得寫來很爽，然而，也有其他開發者持反對的態度，認為 Reactive 或 Functional Programming 風格用的過火的話，整個應用程式反而難以理解。</p>
+<p>不過，就熟悉 Reactive 風格開發來說，Reactor 與 WebFlux 是個不錯的對象，它用來真的比較直覺，也易於銜接 Java 8 的 API，如果過去你在接觸 Reactive 風格開發有過挫折，從 Reactor 與 WebFlux 入手，或許會有不一樣的體驗。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

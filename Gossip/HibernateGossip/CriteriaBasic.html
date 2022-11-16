@@ -1,0 +1,666 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="要對資料庫管理系
+統進行操作，最基本的就是使用SQL（Standard Query
+Language）語句，大部份的資料庫都支援標準的SQL語句，然而也有一些特定於資料庫的SQL語句，應用程式配合...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Criteria 基本查詢">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/CriteriaBasic.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="要對資料庫管理系
+統進行操作，最基本的就是使用SQL（Standard Query
+Language）語句，大部份的資料庫都支援標準的SQL語句，然而也有一些特定於資料庫的SQL語句，應用程式配合...">
+
+
+    <title>Criteria 基本查詢</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CriteriaBasic.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Criteria 基本查詢</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            要對資料庫管理系
+統進行操作，最基本的就是使用SQL（Standard Query
+Language）語句，大部份的資料庫都支援標準的SQL語句，然而也有一些特定於資料庫的SQL語句，應用程式配合SQL語句進行資料庫查詢時，若使
+用到特定於資料庫的SQL語句，程式本身會有相依於特定資料庫的問題。<br>
+
+
+      <br>
+
+
+使用Hibernate時，即使您不了解SQL的使用與撰寫，也可以使用它所提供的API來進行SQL語句查詢，
+org.hibernate.Criteria對SQL進行封裝，您可以從Java物件的觀點來組合各種查詢條件，由Hibernate自動為您產生
+SQL語句，而不用特別管理SQL與資料庫相依的問題，就某個程度的意涵來看，這就像是在編譯時期也可以得到對SQL語法的檢查與驗證。<br>
+
+
+      <br>
+
+
+以最基本的查詢來說，如果您想要查詢某個物件所對應的資料表中所有的內容，您可以如下進行查詢：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+
+      List users = criteria.list();<br>
+
+
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+
+      for(Iterator it = users.iterator(); it.hasNext(); ) {<br>
+
+
+      &nbsp;&nbsp;&nbsp; User user = (User) it.next();<br>
+
+
+      &nbsp;&nbsp;&nbsp; System.out.println(user.getId() +<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+" \t " + user.getName() +<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"/" + user.getAge());&nbsp;&nbsp;&nbsp; <br>
+
+
+      } <br>
+
+
+      </div>
+
+
+      <br>
+
+
+Criteria建立後，若不給予任何的條件，預設是查詢物件所對應表格之所有資料，如果您執行以上的程式片段，並於設定檔中設定了了Hibernate的&rdquo;show_sql&rdquo;屬性，則可以在主控下看到以下的SQL語句之產生：<br>
+
+
+      <br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;">Hibernate: </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">select</span><span style="font-family: Courier New,Courier,monospace;"> this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">from</span><span style="font-family: Courier New,Courier,monospace;"> T_USER this_</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+      org.hibernate.Criteria實際上是個條件附加的容器，如果想要設定查詢條件，則要使用
+org.hibernate.criterion.Restrictions的各種靜態方法傳回
+org.hibernate.criterion.Criteria實例，傳回的每個org.hibernate.criterion.Criteria
+實例代表著一個條件，您要使用org.hibernate.Criteria的add()方法加入這些條件實例，例如查詢&rdquo;
+age&rdquo;大於20且小於40的資料：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;">Criteria criteria = session.createCriteria(User.class);</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">criteria.add(Restrictions.gt("age", new Integer(20)));</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">criteria.add(Restrictions.lt("age", new Integer(40)));</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">List users = criteria.list();</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">for(Iterator it = users.iterator(); it.hasNext(); ) {</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; User user = (User) it.next();</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; System.out.println(user.getId() +</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+" \t " + user.getName() +</span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"/" + user.getAge());&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+Restrictions的gt()方法表示大於（great than）的條件，而lt表示小於（less than）的條件，執行以上程式片段，觀察所產生的SQL語句，將使用where與and子句產來完成SQL的條件查詢：<br>
+
+
+      <br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">where this_.age&gt;? and this_.age&lt;?</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+使用add()方法加入條件時，預設是使用and來組合條件，如果要用or的方式來組合條件，則可以使用Restrictions.or()方法，例如結合age等於（eq）20或（or）age為空（isNull）的條件：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+
+      criteria.add(Restrictions.or(<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Restrictions.eq("age", new Integer(20)),<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Restrictions.isNull("age")<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ));<br>
+
+
+      List users = criteria.list();<br>
+
+
+      </div>
+
+
+      <br>
+
+
+觀察所產生的SQL語句，將使用where與or子句完成SQL的條件查詢：<br>
+
+
+      <br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ <span style="font-weight: bold;">where (this_.age=? or this_.age is null)</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+您也可以使用Restrictions.like()方法來進行SQL中like子句的功能，例如查詢&rdquo;name&rdquo;中名稱為&rdquo;just&rdquo;開頭的資料：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Criteria criteria = session.createCriteria(User.class);<br>
+
+
+      criteria.add(<span style="font-weight: bold;">Restrictions.like("name", "just%")</span>);<br>
+
+
+      List users = criteria.list();<br>
+
+
+      </div>
+
+
+      <br>
+
+
+觀察所產生的SQL語句如下：<br>
+
+
+      <br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Hibernate: select this_.id as id0_0_, this_.name as name0_0_, this_.age as age0_0_ from T_USER this_ <span style="font-weight: bold;">where this_.name like ?</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+
+
+
+Restrictions的幾個常用限定查詢方法如下表所示：<br>
+
+
+
+
+
+      
+      
+        
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+            
+            
+            
+          
+        
+        
+      
+      
+      
+      
+      <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+
+        <tbody>
+
+
+
+
+          <tr>
+
+
+
+
+            <td style="background-color: rgb(204, 204, 204);">方
+法</td>
+
+
+
+
+            <td style="background-color: rgb(204, 204, 204);">說
+明</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.eq</td>
+
+
+
+
+            <td>等於</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.allEq</td>
+
+
+
+
+            <td>使用Map，使用key/value進行多個等於的比對</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.gt</td>
+
+
+
+
+            <td>大於 &gt;</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.ge</td>
+
+
+
+
+            <td>大於等於 &gt;=</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.lt</td>
+
+
+
+
+            <td>小於 &lt;</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.le</td>
+
+
+
+
+            <td>小於等於 &lt;=</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.between</td>
+
+
+
+
+            <td>對應SQL的BETWEEN子句</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.like</td>
+
+
+
+
+            <td>對應SQL的LIKE子句</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.in</td>
+
+
+
+
+            <td>對應SQL的in子句</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.and</td>
+
+
+
+
+            <td>and關係</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.or</td>
+
+
+
+
+            <td>or關係</td>
+
+
+
+
+            </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Restrictions.sqlRestriction</td>
+
+
+
+
+            <td>SQL限定查詢</td>
+
+
+
+
+            </tr>
+
+
+
+
+          
+        
+        
+        
+        </tbody>
+      
+      
+      
+      </table>
+
+
+
+
+      
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

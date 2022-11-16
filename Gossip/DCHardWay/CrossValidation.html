@@ -1,0 +1,318 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在能夠進行迴歸與分類之後，就能夠對未來的新資料進行預估的動作，只不過，怎麼確認建立的迴歸、分類模型，能夠很好地進行預測呢？
+因為一路上都特意限制變數的數量，以便透過可視化來談迴歸或分類的原理，你可能會...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="交叉驗證與模型評估">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/CrossValidation.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在能夠進行迴歸與分類之後，就能夠對未來的新資料進行預估的動作，只不過，怎麼確認建立的迴歸、分類模型，能夠很好地進行預測呢？
+因為一路上都特意限制變數的數量，以便透過可視化來談迴歸或分類的原理，你可能會...">
+
+    <title>交叉驗證與模型評估</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CrossValidation.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>交叉驗證與模型評估</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在能夠進行迴歸與分類之後，就能夠對未來的新資料進行預估的動作，只不過，怎麼確認建立的迴歸、分類模型，能夠很好地進行預測呢？</p>
+<p>因為一路上都特意限制變數的數量，以便透過可視化來談迴歸或分類的原理，你可能會想，若是迴歸的話，就將線畫出來，打算用來預測的資料也畫出來，看看是不是座落在迴歸線附近，例如，以〈<a href="PolynomialRegression.html">多項式迴歸</a>〉中的範例來說：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-1.JPG" alt="交叉驗證"  /></div></div></p>
+<p>在上圖中，用來計算迴歸的資料佔八成，也就是藍色點的部份，測試資料佔二成，也就是橘色點的部份，單就藍色點部份而言，看來是蠻符合的，可是就橘色點部份來說，顯然有較大的誤差，這種透過學習資料與測試資料來驗證的方式，稱為交叉驗證（Cross validation）。</p>
+<p>問題就在於，並不是每次都能很好地透過可視化來呈現結果，例如變數的數量多（也就是高維度）時，是要怎麼可視化，又要怎麼用肉眼觀察預測是否良好呢？</p>
+<p>評估迴歸或分類的方式有非常多種，不過，可以從最簡單的誤差計算來認識評估的概念，例如，將測試用的資料代入，求得預估資料，與實際的資料相減求平方和後進行平均：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-2.JPG" alt="交叉驗證"  /></div></div></p>
+<p>這種方式稱為均方差（Mean Square Error, MSE），若使用 sklearn，可以透過 <code>sklearn.metrics</code> 的 <code>mean_squared_error</code> 來直接計算，例如：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+def data_from(img_file):
+    gray = cv2.imread(img_file, cv2.IMREAD_GRAYSCALE)
+    idx = np.where(gray &lt; 127)       # 黑點的索引
+
+    data_x = idx[1]
+    data_y = -idx[0] + gray.shape[0] # 反轉 y 軸
+
+    sep = data_x.size // 10 * 2
+
+    learn_x = data_x[sep:]
+    learn_y = data_y[sep:]
+
+    test_x = data_x[0:sep]
+    test_y = data_y[0:sep]
+
+    return {
+        'learn' : {'x': data_x[sep:], 'y': data_y[sep:]},   # 計算迴歸用
+        'test'  : {'x': data_x[0:sep], 'y': data_y[0:sep]}  # 測試用
+    }
+
+data = data_from('data.jpg')
+
+plt.gca().set_aspect(1)
+plt.scatter(data['learn']['x'], data['learn']['y'])
+plt.scatter(data['test']['x'], data['test']['y'])
+
+linreg = LinearRegression()    # 負責線性迴歸
+# 擬合
+linreg = linreg.fit(
+    data['learn']['x'].reshape((data['learn']['x'].size, 1)),  # 符合 fit 要求的形狀
+    data['learn']['y']
+) 
+
+# 迴歸線
+x = [0, 50]
+y = linreg.predict([[0], [50]])
+plt.plot(x, y) 
+
+predict_y = linreg.predict(data['test']['x'].reshape((data['test']['x'].size, 1)))
+
+# 均方差
+plt.text(20, 5,
+   "MSE: " + str(mean_squared_error(data['test']['y'], predict_y)))
+plt.show()
+</code></pre>
+<p>就上例來說，均方差約 60：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-3.JPG" alt="交叉驗證"  /></div></div></p>
+<p>從圖中可以看出，其實迴歸線與測試點之間有蠻大的誤差，若是改為二次多項式來迴歸呢？</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import PolynomialFeatures
+
+def data_from(img_file):
+    gray = cv2.imread(img_file, cv2.IMREAD_GRAYSCALE)
+    idx = np.where(gray &lt; 127)       # 黑點的索引
+
+    data_x = idx[1]
+    data_y = -idx[0] + gray.shape[0] # 反轉 y 軸
+
+    sep = data_x.size // 10 * 2
+
+    learn_x = data_x[sep:]
+    learn_y = data_y[sep:]
+
+    test_x = data_x[0:sep]
+    test_y = data_y[0:sep]
+
+    return {
+        'learn' : {'x': data_x[sep:], 'y': data_y[sep:]},
+        'test'  : {'x': data_x[0:sep], 'y': data_y[0:sep]}
+    }
+
+data = data_from('data.jpg')
+
+plt.gca().set_aspect(1)
+plt.scatter(data['learn']['x'], data['learn']['y'])
+plt.scatter(data['test']['x'], data['test']['y'])
+
+poly = PolynomialFeatures()     # 二次多項式
+feature = poly.fit_transform(data['learn']['x'].reshape([data['learn']['x'].size, 1])) # 特徵值
+linreg = LinearRegression()          # 線性迴歸
+linreg = linreg.fit(feature, data['learn']['y']) # 擬合   
+
+x = np.linspace(0, 50, 50)
+y = linreg.predict(
+    poly.fit_transform(x.reshape((x.size, 1)))
+)
+plt.plot(x, y) 
+
+predict_y = linreg.predict(poly.fit_transform(data['test']['x'].reshape((data['test']['x'].size, 1))))
+plt.text(20, 5, "MSE: " + str(mean_squared_error(data['test']['y'], predict_y)))
+plt.show()
+</code></pre>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-4.JPG" alt="交叉驗證"  /></div></div></p>
+<p>從圖中看來，迴歸線是比較符合測試資料了，然而方才談到了，你不一定能從可視化結果中評估，不過從 MSE 的計算結果來看，49 比方才的 60 少，顯然地，用二次多項式來迴歸是比較合適的。</p>
+<p>在分類的評估部份，一個簡單的方式是，測試用資料中，可以被正確分類的資料數，除以測試資料總數，這稱為 Accuracy。</p>
+<p>可以正確分類的資料是實際為正而預測為正，這稱為真陽性（True Positive），以及實際為負且預測為負，這稱為真陰性（True Negative），其他則是偽陽性（False Positive）與偽陰性（False Negative），Accuracy 就是 (TP + TN) / (TP + FP + FP + TN)：</p>
+<p>| 預測＼實際 | 正 | 負 |
+<br  />| :&mdash;-: | :&mdash;-: | :&mdash;-: |
+<br  />| 正 | TP（True Positive） | FP（False Positive） |
+<br  />| 負 | FP（False Negative） | TN（True Negative） |</p>
+<p>想求得 Accuracy，可以借助 sklearn 的 <code>sklearn.metrics.accuracy_score</code>。</p>
+<p>來舉個實際的例子，若〈<a href="LogisticRegression.html">分類與邏輯迴歸</a>〉中的例子，故意採用感知器來分類，取其中八成為學習資料，二成為測試資料：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+
+def data_from(csv_file):
+    data = np.loadtxt(csv_file, delimiter=',')
+    sep = data.shape[0] // 10 * 2
+    return {
+        'learn': data[sep:],
+        'test': data[:sep]
+    }
+
+def scatter(data, t_marker, f_marker):
+    label = data[:,2]
+    normal_weight = label == 1
+    overweight = label == 0
+    plt.scatter(data[normal_weight, 0], data[normal_weight, 1], marker = t_marker)
+    plt.scatter(data[overweight, 0], data[overweight, 1], marker = f_marker)
+
+data = data_from('height_weight.csv')  
+
+# 學習資料
+learn_data = data['learn']
+scatter(learn_data, 'o', 'x')
+
+learn_height_weight = learn_data[:,0:2]
+learn_label = learn_data[:,2]
+
+p = Perceptron()
+p.fit(learn_height_weight, learn_label)
+coef = p.coef_[0] 
+intercept = p.intercept_
+
+height = learn_height_weight[:,0]
+h = np.arange(np.min(height), np.max(height))
+w = -(coef[0] * h + intercept) / coef[1]
+plt.plot(h, w, linestyle='dashed') # 分類線
+
+# 測試資料
+test_data = data['test']
+test_height_weight = test_data[:,0:2]
+scatter(test_data, '8', 'X')
+
+pred = p.predict(test_height_weight)
+test = test_data[:,2]
+
+plt.text(135, 145, "Accuracy: " + str(accuracy_score(test, pred)))
+
+plt.xlabel('height') 
+plt.ylabel('weight')
+plt.show()
+</code></pre>
+<p>從下圖可以看到，就算只看藍與橘點的學習資料，分類也不準確，而得出來的 Accuracy 是 0.85：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-5.JPG" alt="交叉驗證"  /></div></div></p>
+<p>如果使用邏輯迴歸，階數為二的話：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import PolynomialFeatures
+
+def data_from(csv_file):
+    data = np.loadtxt(csv_file, delimiter=',')
+    sep = data.shape[0] // 10 * 2
+    return {
+        'learn': data[sep:],
+        'test': data[:sep]
+    }
+
+def scatter(data, t_marker, f_marker):
+    label = data[:,2]
+    normal_weight = label == 1
+    overweight = label == 0
+    plt.scatter(data[normal_weight, 0], data[normal_weight, 1], marker = t_marker)
+    plt.scatter(data[overweight, 0], data[overweight, 1], marker = f_marker)
+
+data = data_from('height_weight.csv')  
+
+# 學習資料
+learn_data = data['learn']
+scatter(learn_data, 'o', 'x')
+
+learn_height_weight = learn_data[:,0:2]
+learn_label = learn_data[:,2]
+
+# 邏輯迴歸分類
+poly = PolynomialFeatures()        
+feature = poly.fit_transform(learn_height_weight)
+lg_reg = LogisticRegression()  
+lg_reg.fit(feature, learn_label)
+
+# 分類線
+coef = lg_reg.coef_[0]
+height = learn_height_weight[:,0]
+h = np.arange(np.min(height), np.max(height))
+ycoef0 = [coef[5]] * h.size
+ycoef1 = coef[2] + coef[4] * h
+ycoef2 = coef[0] + coef[1] * h + coef[3] * (h ** 2)
+ycoef = np.dstack((ycoef0, ycoef1, ycoef2))[0]
+y = np.apply_along_axis(np.roots, 1, ycoef) # 解平方根
+w = y[:,1] # 只需要正值部份
+plt.plot(h, w, linestyle='dashed')
+
+# 測試資料
+test_data = data['test']
+test_height_weight = test_data[:,0:2]
+scatter(test_data, '8', 'X')
+
+pred = lg_reg.predict( poly.fit_transform(test_height_weight))
+test = test_data[:,2]
+
+plt.text(135, 145, "Accuracy: " + str(accuracy_score(test, pred)))
+
+plt.xlabel('height') 
+plt.ylabel('weight')
+plt.show()
+</code></pre>
+<p>得到的 Accuracy 會是 1.0，就這個簡單的例子來說，就是完全正確地分類了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CrossValidation-6.JPG" alt="交叉驗證"  /></div></div></p>
+<p>實際上，sklearn 提供了 <code>sklearn.model_selection.train_test_split</code> 函式，可以協助畫分學習資料與測試資料（可以透過 <code>test_size</code> 設定比例，該函式還能對資料隨機排序），而 <code>LinearRegression</code>、<code>Perceptron</code> 等，也提供了 <code>score</code> 方法來協助基本評估，有興趣可以看看 API 文件，瞭解其使用方式。</p>
+<p>另外在交叉驗證方面，<code>sklearn.model_selection.cross_val_score</code> 提供了實作，可以指定 <code>cv</code> 指定交叉驗證的 fold 數，例如，若 <code>cv</code> 設為 5，表示將資料分為五份，每次取其中一份輪流當測試，其他四份為學習，稱為一個 fold，如此進行五次，取評估結果的平均。</p>
+<p>總而言之，必須對預測結果進行評估，這邊談到的 MSE 與 Accuracy 只是眾多評估方式中的兩個，有興趣看看其他的評估方式，就請從機器學習方面的文件或書籍中多做探索了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

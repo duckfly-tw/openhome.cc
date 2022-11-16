@@ -1,0 +1,147 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在之前的範例當中，曾經在 Scriptlet 中寫下 out 與 request 等字眼，然後直接操作一些方法。像 out、request 這樣的字眼，在轉譯為 Servlet 之後，會直接對應於 S...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="隱含物件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/ImplicitObject.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在之前的範例當中，曾經在 Scriptlet 中寫下 out 與 request 等字眼，然後直接操作一些方法。像 out、request 這樣的字眼，在轉譯為 Servlet 之後，會直接對應於 S...">
+
+    <title>隱含物件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImplicitObject.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>隱含物件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在之前的範例當中，曾經在 Scriptlet 中寫下 <code>out</code> 與 <code>request</code> 等字眼，然後直接操作一些方法。像 <code>out</code>、<code>request</code> 這樣的字眼，在轉譯為 Servlet 之後，會直接對應於 Servlet 中的某個物件，例如 <code>request</code> 就對應 <code>HttpServletRequest</code> 物件。像 <code>out</code>、<code>request</code> 這樣的字眼，通常稱之為隱含物件（Implicit Object）或隱含變數（Implicit Variable）。</p>
+<p>以下先列表對照 JSP 中的隱含物件與轉譯後的型態，有一些部份也許是你第一次看到的型態，將在稍後詳加說明：</p>
+<ul>
+<li><p><code>out</code></p>
+<p>轉譯後對應 <code>JspWriter</code> 物件，其內部關聯一個 <code>PrintWriter</code> 物件。</p>
+</li>
+<li><p><code>request</code></p>
+<p>轉譯後對應 <code>HttpServletRequest</code> 物件。</p>
+</li>
+<li><p><code>response</code></p>
+<p>轉譯後對應 <code>HttpServletResponse</code> 物件。</p>
+</li>
+<li><p><code>config</code></p>
+<p>轉譯後對應 <code>ServletConfig</code> 物件。</p>
+</li>
+<li><p><code>application</code></p>
+<p>轉譯後對應 <code>ServletContext</code> 物件。</p>
+</li>
+<li><p><code>session</code></p>
+<p>轉譯後對應 <code>HttpSession</code> 物件。</p>
+</li>
+<li><p><code>pageContext</code></p>
+<p>轉譯後對應 <code>PageContext</code> 物件，它提供了 JSP 頁面資源的封裝，並可設定頁面範圍屬性。</p>
+</li>
+<li><p><code>exception</code></p>
+<p>轉譯後對應 <code>Throwable</code> 物件，代表由其他JSP 頁面丟出的例外物件，只會出現於 JSP 錯誤頁面（<code>isErrorPage</code> 設定為 <code>true</code> 的 JSP 頁面）。</p>
+</li>
+<li><p><code>page</code></p>
+<p>轉譯後對應 <code>this</code>。</p>
+</li>
+</ul>
+<p>大部份的隱含物件，在轉譯後所對應的 Servlet 相關物件，先前講解 Servlet 的文件都有作過說明。<code>page</code> 隱含物件則是對應於轉譯後 Java 類別中的 <code>this</code> 物件，主要是讓不熟悉 Java 的網頁設計師，在必要時可以用較直覺的 <code>page</code> 名稱來存取。</p>
+<p><code>exception</code> 隱含物件將在之後談到 JSP 錯誤處理時時再加以說明。</p>
+<p>至於 <code>out</code>、<code>pageContext</code>、<code>exception</code> 這些隱含物件，轉譯後的型態你可能是第一次看到，以下先針對這些隱含物件進行說明。</p>
+<p><code>out</code> 隱含物件不直接對應於先前說明 Servlet 時，由 <code>HttpServletResponse</code> 所取得的 <code>PrintWriter</code> 物件。<code>out</code> 隱含物件在轉譯之後，會對應於 <code>javax.servlet.jsp.JspWriter</code> 類別的實例，<code>JspWriter</code> 則直接繼承 <code>java.io.Writer</code> 類別。<code>JspWriter</code> 主要模擬了 <code>BufferedWriter</code> 與 <code>PrintWriter</code> 的功能。</p>
+<p><code>JspWriter</code> 在內部也是使用 <code>PrintWriter</code> 來進行輸出，但 <code>JspWriter</code> 具有緩衝區功能。當使用 <code>JspWriter</code> 的 <code>print()</code> 或 <code>println()</code> 進行回應輸出時，如果 JSP 頁面沒有緩衝，則直接建立 <code>PrintWriter</code> 來輸出回應，如果 JSP 頁面有作緩衝，則只有在出清（flush）緩衝區時，才會真正建立 <code>PrintWriter</code> 物件進行輸出。</p>
+<p>會對頁面進行緩衝處理，表示在緩衝區滿的時候，可能有兩種處理方式：</p>
+<ul>
+<li>累積緩衝區的容量後再一次輸出回應，所以緩衝區滿了就直接出清。</li>
+<li>你也許是想控制輸出的量在緩衝區容量之內，所以緩衝區滿了表示有錯誤，此時要丟出例外。</li>
+</ul>
+<p>在撰寫 JSP 頁面時，可以透過 <code>page</code> 指示元素的 <code>buffer</code> 屬性來設定緩衝區的大小，預設是 <code>8kb</code>。緩衝區滿了之後該採取哪種行為，則是由 <code>autoFlush</code> 屬性決定，預設是 <code>true</code>，表示滿了就直接出清。如果設定為 <code>false</code>，則要自行呼叫 <code>JspWriter</code> 的 <code>flush()</code> 方法來出清緩衝區，如果緩衝區滿了卻還沒呼叫 <code>flush()</code> 資料 送出至客戶端，呼叫 <code>println()</code> 時將會丟出 <code>IOException</code> 例外。</p>
+<p>接著說明 <code>pageContext</code> 隱含物件。<code>pageContext</code> 隱含物件轉譯後對應於 <code>javax.servlet.jsp.PageContext</code> 型態之物件，這個物件將所有 JSP 頁面的資訊封裝起來，轉譯後的 Servlet 可透過 <code>PageContext</code> 來取得所有的 JSP 頁面資訊。</p>
+<p>例如在轉譯後的 Servlet 程式碼當中，要取得對應 JSP 頁面的 <code>ServletContext</code>、<code>ServletConfig</code>、 <code>HttpSession</code> 與 <code>JspWriter</code> 物件時，是透過以下的程式碼來取得：</p>
+<pre class="prettyprint"><code lang="java">application = pageContext.getServletContext();
+config = pageContext.getServletConfig();
+session = pageContext.getSession();
+out = pageContext.getOut();
+</code></pre>
+<p>所有的隱含物件都可以藉由 <code>pageContext</code> 來取得。除了封裝所有的 JSP 頁面資訊之外，還可以使用 <code>pageContext</code> 來設定頁面範圍屬性。在先前的文件中，你知道 Servlet 中可以設定屬性的物件有 <code>HttpServletRequest</code>、<code>HttpSession</code> 與 <code>ServletContext</code>，可分別用來設定請求範圍、會話範圍與應用程式範圍屬性。</p>
+<p>在學到 JSP 時，你則會多認識一個用 <code>pageContext</code> 來設定的頁面範圍屬性，同樣是使用 <code>setAttrubute()</code>、<code>getAttribute()</code> 與 <code>removeAttribute()</code> 來進行設定。預設是可設定或取得頁面範圍屬性，頁面範圍屬性表示作用範圍僅限同一頁面之中。</p>
+<p>來舉自行設定頁面範圍屬性的一個例子。你想要先檢查頁面範圍屬性中，是否曾被設定過某個屬性，如果有就直接取用，如果沒有就直接生成，且設定為頁面屬性。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;%
+    Some some = pageContext.getAttribute("some");
+    if(some == null) {
+        some = new Some();
+        pageContext.setAttribute("some", some);
+    }
+%&gt;
+</code></pre>
+<p>事實上，你可以透過 <code>pageContext</code> 設定四種範圍屬性，而不用使用個別的 <code>pageContext</code>、<code>request</code>、 <code>session</code>、<code>application</code> 來進行設定。以 <code>pageContext</code> 提供單一的 API 來管理屬性作用範圍，你可以使用以下的方法來進行設定：</p>
+<pre class="prettyprint"><code lang="java">getAttribute(String name, int scope)
+setAttribute(String name, Object value, int scope)
+removeAttribute(String name, int scope)
+</code></pre>
+<p>其中的 <code>scope</code> 可以使用以下的常數來進行指定：<code>pageContext.PAGE_SCOPE</code>、<code>pageContext.REQUEST_SCOPE</code>、<code>pageContext.SESSION_SCOPE</code>、<code>pageContext.APPLICATION_SCOPE</code>，分別表示頁面、請求、會話與應用程式範圍。例如要設定會話範圍的屬性：</p>
+<pre class="prettyprint"><code lang="java">pageContext.setAttribute("login", "caterpillar", pageContext.SESSION_SCOPE);
+</code></pre>
+<p>要取得會話範圍的屬性時，可以使用以下的方式：</p>
+<pre class="prettyprint"><code lang="java">String attr = 
+     (String) pageContext.getAttribute("login", pageContext.SESSION_SCOPE);
+</code></pre>
+<p>當不知道屬性的範圍時，也可以使用 <code>pageContext</code> 的 <code>findAttribute()</code> 方法來找出屬性，只要指定屬性名稱即可。<code>findAttribute()</code> 會依序從頁面、請求、會話、應用程式範圍尋找看看有無對應的屬性，先找到就傳回。例如：</p>
+<pre class="prettyprint"><code lang="java">Object attr = pageContext.findAttribute("attr");
+</code></pre>
+<p>隱含物件的認識，應視為認識 JSP 的一個過程，在 JSP 頁面中使用了隱藏物件，就代表著 JSP 頁面中多少都夾雜著 Scriptlet，在現在來說並不鼓勵，可以的話，在 JSP 頁面中不要使用隱藏物件。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

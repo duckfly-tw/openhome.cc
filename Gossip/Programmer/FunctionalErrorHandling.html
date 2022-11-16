@@ -1,0 +1,124 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：函數式風格錯誤處理
+      
+      程式人時常要與錯誤搏鬥，然而介紹或探討錯誤處理的文件或書籍，相對來說還是少了許多。由於許多語言都內建了例外（Exception...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="函數式風格錯誤處理">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/FunctionalErrorHandling.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：函數式風格錯誤處理
+      
+      程式人時常要與錯誤搏鬥，然而介紹或探討錯誤處理的文件或書籍，相對來說還是少了許多。由於許多語言都內建了例外（Exception...">
+
+
+    <title>函數式風格錯誤處理</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionalErrorHandling.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>函數式風格錯誤處理</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/itadm/article.php?c=81622">函數式風格錯誤處理</a><br>
+      <br>
+      程式人時常要與錯誤搏鬥，然而介紹或探討錯誤處理的文件或書籍，相對來說還是少了許多。由於許多語言都內建了例外（Exception）處理機制，目前大家對以例外機制處理錯誤較為熟悉，然而觀察其它語言典範，從中觀察一些錯誤處理的方法，以不同的習慣來思索，在錯誤處理上可獲得不少的啟發。舉例來說，例外處理多半是命令式風格，想想看函數式的世界中會是怎麼處理例外呢？<br>
+      <br>
+      <dl>
+        <dt>解決<code>null</code>問題的<code>Option</code></dt>
+      </dl>
+      <br>
+      Scala中有個<code>Option</code>，guava-libraries中有個<code>Optional</code>，JDK8中也將有個<code>Optional</code>類別，它們的存在目的，基本上是為了避免使用<code>null</code>，以免遭受因為使用了<code>null</code>，而造成的各種問題。我曾經在專欄〈<a
+
+        href="Null.html">補救null的策略</a>〉中談過，<code>null</code>的問題在於語義含糊不清，可以實現速錯（Fail fast）概念，或者是建立有明確語義的型態來取代<code>null</code>。<br>
+      <br>
+      實際上<code>Option</code>的概念來自於函數式。以Haskell為例，它沒有<code>null</code>的概念，最類似的值是<code>Nothing</code>，它是<code>Maybe</code>型態，<code>Maybe</code>的其它值要由<code>Just</code>構造。在Haskell中如果函式執行後也許會產生某型態結果，或者是沒有結果，那就會傳回<code>Maybe</code>型態的值，呼叫函式的客戶端可使用模式比對（Pattern match）在傳回<code>Just</code>時取得其中的值，在<code>Nothing</code>時作沒有結果時的處理。Scala中的<code>Option</code>有兩個子類別<code>Some</code>與<code>None</code>，對照來說，<code>Option</code>相當於Haskell的<code>Maybe</code>，<code>Some</code>對應於<code>Just</code>，<code>None</code>對應於<code>Nothing</code>，Scala支援函數式設計，<code>Some</code>與<code>None</code>定義為案例類別（Case class），以支援模式比對。<br>
+      <br>
+      觀察Haskell的<code>Maybe</code>或是Scala的<code>Option</code>的使用時機，會發現它們多半用在計算可能失敗而沒有結果的場合，也就是說，<code>Maybe</code>或<code>Option</code>常是函數式世界中處理計算失敗或錯誤的方式。現在不少命令式語言都逐漸納入函數式風格，除了一級函式是最顯而易見的函數式特性之外，實際上guava-libraies中納入<code>Optional</code>的概念也是，只不過在不支援模式比對的Java語言中，會使用<code>Optional</code>的<code>isPresent</code>方法來確認是否有包裹值，也就說是，<code>Optional</code>除了避免<code>null</code>相關問題外，實際上也給了我們一些以函數式風格處理錯誤的機會。<br>
+      <br>
+      <dl>
+        <dt>分別表現對錯資訊的<code>Either</code></dt>
+      </dl>
+      <br>
+      在命令式語言逐步結合函數式概念的過程中，常會出現一些讓熟悉命令式風格的程式人困惑之元素。以嘗試融合物件導向及函數式兩種典範的Scala為例，除了<code>Option</code>之外，還提供了<code>Either</code>型態，表面上看來，在函式可能產生兩種型態之一計算結果時，可以令其傳回<code>Either</code>，實際上<code>Either</code>多半運用於處理錯誤，它有<code>Right</code>與<code>Left</code>兩個子類別，前者是計算成功時用來包裹正確結果（<code>Right</code>的英文暗示著正確），後者是在計算失敗時用來包括為何計算錯誤的有效訊息。Haskell中也有個<code>Either</code>型態，分別可使用<code>Right</code>與<code>Left</code>兩個值建構式（Value constructor）。同樣地，函數式的Haskell或Scala中，<code>Either</code>的值都可以進行模式匹配。<br>
+      <br>
+      從Java這類命令式語言中看<code>Either</code>，容易有的疑問是「為什麼不直接拋出例外」？拋出例外意謂著客戶端若要處理例外，必須使用<code>try-catch</code>語法，<code>try-catch</code>語法容易寫出更動變數值的程式流程，而拋出例外本身就代表著會中斷程式流程，也就是函數有可能不會有傳回值，這不符合函數式風格。<code>Option</code>的存在解決了部份問題，然而<code>Option</code>在計算失敗時只傳回<code>None</code>，如此一來只會知道計算失敗，但不會知道失敗的原因。<br>
+      <br>
+      可以使用<code>Either</code>來解決這類問題。以Scala為例，在結合例外型態下，假設計算成功會傳回<code>Int</code>，計算失敗會以<code>Exception</code>包裏錯誤訊息，那麼函式傳回值可以是<code>Either[Exception, Int]</code>，假設現在計算成功得到93，則傳回<code>Right(93)</code>，否則建立例外物件<code>e</code>並傳回<code>Left(e)</code>，如此一來，呼叫函式的客戶端可以模式匹配作相對應的處理，即使客戶端不打算處理例外，也不用撰寫<code>try-catch</code>，程式依然可以進行，也就是可以延遲例外的處理。有了<code>Either</code>這類型態，錯誤處理的方式就可以有函數式的可能性，也因此支援Java進行函數式風格撰寫的Functional Java程式庫，亦定義了Either這個型態。<br>
+      <br>
+      <dl>
+        <dt>看看Scala 2.10新增的<code>Try</code></dt>
+      </dl>
+      <br>
+      在Scala中有趣的一點是，<code>try-catch</code>語法是運算式（Expression），也就是<code>try-catch</code>會有傳回值，這使得在運用<code>try-catch</code>語法的場合中，依舊可符合函數式風格，因此若察看<code>Either</code>的API文件時，可以看到以下的範例程式碼：<br>
+      <div style="margin-left: 40px;"><code>val result: Either[String,Int] = <br>
+          &nbsp;&nbsp;&nbsp; try { Right(in.toInt) } <br>
+          &nbsp;&nbsp;&nbsp; catch { case e: Exception =&gt; Left(in) }<br>
+        </code></div>
+      <br>
+      實際上這是個很常見的模式，因此在Scala 2.10中增加了<code>Try</code>類別，可以直接將上例撰寫為<code>val result: Try[Int] = Try(in.toInt)</code>，如果<code>in.toInt</code>執行成功，會傳回<code>Success</code>實例包裏結果，若失敗則以<code>Failure</code>實例包裏例外物件。呼叫函式的客戶端，同樣可進一步地進行模式匹配。<br>
+      <br>
+      <code>Try</code>型態的主要作用之一，在於提供比<code>Either</code>更明確的語意，<code>Try</code>的兩個子類因而明確地命名為<code>Success</code>與<code>Failure</code>；<code>Try</code>的另一作用是封裝共用的<code>try-catch</code>處理流程。在Java領域談到封裝<code>try-catch</code>共用處理流程的實際例子，是Spring的<code>JdbcTemplate</code>，它封裝了使用JDBC API時繁瑣的<code>try-catch</code>處理流程，這不單是為了重用流程樣版，也是為了可讀性，在《Clean Code》書中有個小節談到了〈提取Try/Catch區塊〉，也是類似的道理。<br>
+      <br>
+      既然知道了<code>Try</code>的作用在提供更明確語意與重用<code>try-catch</code>流程，要在Java中建立類似的型態基本上就不是問題，雖然<code>try-catch</code>在Java中不是運算式，但可以封裝在函式中，並以<code>return</code>來作到類似功能。現階段的Java版本不支援Lambda語法，寫來會比較囉嗦，如果在JDK8中，則可以較簡潔地寫為<code>tryIt(() -&gt; Integer.parseInt(input))</code>，並令<code>tryIt</code>傳回<code>Try&lt;Integer&gt;</code>實例來達到類似功能。<br>
+      <br>
+      <dl>
+        <dt>從多種典範中學習並思考</dt>
+      </dl>
+      <br>
+      在過去，程式人習慣使用<code>null</code>，後續因為層出不窮的錯誤，以及《Null References: The Billion Dollar Mistake》之類的呼籲，有人開始思考如何不使用<code>null</code>，因而引入了函數式領域的概念，使用了<code>Option</code>來讓語意明確，現在不少程式人都知道<code>Option</code>的概念與使用的時機。<br>
+      <br>
+      隨著命令式語言漸次地引入函數式的元素，程式人也得瞭解更多的函數式概念，方能瞭解這些元素實際的使用時機，就像Either，它不僅僅是用來包裹可能的兩種型態傳回值，否則的話基本上<code>Map</code>或其它自訂型態也作得到這點。<code>Either</code>讓編譯器有機會進行型態檢查，更重要的是它常應用在錯誤處理的場合。程式語言融合多種典範，代表著程式人需要更多的思考方向，就如<code>Option</code>、<code>Either</code>、<code>Try</code>等元素若進入到命令式語言之中，程式人在必要的時候就得改變一下處理錯誤的習慣，嘗試從另一角度來解決問題。<br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,124 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="關於BLOB、CLOB，可以先參考一下 將
+檔案存入資料庫 這篇文章。
+      
+      在Hibernate中，您可以直接對Blob、Clob作映射，例如在T_USER表格中，若有BL...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Lob 物件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/Lob.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="關於BLOB、CLOB，可以先參考一下 將
+檔案存入資料庫 這篇文章。
+      
+      在Hibernate中，您可以直接對Blob、Clob作映射，例如在T_USER表格中，若有BL...">
+
+
+    <title>Lob 物件</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Lob.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Lob 物件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            關於BLOB、CLOB，可以先參考一下 <a href="../JavaGossip-V2/BLOBAndCLOB.htm">將
+檔案存入資料庫</a> 這篇文章。<br>
+      <br>
+      在Hibernate中，您可以直接對Blob、Clob作映射，例如在T_USER表格中，若有BLOB與CLOB欄位分別為photo與resume，則您可以如下設計一個User類別：<br>
+      
+      <ul>
+        <li>User.java</li>
+      </ul>
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.Serializable;<br>import javax.persistence.Entity;<br>import javax.persistence.GeneratedValue;<br>import javax.persistence.GenerationType;<br>import javax.persistence.Id;<br>import javax.persistence.Lob;<br>import javax.persistence.Table;<br><br>@Entity<br>@Table(name="T_USER")<br>public class User implements Serializable {<br>    @Id<br>    @GeneratedValue(strategy = GenerationType.AUTO)<br>    private Long id;<br>    private String name;<br>    private Long age;<br><br><span style="font-weight: bold;">    @Lob</span><br><span style="font-weight: bold;">    private byte[] photo;</span><br><span style="font-weight: bold;">    </span><br><span style="font-weight: bold;">    @Lob</span><br><span style="font-weight: bold;">    private char[] resume;</span><br><br>    public Long getId() { return id; }<br>    public void setId(Long id) { this.id = id; }<br><br>    public Long getAge() { return age;  }<br>    public void setAge(Long age) { this.age = age; }<br><br>    public String getName() { return name; }<br>    public void setName(String name) { this.name = name; }<br><br>    public byte[] getPhoto() { return photo; }<br>    public void setPhoto(byte[] photo) { this.photo = photo; }<br><br>    public char[] getResume() { return resume; }<br>    public void setResume(char[] resume) { this.resume = resume; }<br>}</code></pre>
+      <br>
+      無論是映射至BLOB或CLOB的欄位，在JPA中都是使用@Lob來標註，而JPA會自動根據屬性來判斷是要採用BLOB或CLOB的處理方式儲存至表格中，若屬性是byte[]型態，則以BLOB方式處理，若屬性是char[]型態，則使用CLOB方式處理。<br>
+      <br>
+一個儲存檔案至表格的範例如下：<br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FileInputStream inputStream = <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; new FileInputStream("c://workspace//caterpillar.jpg");</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte[] photo = new byte[inputStream.available()];</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inputStream.read(photo);</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inputStream.close();</span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User user = new User();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setName("caterpillar");</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setAge(new Long(35));</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setPhoto(photo);</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setResume("Bla....Bla....resume text!!".toCharArray());<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityManager entityManager =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+JPAUtil.getEntityManagerFactory().createEntityManager();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityTransaction etx = entityManager.getTransaction();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.begin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.persist(user);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.commit();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.close();<br>
+      </span><br>
+      <br>
+而一個取出檔案的範例如下：<br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityManager entityManager =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+JPAUtil.getEntityManagerFactory().createEntityManager();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityTransaction etx = entityManager.getTransaction();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.begin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User user = entityManager.find(User.class, id);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.commit();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.close();<br>
+      <br>
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FileOutputStream outputStream = <br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; new FileOutputStream("c://workspace//caterpillar2.jpg");<br>
+      <br>
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; outputStream.write(user.getPhoto());</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; outputStream.close();</span><br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

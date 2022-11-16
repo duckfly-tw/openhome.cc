@@ -1,0 +1,164 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="getWriter()
+你可以從 HttpServletResponse 的 getWriter() 取得 PrintWriter 物件，透過該物件對客戶端進行字元輸出。在沒有設定任何內容型態或編碼之...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="getWriter()">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/GetWriter.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="getWriter()
+你可以從 HttpServletResponse 的 getWriter() 取得 PrintWriter 物件，透過該物件對客戶端進行字元輸出。在沒有設定任何內容型態或編碼之...">
+
+    <title>getWriter()</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GetWriter.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>getWriter()</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>
+<br  />你可以從 <code>HttpServletResponse</code> 的 <code>getWriter()</code> 取得 <code>PrintWriter</code> 物件，透過該物件對客戶端進行字元輸出。在沒有設定任何內容型態或編碼之前，容器使用的字元編碼是 ISO-8859-1。</p>
+<p>你可以使用 <code>HttpServletResponse</code> 的 <code>setLocale()</code> 來設定地區（Locale）資訊，<code>setLocale()</code> 必須在回應確認前設定，回應確認後設定地區資訊並沒有效果。容器如何與客戶端溝通並沒有規範，通常使用 <code>Content-Language</code> 標頭來設定。例如以下會將 HTTP 回應的 <code>Content-Language</code> 設定為 zh-TW：</p>
+<pre class="prettyprint"><code lang="java">response.setLocale(Locale.TAIWAN);
+</code></pre>
+<p>你可以使用 <code>HttpServletResponse</code> 的 <code>getCharacterEncoding()</code> 方法取得編碼設定，預設是 ISO-8859-1，可以在 web.xml 中設定區域與編碼的對應。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;locale-encoding-mapping-list&gt;
+    &lt;locale-encoding-mapping&gt;
+        &lt;locale&gt;zh_TW&lt;/locale&gt;
+        &lt;encoding&gt;UTF-8&lt;/encoding&gt;
+    &lt;/locale-encoding-mapping&gt;
+&lt;/locale-encoding-mapping-list&gt;
+</code></pre>
+<p>若搭配先前的程式片段，或者是以下的程式片段，<code>getCharacterEncoding()</code> 取得的就是 UTF-8：</p>
+<pre class="prettyprint"><code lang="java">response.setLocale(new Locale("zh", "TW"));
+</code></pre>
+<p>你也可以呼叫 <code>HttpServletResponse</code> 的 <code>setCharacgerEncoding()</code> 設定字元編碼：</p>
+<pre class="prettyprint"><code lang="java">response.setCharacterEncoding("UTF-8");
+</code></pre>
+<p>或者是在使用 <code>HttpServletResponse</code> 的 <code>setContentType()</code> 時，指定 <code>charset</code>，<code>charset</code> 的值會用來呼叫 <code>setCharacterEncoding()</code>。例如：</p>
+<pre class="prettyprint"><code lang="java">response.setContentType("text/html; charset=UTF-8");
+</code></pre>
+<p>如果使用了 <code>setCharacterEncoding()</code> 或 <code>setContentType()</code> 時指定了 <code>charset</code>，則 <code>setLocale()</code> 就會被忽略。</p>
+<p>在 Servlet 4.0 中，也可以在 web.xml 中加入 <code>&lt;response-character-encoding&gt;</code>，設定整個應用程式要使用的回應編碼，如此一來，就不用特別在每次請求使用 <code>HttpServletResponse</code> 的 <code>setCharacterEncoding()</code> 方法來設定編碼了 例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;response-character-encoding&gt;UTF-8&lt;/response-character-encoding&gt;
+</code></pre>
+<p>結合〈<a href="RequestParameterHeader.html">請求參數、標頭</a>〉與這邊的說明，可以得知的是，如果你要可以接收中文請求參數並在回應時於瀏覽器顯示出來，必須設定 <code>HttpServletRequest</code> 的 <code>setCharacterEncoding()</code> 以及 <code>HttpServletResponse</code> 的 <code>setCharacterEncoding()</code> 或 <code>setContentType()</code> 為正確的編碼，或者是在 web.xml 中設定 <code>&lt;request-character-encoding&gt;</code> 與 <code>&lt;response-character-encoding&gt;</code>。</p>
+<p>例如以下這個範例，可以讓你透過表單發送中文請求參數值，Servlet 可正確地接收處理並顯示在結果畫面上。你可以使用表單發送名稱、郵件與多選喜愛的寵物類型代表。首先是表單的部份：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset= "UTF-8"&gt;
+        &lt;title&gt;寵物類型大調查&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form action="pet" method="post"&gt;
+            姓名：&lt;input type="text" name="user"&gt;&lt;br&gt;
+            郵件：&lt;input type="email" name="email"&gt;&lt;br&gt;
+            你喜愛的寵物代表：&lt;br&gt;
+            &lt;select name="type" size="6" multiple&gt;
+                &lt;option value="貓"&gt;貓&lt;/option&gt;
+                &lt;option value="狗"&gt;狗&lt;/option&gt;
+                &lt;option value="魚"&gt;魚&lt;/option&gt;
+                &lt;option value="鳥"&gt;鳥&lt;/option&gt;
+            &lt;/select&gt;&lt;br&gt;
+            &lt;input type="submit" value="送出"/&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>接著是 Servlet 的部份：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import java.util.Arrays;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/pet")
+public class Pet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;body&gt;");
+
+        out.printf("聯絡人：&lt;a href='mailto:%s'&gt;%s&lt;/a&gt;%n", 
+            request.getParameter("email"), 
+            request.getParameter("user")
+        );
+
+        out.println("&lt;br&gt;喜愛的寵物類型");
+        out.println("&lt;ul&gt;");
+
+        Arrays.asList(request.getParameterValues("type"))
+              .forEach(type -&gt; out.printf("&lt;li&gt;%s&lt;/li&gt;%n", type));
+
+        out.println("&lt;/ul&gt;");
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+}
+</code></pre>
+<p>在 Servlet 4.0 之前，若頁面很多，逐個頁面設定編碼是件很麻煩的事，所以設定編碼的動作其實不會直接在 Servlet 中進行，而會在過濾器（Filter）中設定，之後還會談到過濾器的細節。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,899 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="不
+同類型的事件，都有對應的事件處理函式，它們接受QEvent的特定子類別實例作為引數，像是下例中mousePressEvent()事件處理函式上的
+QMouseEvent，您可以針對事件的某些狀...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="事件接受與否、event() 方法">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/IsAccepted.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="不
+同類型的事件，都有對應的事件處理函式，它們接受QEvent的特定子類別實例作為引數，像是下例中mousePressEvent()事件處理函式上的
+QMouseEvent，您可以針對事件的某些狀...">
+
+
+    <title>事件接受與否、event() 方法</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="IsAccepted.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>事件接受與否、event() 方法</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             不
+同類型的事件，都有對應的事件處理函式，它們接受QEvent的特定子類別實例作為引數，像是下例中mousePressEvent()事件處理函式上的
+QMouseEvent，您可以針對事件的某些狀況作特定處理，而其它未處理的狀況，則呼叫父類別對應的的事件處理函式，讓父類別預先定義的事件處理可以
+完成：
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">void CustomLabel::</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mousePressEvent(QMouseEvent *event) {<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; if (event-&gt;button() == Qt::LeftButton) {<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 處理左鍵按下<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// ....<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; } else {<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 由父類別所定義的事件處理函式來事件<br>
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QLabel::</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mousePressEvent(event);</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp; }</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">void CustomLabel::</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mouseReleaseEvent(QMouseEvent *event) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; // 滑鼠放開事件處理....</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+      
+
+      <br>
+
+
+
+
+
+
+
+
+事實上，每個可傳播的事件都有accept()與igore()兩個方法，用以告知Qt應用程式，這個事件處理者是否接受或忽略此
+一事件，如果事件處理者中呼叫事件的accept()，則事件不會再進一步傳播，若呼叫了ignore()，則Qt應用程式會嘗試尋找另一個事件的接受者，您可以藉由isAccepted()方法得知事件是否被接受。<br>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+一般來說，除了QCloseEvent之外，很少直接呼叫accept()或ignore()，如果您接受事件，則在事件處理者當中實作對事件的處理（如上例的if陳述句），如果您不
+接受事件，則直接呼叫父類別的事件實作（如上例的else陳述句），對於QWidget來說，預設的實作是：<br>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">void QWidget::keyPressEvent(QKeyEvent *event) {</span><br>
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; event-&gt;ignore();</span><br>
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+由於QWidget預設的實作是呼叫ignore()，這讓事件可以向父元件傳播。<br>
+
+
+      <br>
+
+
+QCloseEvent則建議直接呼叫accept()與ignore()，accept()方法會繼續關閉的操作，ignore()則會取消關閉的操作：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">void MainWindow::closeEvent(QCloseEvent *event) {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if (continueToClose()) {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;accept();</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; } else {</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;ignore();</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+      <span style="font-weight: bold;">}</span><br>
+
+
+      </div>
+
+
+      
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      QObject的event()方法通常用於分派事件，但在某些情況下，您希望在事件分派給其它事件處理者之
+前，先行作一些處理，則可以重新定義event()方法，例如在視窗程式中，Tab鍵按下時希望其將焦點移至下一個圖型元件，而不是直接讓目前焦點的圖形
+元件直接處理Tab鍵，則您可以在繼承QWidget子類別時，重新定義其event()方法，例如：<br>
+
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">bool CustomWidget::event(QEvent *event) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;if (event-&gt;type() == QEvent::KeyPress) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QKeyEvent *keyEvent = static_cast&lt;QKeyEvent *&gt;(event);</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (</span><span style="font-weight: bold;">keyEvent</span><span style="font-weight: bold;">-&gt;key() == Qt::Key_Tab) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 處理Tab鍵</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return true;</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="font-weight: bold;"></span><br>
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;return QWidget::event(event);</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">} </span><br>
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+在執行時期想要知道所取得之QEvent類型，可以使用QEvent的type()方法取得常數值，並與QEvent::Type作比對。<br>
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+事件若順利處理完畢，則要傳回true，表示這個事件被接受並處理，QApplication可以繼續事件佇列中的下一個事件處理，若傳回false，則QApplication嘗試尋找下一個可以處理事件的方法。
+您不用呼叫事件的accept()或ignore()，這也沒有意義，accept()或ignore()是用來在特定的事件處理者之間作溝通，而
+event()的true或false，是用來告知QApplication的notify()方法是否處理下一事件，以QWidget的event()
+實作來說，它是根據事件的isAccepted()來判斷該傳回true或false：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">bool QWidget::event(QEvent *event) {</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; switch (e-&gt;type()) {</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; case QEvent::KeyPress:</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keyPressEvent((QKeyEvent *)event);</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!((QKeyEvent *)event)-&gt;isAccepted())</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return false;</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; case QEvent::KeyRelease:</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keyReleaseEvent((QKeyEvent *)event);</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!((QKeyEvent *)event)-&gt;isAccepted())</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return false;</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return true;</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+另一個重新定義event()的情況是自訂QCustomEvent子類型時，您可以將之分派給其它函式或直接在event()中處理，例如：<br>
+
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">bool CustomWidget::event(QEvent *event) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp; &nbsp; if (event-&gt;type() == MyCustomEventType) {</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CustomEvent *myEvent = static_cast&lt;CustomEvent *&gt;(event);</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 對自訂事件的處理，或呼叫其它函式來處理事件</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return true;</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;return QWidget::event(event);</span><br>
+
+
+
+
+
+
+
+
+
+
+      <span style="font-weight: bold;">} </span><br>
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+      <span><br>
+
+      自訂事件必須是QCustomEvent的子類別，您也可以直接實作customEvent()方法來處理自訂事件，詳可參考 </span><a href="CustomEvent.html">自訂與傳送事件</a><span>。<br>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

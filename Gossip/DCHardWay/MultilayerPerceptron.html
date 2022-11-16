@@ -1,0 +1,257 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈分類與感知器〉的最後談到了，下圖若身高腰圍適中的是藍色，太胖或太瘦是橘色的話，顯然是沒辦法用一條直線來劃分：
+
+也就是說，只使用一個感知器，是沒辦法對這種狀況進行分類的，然而可以使用多個感知器，分...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="多層感知器（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/MultilayerPerceptron.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈分類與感知器〉的最後談到了，下圖若身高腰圍適中的是藍色，太胖或太瘦是橘色的話，顯然是沒辦法用一條直線來劃分：
+
+也就是說，只使用一個感知器，是沒辦法對這種狀況進行分類的，然而可以使用多個感知器，分...">
+
+    <title>多層感知器（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MultilayerPerceptron.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多層感知器（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Perceptron.html">分類與感知器</a>〉的最後談到了，下圖若身高腰圍適中的是藍色，太胖或太瘦是橘色的話，顯然是沒辦法用一條直線來劃分：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Perceptron-5.JPG" alt="多層感知器"  /></div></div></p>
+<p>也就是說，只使用一個感知器，是沒辦法對這種狀況進行分類的，然而可以使用多個感知器，分層來解決，當使用到多個感知器且分層的方式時，就進入到類神經網路的範疇，如果試圖去理解類神經網路的原理，基本上就會進入到權重矩陣、偏差矩陣、目標函式、微分等數學運算&hellip;</p>
+<p>當然，能夠理解原理絕對是件好事，也建議你這麼做，這在理解為何類神經網路能從大量資料中學會分類這件事上，會有很大的幫助，在使用程式庫時，也較易理解程式庫的心智模型（當然，你想實作程式的話，理解原理就更是絕對必要的了）。</p>
+<p>不過，如果你已經理解單一感知器的運作原理，倒是可以透過特例，例如〈<a href="Perceptron.html">分類與感知器</a>〉中的身高腰圍範例，來進一步延伸，自行組合多個感知器，來達到想要的預測效果，從中理解為何多個感知器可以運作，避免一開始就迷失在類神經網路的數學推導之中&hellip;XD</p>
+<p>〈<a href="Perceptron.html">分類與感知器</a>〉中的身高腰圍範例，僅標記是否太胖，那麼沒被標記太胖，是不是就是適中體型呢？不一定吧！如果現在請人們在看照片時，標記胖（-1）、適中（0）、瘦（1），並記錄為：</p>
+<pre class="prettyprint"><code lang="python">171,110,-1
+157,90,-1
+164,115,-1
+182,75,0
+160,103,-1
+199,68,1
+152,103,-1
+179,67,1
+164,83,0
+...略
+</code></pre>
+<p>若這些記錄存為 <a href="https://openhome.cc/Gossip/DCHardWay/height_waist2.csv">height_waist2.csv</a>，那麼可以使用以下的程式：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+data = np.loadtxt('height_waist2.csv', delimiter=',')
+
+height_waist = data[:,0:2]
+label = data[:,2]
+
+height = height_waist[:,0]
+waist = height_waist[:,1]
+
+normal_weight = label == 0
+overweight = label == -1
+rundown_weight = label == 1
+
+plt.xlabel('height') 
+plt.ylabel('waist')
+plt.gca().set_aspect(1)
+plt.scatter(height_waist[normal_weight, 0], height_waist[normal_weight, 1], marker = 'o')
+plt.scatter(height_waist[overweight, 0], height_waist[overweight, 1], marker = 'X')
+plt.scatter(height_waist[rundown_weight, 0], height_waist[rundown_weight, 1], marker = 'x')
+
+plt.show()
+</code></pre>
+<p>畫出底下的圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron-1.JPG" alt="多層感知器（一）"  /></div></div></p>
+<p>藍色是體型適中，另兩個是太胖與太瘦，現在請你用兩條線，劃開體型適中、太胖與太瘦，也就是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron-2.JPG" alt="多層感知器（一）"  /></div></div></p>
+<p>那麼你該怎麼做？一個感知器做不了這件事對吧！既然一個感知器做不了，那就兩個：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.linear_model import Perceptron
+
+def scatter(height_waist, label):
+    waist = height_waist[:,1]
+
+    normal_weight = label == 0
+    overweight = label == -1
+    rundown_weight = label == 1
+
+    plt.xlabel('height') 
+    plt.ylabel('waist')
+    plt.gca().set_aspect(1)
+    plt.scatter(height_waist[normal_weight, 0], height_waist[normal_weight, 1], marker = 'o')
+    plt.scatter(height_waist[overweight, 0], height_waist[overweight, 1], marker = 'X')
+    plt.scatter(height_waist[rundown_weight, 0], height_waist[rundown_weight, 1], marker = 'x')
+
+def classify(height_waist, label):
+    p = Perceptron()
+    p.fit(height_waist, label)
+    coef = p.coef_[0] 
+    intercept = p.intercept_
+    height = height_waist[:,0]
+    h = np.arange(np.min(height), np.max(height))
+    w = -(coef[0] * h + intercept) / coef[1]
+    plt.plot(h, w, linestyle='dashed')
+
+data = np.loadtxt('height_waist2.csv', delimiter=',')
+
+height_waist = data[:,0:2]
+label = data[:,2]
+
+height = height_waist[:,0]
+h = np.arange(np.min(height), np.max(height))
+scatter(height_waist, label)
+
+# 劃分是否太胖
+# 重新標記，只區分太胖（1）與不胖（0）
+flabel = label.copy()
+flabel[np.where(label == -1)] = 1  # 胖標記為 1
+flabel[np.where(label == 1)] = 0   # 瘦也標為 0
+classify(height_waist, flabel)     # 使用一個感知器分類
+
+# 劃分是否太瘦
+# 重新標記，只區分太瘦（1）與不瘦（0）
+tlabel = label.copy()
+tlabel[np.where(label == 1)] = 1  # 瘦標記為 1
+tlabel[np.where(label == -1)] = 0 # 胖也標為 0
+classify(height_waist, tlabel)    # 使用一個感知器分類
+
+plt.show()
+</code></pre>
+<p>現在有兩個感知器，對於劃分是否太胖的感知器，不胖會標記為 0，對於劃分是否太瘦的感知器，不瘦會標記為 0，顯然地，若兩個感知器的結果都預測為 0，不就是體型適中的那類嗎？</p>
+<p>雖然接下來可以直接用條件判斷或 <code>or</code> 來寫，不過，這邊就直接再加個感知器如何？這個感知器有兩個輸入，接受前兩個感知器的輸出（也就是 0 或 1），並透過標記學習：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.linear_model import Perceptron
+
+def scatter(height_waist, label):
+    waist = height_waist[:,1]
+
+    normal_weight = label == 0
+    overweight = label == -1
+    rundown_weight = label == 1
+
+    plt.xlabel('height') 
+    plt.ylabel('waist')
+    plt.gca().set_aspect(1)
+    plt.scatter(height_waist[normal_weight, 0], height_waist[normal_weight, 1], marker = 'o')
+    plt.scatter(height_waist[overweight, 0], height_waist[overweight, 1], marker = 'X')
+    plt.scatter(height_waist[rundown_weight, 0], height_waist[rundown_weight, 1], marker = 'x')
+
+def perceptron(height_waist, label):
+    p = Perceptron()
+    p.fit(height_waist, label)
+    return p
+
+def height_waist_mlp(height_waist, label):
+    # 劃分是否太胖
+    # 重新標記，只區分太胖（1）與不胖（0）
+    flabel = label.copy()
+    flabel[np.where(label == -1)] = 1      # 胖標記為 1
+    flabel[np.where(label == 1)] = 0       # 瘦也標為 0
+    p1 = perceptron(height_waist, flabel)  # 建立感知器
+
+    # 劃分是否太瘦
+    # 重新標記，只區分太瘦（1）與不瘦（0）
+    tlabel = label.copy()
+    tlabel[np.where(label == 1)] = 1       # 瘦標記為 1
+    tlabel[np.where(label == -1)] = 0      # 胖也標為 0
+    p2 = perceptron(height_waist, tlabel)  # 建立感知器
+
+    # 劃分是否適中
+    nlabel = label.copy()
+    # 重新標記，只區分體型不適中（1）與適中（0）
+    nlabel[np.where(label != 0)] = 1
+    # 兩個感知器的預測結果
+    pp_predict = np.dstack((p1.predict(height_waist), p2.predict(height_waist)))[0]
+    # 提供給第三個感知器
+    p3 = perceptron(pp_predict, nlabel)
+
+    return p1, p2, p3
+
+def predict(mlp, test):
+    p1, p2, p3 = mlp
+    pp = np.dstack((p1.predict(test), p2.predict(test)))[0]
+    return p3.predict(pp)
+
+data = np.loadtxt('height_waist2.csv', delimiter=',')
+height_waist = data[:,0:2]
+label = data[:,2]
+
+height = height_waist[:,0]
+h = np.arange(np.min(height), np.max(height))
+
+scatter(height_waist, label)
+
+mlp = height_waist_mlp(height_waist, label) # 多層感知器
+test = np.array([[190, 95], [180, 119], [189, 65], [168, 76]]) # 測試
+pd = predict(mlp, test) # 預測
+
+plt.scatter(test[pd == 0, 0], test[pd == 0, 1], marker = '*')
+plt.scatter(test[pd == 1, 0], test[pd == 1, 1], marker = '^')
+
+plt.show()
+</code></pre>
+<p>在顯示的圖形中，測試資料中標示星形是適中體型，三角形則否：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron-3.JPG" alt="多層感知器（一）"  /></div></div></p>
+<p>為什麼叫多層感知器呢？因為這三個感知器是這麼銜接的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron-4.JPG" alt="多層感知器（一）"  /></div></div></p>
+<p>在輸入層的部份，這邊單純就是資料，不過在其他情境中，可能會是另一個輸出層作為來源，如果將方才的 <code>height_waist_mlp</code> 與 <code>predict</code> 作為黑箱，你是不會知道 <code>p1</code> 與 <code>p2</code> 存在的，也就是隱藏層的部份，輸出層就是輸出預測結果。</p>
+<p>當然，這邊的多層感知器並不通用，只適用於以上範例，不過用來體會一下，多個感知器彼此間是如何銜接合作是蠻不錯的，也可以透過它來瞭解一下多層感知器的一些概念，這就之後再來討論吧！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

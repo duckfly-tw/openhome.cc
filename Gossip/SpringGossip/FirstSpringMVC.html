@@ -1,0 +1,271 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="這邊的第一個Spring Web MVC程式將使用Tomcat 5.5來示範，這次為了資源管理上的方便，直接使用spring.jar，以及其相依的commons-logging.jar，請將這兩個ja...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="第一個 Spring MVC 程式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/FirstSpringMVC.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="這邊的第一個Spring Web MVC程式將使用Tomcat 5.5來示範，這次為了資源管理上的方便，直接使用spring.jar，以及其相依的commons-logging.jar，請將這兩個ja...">
+
+
+    <title>第一個 Spring MVC 程式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstSpringMVC.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>第一個 Spring MVC 程式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      這邊的第一個Spring Web MVC程式將使用Tomcat 5.5來示範，這次為了資源管理上的方便，直接使用spring.jar，以及其相依的commons-logging.jar，請將這兩個jar放到WEB-INF/lib下。<br>
+
+      <br>
+
+在Web MVC架構中，使用者並不直接連接至所需的資源，而必須先連接至前端控制器（Front
+controller），由前端控制器判斷使用者的請求要分派（Dispatch）給哪一個控制物件（Controller）來處理請求，藉此執到控制使
+用者可請求的資源之目的。<br>
+
+      <br>
+
+在Spring的Web
+MVC框架中，擔任前端控制器角色的是org.springframework.web.servlet.DispatcherServlet，
+DispatcherServlet負責將客戶的請求分派給對應於請求的控制物件，所以使用Spring Web
+MVC的第一步，就是在web.xml中定義 DispatcherServlet：<br>
+
+      
+      
+      <ul>
+
+        <li>web.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;web-app xmlns="http://java.sun.com/xml/ns/j2ee"<br>  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<br>  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee <br>    &rarr; http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"<br>  version="2.4"&gt;<br><br>    &lt;session-config&gt;<br>        &lt;session-timeout&gt;<br>            30<br>        &lt;/session-timeout&gt;<br>    &lt;/session-config&gt;<br><br>    &lt;servlet&gt;<br>        &lt;servlet-name&gt;dispatcherServlet&lt;/servlet-name&gt;<br>        &lt;servlet-class&gt;<br>            org.springframework.web.servlet.DispatcherServlet<br>        &lt;/servlet-class&gt;<br>        &lt;init-param&gt;<br>            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;<br>            &lt;param-value&gt;/WEB-INF/mvc-config.xml&lt;/param-value&gt;<br>        &lt;/init-param&gt;<br>        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;<br>    &lt;/servlet&gt;<br><br>    &lt;servlet-mapping&gt;<br>        &lt;servlet-name&gt;dispatcherServlet&lt;/servlet-name&gt;<br>        &lt;url-pattern&gt;*.do&lt;/url-pattern&gt;<br>    &lt;/servlet-mapping&gt;<br>&lt;/web-app&gt;</code></pre>
+
+      <br>
+
+在web.xml中定義了一個DispatcherServlet的實例dispatcherServlet，從設定中可以看到，所有連接至
+*.do結尾的請求都會由它來處理，"contextConfigLocation"初始參數用來設定Bean定義檔的位置與名稱，如果不設置
+"contextConfigLocation"初始參數，則DispatcherServlet預設會使用Servlet的名稱為前置，讀取
+「Servlet名稱- servlet.xml」作為其Bean定義檔，在上面的設定中則會讀取mvc-config.xml中的定義。<br>
+
+您也可以定義多個Bean定義檔的來源，像是：<br>
+
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+      &lt;servlet&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;servlet-name&gt;hello&lt;/servlet-name&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;servlet-class&gt;<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; org.springframework.web.servlet.DispatcherServlet<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;/servlet-class&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;init-param&gt;<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;param-value&gt;/WEB-INF/mvc-config.xml, <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &rarr; /WEB-INF/other-service.xml&lt;/param-value&gt;<br>
+
+      &nbsp;&nbsp;&nbsp; &lt;/init-param&gt; <br>
+
+      &nbsp;&nbsp;&nbsp; &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;<br>
+
+      &lt;/servlet&gt;<br>
+
+      ...<br>
+
+      </div>
+
+      <br>
+
+DispatcherServlet負責轉發請求至控制物件（Controller），在Spring Web
+MVC框架中，控制物件是實作org.springframework.web.servlet.mvc.Controller介面的類別之實例，
+Controller介面有一個必須實作的handleRequest()方法，其定義如下所示：<br>
+
+      
+      
+      <div style="margin-left: 40px;">package org.springframework.web.servlet.mvc;<br>
+
+      <br>
+
+      import javax.servlet.http.HttpServletRequest;<br>
+
+      import javax.servlet.http.HttpServletResponse;<br>
+
+      import org.springframework.web.servlet.ModelAndView;<br>
+
+      <br>
+
+      public interface Controller {<br>
+
+      &nbsp;&nbsp;&nbsp; ModelAndView handleRequest(HttpServletRequest request, <br>
+
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; HttpServletResponse response) throws Exception;<br>
+
+      }<br>
+
+      </div>
+
+      <br>
+
+      <br>
+
+當Controller收到DispatcherServlet轉發而來的請求，會執行handleRequest()方法來處理請求，處理完畢後返回一
+個org.springframework.web.servlet.ModelAndView的實例，ModelAndView包括了要呈現在View
+層（例如JSP網頁）的相關Model資料，以及其它有關View層的相關訊息。<br>
+
+      <br>
+
+在您第一個Spring Web MVC中，使用者的請求將由一個HelloController類別之實例來處理，其實作如下所示：<br>
+
+      
+      
+      <ul>
+
+        <li>HelloController.java</li>
+
+      
+      </ul>
+
+      <span style="font-family: Courier New,Courier,monospace;"></span>
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.servlet.http.HttpServletRequest;<br>import javax.servlet.http.HttpServletResponse;<br>import org.springframework.web.servlet.mvc.Controller; <br>import org.springframework.web.servlet.ModelAndView; <br><br>public class HelloController implements Controller {<br>    private String viewPage;<br>    <br>    public ModelAndView handleRequest(HttpServletRequest req, <br>                                            HttpServletResponse res) <br>                                                     throws Exception {<br>        String user = req.getParameter("user");<br>        return new ModelAndView(viewPage, "user", user);<br>    }<br>    <br>    public void setViewPage(String viewPage) {<br>        this.viewPage = viewPage;<br>    }<br>}</code></pre>
+
+      <br>
+
+在這個Controller中，取得了來自使用者的user請求參數，並設定在ModelAndView的實例中，在這個例子中，建構
+ModelAndView的第一個引數為要呈現的目標網頁（或資源）路徑，第二個引數是設定用來取得Model物件的鍵（Key），而第三個引數為要給
+View層呈現資料用的Model物件。<br>
+
+      <br>
+
+在Web
+MVC架構下，控制物件的作用為收集使用者的請求，進行與Web層相關的動作，您不應當在控制物件中執行商務邏輯，也不應當讓Servlet相關的API
+侵入至商務層，這會讓商務層的物件與Servlet API產生耦合，例如讓HttpServletRequest物件直接設定至商務層物件之中。<br>
+
+      <br>
+
+使用Spring Web
+MVC的好處是，Spring的Controller在其IoC容器管理下，可以如同一般的Bean來加以管理，並利用其依賴注入來完成相關物件的注入，
+以這邊的例子來說，具體而言，您可以在XML檔案中設定Controller請求處理完畢之後，所要呈現資料的網頁路徑，來看一下Bean定義檔的內容，
+依web.xml中的設定，請在WEB-INF目錄下建立mvc-config.xml檔案：<br>
+
+      
+      
+      <ul>
+
+        <li>mvc-config.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;!DOCTYPE beans PUBLIC <br> "-//SPRING/DTD BEAN/EN" <br> "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt;   <br>    &lt;bean id="viewResolver"<br>          class="org.springframework.web.servlet.<br>                   &rarr; view.InternalResourceViewResolver"&gt; <br>        &lt;property name="prefix"&gt;<br>            &lt;value&gt;/WEB-INF/jsp/&lt;/value&gt;<br>        &lt;/property&gt;<br>        &lt;property name="suffix"&gt;<br>            &lt;value&gt;.jsp&lt;/value&gt;<br>        &lt;/property&gt;<br>    &lt;/bean&gt;<br>    <br>    &lt;bean name="/hello.do" <br>          class="onlyfun.caterpillar.HelloController"&gt; <br>        &lt;property name="viewPage"&gt; <br>            &lt;value&gt;hello&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt;<br>&lt;/beans&gt;</code></pre>
+
+      <br>
+
+實際上DispatcherServlet必須根據一個HandlerMapping物件來決定請求由哪一個Controller來處理，
+DispatcherServlet預設使用
+org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping，也就是根據
+Bean在定義時的"name"屬性及使用者請求的URL來決定使用哪一個Controller實例，例如在這個例子中，請求/hello.do時，
+DispatcherServlet根據"hello"（即不包括.do）名稱決定要使用"name"為"hello"的Bean實例，所以就是將請求交
+由HelloController的實例來處理。<br>
+
+      <br>
+
+當Controller返回ModelAndView後，DispatcherServlet會交由ViewResolver物件來作View層的相關解
+析，因而您需要設置一個ViewResolver實例，在這個範例中將以JSP作為View層技術，所以使用
+org.springframework.web.servlet.view.InternalResourceViewResolver，
+InternalResourceViewResolver需要設置一個"viewClass"，預設是
+org.springframework.web.servlet.view.InternalResourceView，這個類別支援Servlet技
+術的相關資源（像是JSP、Servlet）。<br>
+
+      <br>
+
+InternalResourceViewResolver的"prefix"、"suffix"屬性會與ModelAndView返回的路徑資訊結合，
+例如若路徑資訊返回為"hello"字串，則與以上的例子設定結合，實際的路徑就是/WEB-INF/jsp/hello.jsp。<br>
+
+最後可以簡單的在/WEB-INF/jsp/中寫一個測試的hello.jsp：<br>
+
+      
+      
+      <ul>
+
+        <li>hello.jsp</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html"%&gt;<br>&lt;%@page pageEncoding="UTF-8"%&gt;<br><br>&lt;html&gt;<br>    &lt;head&gt;<br>        &lt;meta http-equiv="Content-Type" <br>              content="text/html; charset=UTF-8"&gt;<br>        &lt;title&gt;First Spring MVC&lt;/title&gt;<br>    &lt;/head&gt;<br>    &lt;body&gt;<br>        &lt;h1&gt;Hello, \${user}!!&lt;/h1&gt;<br>    &lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+
+      <br>
+
+在ModelAndView中設置的Model物件，經由InternalResourceViewResolver及
+InternalResourceView的解析，將設定為JSP技術中可存取的屬性（Attribute），因而可以使用JSP技術中的
+Expression
+Language來取得資料，依以上所撰寫的程式，如果您在請求hello.do時附帶了user參數，則最後的JSP會出現您所給的user訊息。<br>
+
+      <br>
+
+
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

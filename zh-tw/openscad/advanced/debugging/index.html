@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="有時候一些程式碼，只想在預覽階段時執行，這時可以透過 $preview 特殊變數，在預覽階段它的值會是 true，若執行渲染的話值會是 false。例如： if($preview) { ..">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="OpenSCAD::模型的檢視與除錯" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/openscad/advanced/debugging/" />
+    <meta property="og:description" content="有時候一些程式碼，只想在預覽階段時執行，這時可以透過 $preview 特殊變數，在預覽階段它的值會是 true，若執行渲染的話值會是 false。例如： if($preview) { .." />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="OpenSCAD::模型的檢視與除錯" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/openscad/advanced/debugging/" />
+    <meta name="twitter:description" content="有時候一些程式碼，只想在預覽階段時執行，這時可以透過 $preview 特殊變數，在預覽階段它的值會是 true，若執行渲染的話值會是 false。例如： if($preview) { .." />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443688" type="image/x-icon">
+    <title> OpenSCAD  :: 模型的檢視與除錯</title>
+    <link href="../../../css/nucleus.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443688.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443688.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443688"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/openscad/advanced/debugging/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/openscad/" title="OpenSCAD" class="dd-item parent"><a href="../../index.html">OpenSCAD</a><ul>
+          <li data-nav-id="/zh-tw/openscad/basics/" title="OpenSCAD 入門" class="dd-item"><a href="../../basics/index.html">| OpenSCAD 入門</a><ul>
+          <li data-nav-id="/zh-tw/openscad/basics/hello/" title="Hello, OpenSCAD" class="dd-item"><a href="../../basics/hello/index.html">Hello, OpenSCAD</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/basics/cheatsheet/" title="OpenSCAD CheatSheet" class="dd-item"><a href="../../basics/cheatsheet/index.html">OpenSCAD CheatSheet</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/basics/module-function/" title="module 與 function" class="dd-item"><a href="../../basics/module-function/index.html">module 與 function</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/basics/boolop/" title="圖形布林運算" class="dd-item"><a href="../../basics/boolop/index.html">圖形布林運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/basics/hull/" title="hull 繪製凸包" class="dd-item"><a href="../../basics/hull/index.html">hull 繪製凸包</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/basics/children/" title="children 子模組" class="dd-item"><a href="../../basics/children/index.html">children 子模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/" title="OpenSCAD 進階" class="dd-item parent"><a href="../index.html">| OpenSCAD 進階</a><ul>
+          <li data-nav-id="/zh-tw/openscad/advanced/list-comprehension/" title="list 表示式" class="dd-item"><a href="../list-comprehension/index.html">list 表示式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/polygon-polyhedron/" title="polygon 與 polyhedron" class="dd-item"><a href="../polygon-polyhedron/index.html">polygon 與 polyhedron</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/vector-matrix/" title="向量與矩陣" class="dd-item"><a href="../vector-matrix/index.html">向量與矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/function-literal/" title="函式實字" class="dd-item"><a href="../function-literal/index.html">函式實字</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/debugging/" title="模型的檢視與除錯" class="dd-item active"><a href="index.html">模型的檢視與除錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/advanced/include-use/" title="include 與 use" class="dd-item"><a href="../include-use/index.html">include 與 use</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/" title="曲線" class="dd-item"><a href="../../curve/index.html">| 曲線</a><ul>
+          <li data-nav-id="/zh-tw/openscad/curve/circle-arc/" title="從圓到弧" class="dd-item"><a href="../../curve/circle-arc/index.html">從圓到弧</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/golden-spiral/" title="黃金螺線" class="dd-item"><a href="../../curve/golden-spiral/index.html">黃金螺線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/archimedean-spiral/" title="阿基米德螺線" class="dd-item"><a href="../../curve/archimedean-spiral/index.html">阿基米德螺線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/text-tower/" title="螺旋字塔" class="dd-item"><a href="../../curve/text-tower/index.html">螺旋字塔</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/bezier/" title="貝茲曲線" class="dd-item"><a href="../../curve/bezier/index.html">貝茲曲線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/catmull-rom/" title="Catmull-Rom 樣條" class="dd-item"><a href="../../curve/catmull-rom/index.html">Catmull-Rom 樣條</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/curve/spline-surface/" title="從曲線到曲面" class="dd-item"><a href="../../curve/spline-surface/index.html">從曲線到曲面</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/" title="海龜繪圖" class="dd-item"><a href="../../turtle-graphics/index.html">| 海龜繪圖</a><ul>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/2d/" title="2D 海龜繪圖" class="dd-item"><a href="../../turtle-graphics/2d/index.html">2D 海龜繪圖</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/sierpinski-triangle/" title="2D 碎形／Sierpinski 三角形" class="dd-item"><a href="../../turtle-graphics/sierpinski-triangle/index.html">2D 碎形／Sierpinski 三角形</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/3d/" title="3D 海龜繪圖" class="dd-item"><a href="../../turtle-graphics/3d/index.html">3D 海龜繪圖</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/tree/" title="3D 碎形／立體樹" class="dd-item"><a href="../../turtle-graphics/tree/index.html">3D 碎形／立體樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/turtle-graphics/lsystem/" title="L-system 與碎形" class="dd-item"><a href="../../turtle-graphics/lsystem/index.html">L-system 與碎形</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/" title="迷宮" class="dd-item"><a href="../../maze/index.html">| 迷宮</a><ul>
+          <li data-nav-id="/zh-tw/openscad/maze/square/" title="方形迷宮" class="dd-item"><a href="../../maze/square/index.html">方形迷宮</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/mask-hex/" title="遮罩與蜂巢迷宮" class="dd-item"><a href="../../maze/mask-hex/index.html">遮罩與蜂巢迷宮</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/cylinder-torus/" title="圓柱與環面迷宮" class="dd-item"><a href="../../maze/cylinder-torus/index.html">圓柱與環面迷宮</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/hamiltonian-path/" title="哈密頓路徑" class="dd-item"><a href="../../maze/hamiltonian-path/index.html">哈密頓路徑</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/wang-tiles/" title="迷宮與王氏磚" class="dd-item"><a href="../../maze/wang-tiles/index.html">迷宮與王氏磚</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/maze/theta/" title="Theta 迷宮" class="dd-item"><a href="../../maze/theta/index.html">Theta 迷宮</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/noise/" title="雜訊" class="dd-item"><a href="../../noise/index.html">| 雜訊</a><ul>
+          <li data-nav-id="/zh-tw/openscad/noise/perlin/" title="Perlin 雜訊" class="dd-item"><a href="../../noise/perlin/index.html">Perlin 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/noise/worley/" title="Worley 雜訊" class="dd-item"><a href="../../noise/worley/index.html">Worley 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/noise/mesh-worley/" title="網格 Worley 雜訊" class="dd-item"><a href="../../noise/mesh-worley/index.html">網格 Worley 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/noise/combination/" title="雜訊結合雜訊" class="dd-item"><a href="../../noise/combination/index.html">雜訊結合雜訊</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/openscad/voronoi/" title="Voronoi" class="dd-item"><a href="../../voronoi/index.html">| Voronoi</a><ul>
+          <li data-nav-id="/zh-tw/openscad/voronoi/half-plane/" title="半平面交集" class="dd-item"><a href="../../voronoi/half-plane/index.html">半平面交集</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/voronoi/delaunay/" title="Delaunay 三角分割" class="dd-item"><a href="../../voronoi/delaunay/index.html">Delaunay 三角分割</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/openscad/voronoi/sphere/" title="球面 Voronoi" class="dd-item"><a href="../../voronoi/sphere/index.html">球面 Voronoi</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">OpenSCAD</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">OpenSCAD 進階</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">模型的檢視與除錯</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#裝飾字元">裝飾字元</a></li>
+    <li><a href="index.html#檢視選單">「檢視」選單</a></li>
+    <li><a href="index.html#預覽破圖">預覽破圖</a></li>
+    <li><a href="index.html#echoassert">echo、assert</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/debugging/">debugging</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/assert/">assert</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>模型的檢視與除錯</h1>
+
+ <i class="space fa fa-calendar"> March 5, 2022</i> 
+<p>有時候一些程式碼，只想在預覽階段時執行，這時可以透過 <code>$preview</code> 特殊變數，在預覽階段它的值會是 <code>true</code>，若執行渲染的話值會是 <code>false</code>。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#960050;background-color:#1e0010">$</span>preview) {
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">...預覽階段要執行的流程</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>在建立模型的過程中，經常要做許多基本模型的組合，然而，在預覽時左看右看，可能就是看不到想檢視的細節，這時該怎麼辦呢？</p>
+<h2 id="裝飾字元">裝飾字元</h2>
+<p>舉個例子來說，在〈<a href="../../basics/boolop/index.html">圖形布林運算</a>〉看過怎麼建一個愛心：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">module</span> heart(radius) {
+</span></span><span style="display:flex;"><span>    half_r <span style="color:#f92672">=</span> radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    little_c_r <span style="color:#f92672">=</span> half_r <span style="color:#f92672">*</span> sqrt(<span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    circle(radius, $fn <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    translate([half_r, half_r])
+</span></span><span style="display:flex;"><span>    rotate(<span style="color:#ae81ff">45</span>)
+</span></span><span style="display:flex;"><span>        circle(little_c_r);
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    translate([<span style="color:#f92672">-</span>radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>, radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>])
+</span></span><span style="display:flex;"><span>    rotate(<span style="color:#ae81ff">45</span>)
+</span></span><span style="display:flex;"><span>        circle(little_c_r);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>heart(radius, $fn <span style="color:#f92672">=</span> <span style="color:#ae81ff">8</span>);
+</span></span></code></pre></div><p>這個模型是由一個邊數為四的正多邊形與兩個圓形組合而成，如果想分別檢視正方形或圓形，可以在模型前放個 <code>#</code> 突顯字元（highlight character），將模型以紅色突顯出來，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">module</span> heart(radius) {
+</span></span><span style="display:flex;"><span>    half_r <span style="color:#f92672">=</span> radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    little_c_r <span style="color:#f92672">=</span> half_r <span style="color:#f92672">*</span> sqrt(<span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">#</span>circle(radius, $fn <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">#</span>translate([half_r, half_r])
+</span></span><span style="display:flex;"><span>    rotate(<span style="color:#ae81ff">45</span>)
+</span></span><span style="display:flex;"><span>        circle(little_c_r);
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">#</span>translate([<span style="color:#f92672">-</span>radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>, radius <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>])
+</span></span><span style="display:flex;"><span>    rotate(<span style="color:#ae81ff">45</span>)
+</span></span><span style="display:flex;"><span>        circle(little_c_r);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>heart(radius, $fn <span style="color:#f92672">=</span> <span style="color:#ae81ff">8</span>);
+</span></span></code></pre></div><p>這樣就會看到以下的畫面：</p>
+<p><img src="images/debugging-1.jpg" alt="模型的檢視與除錯"></p>
+<p>如果想建立一個中空球：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">module</span> hollow_sphere(radius, thickness) {
+</span></span><span style="display:flex;"><span>	inner_radius <span style="color:#f92672">=</span> radius <span style="color:#f92672">-</span> thickness;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	difference() {
+</span></span><span style="display:flex;"><span>		sphere(radius);
+</span></span><span style="display:flex;"><span>		sphere(inner_radius);
+</span></span><span style="display:flex;"><span>	}   
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hollow_sphere(radius, thickness);
+</span></span></code></pre></div><p>當然，看不到球的內部，若想檢視內外兩球體的差異，可以使用 <code>%</code> 透明字元（transparent character），被標示的模型會以半透明顯示，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>	difference() {
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">%</span>sphere(radius);
+</span></span><span style="display:flex;"><span>		sphere(inner_radius);
+</span></span><span style="display:flex;"><span>	}   
+</span></span></code></pre></div><p>這樣就可以看出內外兩個球體了：</p>
+<p><img src="images/debugging-2.jpg" alt="模型的檢視與除錯"></p>
+<p>有時候只想看看模型中某個子模型，例如，在〈<a href="../../basics/boolop/index.html">圖形布林運算</a>〉談過在球體上放個字母：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>character <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>;
+</span></span><span style="display:flex;"><span>font_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sphere(font_size);
+</span></span><span style="display:flex;"><span>intersection() {
+</span></span><span style="display:flex;"><span>    sphere(font_size <span style="color:#f92672">+</span> thickness);
+</span></span><span style="display:flex;"><span>    linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>        text(character, 
+</span></span><span style="display:flex;"><span>             size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>如果只想看看其中這段的效果呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>	linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>	text(character, 
+</span></span><span style="display:flex;"><span>			size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	);
+</span></span></code></pre></div><p>你可能會想註解掉其他程式碼，這是個方式，不過有點麻煩，其實只要在子模型前頭放個 <code>!</code> 單獨顯示（show only）字元就可以了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>	<span style="color:#f92672">!</span>linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>	text(character, 
+</span></span><span style="display:flex;"><span>			size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	);
+</span></span></code></pre></div><p>這樣就只會看到子模型單獨顯示，就上例來說，就是只顯示被擠出的文字：</p>
+<p><img src="images/debugging-3.jpg" alt="模型的檢視與除錯"></p>
+<p>有時候會想要停用某個子模型，看看結果如何，比方說，想停用方才被擠出的文字，使用註解嗎？也可以，不過，得全部加上註解，像是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>	<span style="color:#75715e">// linear_extrude(font_size * 2) 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// text(character, 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//     size = font_size,   // 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//	   valign = &#34;center&#34;,  // 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//     halign = &#34;center&#34;   // 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// );
+</span></span></span></code></pre></div><p>或者是這樣：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>    <span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	linear_extrude(font_size * 2) 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	text(character, 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">			size = font_size,   // 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">			valign = &#34;center&#34;,  // 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">			halign = &#34;center&#34;   // 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span></code></pre></div><p>兩種方式都有點麻煩，最方便的方式是使用 <code>*</code> 停用字元（disable character），例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>	<span style="color:#f92672">*</span>linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>	text(character, 
+</span></span><span style="display:flex;"><span>			size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	);
+</span></span></code></pre></div><p>這樣就可以停用整個子模型的運算了。</p>
+<h2 id="檢視選單">「檢視」選單</h2>
+<p>OpenSCAD 的「檢視」選單有許多選項，其中常用的選項，在模型顯示區下方的工具列就可以使用，隨意地按按看就可以知道各是什麼作用了：</p>
+<p><img src="images/debugging-4.jpg" alt="模型的檢視與除錯"></p>
+<p>上圖還包含了按下工具列最右方「顯示邊緣」按鈕的效果，也就是預覽時將每個面的邊緣也顯示出來。</p>
+<p>在 OpenSCAD 中，3D 物件被 <code>difference</code> 後留下的面，預覽時會以綠色表示，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>difference() {
+</span></span><span style="display:flex;"><span>    sphere(<span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>    translate([<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>])
+</span></span><span style="display:flex;"><span>        sphere(<span style="color:#ae81ff">5</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>預覽時會顯示以下結果：</p>
+<p><img src="images/debugging-5.jpg" alt="模型的檢視與除錯"></p>
+<p>「檢視」選單中有個「拋出所有視圖」（Thrown Together），這會將參與的 3D 物件全部顯示，若是被拿來 <code>difference</code> 的 3D 物件，會以綠色表示，例如以上範例若「拋出所有視圖」，會顯示以下的結果：</p>
+<p><img src="images/debugging-6.jpg" alt="模型的檢視與除錯"></p>
+<p>如果使用 <code>polyhedron</code> 指定頂點與面索引，「拋出所有視圖」還有個作用，將面的內外以不同顏色表示，預設朝外的面預設會是黃色，朝內的面會是紫色，OpenSCAD 要求朝外的面索引必須是順時針，如果模型是正確的，其實看不到面的內側，因此若看得到紫色的面，表示那個面的索引反了。</p>
+<p>例如在〈<a href="../polygon-polyhedron/index.html">polygon 與 polyhedron</a>〉繪製了正四面體，如果故意將其中一個面索引改為逆時針：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span><span style="color:#f92672">module</span> tetrahedron(radius) {
+</span></span><span style="display:flex;"><span>    t <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> sqrt(<span style="color:#ae81ff">5</span>)) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    tetrahedron_points <span style="color:#f92672">=</span> radius <span style="color:#f92672">*</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], 	[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>    ];
+</span></span><span style="display:flex;"><span>    tetrahedron_faces <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], <span style="color:#75715e">// 逆時針
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		[<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>    ];
+</span></span><span style="display:flex;"><span>    polyhedron(
+</span></span><span style="display:flex;"><span>        points <span style="color:#f92672">=</span> tetrahedron_points,
+</span></span><span style="display:flex;"><span>        faces <span style="color:#f92672">=</span> tetrahedron_faces
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tetrahedron(<span style="color:#ae81ff">10</span>);
+</span></span></code></pre></div><p>就會看到出現紫色的面：</p>
+<p><img src="images/debugging-7.jpg" alt="模型的檢視與除錯"></p>
+<p>單一模型的面不對，雖然渲染時 OpenSCAD 不會發生錯誤，然而因為網格（mesh）定義不正確，可能無法匯入其他 3D 軟體，或者需要修復網格定義才能使用，在 OpenSCAD 若試圖將面索引不正確的模型，與其他模型結合運算後渲染，也會引發錯誤，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>tetrahedron(<span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>sphere(<span style="color:#ae81ff">10</span>);
+</span></span></code></pre></div><p>在渲染時會發生「ERROR: The given mesh is not closed! Unable to convert to CGAL_Nef_Polyhedron.」的錯誤。</p>
+<p>「檢視」選單的「表面」，可以保留上次渲染結果，若渲染後若修改了程式碼，就會回到預覽狀態，這時若想跟上一個渲染結果比較一下就可以使用。</p>
+<p>若有多個模型布林運算，「檢視」選單的「線框」，可以在渲染模型後檢視線框，與預覽狀態時「顯示邊緣」功能不同的地方在於，「顯示邊緣」單純就只是預覽時的估算，沒有模型渲染後的網格資訊，你也只看得到「外側」的邊緣，然而「線框」必須在渲染後才能使用，你可以看到渲染後網格的線框。</p>
+<p>例如方才中空球的範例，在渲染後檢視「線框」，可以看到中空球內的線框，因為是 <code>difference</code> 後的面，中空球內的線框以綠色顯示：</p>
+<p><img src="images/debugging-8.jpg" alt="模型的檢視與除錯"></p>
+<p>「檢視」選單的「動畫」，可以在 OpenSCAD 建立動畫，這要搭配 <code>$t</code> 特殊變數，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>sphere(<span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>rotate($t <span style="color:#f92672">*</span> <span style="color:#ae81ff">360</span>)
+</span></span><span style="display:flex;"><span>translate([<span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>])
+</span></span><span style="display:flex;"><span>    sphere(<span style="color:#ae81ff">5</span>);
+</span></span></code></pre></div><p><code>$t</code> 會是個 0 到 1 的數字，數字怎麼變化的話，要視執行「檢視」選單的「動畫」後顯示的工具列設定而定：</p>
+<p><img src="images/debugging-9.jpg" alt="模型的檢視與除錯"></p>
+<p>工具列上只要設定兩個部份「FPS」與「步驟」，前者是每秒影格數（frame per second），後者用來設定每個影格間繪製時的 <code>$t</code> 遞增「1 / 步驟」，例如，FPS 設為 1 的話，每秒重新執行一次程式，「步驟」設為 30，表示每次 <code>$t</code> 遞增 1/30，若超過 1，回到 0 重新遞增，工具列右邊的「時間」在設置「FPS」與「步驟」後，就會開始變化。</p>
+<p>想繪製動畫的話，程式碼中要做的，就是將 <code>$t</code> 對應至參數變化，就上圖的設定而言，可以看到以下的動畫效果：</p>
+<p><img src="images/debugging-10.gif" alt="模型的檢視與除錯"></p>
+<p>動畫工具列的最右方有個「轉存圖片」，在動畫過程中若選取，它會將 <code>$t</code> 從 0 到 1 變化的過程中繪製的畫面，使用圖片檔存下來。</p>
+<h2 id="預覽破圖">預覽破圖</h2>
+<p>有些模型預覽會產生破圖，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>character <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>;
+</span></span><span style="display:flex;"><span>font_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>intersection() {
+</span></span><span style="display:flex;"><span>    sphere(font_size <span style="color:#f92672">+</span> thickness);
+</span></span><span style="display:flex;"><span>    linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>        text(character, 
+</span></span><span style="display:flex;"><span>             size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>這會產生以下的預覽：</p>
+<p><img src="images/debugging-11.jpg" alt="模型的檢視與除錯"></p>
+<p>預覽終究是預覽，沒有渲染後完整的網格資訊才會如此，你可以把上面的預覽想成，OpenSCAD 仍然以文字擠出時的凸面資訊，來計算與球面交集後預覽，結果就是有些面無法正確地預覽。</p>
+<p>OpenSCAD 有些模組可以設置 <code>convexity</code> 參數，通常是建立後的模型可能有凹凸面的模組，如果模組有 <code>convexity</code> 參數可以使用，可以試著設為較大的值，例如，將上例的 <code>linear_extrude(font_size * 2)</code> 改為 <code>linear_extrude(font_size * 2, convexity = 10)</code>，就可以正確地預覽：</p>
+<p><img src="images/debugging-12.jpg" alt="模型的檢視與除錯"></p>
+<p>OpenSCAD 建議可以由 10 開始設置，較高的 <code>convexity</code> 會對預覽造成負擔，然而也只會影響預覽，對渲染沒有影響。</p>
+<p>如果 <code>convexity</code> 沒辦法解決預覽時的破圖問題，那就只能渲染了，雖然可以按下 F6 執行渲染，不過這會渲染整個模型，若只是某個子模型破圖，可以在該模組前加上 <code>render()</code>，只渲染該模組。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>character <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>;
+</span></span><span style="display:flex;"><span>font_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>render()
+</span></span><span style="display:flex;"><span>intersection() {
+</span></span><span style="display:flex;"><span>    sphere(font_size <span style="color:#f92672">+</span> thickness);
+</span></span><span style="display:flex;"><span>    linear_extrude(font_size <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>        text(character, 
+</span></span><span style="display:flex;"><span>             size <span style="color:#f92672">=</span> font_size,   <span style="color:#75715e">// 文字大小
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             valign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>,  <span style="color:#75715e">// 垂直置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>             halign <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;center&#34;</span>   <span style="color:#75715e">// 水平置中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        );
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 以下還有其他模型的建立
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">...</span>
+</span></span></code></pre></div><h2 id="echoassert">echo、assert</h2>
+<p>OpenSCAD 沒有除錯器（debugger），若想檢視變數值，就只有最傳統的作法，依賴 <code>echo</code> 將變數值顯示出來，可以指定多個值顯示，並以逗號區隔，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span>x <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>y <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>echo(x, y);         <span style="color:#75715e">// 顯示 ECHO: 10, 20
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>echo(x <span style="color:#f92672">=</span> x, y <span style="color:#f92672">=</span> y); <span style="color:#75715e">// 顯示 ECHO: x = 10, y = 20
+</span></span></span></code></pre></div><p>可以看到 <code>echo</code> 裡還可以有 <code>var = value</code> 的指定方式，這對於檢視變數與值的對應有幫助；<code>echo</code> 也可以是個運算式，這是為了能在 <code>function</code> 裡使用，這時只會將後續指定的值傳回，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>(a, b) <span style="color:#f92672">=</span> 
+</span></span><span style="display:flex;"><span>  let(
+</span></span><span style="display:flex;"><span>     x <span style="color:#f92672">=</span> echo(a <span style="color:#f92672">=</span> a) a,
+</span></span><span style="display:flex;"><span>     y <span style="color:#f92672">=</span> echo(b <span style="color:#f92672">=</span> b) b
+</span></span><span style="display:flex;"><span>  )
+</span></span><span style="display:flex;"><span>  x <span style="color:#f92672">+</span> y;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">ECHO: a = 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">ECHO: b = 2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span>r <span style="color:#f92672">=</span> foo(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>); 
+</span></span></code></pre></div><p>有時你會想要進行斷言，也就是斷定程式到某個流程時，必然是某個狀態，例如變數必須是某個值，這時可以使用 <code>assert</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span><span style="color:#f92672">module</span> foo(r){
+</span></span><span style="display:flex;"><span>    assert(r <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;r should be greater than 0&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">...</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>foo(<span style="color:#ae81ff">0</span>); <span style="color:#75715e">// ERROR: Assertion &#39;(r &gt; 0)&#39; failed: &#34;r should be greater than 0&#34; in file test.scad, line 2 
+</span></span></span></code></pre></div><p><code>assert</code> 也可以是個運算式，這是為了能在函式裡使用：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-openscad" data-lang="openscad"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>(r) <span style="color:#f92672">=</span> 
+</span></span><span style="display:flex;"><span>    assert(r <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;r should be greater than 0&#34;</span>) (<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">PI</span> <span style="color:#f92672">*</span> r <span style="color:#f92672">/</span> <span style="color:#ae81ff">1234</span>);
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>a <span style="color:#f92672">=</span> foo(<span style="color:#ae81ff">0</span>);  <span style="color:#75715e">// ERROR: Assertion &#39;(r &gt; 0)&#39; failed: &#34;r should be greater than 0&#34; in file test.scad, line 2 
+</span></span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/openscad/advanced/debugging/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/openscad/advanced/debugging/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=OpenSCAD%3a%3a%e6%a8%a1%e5%9e%8b%e7%9a%84%e6%aa%a2%e8%a6%96%e8%88%87%e9%99%a4%e9%8c%af&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fopenscad%2fadvanced%2fdebugging%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../function-literal/index.html" title="函式實字"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../include-use/index.html" title="include 與 use"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443688"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443688"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443688"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443688"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443688"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443688"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443688"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443688"></script>
+  </body>
+</html>

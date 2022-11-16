@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+        <script type="text/javascript">
+            window.onload = function(event) {
+                function style(obj, prop) {
+                    if(window.getComputedStyle) {
+                        return window.getComputedStyle(obj, null)[prop];
+                    }
+                    else if(obj.currentStyle) {
+                        return obj.currentStyle[prop];
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                
+                function opacity(element, value) {
+                    if(value === undefined) {
+                        var opt = style(element, 'opacity') 
+                                     || style(element, 'filter');
+                        if(opt === '') {
+                            return 1;
+                        }
+                        if(opt.indexOf('alpha') !== -1)  {
+                            return opt.substring(14, opt.length - 1) / 100;
+                        }
+                        return parseFloat(opt);
+                    }
+                
+                    if(style(element, 'opacity') !== undefined) {
+                        element.style.opacity = value;
+                    }
+                    else {
+                        element.style.filter = 
+                           'alpha(opacity=' + parseInt(value * 100) + ')';
+                    }
+                }
+                
+                function fadeIn(element, speed, steps) {
+                    speed = speed || 5000;
+                    steps = steps || 10;
+                    var target = element.previousOpacity || 1;
+                    delete element.previousOpacity;
+                 
+                    var timeInterval = speed / steps;
+                    var valueStep = target / steps;
+
+                    var opt = 0;
+                    setTimeout(function next() {
+                        opt += valueStep;
+                        if(opt < target) {
+                            opacity(element, opt);
+                            setTimeout(next, timeInterval);
+                        }
+                        else {
+                            opacity(element, target);
+                        }
+                    }, timeInterval);
+                }                
+                
+                function fadeOut(element, speed, steps) {
+                    speed = speed || 5000;
+                    steps = steps || 10;
+                    element.previousOpacity = opacity(element);
+                    
+                    var timeInterval = speed / steps;
+                    var valueStep = element.previousOpacity / steps;
+
+                    var opt = element.previousOpacity;
+                    setTimeout(function next() {
+                        opt -= valueStep;
+                        if(opt > 0) {
+                            opacity(element, opt);
+                            setTimeout(next, timeInterval);
+                        }
+                        else {
+                            opacity(element, 0);
+                        }
+                    }, timeInterval);
+                }
+                
+                var image = document.getElementById('image');
+                
+                document.getElementById('fadeIn').onclick = function() {
+                   fadeIn(image, 2000);
+                };
+                
+                document.getElementById('fadeOut').onclick = function() {
+                   fadeOut(image, 2000);
+                };
+            };
+        </script>        
+        
+    </head>
+    <body>
+        <button id='fadeOut'>Fade Out</button>
+        <button id='fadeIn'>Fade In</button><br>
+        <img id="image" src="../images/caterpillar_small.jpg">
+    </body>
+</html>

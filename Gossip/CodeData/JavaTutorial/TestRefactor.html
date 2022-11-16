@@ -1,0 +1,132 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java Tutorial 第五堂（2）JUnit 與 Gradle&nbsp;&lt;&lt; 前情
+      
+      
+      在瞭解如何使用 JUnit 之後，接著來試著重新做...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Java Tutorial 第五堂（3）測試與重構 DvdController">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaTutorial/TestRefactor.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Java Tutorial 第五堂（2）JUnit 與 Gradle&nbsp;&lt;&lt; 前情
+      
+      
+      在瞭解如何使用 JUnit 之後，接著來試著重新做...">
+
+
+    <title>Java Tutorial 第五堂（3）測試與重構 DvdController</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TestRefactor.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Java Tutorial 第五堂（3）測試與重構 DvdController</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+      <br>
+      <br>
+      在瞭解如何使用 JUnit 之後，接著來試著重新做一次 <a href="SpringOrm.html">Java Tutorial 第五堂（1）</a> 中的練習，由於時間有限，我們僅將重點放在 <code>DvdController</code> 的測試與重構。
+      <br>
+      <h4><span style="color: #ff0000;">練習 16：為 DvdController 建立測試</span></h4>
+      <br>
+      在 Lab 檔案的 exercises/exercise16 中有個 DVDLibrary 目錄，已經事先將練習 14 與練習 15 中一些可重用的程式碼（像是 Dvd.java、DvdDao.java、DvdLibraryService.java 等）與設定檔（像是 build.gradle 等）準備好，不過，<code>DvdController</code> 仍是使用 <code>DvdDao</code> 程式碼，在將程式重構為運用 <code>DvdLibraryService</code> 之前，先來為它寫個測試。
+      <br>
+      <br>
+      請在 src/test/java/tw/codedata 中建立一個 DvdControllerTest.java，如下撰寫程式碼：
+      <br>
+      <pre class="prettyprint"><code lang="java">package tw.codedata;
+<br>import static org.junit.Assert.*;<br>import org.junit.*;<br>import java.util.*;<br>import org.springframework.ui.Model;
+<br>public class DvdControllerTest {<br>    List&lt;Dvd&gt; dvds;<br>    Map attributesOfModel;<br>    DvdController controller;<br>    Model model;<br><br>    @Before<br>    public void setUp() {<br>        dvds =  new ArrayList&lt;&gt;(Arrays.asList(<br>           new Dvd("dvd1", 1, 2, new Director("director1"))));
+<br>        attributesOfModel = new HashMap();
+<br>        controller = new DvdController();<br>        controller.setDvdDao(new DvdDao() {<br>            public void saveDvd(Dvd dvd) {<br>                dvds.add(dvd);<br>            }
+<br>            public List&lt;Dvd&gt; allDvds() {<br>                return dvds;<br>            }<br>        });
+<br>        model = new Model() {<br>            @Override<br>            public Model addAttribute(String attributeName, Object attributeValue) {<br>                attributesOfModel.put(attributeName, attributeValue);<br>                return this;<br>            }
+<br>            @Override<br>            public Model addAttribute(Object attributeValue) {<br>                throw new UnsupportedOperationException("Not supported yet."); <br>            }
+<br>            其他方法實作，可如上撰寫就好，因為用不到 ...<br>        };<br>    }
+<br>    @Test<br>    public void testList() {<br>        String result = controller.list(model);<br>        assertEquals("list", result);<br>        assertEquals(dvds, attributesOfModel.get("dvds"));<br>    }
+<br>    @Test<br>    public void testAdd() {<br>        String result = controller.add("dvd1", 1, 2, "director1", model);<br>        Dvd dvd = (Dvd) attributesOfModel.get("dvd");<br><br>        assertEquals("success", result);<br>        assertEquals(2, dvds.size());<br>        assertEquals("dvd1", dvd.getTitle());<br>    }<br>}</code></pre>
+      <br>
+      在這邊看到 <code>@Before</code>，在每個 <code>@Test</code> 方法被執行之前，都會先執行一次 <code>@Before</code> 方法，因此可以在被標註的方法中，準備好測試之前必須要有的素材（Fixture）。
+      <br>
+      <br>
+      <code>testList</code> 方法中要測試 <code>DvdController</code> 的 <code>list</code> 方法，我們需要傳入一個 <code>Model</code>，因此在 <code>@Before</code> 方法中，實作了 <code>Model</code> 介面，我們需要確定 <code>list</code> 方法會傳回 <code>"list"</code>，並且會在 <code>Model</code> 中設置 <code>"dvds"</code> 屬性，設定的物件是 DVD 的清單物件。
+      <br>
+      <br>
+      注意，無論是 <code>Model</code> 或是 <code>DvdDao</code>，都不是實際上運行時，真正相依的實作物件，而是我們自行撰寫的簡單物件，因為這是在進行單元測試，因此，以我們實作的簡單物件來與其他單元作了隔離，這個簡單物件，只要能夠在設定的條件下回應被測試對象就可以了。
+      <br>
+      <br>
+      舉例來說，我們用了 <code>ArrayList</code> 來做為假裝的資料庫，用 <code>HashMap</code> 來做為屬性設定的儲存對象。在 <code>testList</code> 與 <code>testAdd</code> 中，除了斷言 <code>DvdController</code> 的方法是否傳回預期的值之外，也用這兩個簡單的 <code>ArrayList</code> 與 <code>HashMap</code> 來斷言副作用輸出是否符合預期。
+      <br>
+      <br>
+      完成以上程式之後，執行 <code>gradle test</code> 指令，你應該可以看到 "BUILD SUCCESSFUL" 測試成功的結果。
+      <br>
+      <h4><span style="color: #ff0000;">練習 17：重構與測試 DvdController</span></h4>
+      <br>
+      接下來，可以重構 <code>DvdController</code> 了，不過在實際修改 <code>DvdController</code> 之前，可以先來修改一下 <code>DvdControllerTest</code>，因為基本上就公開操作介面來說，我們將相依於 <code>DvdDao</code> 改為相依於 <code>DvdLibraryService</code>，而對 <code>list</code> 及 <code>add</code> 方法的預期並沒有改變，所以 <code>DvdControllerTest</code> 的修改，應該只涉及測試素材修改的部份 ...
+      <br>
+      <pre class="prettyprint"><code lang="java">package tw.codedata;
+<br>import static org.junit.Assert.*;<br>import org.junit.*;<br>import java.util.*;<br>import org.springframework.ui.Model;
+<br>public class DvdControllerTest {<br>    List&lt;Dvd&gt; dvds;<br>    Map attributesOfModel;<br>    DvdController controller;<br>    Model model;
+<br>    @Before<br>    public void setUp() {<br>        ...同前...<br>        controller = new DvdController();<br>        controller.setDvdLibraryService(new DvdLibraryService() {<br>            @Override<br>            public List&lt;Dvd&gt; allDvds() {<br>                return dvds;<br>            }<br><br>            @Override<br>            public Dvd addDvd(String title, Integer year, Integer duration, String directorName) {<br>                Dvd dvd = new Dvd(title, year, duration, new Director(directorName));<br>                dvds.add(dvd);<br>                return dvd;<br>            }<br>        });<br>        ...同前...<br>    }<br>    ...同前...<br>}</code></pre>
+      <br>
+      因為是對 <code>DvdController</code> 做單元測試，不必要用真正的 <code>DvdLibraryService</code>，因而使用了匿名類別繼承 <code>DvdLibraryService</code>，重新實作了 <code>allDvds</code> 與 <code>addDvd</code> 方法，只要讓這兩個方法能回應 <code>DvdController</code> 的呼叫，並能夠讓我們斷言副作用是否符合預期即可。
+      <br>
+      <br>
+      完成以上程式之後，執行 <code>gradle test</code> 指令，你應該可以看到測試失敗，因為 <code>DvdController</code> 還沒修改，所以現在的 <code>DvdControllerTest</code> 根本無法編譯：
+      <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="compileTestJava 失敗" src="images/java-tutorial-the-5th-class-3-1.png" /></div></div>
+      <br>
+      <br>
+      在修改（或撰寫）程式之前，先撰寫測試，這是測試驅動（Test-driven）的概念，這樣，你就能先思考你想要的程式介面或規格。
+      <br>
+      <br>
+      接下來，你可以如 <a href="SpringOrm.html">Java Tutorial 第五堂（1）</a> 中的練習 14 修改 <code>DvdController</code>，然後重新執行 <code>gradle test</code> 指令，這次你應該要能夠看到 "BUILD SUCCESSFUL" 測試成功的結果。
+      <br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

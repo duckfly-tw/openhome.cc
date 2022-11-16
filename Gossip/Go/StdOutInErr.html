@@ -1,0 +1,181 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="若要輸出訊息至主控台，可以透過 fmt 的 Print、Println、Printf 等函式，如果要從主控台讀取使用者輸入，可以透過 fmt 的 Scanf、Scanln 等函式。例如：
+packag...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="從標準輸入、輸出認識 io">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/StdOutInErr.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="若要輸出訊息至主控台，可以透過 fmt 的 Print、Println、Printf 等函式，如果要從主控台讀取使用者輸入，可以透過 fmt 的 Scanf、Scanln 等函式。例如：
+packag...">
+
+    <title>從標準輸入、輸出認識 io</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StdOutInErr.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>從標準輸入、輸出認識 io</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>若要輸出訊息至主控台，可以透過 <code>fmt</code> 的 <code>Print</code>、<code>Println</code>、<code>Printf</code> 等函式，如果要從主控台讀取使用者輸入，可以透過 <code>fmt</code> 的 <code>Scanf</code>、<code>Scanln</code> 等函式。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    fmt.Print("輸入名稱 年齡：")
+    var name string
+    var age int
+    fmt.Scanf("%s %d", &amp;name, &amp;age)
+    fmt.Printf("嗨！%s！今年 %d 歲了啊？", name, age)
+}
+</code></pre>
+<p><code>%s</code>、<code>%d</code> 是格式符號，在 Go 中稱為 verb，Go 可用的 verb 可以在 <a href="https://golang.org/pkg/fmt/"><code>fmt</code></a> 套件的文件中找到。</p>
+<p><code>Scanf</code> 就類似 C 語言中的 <code>scanf</code>，可以格式化地取得輸入，底下是個範例：</p>
+<pre class="prettyprint"><code lang="golang">輸入名稱 年齡：Justin 45
+嗨！Justin！今年 45 歲了啊？
+</code></pre>
+<p>在按下 Enter 鍵後，實際上還有個 CR（carriage return）字元還未掃描，如果只是要取得空白分隔的輸入，並以換行作為結束，可以使用 <code>Scanln</code>：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    fmt.Print("輸入空白分隔的文字")
+    var text1, text2 string
+    fmt.Scanln(&amp;text1, &amp;text2)
+    fmt.Println(text1)
+    fmt.Println(text2)
+}
+</code></pre>
+<p>如果是 <code>Scan</code> 的話，也是掃描以空白區隔的輸入，按下 Enter 鍵的 CR 字元，也會被視為空白。</p>
+<p><code>Println</code>、<code>Printf</code> 會使用標準輸出（Standout），如果想使用標準錯誤（Standard err）呢？可以透過  <code>Fprint</code>、<code>Fprintln</code>、<code>Fprintf</code> 等函式，第一個引數指定 <code>os.Stderr</code>。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    fmt.Fprintln(os.Stderr, "輸出至標準錯誤")
+}
+</code></pre>
+<p><code>os</code> 套件的 <code>Stderr</code> 代表標準錯誤，而 <code>Stdin</code>、<code>Stdout</code> 代表標準輸入與輸出，它們的型態是 <code>*os.File</code>，若願意的話，也可以直接操作它們，例如 <code>File</code> 定義了 <code>Read</code> 與 <code>Write</code> 方法，可以指定一個型態為 <code>byte[]</code> 的 slice，<code>Read</code> 會讀入同樣長度的資料至 slice，後者可以將同等長度的資料輸出。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "os"
+
+func main() {
+    buf := make([]byte, 5);
+    os.Stdout.Write([]byte("輸入五個數字："))
+    os.Stdin.Read(buf)
+    os.Stdout.Write(buf)
+}   
+</code></pre>
+<p>實際上，<a href="https://golang.org/pkg/os/#File"><code>os.File</code></a> 可用的方法不只有 <code>Read</code>、<code>Write</code>，先留意這兩個方法的目的在於，這兩個方法分別符合 <code>io.Reader</code>、<code>io.Writer</code> 定義的行為：</p>
+<pre class="prettyprint"><code lang="golang">type Reader interface {
+    Read(p []byte) (n int, err error)
+}
+
+type Writer interface {
+    Write(p []byte) (n int, err error)
+}
+</code></pre>
+<p>如果察看 <code>fmt</code> 的 <code>Fprint</code>、<code>Fprintln</code>、<code>Fprintf</code> 等函式，可以發現它們第一個參數宣告的型態並不是 <code>*os.File</code>，而是 <code>io.Writer</code>：</p>
+<pre class="prettyprint"><code lang="golang">func Fprint(w io.Writer, a ...interface{}) (n int, err error)
+func Fprintln(w io.Writer, a ...interface{}) (n int, err error)
+func Fprintf(w io.Writer, format string, a ...interface{}) (n int, err error)
+</code></pre>
+<p>類似地，Fscan 字樣開頭的幾個函式，第一個參數接受的是 <code>io.Reader</code>：</p>
+<pre class="prettyprint"><code lang="golang">func Fscan(r io.Reader, a ...interface{}) (n int, err error)
+func Fscanf(r io.Reader, format string, a ...interface{}) (n int, err error)
+func Fscanln(r io.Reader, a ...interface{}) (n int, err error)
+</code></pre>
+<p>這表示，<code>fmt</code> 套件中這些函式，並不只能用於標準輸入、輸出或錯誤，例如，<code>strings.NewReader</code> 函式，可以指定字串，傳回 <code>*Reader</code>，這表示 <code>fmt</code> 的 <code>Fscanf</code> 等函式，可以從字串讀取輸入。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "io"
+    "strings"
+)
+
+func main() {
+    data := `Justin 45
+             Monica 42
+             Irene 12`
+    r := strings.NewReader(data)
+    var name string
+    var age int
+    for {
+        if _, err := fmt.Fscanln(r, &amp;name, &amp;age); err == io.EOF {
+            break
+        }
+        fmt.Printf("%s: %d\n", name, age)
+    }
+}  
+</code></pre>
+<p><code>Fscanln</code> 會傳回掃描的筆數，如果筆數少於指定的掃描數量，<code>err</code> 會指出原因，在檔案讀取結束（End of file）時，<code>err</code> 會是 <code>io.EOF</code>，在上例中，資料來源是個格式確定的字串，因此僅簡單地判斷 <code>err</code> 是否為 <code>io.EOF</code> 來結束掃描。</p>
+<p><code>os.File</code> 不過是具有 <code>io.Reader</code>、<code>io.Writer</code> 的行為罷了，<code>os.File</code> 代表檔案，也就是說 <code>Fprint</code>、<code>Fprintln</code>、<code>Fprintf</code>、<code>Fscan</code>、<code>Fscanln</code>、<code>Fscanf</code> 等函式，也可以用在檔案讀寫，其實標準輸入、輸出、錯誤等，也是被視為檔案的，這在 <code>os</code> 的 <a href="https://golang.org/src/os/file.go">file.go</a> 可以看到：</p>
+<pre class="prettyprint"><code lang="golang">var (
+    Stdin  = NewFile(uintptr(syscall.Stdin), "/dev/stdin")
+    Stdout = NewFile(uintptr(syscall.Stdout), "/dev/stdout")
+    Stderr = NewFile(uintptr(syscall.Stderr), "/dev/stderr")
+)
+</code></pre>
+<p>因此 IO 之類的操作，在 Go 中非常靈活，一切都看 API 上可接受行為而定，不受型態之限制，這之後再從實際的例子中來談。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

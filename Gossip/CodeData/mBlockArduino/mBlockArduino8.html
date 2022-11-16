@@ -1,0 +1,88 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="光敏電阻（Photo-sensitive resistor）的電阻值與光線有關，照射於感光面的光線亮度增加時，電阻值會變小，亮度減少時電阻值會加大，其原理是光線照射於半導體，原本穩定的電子受到激發而成...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（8）光敏電阻、亮度感應器與光線追蹤器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino8.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="光敏電阻（Photo-sensitive resistor）的電阻值與光線有關，照射於感光面的光線亮度增加時，電阻值會變小，亮度減少時電阻值會加大，其原理是光線照射於半導體，原本穩定的電子受到激發而成...">
+
+    <title>mBlock &amp; Arduino（8）光敏電阻、亮度感應器與光線追蹤器</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino8.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（8）光敏電阻、亮度感應器與光線追蹤器</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>光敏電阻（Photo-sensitive resistor）的電阻值與光線有關，照射於感光面的光線亮度增加時，電阻值會變小，亮度減少時電阻值會加大，其原理是光線照射於半導體，原本穩定的電子受到激發而成為自由電子，常見的材料為硫化鎘（Cds）或硒化鎘（CdSe），因而常用 Cds 代表光敏電阻。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-1.jpg" alt="光敏電阻"  /></div></div></p>
+<h1>亮度感應器</h1>
+<p>由於光敏電阻會因為光照而使得電阻發生改變，若對光敏電阻施以電壓，兩端的電壓就會因為光照發生的電阻值改變，使得壓降也跟著變化，我們可以利用這個特性來製作亮度感應器。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-2.jpg" alt="亮度感應器"  /></div></div></p>
+<p>如上圖的電路設計，輸出腳位的電壓值會是 <code>5 * R2/(R1 + R2)</code>，一般光敏電阻的電阻變化，大概是在 10M Ω（黑暗）到 1K Ω（置於陽光下）左右（如果直接以強光接近照射，電阻值還會更低一些），如果要精確地量測照度與電阻的關係，可以用專用照度計來量得照度與電阻之間的關係。</p>
+<p>在這邊就簡單一點，我在目前室內合適的亮度下，量得的光敏電阻值約為 3KΩ 上下，按照上圖的話，輸出腳位的電壓值會是在 3.8 V 左右，接到 Ardunio 的類比輸入腳位，應當可以量得 800 左右的數值，你可以如下設計電路：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-3.jpg" alt="亮度感應器"  /></div></div></p>
+<p>只要設計一個簡單的小程式，就是陽春的照度計了 &hellip; XD</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-4.jpg" alt="亮度感應器"  /></div></div></p>
+<p>當然，這邊的照度值不是公定的照度單位，只是從類比輸入腳位量得的值，僅供亮度的相對參考，試著增強或遮擋至光敏電阻的光線，你就會看到數值會有不同的變化：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-5.jpg" alt="亮度感應器"  /></div></div></p>
+<p>如果亮度感應器的敏感度設計的好一些，搭配自走車，就可以做個簡單的循跡車了。</p>
+<h1>簡易光線追蹤器</h1>
+<p>如果會實作簡單的亮度感應器，那麼就可以用多個亮度感應器，來實作簡單的光線追蹤了，例如，可使用兩個亮度感應器，偵測左右兩邊的亮度差異，如果兩邊亮度差異在一定範圍內，例如 50 以內，兩邊 LED 就同時亮，表示亮度差不多，若左邊比右邊的亮度高 50 以上，就亮左邊，反之就是亮右邊的 LED，你可以如下設計電路：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-6.jpg" alt="光線追蹤器"  /></div></div></p>
+<p>程式的撰寫則可以如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino8-7.jpg" alt="光線追蹤器"  /></div></div></p>
+<p>因為我手邊僅有的兩個光敏電阻規格不同，同樣的光源下，測出來的值不太一樣，左邊那顆比右邊那顆約少了 150 左右，因此，在程式中我做了些修正 … XD</p>
+<p><a href="https://www.youtube.com/watch?v=Am6KaEswx-Q">示範影片</a></p>
+<p>這邊是使用 LED 來反映光線的強弱，如果你手邊有馬達的話，想得出來可以做什呢？如果加上雷射筆，能不能做出光線豎琴呢？</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,128 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：從攔截過濾器到AOP
+      
+      開發應用程式某功能時，需撰寫程式碼定義執行流程，隨著後續需求的增加，原執行流程中會參與更多程式碼，用來定義實現新需求的流程，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="從攔截過濾器到AOP">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/InterceptorAOP.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：從攔截過濾器到AOP
+      
+      開發應用程式某功能時，需撰寫程式碼定義執行流程，隨著後續需求的增加，原執行流程中會參與更多程式碼，用來定義實現新需求的流程，...">
+
+
+    <title>從攔截過濾器到AOP</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InterceptorAOP.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>從攔截過濾器到AOP</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/node/84243">從攔截過濾器到AOP</a><br>
+      <br>
+      開發應用程式某功能時，需撰寫程式碼定義執行流程，隨著後續需求的增加，原執行流程中會參與更多程式碼，用來定義實現新需求的流程，有時新定義的程式碼與主要執行流程一致，有時這些程式碼看來就是硬生生切入主要流程，這類直接切入主流程的程式碼越多，主流程的意圖就會變得越模糊，類似邏輯若是隨處散落在應用程式的各個主要流程之中，也會令應用程式難以維護。<br>
+      <br>
+      <dl>
+        <dt>以攔截過濾器抽取橫向流程</dt>
+      </dl>
+      <br>
+      假設你已經完成Web應用程式某個請求回應功能，現在打算瞭解請求與回應間的時間差，因而在原始碼中增加效能量測的程式碼，接著又想要記錄瀏覽器發送的請求資訊，因此又安插了日誌輸出的程式碼，後來打算限制來自某些網域的請求，再度又加入了安全檢查的程式碼，你可能有多個頁面、每個功能流程都為了這幾個需求而安插了類似的程式碼，然而有著相似邏輯的程式碼散落在各處，將來要拿掉功能或修改時，就得找出這些散落各處的程式碼逐一修改。<br>
+      <br>
+      效能量測、日誌輸出、安全檢查等流程，與應用程式完成請求回應功能的原有流程無關，應該以攔截器（Interceptor）模式的概念實現為獨立元件，在必要時透過設定或標註等方式參與原有流程，以避免模糊主要流程之意圖，抽離這些橫切流程也讓它們將來得以重用。以Java EE技術來說，常見攔截過濾器（Intercepting Filter）模式之實現，像是Servlet API的<code>Filter</code>元件，就可用來實現方才談到的效能量測、日誌輸出、安全檢查等流程，在必要使用部署描述檔（Deployment descriptor）或以標註方式告知容器，讓<code>Filter</code>元件定義的程式碼能參與請求回應的流程。<br>
+      <br>
+      Web容器實現攔截過濾器的方式，是於執行<code>Servlet</code>的<code>service</code>方法前檢查有無設置Filter元件清單，有的話就逐一執行<code>Filter</code>元件定義之流程。類似地，在Web框架中，也可見到類似的實現，像是Struts 2或是Spring MVC，都是於執行<code>Action</code>或<code>Controller</code>元件前，檢查有無設置<code>Interceptor</code>或<code>HandlerInterceptor</code>清單，有的話就逐一執行各自定義之流程，看來就像切入了請求回應的流程之中。由於容器或框架實現了攔截過濾流程，開發者得以將橫切流程定義為可重用的元件，而後續的<code>Servlet</code>、<code>Action</code>或<code>Controller</code>元件不用作任何修改，想瞭解主要請求回應處理流程，從中一目瞭然。<br>
+      <br>
+      <dl>
+        <dt>更彈性的切面導向設計</dt>
+      </dl>
+      <br>
+      Bob大叔在《Clean Code》書中說過：「將所有關注的事（Concerns）分離開來，是軟體技巧中，最古老、最重要的設計技巧之一。」有些關注與程式主流程一致，易於識別與分離為獨立的程式庫或框架，有些關注則是對主要流程橫切的關注（Cross-cutting concerns），容易破碎地出現在各個主要流程之中，面對這些橫切關注，以設計為獨立可重用的切面（Aspect）模組為目標，就是切面導向程式設計（Aspect-oriented programming，簡稱AOP）。<br>
+      <br>
+      若以重用橫切關注的角度來看，攔截過濾器可算是AOP的簡單實現，效能量測、日誌輸出、安全檢查等，這類定義在攔截過濾器元件之流程，稱之為Advice（建議），也就是建議參與主流程之流程，只不過Advice能參與主要流程的Join point（參與點）比較單純或固定，通常會是特定對象的特定方法之前後，像是<code>Servlet</code> API中的<code>Filter</code>元件，Join point是<code>Servlet</code>物件的<code>service</code>方法前後，Struts 2的<code>Interceptor</code>，參與點是<code>Action</code>物件的<code>execute</code>或指定方法之前後。<br>
+      <br>
+      在更為複雜的情境中，會希望能在更多Join point進行流程建議，因而必須能夠定義Pointcut（參與點集合），像是運用某種表達式來描述Join point是哪種物件型態、方法名稱、參數模式、傳回型態等，當程式執行至滿足Pointcut描述之條件時，就會執行Advice的流程，AOP術語中，稱這個過程為將Advice的流程織入（Weave）主流程。<br>
+      <br>
+      在這一連串描述之後可以看到，為了更廣泛描述與定義那些橫切主流程的關注，AOP中充斥著切面、Advice、Join point、Pointcut、織入等名詞，讓人不容易理解其意義（而且有些在中文上找不出適切的譯名），甚至過去還曾有過AOP將取代OOP（Object-oriented programming）的謬論。其實AOP簡單來說就是要實現關注分離（Separation of concerns），只不過對象是對主流程橫切的關注，將之識別出來才是最主要的精神，後續再來瞭解採用的工具，如何支援切面、Advice、Join point、Pointcut等概念。<br>
+      <br>
+      <dl>
+        <dt>語言動態性影響橫向關注抽離</dt>
+      </dl>
+      <br>
+      雖然以橫切關注的分離來說，攔截過濾器也算是AOP的簡單實現，不過談到AOP這個名詞，多數人傾向於聯想到動態改變物件的行為，當然這實現上依使用的語言、框架與技術而有所不同，然而基本上是代理（Proxy）模式進一步的擴充實現。對於Python、Ruby這類動態定型語言來說，由於變數本身沒有型態，操作時僅要求實際物件擁有對應行為或協定，因而實現代理機制時，本身就比較簡單。例如，想在執行物件<code>execute</code>方法前增加日誌行為，Python的話可以如下定義代理物件：<br>
+      <div style="margin-left: 40px;"><code>class LoggingProxy:<br>
+          &nbsp;&nbsp;&nbsp; def __init__(self, target):<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.target = target<br>
+          &nbsp;&nbsp;&nbsp; def execute(self):<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # do logging<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.target.execute()<br>
+        </code></div>
+      <br>
+      之後以<code>LogginProxy(target)</code>建立實例，並執行其<code>execute</code>方法，就會看到增加了日誌行為，如果使用Java這類靜態定型語言就麻煩多了，代理物件與目標物件還得實現相同介面。不過就算使用動態定型語言，逐一為各種物件定義代理物件，也會是件煩人的事，若語言本身就擁有執行時期改變物件結構與行為的能力，實現此需求就簡單許多，例如Python中函式是物件，可直接以新函式置換原函式，或是在Ruby中可搭配<code>alias_method</code>、<code>define_method</code>及開放類別等方式修改物件行為，在這類語言中，識別、分離並實現橫切關注，相對來說是件稀鬆平常之事。<br>
+      <br>
+      如果是Java這類動態性低的語言，就得運用程式碼生成、反射（Reflection）等機制與來自動產生代理物件，例如修改原始碼或位元組碼、使用動態代理程式庫來動態產生代理物件等，然而程式實作上都有一定的難度，因而在Java這類語言中，識別出橫切關注後，通常得借助一些工具、程式庫或框架，來完成橫切關注之分離與實現，並配合Pointcut表達式，告知工具、程式庫或框架，在哪些時機點將Advice織入主要流程，過去這類工具不普及，識別、分離並實現橫切關注並不是件尋常工作，也因而這類工具普及並帶來各式術語之時，Java這類語言的使用者多感覺到AOP帶來許多新奇的觀念。<br>
+      <br>
+      <dl>
+        <dt>保持適當的關注分離</dt>
+      </dl>
+      <br>
+      若在發現應用程式起始時，經常進行物件間相依關係的建立流程，之後才是執行商務流程，因為相依關係的建立流程有著類似模式，因而將之從流程中分離出來，成為可重用的依賴注入框架，這就可讓我們將焦點更集中在後續的商務流程；在發現Web應用程式請求回應之間，有著進行請求處理、轉發與頁面呈現的類似流程，將這個流程抽離出來成為可重用的框架，就可將焦點更集中在各式商務相關元件的實作。<br>
+      <br>
+      AOP概念想做的其實也是類似的事，將關注的事抽離出來以便重用，只不過這個該抽離出來的關注，不若前段描述會與主要流程有著一致的方向，而是橫切入主要流程，實際上與攔截過濾器該做的事是相似的，在攔截過濾器的應用範圍之外，就算你使用的是動態性不高的語言，現在也有了合適工具做為輔助，因而不用太去在意那些看似抽象複雜的名詞，重點是時時保持適當的關注分離，剩下的就是熟悉並善用你選擇的工具。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

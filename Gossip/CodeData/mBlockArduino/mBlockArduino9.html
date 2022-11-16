@@ -1,0 +1,85 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="伺服馬達（Servo motor）英文常簡稱 Servo，中文也有人稱伺服機，由控制電路、齒輪、直流馬達等組成，可使用〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中談過...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（9）伺服馬達控制">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino9.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="伺服馬達（Servo motor）英文常簡稱 Servo，中文也有人稱伺服機，由控制電路、齒輪、直流馬達等組成，可使用〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中談過...">
+
+    <title>mBlock &amp; Arduino（9）伺服馬達控制</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino9.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（9）伺服馬達控制</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>伺服馬達（Servo motor）英文常簡稱 Servo，中文也有人稱伺服機，由控制電路、齒輪、直流馬達等組成，可使用〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中談過的 PWM 技術來控制馬達轉動角度，像 <a href="http://www.thingiverse.com/thing:248009">Plotclock</a> 就應用了三個伺服馬達，以手臂在白板上繪製出目前的時間。</p>
+<p><a href="http://www.youtube.com/watch?v=iOLFP90DneY">Plotclock</a></p>
+<h1>伺服馬達控制原理</h1>
+<p>伺服馬達的基本原理是接受 PWM 訊號，經由內部電路計算出馬達的轉動角度，根據我查到的資料來看，大多數伺服馬達旋轉角度是 0 到 180 度，PWM 訊號的頻率必須是 50 Hz，控制馬達角度的脈衝持續時間約是 1.0 ms 到 2.0 ms，脈衝持續時間若為 1.0 ms 時角度為 0 度，1.2 ms 時角度為 45 度，1.5 ms 時角度為 90 度，2.0 ms 時角度為 180 度。</p>
+<p>Plotclock 用的是 <a href="http://torqpro.com/?product=sg90-7">Tower Pro 9g servos（SG90 digital servo）</a>，為三線式伺服馬達，紅線接電源，棕色的線接 GND，橘色線為訊號線：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino9-1.jpg" alt="SG90"  /></div></div></p>
+<p>在 Fritzing 中，是以紅色線接電源，黑色線接地，黃色為訊號線作代表，你可以如下連接線路：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino9-2.jpg" alt="伺服馬達控制"  /></div></div></p>
+<p>如果直接使用 Arduino 官方語言，可以使用 <code>delayMicroseconds</code> 函式來控制脈衝寬度，不過 mBlock 中只有「等待」方塊，沒辦法達到這麼短的時間控制，然而，mBlock 中有個「設置伺服馬達腳位&hellip;」的方塊，可以直接指定馬達轉動角度，例如，以下的程式，可以一秒為間隔，不斷轉動馬達為 0、45、90、135 與 180 度：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino9-3.jpg" alt="伺服馬達控制"  /></div></div></p>
+<p>雖然使用了 PWM 訊號來控制馬達轉動，不過，這不表示要使用 Arduino 的 PWM 腳位，只不過根據 <a href="http://arduino.cc/en/reference/servo">Servo library</a> 的說明，除了 Arduino Mega 之外，如果使用了 Arduino 的 Servo 程式庫，D9 與 D10 腳位的 PWM 功能就會被停用，因此，通常會把伺服馬達的訊號線接在 D9 或 D10 腳位，實際測試 mBlock 的「設置伺服馬達腳位&hellip;」方塊時，也是如此。</p>
+<h1>有指針的亮度感應器</h1>
+<p>在〈mBlock &amp; Arduino（8）光敏電阻、亮度感應器與光線追蹤器〉中，我們使用光敏電阻製作了簡單的亮度感應器，你可以加上伺服馬達，配合 SG90 的手臂，作個有指針的亮度感應器，你可以如下拉設電路：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino9-4.jpg" alt="伺服馬達控制"  /></div></div></p>
+<p>實際測試我手中的光敏電阻，完全蓋住它的話，類比輸入腳位約可量得 400 左右的值，以手電筒直接照射下，約為 1000 出頭的值，因此暫且定義全暗為 400，全亮為 1000，這個範圍要轉動馬達 0 到 180 度，因此，每個類比輸入量得的值減去 400，再乘上 0.3，就是打算轉動的角度：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino9-5.jpg" alt="伺服馬達控制"  /></div></div></p>
+<p>因為我們讀取指針的習慣，多半是順時針方向是越來越大，這正好與伺服馬達的角度計算方向相反，所以使用 180 減去算出來的角度，就可以改為順時針指示亮度大小。</p>
+<p><a href="https://www.youtube.com/watch?v=G713jb_I0Jk">示範影片</a></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

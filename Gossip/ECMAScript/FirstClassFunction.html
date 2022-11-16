@@ -1,0 +1,191 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/function/first-class/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 JavaScript 中，函式是物件，是 Function 的實例。因為是 Function 實例，你可以將之傳給另一個變數參考。例如：
+function max(num1, num2) {
+  ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="初探一級函式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/FirstClassFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 JavaScript 中，函式是物件，是 Function 的實例。因為是 Function 實例，你可以將之傳給另一個變數參考。例如：
+function max(num1, num2) {
+  ...">
+
+    <title>初探一級函式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstClassFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>初探一級函式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 JavaScript 中，函式是物件，是 <code>Function</code> 的實例。因為是 <code>Function</code> 實例，你可以將之傳給另一個變數參考。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function max(num1, num2) {
+    return num1 &gt; num2 ? num1 : num2;
+}
+
+var maximum = max;
+
+console.log(max(10, 20));      // 20
+console.log(maximum(10, 20));  // 20
+</code></pre>
+<p>使用 <code>function</code> 宣告函式，函式名稱就相當於使用 <code>var</code> 宣告了變數名稱，嚴格模式下不可使用 <code>delete</code> 來刪除，在上例中，如果試圖 <code>delete max</code>，會引發 <code>SyntaxError</code>。</p>
+<p>注意，在將 <code>max</code> 指定給 <code>maximum</code> 時，<code>max</code> 後並沒有加上 <code>()</code> 運算子，這表示要將 <code>max</code> 參考的物件指定給 <code>maximum</code> 參考（加上括號表示要執行函式）。將一個函式指定給變數，就像將一個數字指定給一個變數一樣，這看來如果覺得奇怪的話，或許下這個看來比較不奇怪：</p>
+<pre class="prettyprint"><code lang="javascript">var max = function(num1, num2) {
+    return num1 &gt; num2 ? num1 : num2;
+};
+
+var maximum = max;
+
+console.log(max(10, 20));      // 20
+console.log(maximum(10, 20));  // 20
+</code></pre>
+<p>函式就如同數值，可以指定給變數，函式與數值的地位相同，並不會像有些語言中，無法像數值一樣地被指定，不會淪為二等公民，因此，對於支持函式可如數值一樣指定給變數的語言，我們稱函式在這個語言中是一等（First-class）函式或一級函式。</p>
+<p>上面你所看到的函式撰寫方式，稱之為函式實字（Function literal），這就像你寫下一個數值實字、物件實字或陣列實字，會產生數值或物件等：</p>
+<pre class="prettyprint"><code lang="javascript">var number = 10;        // Number literal
+var obj = {x : 10};     // Object literal
+var array = [1, 2, 3];  // Array literal
+var func = function() { // Function literal
+    // do something...
+};
+</code></pre>
+<p>函式實字會產生 <code>Function</code> 實例，在 JavaScript 中，無論是函式宣告或函式實字，都會產生 <code>Function</code> 實例。事實上，你也可以直接指定建立 <code>Function</code> 實例：</p>
+<pre class="prettyprint"><code lang="javascript">var max = new Function('num1', 'num2', 
+    'return num1 &gt; num2 ? num1 : num2'
+);
+
+var maximum = max;
+
+console.log(max(10, 20));      // 20
+console.log(maximum(10, 20));  // 20
+</code></pre>
+<p>基本上，實務上很少會直接建立 <code>Function</code> 實例，以上只是表示，函式確實是 <code>Function</code> 實例。</p>
+<p>既然函式是物件，它就可以任意指定給其他變數，也就可以指定作為另一個函式的引數，那它就不僅能被呼叫，還可以主動要求另一個函式執行所指定的函式內容。例如：</p>
+<pre class="prettyprint"><code lang="javascript">var printIt = function(elem) {
+    console.log(elem);
+};
+
+[1, 2, 3].forEach(printIt); // 1 2 3
+
+var naturalOrder = function(num1, num2) {
+    return num1 - num2;
+};
+
+[5, 1, 7, 3, 2].sort(naturalOrder)  // 1 2 3 5 7
+               .forEach(printIt);
+</code></pre>
+<p>上例以 <code>Array</code> 為例，<code>forEach</code> 可以對陣列的每個元素作「某些事」，「某些事」是由你使用函式來指定，陣列會逐一將元素傳入給你指定的函式作為引數。</p>
+<p><code>sort</code> 則可以進行排序，但兩個元素的大小關係要由你告知，傳回正值表示傳入的 <code>num1</code> 順序上大於 <code>num2</code>，要排在 <code>num2</code> 的後面，傳回 0 表示兩個順序相同，傳回負值表示 <code>num1</code> 順序上小於 <code>num2</code>，要排在 <code>num2</code> 的前面。</p>
+<p>像這種將函式主動丟入函式作為引數，在 JavaScript 等具備一級函式的語言中，是很常見到的應用。事實上，若不需要名稱，你也可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">var numbers = [5, 1, 7, 3, 2];
+numbers.sort(function(num1, num2) { // 1 2 3 5 7
+           return num1 - num2;
+       })
+       .forEach(function(elem) {
+            console.log(elem);
+       });
+</code></pre>
+<p>直接傳入函式很方便，不過函式名稱有時是必要的，像上面的可讀性並不會比較好。</p>
+<p>你也可以從函式中傳回函式，這通常會形成閉包（Closure）綁定某些運算過後的資源，再傳回函式，這之後還會再談到應用。</p>
+<p>以函式實字所建立的 <code>Function</code> 實例，在指定給別的變數前，稱為所謂的匿名函式（Anonymous function）。你可以完全不使用名稱來執行函式：</p>
+<pre class="prettyprint"><code lang="javascript">(function() {
+    console.log('匿名函式...');
+})();
+</code></pre>
+<p>實際上，函式實字也可以指定名稱。例如：</p>
+<pre class="prettyprint"><code lang="javascript">var maximum = function max(num1, num2) {
+    return num1 &gt; num2 ? num1 : num2;
+};
+
+console.log(maximum(10, 20));  // 20
+console.log(max(10, 20));      // ReferenceError: max is not defined
+</code></pre>
+<p>上例中，函式實字所建立的 <code>max</code> 名稱，似乎不能使用，事實上，這種語法適用於使用函式實字建立 <code>Function</code> 實例，但又需遞迴的場合。例如：</p>
+<pre class="prettyprint"><code lang="javascript">var gcd = function g(num1, num2) {
+    return num2 != 0 ? g(num2, num1 % num2) : num1;
+};
+
+console.log(gcd(10, 5));  // 5
+</code></pre>
+<p>函式既然是物件，本身亦可擁有特性。例如函式有個 <code>length</code> 特性，代表其參數個數：</p>
+<pre class="prettyprint"><code lang="javascript">var gcd = function g(num1, num2) {
+    return num2 != 0 ? g(num2, num1 % num2) : num1;
+};
+
+console.log(gcd.length); // 2
+</code></pre>
+<p>函式也可以擁有方法，這個之後再談，你也可以在其上新增特性或方法，就如同一個普通的物件。</p>
+<p>函式宣告與函式實字在運用上，幾乎是相同的，但還是有細微的差別。例如，以下可以正常執行：</p>
+<pre class="prettyprint"><code lang="javascript">func();
+function func() {
+    console.log('func');
+}
+</code></pre>
+<p>不過以下會發生 <code>TypeError</code>：</p>
+<pre class="prettyprint"><code lang="javascript">func(); // TypeError: undefined is not a function
+var func = function() {
+    console.log('func');
+};
+</code></pre>
+<p>錯誤訊息告訴你，<code>func</code> 值是 <code>undefined</code>。原因在於，直譯器在載入 .js 時，會先處理所有的宣告，包括變數與函式宣告，接著再執行程式。所以在第一個範例中，是以函式宣告方式，直譯器已處理完成，因此接下來再執行時，就可以找到 <code>func</code> 所參考的函式。</p>
+<p>而在第二個程式中，僅宣告了 <code>func</code> 變數，直譯器處理完這個宣告後，接下來要執行程式時，範圍中可以看到 <code>func</code> 變數，但此時還沒有指定值給 <code>func</code>，所以是 <code>undefined</code>，因此不能完成函式的執行。</p>
+<p>雖然不重要，但還是提一下的是，以上兩種方式，在遇到要建立函式實例時，都不會再重新直譯，但如果你以直接建構 <code>Function</code> 實例的方式，則每次都會針對你引數的字串再作直譯動作。</p>
+<pre class="prettyprint"><code lang="javascript">var max = new Function('num1', 'num2', 
+    'return num1 &gt; num2 ? num1 : num2'
+);
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

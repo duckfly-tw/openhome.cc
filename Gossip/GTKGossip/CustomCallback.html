@@ -1,0 +1,396 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="您可以自訂callback函式，使用g_signa_connect()函式連接，在指定的Signal發生時呼叫自訂的callback函式，自訂的callback函式原型基本上是以下的形式：
+
+
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="自訂 callback 函式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/GTKGossip/CustomCallback.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="您可以自訂callback函式，使用g_signa_connect()函式連接，在指定的Signal發生時呼叫自訂的callback函式，自訂的callback函式原型基本上是以下的形式：
+
+
+...">
+
+
+    <title>自訂 callback 函式</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CustomCallback.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/GTKGossip/">回 GTK 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自訂 callback 函式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             您可以自訂callback函式，使用g_signa_connect()函式連接，在指定的Signal發生時呼叫自訂的callback函式，自訂的callback函式原型基本上是以下的形式：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace; font-weight: bold;">void func_name(GtkWidget *widget, ..., gpointer user_data);</div>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      第一個參數是發出信號的Widget指標，第二個參數是呼叫callback函式時，所要傳遞給callback函式的相關資料，舉個實際的例子，下面這個範例會有一個按鈕，當按下按鈕時，會在主控台下顯示指定的訊息：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+        
+        <li>callback_demo.c</li>
+
+
+
+        
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br><span style="font-weight: bold;">// 自訂Callback函式</span><br><span style="font-weight: bold;">void button_clicked(GtkWidget *button, gpointer data) {</span><br><span style="font-weight: bold;">    g_print("按鈕按下：%s\n", (char *) data);</span><br><span style="font-weight: bold;">}</span><br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br><span style="font-weight: bold;">    GtkWidget *button;</span><br><br>    gtk_init(&amp;argc, &amp;argv);<br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "哈囉！GTK+！");<br><br><span style="font-weight: bold;">    button = gtk_button_new_with_label("按我");</span><br><span style="font-weight: bold;">    gtk_container_add(GTK_CONTAINER(window), button);</span><br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br><span style="font-weight: bold;">    g_signal_connect(GTK_OBJECT(button), "clicked",</span><br><span style="font-weight: bold;">                     G_CALLBACK(button_clicked), "哈囉！按鈕！");</span><br><br>    gtk_widget_show(window);<br><span style="font-weight: bold;">    gtk_widget_show(button);</span><br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+
+
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+      這個範例是以 </span><a href="SignalConnect.html">使用 Signal&nbsp;關閉視窗</a>
+為基礎，增加了一個按鈕，程式中注意的是Callback函式的定義，而要產生一個具有文字的按鈕，可以使用
+gtk_button_new_with_label()函式，由於GtkWindow是GtkContainer的子類，所以它可以容納其它的
+Widget元件，在這邊使用gtk_container_add()函式將GtkButton加入GtkWindow之中，目前沒有設置任何版面配置，
+所以按鈕就填滿整個視窗。<br>
+
+
+
+
+      <br>
+
+
+
+
+要連接自訂的Callback函式，一樣使用g_signal_connect()，注意到雖然G_CALLBACK巨集會將函式指標轉換為無參數無傳回
+值的型態，但這不代表Callback函式不可以傳回值或帶有參數，實際操作時是依當時所連接的函式型態而定，在這邊，g_signal_connect()最後一個參數將傳遞給button_clicked()函式的data參數。<br>
+
+
+
+
+      <br>
+
+
+
+
+要顯示加入的GtkButton，在這邊再次使用gtk_widget_show()，您也可以直接使用gtk_widget_show_all()，將所有在指定的GtkContainer中的元件都顯示出來：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">gtk_widget_show_all(window);</span><br>
+
+
+
+
+      </div>
+
+
+
+
+      <span><br>
+
+
+
+
+      一個執行時的畫面如下所示：<br>
+
+
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/CustomSignal-1.jpg" /></div></div><br>
+
+
+
+
+      <br>
+
+
+
+
+另一個較少使用的Signal連結函式是g_signal_connect_swapped()，它實際上也是個巨集，方便使用g_signal_connect_data()函式，定義如下：<br>
+
+
+
+
+      </span>
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">#define g_signal_connect_swapped(instance, detailed_signal, c_handler, data) \</span></span><br>
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;">
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; <span style="color: rgb(255, 0, 0);">g_signal_connect_data</span> ((instance), (detailed_signal), (c_handler), (data), NULL, G_CONNECT_SWAPPED)</span></span><br>
+
+
+
+      </div>
+
+
+
+      <span>
+      <br>
+
+
+
+
+      它所對應的Callback函式應如下定義：<br>
+
+
+
+      </span>
+      
+      
+      
+      <div style="margin-left: 40px;">void func_name(gpointer user_data, ..., GtkWidget *widget);<br>
+
+
+
+      </div>
+
+
+
+      <span><br>
+
+
+
+
+      簡單的說，就是兩個參數對調，g_signal_connect_swapped()常用來接結僅接受一個單獨Widget作為參數的callback函式，舉個例子來說，像 <a href="http://library.gnome.org/devel/gtk/unstable/GtkWidget.html#gtk-widget-destroy">gtk_widget_destroy()</a> 函式：<br>
+
+
+
+      </span>
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">void gtk_widget_destroy(GtkWidget *widget);</span></span><br>
+
+
+
+      </div>
+
+
+
+      <span><br>
+
+
+
+      這個函式會消除指定的Widget，若您在程式中，想要指定消除一個Widget，則可以使用這個函式，舉例來說，若要按下按鈕後，消除GtkWindow，則可以如下：<br>
+
+
+
+      </span>
+      
+      
+      
+      <ul>
+
+
+
+        <li><span>callback_demo.c</span></li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br>    GtkWidget *button;<br><br>    gtk_init(&amp;argc, &amp;argv);<br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "哈囉！GTK+！");<br><br>    button = gtk_button_new_with_label("按我");<br>    gtk_container_add(GTK_CONTAINER(window), button);<br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br><span style="font-weight: bold;">    g_signal_connect_swapped(GTK_OBJECT(button), "clicked",</span><br><span style="font-weight: bold;">                             G_CALLBACK(gtk_widget_destroy), window);</span><br><br>    gtk_widget_show_all(window);<br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+
+
+      <span><br>
+
+
+
+這個程式在按下按鈕後，會消去window所儲存的GtkWindow，由於這是唯一個GtkWindow，消除後程式也就跟著結束。您也可以如前一個範例，在自訂的button_clicked()函式中呼叫gtk_widget_destroy()：<br>
+
+
+
+      </span>
+      
+      
+      
+      <ul>
+
+
+
+        <li>callback_demo.c</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br><span style="font-weight: bold;">// 自訂Callback函式</span><br><span style="font-weight: bold;">void button_clicked(GtkWidget *button, gpointer data) {</span><br><span style="font-weight: bold;">    gtk_widget_destroy((GtkWidget*) data);</span><br><span style="font-weight: bold;">}</span><br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br>    GtkWidget *button;<br><br>    gtk_init(&amp;argc, &amp;argv);<br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "哈囉！GTK+！");<br><br>    button = gtk_button_new_with_label("按我");<br>    gtk_container_add(GTK_CONTAINER(window), button);<br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br><span style="font-weight: bold;">    g_signal_connect(GTK_OBJECT(button), "clicked",</span><br><span style="font-weight: bold;">                     G_CALLBACK(button_clicked), NULL);</span><br><br>    gtk_widget_show_all(window);<br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+
+
+      <span><br>
+
+
+
+雖然程式的執行也可以透過按下按鈕消除GtkWindow，但直接使用g_signal_connect_swapped()會是比較直接的方式。<br>
+
+      <br>
+
+另也還有個g_signal_connect_after()函式值得注意，它實際也是巨集，定義如下：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">#define g_signal_connect_after(instance, detailed_signal, c_handler, data) \</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; <span style="color: rgb(255, 0, 0);">g_signal_connect_data</span> ((instance), (detailed_signal), (c_handler), (data), NULL, G_CONNECT_AFTER)</span></span><br>
+
+      </div>
+
+      <span><br>
+
+
+
+      若您使用g_signal_connect_after()來連接callback函式，則該callback函式，會在所有使用g_signal_connect()設定的callback函式執行之後再執行。<br>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,152 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java Tutorial 第五堂（1）使用 spring-orm 整合 Hibernate &lt;&lt; 前情
+      
+      
+      在先前一連串的練習中，我們作了數次的...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Java Tutorial 第五堂（2）JUnit 與 Gradle">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaTutorial/JUnitGradle.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Java Tutorial 第五堂（1）使用 spring-orm 整合 Hibernate &lt;&lt; 前情
+      
+      
+      在先前一連串的練習中，我們作了數次的...">
+
+
+    <title>Java Tutorial 第五堂（2）JUnit 與 Gradle</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JUnitGradle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/JavaTutorial/">回 Java Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Java Tutorial 第五堂（2）JUnit 與 Gradle</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <br>
+      <br>
+      在先前一連串的練習中，我們作了數次的重構（Refactoring），每次重構時是不是會有些怕怕的，如果不小心改爛了怎麼辦？每次重構完總得執行整個應用程式，看看功能是不是正確？只不過，對這種測試方式終究有些不安，對吧！？
+      <br>
+      <br>
+      你應該為撰寫的程式加入一些專門用的測試程式，在測試中最基本的單位是單元測試（Unit test），指的是測試一個工作單元（a unit of work）的行為。舉例來說，對於建築橋墩而言，一個螺絲釘、一根鋼筋、一條鋼索甚至一公斤的水泥等，都可謂是一個工作單元，驗證這些工作單元行為或功能 （硬度、張力等）是否符合預期，方可確保最後橋墩安全無虞。
+      <br>
+      <br>
+      在 Java 的世界談到單元測試，基本上都得認識一下 <a href="http://junit.org/">JUnit</a> 這個元老級的單元測試框架，IDE 多半都有整合這個框架。在這邊先介紹一下如何在 Gradle 中結合 JUnit 作一個簡單的測試。
+      <br>
+      <br>
+      <strong><span style="color: #ff0000;">練習 15：在 Gradle 中使用 JUnit</span></strong>
+      <br>
+      <br>
+      首先，你必須在 build.gradle 中增加 <code>'java'</code> 這個 plugin，它內建了 test 的任務定義：
+      <br>
+      <pre class="prettyprint"><code lang="java">apply plugin: 'java'</code></pre>
+      <br>
+      我們要使用 JUnit 4 來撰寫單元測試，因此要在 <code>dependencies</code> 中定義 <code>testCompile</code>：
+      <br>
+      <pre class="prettyprint"><code lang="java">dependencies {
+<br>    testCompile 'junit:junit:4.+'
+<br>    略 ...
+<br>}</code></pre>
+      <br>
+      從之前的練習中已經知道，Gradle 中 Java 程式碼，必須定義在 src/main/java 之中，並依套件設定在對應的目錄放置 .java 程式碼，這邊先撰寫一個簡單的 <code>Hello</code> 類別：
+      <br>
+      <pre class="prettyprint"><code lang="java">package tw.codedata;
+<br>public class Hello {<br>    public String sayHelloTo(String name) {<br>        return String.format("Hello, %s!", name);<br>    }<br>}</code></pre>
+      <br>
+      如果你傳給 <code>Hello</code> 實例的 <code>sayHelloTo</code> 方法一個字串，例如 <code>"CodeData"</code>，那麼它會傳回一個字串 <code>"Hello, CodeData!"</code>，你要怎麼確定這個方法是正確的呢？直接撰寫個測試程式輸出字串顯示在文字模式下，看是不是會顯示 Hello, CodeData! 嗎？如果有 1000 個測試，難不成要看 1000 個顯示結果來確定測試是否正確？
+      <br>
+      <br>
+      不是的！使用 JUnit 的話，可以自動運行測試並收集測試結果，你可以如下定義一個測試案例（Test case）：
+      <br>
+      <pre class="prettyprint"><code lang="java">package tw.codedata;
+<br>import static org.junit.Assert.*;<br>import org.junit.*;
+<br>public class HelloTest {
+    @Test
+    public void sayHelloTo() {
+        Hello hello = new Hello();
+        assertEquals("Hello, CodeData!", hello.sayHelloTo("CodeData"));
+    }
+}</code></pre>
+      <br>
+      對於一個 <code>Hello</code> 類別，你可以定義一個 <code>HelloTest</code> 來與之對應，你可以在某個方法中定義想要的測試過程，該方法要使用 <code>@Test</code> 標註，<code>assertEquals</code> 是個斷言方法，第一個參數接受預期值的指定，第二個參數接受實際執行結果，如果兩者相等則斷言成功，否則就測試失敗。
+      <br>
+      <br>
+      那麼 HelloTest.java 要放在哪呢？必須放在 src/test/java 中，並依套件設定在對應的目錄放置 .java 程式碼。
+      <br>
+      <br>
+      目前原始碼的位置對應是：
+      <br>
+      <ul>
+        <li>src/main/java/tw/codedata/Hello.java</li>
+        <li>src/test/java/tw/codedata/HelloTest.java</li>
+      </ul>
+      接著要運行測試，可以執行 <code>gradle test</code> 指令，如果測試成功的話，會顯示以下的畫面：
+      <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="gradle test 測試成功" src="images/java-tutorial-the-5th-class-2-1.png" /></div></div>
+      <br>
+      <br>
+      在 build/reports/tests 中，也會產生一份 HTML 報表：
+      <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Gradle 產生的測試報表" src="images/java-tutorial-the-5th-class-2-2.png" /></div></div>
+      <br>
+      <br>
+      要是測試失敗的話，會有類似以下的畫面：
+      <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="gradle test 測試失敗" src="images/java-tutorial-the-5th-class-2-3.png" /></div></div>
+      <br>
+      <br>
+      測試失敗時報表的呈現方式是 …
+      <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Gradle 產生的測試報表" src="images/java-tutorial-the-5th-class-2-4.png" /></div></div>
+      <br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

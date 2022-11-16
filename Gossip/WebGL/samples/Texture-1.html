@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Texture</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 vertexPosition;
+            attribute vec2 texturePosition;
+
+            varying vec2 vTexturePosition;
+    
+            void main(void) {
+                gl_Position = vec4(vertexPosition.x, vertexPosition.y * aspect, vertexPosition.z, 1.0);
+                vTexturePosition = texturePosition;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            
+            uniform sampler2D sampler;
+            varying vec2 vTexturePosition;
+
+            void main(void) {
+                gl_FragColor = texture2D(sampler, vTexturePosition);
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+            function enableBufferOfAttr(gl, prog, attrName, size, data) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+                const position = gl.getAttribLocation(prog, attrName);
+                gl.vertexAttribPointer(position, size, gl.FLOAT, false, 0 , 0);
+                gl.enableVertexAttribArray(position);
+            }
+
+            const gl = getGLContext(document.getElementById('glCanvas'));
+            const prog = installProgram(gl, 
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader')
+            );            
+
+            const image = new Image();
+            image.addEventListener('load', () => {
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB  , gl.UNSIGNED_BYTE, image);
+                gl.generateMipmap(gl.TEXTURE_2D);
+
+                gl.uniform1i(
+                    gl.getUniformLocation(prog, "sampler"), 
+                    0
+                );
+                
+                enableBufferOfAttr(gl, prog, 'vertexPosition', 3, [
+                    -0.25, 0.25, 0.0,
+                    0.25, 0.25, 0.0,
+                    -0.25, -0.25, 0.0,
+                    -0.25, -0.25, 0.0,
+                    0.25, 0.25, 0.0,
+                    0.25, -0.25, 0.0
+                ]);
+
+                enableBufferOfAttr(gl, prog, 'texturePosition', 2, [
+                    0.0,  0.0,
+                    1.0,  0.0,
+                    0.0,  1.0,
+                    0.0,  1.0,
+                    1.0,  0.0,
+                    1.0,  1.0,
+                ]);
+
+                gl.uniform1f(
+                    gl.getUniformLocation(prog, 'aspect'),
+                    gl.canvas.clientWidth / gl.canvas.clientHeight
+                );    
+                
+                // 繪製
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            });
+
+            image.src = "images/caterpillar.jpg";
+        </script>
+    </body>
+</html>

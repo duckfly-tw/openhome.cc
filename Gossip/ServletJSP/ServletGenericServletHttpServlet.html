@@ -1,0 +1,217 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="於 Web 容器來說，Servlet 的基本行為，規範在 Servlet 介面中：
+package javax.servlet;
+
+import java.io.IOException;
+
+publi...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Servlet、GenericServlet、HttpServlet">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/ServletGenericServletHttpServlet.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="於 Web 容器來說，Servlet 的基本行為，規範在 Servlet 介面中：
+package javax.servlet;
+
+import java.io.IOException;
+
+publi...">
+
+    <title>Servlet、GenericServlet、HttpServlet</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ServletGenericServletHttpServlet.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Servlet、GenericServlet、HttpServlet</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>於 Web 容器來說，Servlet 的基本行為，規範在 <code>Servlet</code> 介面中：</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet;
+
+import java.io.IOException;
+
+public interface Servlet {
+    public void init(ServletConfig config) throws ServletException;
+    public ServletConfig getServletConfig();
+    public void service(ServletRequest req, ServletResponse res) 
+                   throws ServletException, IOException;
+    public String getServletInfo();
+    public void destroy();
+}
+</code></pre>
+<p>當一個實作 <code>Servlet</code> 介面的類別被容器載入之後，容器會建立該類別的實例，根據 Servlet 設定資訊（定義在標註或 web.xml）建立實作 <code>ServletConfig</code> 介面的實例（之後再介紹 <code>ServletConfig</code> 介面），呼叫 <code>Servlet</code> 的 <code>init()</code> 方法並傳入 <code>ServletConfig</code> 實例完成 Servlet 的初始化。</p>
+<p>在完成 Servlet 初始化後，如果有請求將由某個 Servlet 處理，則容器會呼叫該 <code>Servlet</code> 的 <code>service()</code> 方法，傳入 <code>ServletRequest</code>、<code>ServletResponse</code> 實例，注意這兩個介面並非以 Http 名稱作開頭，<code>ServletRequest</code>、<code>ServletResponse</code> 的套件亦是 <code>javax.servlet</code>，這是由於最初設計Servlet時，並不限定它只能用在 HTTP 上（雖然最後 Servlet 還是只有 HTTP 上的實現）。</p>
+<p>當一個 <code>Servlet</code> 實例不被容器管理前，容器會呼叫它的 <code>destroy()</code> 方法，以執行一些資源回收的動作。</p>
+<p>實作 <code>Servlet</code> 介面的類別是 <code>GenericServlet</code> 類別，這是一個抽象類別：</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+public abstract class GenericServlet implements Servlet, ServletConfig,
+        java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private transient ServletConfig config;
+
+
+    public GenericServlet() {
+    }
+
+    @Override
+    public void destroy() {
+    }
+
+    @Override
+    public String getInitParameter(String name) {
+        return getServletConfig().getInitParameter(name);
+    }
+
+    @Override
+    public Enumeration&lt;String&gt; getInitParameterNames() {
+        return getServletConfig().getInitParameterNames();
+    }
+
+    @Override
+    public ServletConfig getServletConfig() {
+        return config;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return getServletConfig().getServletContext();
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "";
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        this.config = config;
+        this.init();
+    }
+
+    public void init() throws ServletException {
+    }
+
+    public void log(String msg) {
+        getServletContext().log(getServletName() + ": " + msg);
+    }
+
+    public void log(String message, Throwable t) {
+        getServletContext().log(getServletName() + ": " + message, t);
+    }
+
+    @Override
+    public abstract void service(ServletRequest req, ServletResponse res)
+            throws ServletException, IOException;
+
+    @Override
+    public String getServletName() {
+        return config.getServletName();
+    }
+}
+</code></pre>
+<p><code>GenericServlet</code> 實作了 <code>Servlet</code> 介面，其中接受 <code>ServletConfig</code> 的 <code>init()</code> 方法，會將傳入的 <code>ServletConfig</code> 實例設定給類別成員 <code>config</code>，之後呼叫無參數的 <code>init()</code> 方法，所以若你要定義 <code>Servlet</code> 的初始化，不建議直接重新定義接受 <code>ServletConfig</code> 的 <code>init()</code> 方法，而是重新定義無參數的 <code>init()</code> 方法。</p>
+<p><code>GenericServlet</code> 對 <code>Servlet</code> 介面的 <code>service()</code> 方法沒有實作，僅標示為 <code>abstract</code>，<code>service()</code> 方法的實作由子類別 <code>HttpServlet</code> 來完成：</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet.http;
+
+略...
+
+public abstract class HttpServlet extends GenericServlet {
+    public HttpServlet() {}
+
+    略...
+
+   protected void service(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+
+        String method = req.getMethod();
+
+        if (method.equals(METHOD_GET)) {
+            long lastModified = getLastModified(req);
+            if (lastModified == -1) {
+                doGet(req, resp);
+            } else {
+                略...          
+    }
+
+    略...  
+
+    @Override
+    public void service(ServletRequest req, ServletResponse res)
+        throws ServletException, IOException {
+
+        HttpServletRequest  request;
+        HttpServletResponse response;
+
+        try {
+            request = (HttpServletRequest) req;
+            response = (HttpServletResponse) res;
+        } catch (ClassCastException e) {
+            throw new ServletException("non-HTTP request or response");
+        }
+        service(request, response);
+    }
+
+}
+</code></pre>
+<p><code>HttpServlet</code> 是基於 HTTP 服務的一個類別，注意其套件是 <code>javax.servlet.http</code>，它實作了 <code>GenericServlet</code> 未實作的 <code>service()</code> 方法，如果是在 Web 容器，實作上傳入的請求、回應物件是實作 <code>HttpServletRequest</code>、<code>HttpServletResponse</code> 介面，它們分別是 <code>ServletRequest</code>、<code>ServletResponse</code> 的子介面，增加了一些 HTTP 相關操作的行為，<code>HttpServletRequest</code>、 <code>HttpServletResponse</code> 的套件亦歸類在 <code>javax.servlet.http</code>。</p>
+<p><code>HttpServlet</code> 實作了 <code>GenericServlet</code> 未實作的 <code>service()</code> 方法，將傳入的 <code>ServletRequest</code>、<code>ServletResponse</code> 轉換為 <code>HttpServletRequest</code>、<code>HttpServletResponse</code>，並呼叫自己定義的、接受 <code>HttpServletRequest</code>、<code>HttpServletResponse</code> 作為參數的 <code>service()</code> 方法，在這個 <code>service()</code> 方法中，根據 HTTP 請求方式，決定該呼叫 <code>doGet()</code>、<code>doPost()</code> 等方法。你可以參考〈<a href="DoGetDoPost.html">只有 doGet()、doPost()</a>〉的內容。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

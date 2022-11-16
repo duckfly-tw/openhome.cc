@@ -1,0 +1,153 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spring 支援 AOP（Aspect-Oriented Programming），AOP 是有不少的術語，不過說穿了，第一步還是在找出關切的任務，將這些任務分離開來，令這些任務可以獨立地進行設計，...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="在 AOP 之前">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/BeforeAOP.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Spring 支援 AOP（Aspect-Oriented Programming），AOP 是有不少的術語，不過說穿了，第一步還是在找出關切的任務，將這些任務分離開來，令這些任務可以獨立地進行設計，...">
+
+    <title>在 AOP 之前</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BeforeAOP.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>在 AOP 之前</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Spring 支援 AOP（Aspect-Oriented Programming），AOP 是有不少的術語，不過說穿了，第一步還是在找出關切的任務，將這些任務分離開來，令這些任務可以獨立地進行設計，說穿了，出發點仍是關切點分離（Separation of concerns）這古老的概念。</p>
+<p>只不過有些關注與程式主流程一致，易於識別與分離為獨立的程式庫或框架，像是 Dependency Injection、MVC 等，而有些關注則是與主要流程橫切，容易破碎地出現在各個主要流程之中，例如效能量測、日誌、資源存取控制等，面對這些與主流程橫切的關注，可以將之設計為獨立可重用的元件，便於切入主要流程，也便於抽離主要流程，而這些切入與抽離，都不用修改與主要流程相關的元件。</p>
+<p>這是什麼意思呢？若你接觸過 Servlet 程式設計，必然學過過濾器（Filter），正如同〈<a href="../ServletJSP/Filter.html">關於過濾器</a>〉中談到的，過濾器是個可重用的元件，可以轉換對資源的請求，也可以轉換回應的內容（過濾器並不負責建立回應內容），過濾器通常作為一個服務加入至應用程式之中，即時地為應用程式增加功能，但不用修改原有的應用程式，在不需要使用服務時，可以直接將過濾器從應用程式抽離，而不用修改原應用程式。</p>
+<p>過濾器概念上就像個濾網，需要時在某些資源存取前、回應前加上濾網，不需要時可直接將濾網拿掉，好的過濾器設計無論加上或拿掉，基本上都不應影響既有的應用程式流程。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="../ServletJSP/images/Filter-1.JPG" alt="過濾器"  /></div></div></p>
+<p>若以橫切主流程的任務的角度來看，過濾器可算是 AOP 概念的簡單實現，將關注的事抽離出來以便重用，只不過這個該抽離出來的關注，不是與主要流程有著一致的方向，而是橫切入主要流程。</p>
+<p>當然，Servlet 的過濾器是攔截過濾器（Intercepting Filter）模式之實現，粒度大許多，切入主流程的點，主要就是在 Servlet 處理請求前後，如果想要橫切的點是某個方法執行前後呢？例如，〈<a href="SpringDI.html">使用 Spring DI</a>〉中的 <code>AccountDAOJdbcImpl</code> 呼叫某方法前，都要做些簡單的日誌該怎麼做？</p>
+<p>修改 <code>AccountDAOJdbcImpl</code> 的原始碼，在每個方法開頭與結尾都加入日誌程式碼，當然是不切實際的，一個簡單的想法是實作一個 <code>AccountDAOLoggingProxy</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AccountDAOLoggingProxy implements AccountDAO {
+    private AccountDAO target;
+    private Logger logger;
+
+    @Autowired
+    public AccountDAOLoggingProxy(@Qualifier("accountDAOJdbcImpl") AccountDAO target) {
+        this.target = target;
+        logger = Logger.getLogger(target.getClass().getName());
+    }
+
+    @Override
+    public void createAccount(Account acct) {
+        logger.info(String.format("%s.createAccount(%s)",
+                target.getClass().getName(), acct));    
+        target.createAccount(acct);
+    }
+
+    @Override
+    public Optional&lt;Account&gt; accountByUsername(String name) {
+        logger.info(String.format("%s.accountByUsername(%s)", 
+                target.getClass().getName(), name));
+        return target.accountByUsername(name);
+    }
+
+    @Override
+    public Optional&lt;Account&gt; accountByEmail(String email) {
+        logger.info(String.format("%s.accountByEmail(%s)",
+                 target.getClass().getName(), email));
+        return target.accountByEmail(email);
+    }
+
+    @Override
+    public void activateAccount(Account acct) {
+        logger.info(String.format("%s.activateAccount(%s)",
+                target.getClass().getName(), acct));
+        target.activateAccount(acct);
+    }
+
+    @Override
+    public void updatePasswordSalt(String name, String password, String salt) {
+        logger.info(String.format("%s.updatePasswordSalt(%s, %s, %s)",
+                target.getClass().getName(), name, password, salt));
+        target.updatePasswordSalt(name, password, salt);
+    }   
+}
+</code></pre>
+<p><code>AccountDAOLoggingProxy</code> 實作了 <code>AccountDAO</code>，建構時必須注入 <code>AccountDAOJdbcImpl</code> 實例，在真正呼叫某方法之前，進行了日誌的動作，接著，<code>UserService</code> 改注入 <code>AccountDAOLoggingProxy</code>：</p>
+<pre class="prettyprint"><code lang="java">...略
+@Component
+public class UserService {
+    private final AccountDAO acctDAO;
+    private final MessageDAO messageDAO;
+
+    @Autowired
+    public UserService(@Qualifier("accountDAOLoggingProxy") AccountDAO acctDAO, MessageDAO messageDAO) {
+        this.acctDAO = acctDAO;
+        this.messageDAO = messageDAO;
+    }
+    ...略
+}
+</code></pre>
+<p>這麼一來，在不修改 <code>AccountDAOJdbcImpl</code> 的情況下，若有呼叫到 <code>AccountDAOJdbcImpl</code> 的方法前，都會進行日誌。</p>
+<p>不過 <code>AccountDAOLoggingProxy</code> 只能用於 <code>AccountDAO</code> 物件，而且如果要代理的方法很多，每個方法都要實作也是個麻煩，雖說如此，也算是實現了將橫切入主要流程的關切分離的概念，在面對關切點分離時，若能辨識出這類的需求，彈性的問題是可以解決的，例如，透過 Java 的 Reflection 等機制，來實現更有彈性的動態代理。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/AOP/BeforeAOP">BeforeAOP</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

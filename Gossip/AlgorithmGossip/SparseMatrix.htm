@@ -1,0 +1,323 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/AlgorithmGossip/'https://openhome.cc/zh-tw/algorithm/matrix/sparse/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="說明
+
+
+      
+
+
+如果在矩陣中，多數的元素並沒有資料，稱此矩陣為稀疏矩陣（sparse
+matrix），由於矩陣在程式中常使用二維陣列表示，二維陣列的大小與使用的記憶體空間成正...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="稀疏矩陣">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/AlgorithmGossip/SparseMatrix.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="說明
+
+
+      
+
+
+如果在矩陣中，多數的元素並沒有資料，稱此矩陣為稀疏矩陣（sparse
+matrix），由於矩陣在程式中常使用二維陣列表示，二維陣列的大小與使用的記憶體空間成正...">
+
+
+    <title>稀疏矩陣</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SparseMatrix.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Algorithm</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>稀疏矩陣</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+
+
+
+
+
+      
+      
+      <h2>說明</h2>
+
+
+      
+
+
+如果在矩陣中，多數的元素並沒有資料，稱此矩陣為稀疏矩陣（sparse
+matrix），由於矩陣在程式中常使用二維陣列表示，二維陣列的大小與使用的記憶體空間成正比，如果多數的元素沒有資料，則會造成記憶體空間的浪費，為
+此，必須設計稀疏矩陣的陣列儲存方式，利用較少的記憶體空間儲存完整的矩陣資訊。<br>
+
+
+
+
+
+      
+      
+      <h2>解法</h2>
+
+
+      
+
+
+在這邊所介紹的方法較為簡單，陣列只儲存矩陣的行數、列數與有資料的索引位置及其值，在需要使用矩陣資料時，再透過程式運算加以還原，例如若矩陣資料如下 ，其中0表示矩陣中該位置沒有資料：<br>
+
+
+      
+
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">0&nbsp; 0&nbsp; 0&nbsp; 0&nbsp; 0&nbsp; 0 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">0&nbsp; 3&nbsp; 0&nbsp; 0&nbsp; 0&nbsp; 0 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">0&nbsp; 0&nbsp; 0&nbsp; 6&nbsp; 0&nbsp; 0 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">0&nbsp; 0&nbsp; 9&nbsp; 0&nbsp; 0&nbsp; 0 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">0&nbsp; 0&nbsp; 0&nbsp; 0&nbsp; 12 0</span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <br>
+
+
+
+
+
+這個矩陣是5X6矩陣，非零元素有4個，您要使用的陣列第一列記錄其列數、行數與非零元素個數：<br>
+
+
+      
+
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">5&nbsp; 6&nbsp; 4 </span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <br>
+
+
+
+
+
+陣列的第二列起，記錄其位置的列索引、行索引與儲存值：<br>
+
+
+      
+
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">1&nbsp; 1&nbsp; 3 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">2&nbsp; 3&nbsp; 6 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">3&nbsp; 2&nbsp; 9 </span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">4&nbsp; 4&nbsp; 12 </span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <br>
+
+
+
+
+
+所以原本要用30個元素儲存的矩陣資訊，現在只使用了15個元素來儲存，節省了不少記憶體的使用。 <br>
+
+
+
+
+      
+      <h2> 實作：<a href="SparseMatrix.htm#C">C</a>&nbsp;&nbsp; &nbsp;<a href="SparseMatrix.htm#Java">Java</a>&nbsp;&nbsp; &nbsp;<a href="SparseMatrix.htm#Python">Python</a>&nbsp;&nbsp; &nbsp;<a href="SparseMatrix.htm#Scala">Scala</a>&nbsp;&nbsp;&nbsp; <a href="SparseMatrix.htm#Ruby">Ruby</a><br>
+      </a></h2>
+
+
+
+
+
+
+      
+      
+      <ul>
+
+
+        <li><a name="C"></a> C
+  </li>
+
+
+      
+      
+      </ul>
+
+
+
+
+
+
+      
+      
+      <pre class="prettyprint"><code>#include &lt;stdio.h&gt; <br>#include &lt;stdlib.h&gt; <br><br>int main(void) { <br>    int num[5][3] = {{5, 6, 4}, <br>                     {1, 1, 3}, <br>                     {2, 3, 6}, <br>                     {3, 2, 9}, <br>                     {4, 4, 12}}; <br><br>    int k = 1;<br>    int i;<br>    for(i = 0; i &lt; num[0][0]; i++) { <br>        int j;<br>        for(j = 0; j &lt; num[0][1]; j++) { <br>            if(k &lt;= num[0][2] &amp;&amp; <br>               i == num[k][0] &amp;&amp; j == num[k][1]) { <br>                printf("%4d ", num[k][2]); <br>                k++; <br>            } <br>            else <br>                printf("%4d ", 0); <br>        } <br>        putchar('\n'); <br>    } <br><br>    return 0; <br>} <br></code></pre>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      
+      
+      <ul>
+
+
+        <li> <a name="Java"></a>Java
+  </li>
+
+
+      
+      
+      </ul>
+
+
+
+
+
+
+      
+      
+      <pre class="prettyprint"><code>public class Matrix {<br>    public static int[][] restore(int[][] sparse) {<br>        int row = sparse[0][0];<br>        int column = sparse[0][1];        <br>        int[][] array = new int[row][column];<br>        <br>        for(int i = 0, k = 1; i &lt; row; i++) { <br>            for(int j = 0; j &lt; column; j++) { <br>                if(k &lt;= sparse[0][2] &amp;&amp; <br>                    i == sparse[k][0] &amp;&amp; j == sparse[k][1]) { <br>                    array[i][j] = sparse[k][2]; <br>                    k++; <br>                } <br>                else {<br>                    array[i][j] = 0; <br>                }<br>            }  <br>        } <br>        <br>        return array;<br>    }<br><br>    public static void main(String[] args) {<br>        int[][] sparse = {{5, 6, 4}, <br>                          {1, 1, 3}, <br>                          {2, 3, 6}, <br>                          {3, 2, 9}, <br>                          {4, 4, 12}};<br>        <br>        for(int[] arr : Matrix.restore(sparse)) {<br>            for(int elm : arr) {<br>                System.out.print(elm + " ");<br>            }<br>            System.out.println();<br>        }<br>    }<br>}</code></pre><br><ul><li><a name="Python"></a>Python</li></ul><pre class="prettyprint"><code>def restore(sparse):<br>    row = sparse[0][0]<br>    column = sparse[0][1]<br>    array = [[0] * column for i in range(row)]<br>    k = 1<br>    for i in range(row):<br>        for j in range(column):<br>            if k &lt;= sparse[0][2] and \<br>               i == sparse[k][0] and j == sparse[k][1]:<br>               array[i][j] = sparse[k][2]<br>               k += 1<br>            else:<br>                array[i][j] = 0<br>    return array<br><br>sparse = [<br>             [5, 6, 4], <br>             [1, 1, 3], <br>             [2, 3, 6],<br>             [3, 2, 9], <br>             [4, 4, 12]<br>          ]<br>array = restore(sparse)<br>print(array)</code></pre>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      <ul><li><a name="Scala"></a>Scala</li></ul><pre class="prettyprint"><code>object Matrix {<br>    def restore(sparse: Array[Array[Int]]) = {<br>        val row = sparse(0)(0)<br>        val column = sparse(0)(1)<br>        val array = new Array[Array[Int]](row, column)<br>        var k = 1<br>        for(i &lt;- 0 until row; j &lt;- 0 until column) {<br>            if(k &lt;= sparse(0)(2) &amp;&amp; i == sparse(k)(0) &amp;&amp; j == sparse(k)(1)) {<br>                array(i)(j) = sparse(k)(2)<br>                k += 1<br>            }<br>            else {<br>                array(i)(j) = 0<br>            }<br>        }<br>        array<br>    }<br>}<br><br>val sparse = Array(<br>                 Array(5, 6, 4),<br>                 Array(1, 1, 3),<br>                 Array(2, 3, 6),<br>                 Array(3, 2, 9),<br>                 Array(4, 4, 12)<br>             )<br>Matrix.restore(sparse).foreach(arr =&gt; {<br>    arr.foreach(elm =&gt; print(elm + " "))<br>    println()<br>})<br></code></pre><br>
+      <ul>
+        <li><a name="Ruby"></a>Ruby</li>
+      </ul>
+      <pre class="prettyprint"><code>def restore(sparse)<br>    row = sparse[0][0]<br>    column = sparse[0][1]<br>    array = Array.new(row) {<br>        Array.new(column, 0)<br>    }<br>    k = 1<br>    row.times { |i|<br>        column.times { |j|<br>            if k &lt;= sparse[0][2] &amp;&amp;<br>               i == sparse[k][0] &amp;&amp; j == sparse[k][1]<br>                array[i][j] = sparse[k][2]<br>                k += 1<br>            else<br>                array[i][j] = 0<br>            end<br>        }<br>    }<br>    array<br>end<br><br>sparse = [<br>             [5, 6, 4], <br>             [1, 1, 3], <br>             [2, 3, 6],<br>             [3, 2, 9], <br>             [4, 4, 12]<br>          ]<br>array = restore(sparse)<br>p array<br></code></pre>
+      <br>
+
+
+
+
+
+ 
+
+<br><br><div class="ad-2" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

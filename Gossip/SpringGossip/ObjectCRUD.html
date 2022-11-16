@@ -1,0 +1,247 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="就JdbcTemplate
+上的各個方法來看，它封裝了JDBC處理的細節，讓您不用接觸到底層的資料庫技術，然而JdbcTemplate的各個方法仍須熟悉如何使用SQL語法，
+如果您想讓一些程式開發...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="以物件方式進行操作">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/ObjectCRUD.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="就JdbcTemplate
+上的各個方法來看，它封裝了JDBC處理的細節，讓您不用接觸到底層的資料庫技術，然而JdbcTemplate的各個方法仍須熟悉如何使用SQL語法，
+如果您想讓一些程式開發...">
+
+
+    <title>以物件方式進行操作</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ObjectCRUD.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>以物件方式進行操作</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      就JdbcTemplate
+上的各個方法來看，它封裝了JDBC處理的細節，讓您不用接觸到底層的資料庫技術，然而JdbcTemplate的各個方法仍須熟悉如何使用SQL語法，
+如果您想讓一些程式開發人員不用接觸到SQL語法，在Spring中，您可以進一步建立可重用的操作物件，建立之後在進行資料庫設計時，將這些設計完成的
+可重用物件給開發人員使用，他們就無需接觸到SQL的細節，從他們的觀點來看，資料庫操作更接近物件導向的操作方式。<br>
+
+      <br>
+
+Spring提供org.springframework.jdbc.object套件，讓您以更物件導向的方式來設計資料庫操作方面的程式，您只要事先
+繼承或直接實例化相對應的類別並編譯，之後就可以重複利用這個實例，呼叫它的方法來進行資料庫相關操作，而不用接觸SQL等相關細節。<br>
+
+      <br>
+
+org.springframework.jdbc.object.RdbmsOperation是個抽象類，代表RDBMS（Relational
+Database Management
+System）的查詢、更新、預存程序等操作，您可以使用其子類org.springframework.jdbc.object.SqlUpdate、
+org.springframework.jdbc.object.MappingSqlQuery等類別，它們被設計為執行緒安全（Thread-
+safe），所以您可以在多執行緒的環境下重複使用這些類別的實例。<br>
+
+      <br>
+
+SqlFunction用來調用SQL Function，例如可以調用COUNT()，然後返回一個整數表示查詢到的資料筆數，下面是一個例子：<br>
+
+      
+      
+      <div style="margin-left: 40px;">SqlFunction sf = new SqlFunction(<br>
+
+      &nbsp;&nbsp;&nbsp; dataSource, "SELECT COUNT(*) from user");<br>
+
+      sf.compile();<br>
+
+      sf.run();<br>
+
+      </div>
+
+      <br>
+
+RdbmsOperation的子類別在設定好DataSource、SQL以及相關參數後，必須先呼叫compile()進行編譯，之後就可以重複使用這個實例，在設計時可以繼承SqlFunction來封裝SQL，例如修改<a href="UseJdbcTemplate.html">使用 JdbcTemplate</a> 的內容，新增一個類別如下所示：<br>
+
+      
+      
+      <ul>
+
+        <li>UserFunction.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.sql.DataSource;<br><br>import org.springframework.jdbc.object.SqlFunction;<br><br>public class UserFunction extends SqlFunction {<br>    public UserFunction(DataSource dataSource) {<br>        super(dataSource, "SELECT COUNT(*) from user");<br>        compile();<br>    }<br>}</code></pre>
+
+      <br>
+
+SqlUpdate類別用來表示一個SQL的更新操作，您也可以設定相關參數，設計時也可以繼承它來進行SQL的封裝，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>UserUpdate.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.sql.Types;<br><br>import javax.sql.DataSource;<br><br>import org.springframework.jdbc.object.SqlUpdate;<br><br>public class UserUpdate extends SqlUpdate {<br>    public UserUpdate(DataSource dataSource) {<br>        super(dataSource, <br>               "INSERT INTO user (name,age) VALUES(?,?)");<br>        int[] types = {Types.VARCHAR, Types.INTEGER}; <br>        setTypes(types); <br>        compile(); <br>    }<br>}</code></pre>
+
+      <br>
+
+setTypes()方法用來設定SQL中"?"佔位字元所要插入的數據類型，之後執行update()方法時，可以僅指定物件陣列作為引數來進行查詢，每一個陣列值將實際取代"?"佔位字元，例如可以這麼使用：<br>
+
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+      SqlUpdate userUpdate = new UserUpdate(dataSource);<br>
+
+      &nbsp;&nbsp;&nbsp; ...<br>
+
+      userUpdate.update(<br>
+
+      &nbsp;&nbsp;&nbsp; new Object[] {user.getName(), user.getAge()});<br>
+
+      </div>
+
+      <br>
+
+SqlQuery類別表示一個SQL查詢操作，不過通常很少直接使用這個類，因為通常查詢到資料之後，會作一些處理，例如封裝為User類別的實例，您可
+以使用它的子類別org.springframework.jdbc.object.MappingSqlMapping來進行這個動作，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>UserQuery.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.sql.ResultSet;<br>import java.sql.SQLException;<br>import javax.sql.DataSource;<br><br>import org.springframework.jdbc.object.MappingSqlQuery;<br><br>public class UserQuery extends MappingSqlQuery {<br>    public UserQuery(DataSource dataSource) {<br>        super(dataSource, "SELECT * FROM user");<br>        compile();<br>    }<br>    <br>    protected Object mapRow(ResultSet rs, <br>                                 int rowNum) throws SQLException { <br>        User user = new User(); <br>        <br>        user.setId(new Integer(rs.getInt("id"))); <br>        user.setName(rs.getString("name")); <br>        user.setAge(new Integer(rs.getInt("age")));<br>        <br>        return user; <br>    }    <br>} </code></pre>
+
+      <br>
+
+設計好這個類別之後，您可以這麼使用它：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">...</span><br>
+
+      <span style="font-weight: bold;">SqlQuery userQuery = new UserQuery(dataSource);</span><br>
+
+      <span style="font-weight: bold;">...</span><br>
+
+      <span style="font-weight: bold;">List users = userQuery.execute();</span><br>
+
+      </div>
+
+      <br>
+
+執行完execute()方法後，實際上傳回的List中會有User類別的實例，當中並封裝了查詢後的每一筆資料。<br>
+
+      <br>
+
+配合以上的幾個實作，您可以再改寫一下IUserDAO介面與UserDAO實作，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>IUserDAO.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.List;<br><br>public interface IUserDAO {<br>    public void insert(User user);<br>    public List allUser();<br>    public int count();<br>}</code></pre>
+
+      <br>
+
+假設您是程式開發人員，有其它的負責資料庫存取方面的程式，並提供了以上的UserFunction、UserUpdate與UserQuery類別，則
+您可以不用關心實際的SQL是如何下達的，可以使用UserFunction、UserUpdate與UserQuery類別來設計您的UserDAO類
+別：<br>
+
+      
+      
+      <ul>
+
+        <li>UserDAO.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.List;<br><br>import javax.sql.DataSource;<br><br>import org.springframework.jdbc.object.SqlFunction;<br>import org.springframework.jdbc.object.SqlQuery;<br>import org.springframework.jdbc.object.SqlUpdate;<br><br>public class UserDAO implements IUserDAO {<br>    private SqlUpdate userUpdate;<br>    private SqlQuery userQuery;<br>    private SqlFunction userFunction;<br><br>    public void setDataSource(DataSource dataSource) {<br>        userUpdate = new UserUpdate(dataSource);<br>        userQuery = new UserQuery(dataSource);<br>        userFunction = new UserFunction(dataSource);<br>    }<br>    <br>    public void insert(User user) {<br>        userUpdate.update(<br>          new Object[] {user.getName(), user.getAge()}); <br>    }<br><br>    public List allUser() {<br>        return userQuery.execute();<br>    }<br><br>    public int count() {<br>        return userFunction.run();<br>    }<br>}</code></pre>
+
+      <br>
+
+將SQL封裝重用之後，從UserDAO程式撰寫的角度來看，完全是物件操作的方式來進行，配合程式的修改，可以寫個簡單的程式來看看運作是否正常：<br>
+
+      
+      
+      <ul>
+
+        <li>SpringDAODemo.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.<br>              support.FileSystemXmlApplicationContext;<br>import java.util.List;<br><br>public class SpringDAODemo {<br>    public static void main(String[] args) {<br>        ApplicationContext context = <br>            new FileSystemXmlApplicationContext(<br>                    "beans-config.xml");<br>        <br>        User user = new User();<br>        user.setName("just933");<br>        user.setAge(new Integer(26));<br>        <br>        IUserDAO userDAO = <br>            (IUserDAO) context.getBean("userDAO");<br>        <br>        userDAO.insert(user);<br>        <br>        System.out.println("筆數: " + userDAO.count());<br>        <br>        List list = userDAO.allUser();<br>        for(int i = 0; i &lt; list.size(); i++) {<br>            User next = (User) list.get(i);<br>            System.out.println("\n\tId:\t" + next.getId());<br>            System.out.println("\tName:\t" + next.getName());<br>            System.out.println("\tAge:\t" + next.getAge());<br>        }<br>    }<br>}</code></pre>
+
+      <br>
+
+      <br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

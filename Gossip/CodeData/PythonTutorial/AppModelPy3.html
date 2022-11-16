@@ -1,0 +1,143 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="你已經建立第一個 Django 專案，那麼專案中有哪些東西呢？我們來看看 &hellip;
+
+相關的組態設定該如何進行，我們還是實際從練習中瞭解 …
+練習 12：建立 App 與模型
+在專案資料夾中，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 3 Tutorial 第八堂（2）建立 App 與模型">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/AppModelPy3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="你已經建立第一個 Django 專案，那麼專案中有哪些東西呢？我們來看看 &hellip;
+
+相關的組態設定該如何進行，我們還是實際從練習中瞭解 …
+練習 12：建立 App 與模型
+在專案資料夾中，...">
+
+    <title>Python 3 Tutorial 第八堂（2）建立 App 與模型</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="AppModelPy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 3 Tutorial 第八堂（2）建立 App 與模型</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>你已經建立第一個 Django 專案，那麼專案中有哪些東西呢？我們來看看 &hellip;</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/AppModelPy3-1.JPG" alt="建立 App 與模型"  /></div></div></p>
+<p>相關的組態設定該如何進行，我們還是實際從練習中瞭解 …</p>
+<h2>練習 13：建立 App 與模型</h2>
+<p>在專案資料夾中，有看到 db.sqlite3 資料庫檔案，存放的位置可在 mysite/settings.py 中 <code>DATABASES</code> 的 <code>'default'</code> 項目中設定，其中 <code>'ENGINE'</code> 設定為 <code>'django.db.backends.sqlite3'</code>，表示使用 Sqlite3，如果想要設定為其他資料庫系統，可以改為像是 <code>'django.db.backends.postgresql'</code>、<code>'django.db.backends.mysql'</code>、<code>'django.db.backends.oracle'</code> 等值。</p>
+<p>而 <code>'NAME'</code> 可用來設定想要的資料庫檔案位置，預設值是 <code>os.path.join(BASE_DIR, 'db.sqlite3')</code>，表示儲存在專案目錄之下：</p>
+<pre class="prettyprint"><code lang="python">...
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}  
+...
+</code></pre>
+<p>接著執行 <code>python3.5 manage.py migrate</code>，你就會看到一些建構資料表格的過程，然後會建立一個預設的驗證系統，如果你想要使用 Django 預設的後台管理，就會使用到這個驗證系統，下圖是個示範：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/AppModelPy3-2.JPG" alt="建立 App 與模型"  /></div></div></p>
+<p>接下來鍵入指令 <code>python3.5 manage.py startapp polls</code> 建立一個簡單的 poll app，這是一個用來作問題投票用的簡單 app；然後編輯 polls/models.py 的內容如下：</p>
+<pre class="prettyprint"><code lang="python">from django.db import models
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+    def was_published_recently(self):
+        return self.pub_date &gt;= timezone.now() - datetime.timedelta(days=1)
+
+    def __str__(self):
+        return self.question_text
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.choice_text
+</code></pre>
+<p>這建立了兩個資料模型 <code>Question</code> 與 <code>Choice</code>，<code>Question</code> 中有 <code>question_text</code> 與 <code>pub_date</code> 兩個欄位，代表想問題描述與發佈日期，<code>was_published_recently</code> 方法用來判斷，這個問題是不是最近一日內新發佈的，<code>__str__</code> 用來傳回 <code>Question</code> 實例的字串說明。<code>Choice</code> 則用來記錄投票選項，<code>question</code> 關聯至問題（<code>Question</code> 實例），<code>choice_text</code> 是該問題的選項文字，<code>votes</code> 是投票數。</p>
+<p>這個 app 剛建立，你必須讓目前專案知道，這要在 mysite/settings.py 中設定，找到其中的 <code>'INSTALLED_APPS'</code>，在最後加入 <code>'polls'</code>：</p>
+<pre class="prettyprint"><code lang="python">...
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'polls'
+]
+...
+</code></pre>
+<p>接著你可以執行 <code>python3.5 manage.py makemigrations polls</code>，你會看到以下的訊息：</p>
+<pre class="prettyprint"><code lang="python">Migrations for 'polls':
+  0001_initial.py:
+    - Create model Choice
+    - Create model Question
+    - Add field question to choice
+</code></pre>
+<p><code>makemigrations</code> 告訴 Django 模型有所變動，這會建立一個遷移（migration）檔案，像是方才建立的 0001_initial.py，當中載明了如何對資料庫作出變更，如果想知道接下來會執行哪些 SQL，可以執行 <code>python3.5 manage.py sqlmigrate polls 0001</code> 預覽一下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/AppModelPy3-3.JPG" alt="建立 App 與模型"  /></div></div></p>
+<p>如果沒有問題的話，就執行 <code>python3.5 manage.py migrate</code> 完成遷移：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/AppModelPy3-4.JPG" alt="建立 App 與模型"  /></div></div></p>
+<p>接下來，就已經可以實際操作方才建立的 <code>Question</code> 與 <code>Choice</code> 了，相關的操作，都會自動與資料庫互動，像是作出變更或進行查詢，這之後我們再來介紹。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

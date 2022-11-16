@@ -1,0 +1,132 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compiling Wat to WebAssembly
+As said in Understanding WebAssembly text format, to enable WebAssembly...">
+
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Compiling Wat to WebAssembly</p>">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/eGossip/WebAssembly/Wat2Wasm.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Compiling Wat to WebAssembly
+As said in Understanding WebAssembly text format, to enable WebAssembly...">
+
+    <title>Compiling Wat to WebAssembly</p></title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Wat2Wasm.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/WebAssembly/index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Compiling Wat to WebAssembly</p></h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+<p>As said in <a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Understanding_the_text_format">Understanding WebAssembly text format</a>, to enable WebAssembly to be read and edited by humans, there is a textual representation of the wasm binary format. You've seen how to compile C to WebAssembly and the corresponding text format in <a href="C2Wasm.html">Compiling C to WebAssembly</a>. In both the binary and textual formats, the fundamental unit of code in WebAssembly is a module. If you have experience with Lisp, you might feel familiar with the text format represented as one big S-expression.</p>
+<p><a href="https://wasdk.github.io/WasmFiddle/">WasmFiddle</a> can compile C to WebAssembly but doesn't allow editing the text format. There's a online <a href="http://mbebenita.github.io/WasmExplorer/">WasmExplorer</a> which allows you to do that (but doesn't provide JavaScript editor).</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Wat2Wasm-1.JPG" alt="Compiling Wat to WebAssembly"  /></div></div></p>
+<p>In the above figure, you can edit the WebAssembly text format in the &ldquo;Wat&rdquo;. (The file extension of the WebAssembly text format is &ldquo;.wat&rdquo;. That's why we often call it &ldquo;Wat&rdquo;.)   After editing in &ldquo;Wat&rdquo;, click &ldquo;ASSEMBLE&rdquo; to compile to the wasm binary format.</p>
+<p>Even though I haven’t started talking about Wat, you can still understand what the code does from keywords <code>module</code>, <code>func</code>, <code>param</code>, <code>result</code> and <code>export</code>. The code defines a module and exports an <code>add</code> function.</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (func $add (param $lhs i32) (param $rhs i32) (result i32)
+    get_local $lhs
+    get_local $rhs
+    i32.add)
+  (export "add" (func $add))
+)
+</code></pre>
+<p>The <code>get_local</code> command would push the value of the local it read onto the stack. We push two values onto the stack because <code>i32.add</code> pops two <code>i32</code> values, computes their sum and pushes the resulting <code>i32</code> value onto the stack.</p>
+<p>After downloading &ldquo;.wasm&ldquo;, use the following JavaScript to invoke the exported <code>add</code> function.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;    
+    WebAssembly.instantiateStreaming(fetch('program.wasm'))
+               .then(prog =&gt; {
+                   console.log(prog.instance.exports.add(1, 2)); 
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>You can edit and compile Wat locally through <a href="https://github.com/WebAssembly/wabt">WABT: The WebAssembly Binary Toolkit</a>. The <code>wat2wasm</code> command translates from WebAssembly text format to the WebAssembly binary format. The <code>wasm2wat</code> command is the inverse of <code>wat2wasm</code>. It translates from the binary format back to the text format.</p>
+<p>If you use <a href="https://code.visualstudio.com/">Visual Studio Code</a>, the extension <a href="https://marketplace.visualstudio.com/items?itemName=dtsvet.vscode-wasm">WebAssembly Toolkit for VSCode</a> by Dmitriy Tsvettsikh is helpful. It provides syntax highlight for WebAssembly textual representation and fast convertation between text and binary view.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Wat2Wasm-2.JPG" alt="Compiling Wat to WebAssembly"  /></div></div></p>
+<p>You can see that I use <code>http-server</code> of Node.js in the above figure.</p>
+<p>Importing a JavaScript function can be done by <code>import</code>. For example, the following code imports and calls the JavaScript <code>log</code> function into WebAssembly.</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (import "env" "log" (func $log (param i32)))
+  (func $add (param $lhs i32) (param $rhs i32) (result i32)
+    (local $result i32)
+    get_local $lhs
+    get_local $rhs
+    i32.add
+    tee_local $result
+    call $log
+    get_local $result)
+  (export "add" (func $add))
+)
+</code></pre>
+<p>The example includes more details about Wat. I'll explain them in later documents.</p>
+<p>Node.js also supports WebAssembly now. For example, you can edit a .js file.</p>
+<pre class="prettyprint"><code lang="wat">const fs = require('fs');
+const buffer = fs.readFileSync(('program.wasm'));
+
+WebAssembly.instantiate(buffer)
+.then(prog =&gt; {
+    console.log(prog.instance.exports.add(1, 2)); 
+});
+</code></pre>
+<p>Use <code>nodejs</code> to run it. You would see the resulting 3 shown in the console.</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,123 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：private繼承之爭
+      
+      Ptt Java版近來出現了個看似基礎的〈private繼承問題〉引發了爭論，問題一開始是Java類別的private成員...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="private繼承之爭">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/Private.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：private繼承之爭
+      
+      Ptt Java版近來出現了個看似基礎的〈private繼承問題〉引發了爭論，問題一開始是Java類別的private成員...">
+
+
+    <title>private繼承之爭</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Private.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>private繼承之爭</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/voice/90371">private繼承之爭</a><br>
+      <br>
+      Ptt Java版近來出現了個看似基礎的〈<code>private</code>繼承問題〉引發了爭論，問題一開始是Java類別的<code>private</code>成員是否會被繼承，有人從原始碼實作觀點來看認為是有繼承，有人引用了官方文件，認為有岐義就該以官方定義為主，有人覺得只是文字遊戲，有人站在中間認為兩個說法都沒有錯，只是雙方對繼承的定義不同而已。當一個爭論有如此多觀點出現時，討論追求的就不再只會是對與錯、是或不是的結果。<br>
+      <br>
+      <dl>
+        <dt>private成員會被繼承嗎？</dt>
+      </dl>
+      <br>
+      在Java如果類別中的成員被宣告為<code>private</code>，那就無法在類別之外被存取，子類別亦然，然而爭議點在於，子類別會繼承<code>private</code>成員嗎？若根據Java語言規格書（Java Language Specification, JLS）中的〈8.2. Class Members〉內容，被宣告為<code>private</code>的類別成員不會被繼承，只有被宣告為<code>public</code>、<code>protected</code>的成員才會被繼承。從可見度（Visibility）來看，子類別確實也只能看到父類別的<code>public</code>、<code>protected</code>成員，試圖存取父類別的<code>private</code>成員，編譯器也會產生<code>private</code>成員無法存取的錯誤。<br>
+      <br>
+      從設計的角度來看，如果拿到一個類別，在沒有原始碼，不會得知該類別有哪些<code>private</code>成員的情況下，繼承該類別之後，也只能看到<code>public</code>、<code>protected</code>成員，其他的原始碼對子類別來說都是黑箱，看不到，摸不著，而且就設計上來說，也不該去探知黑箱裏的東西，就算該類別設計了個可見的<code>getA</code>方法，也不該假設該類別有個對應的<code>private</code>值域（Filed）<code>a</code>，也許<code>getA</code>裏頭是取得了<code>private</code>的<code>b</code>，或者是算出了其他的值，就子類別來說，只能知道它繼承了那些可見的行為，從這個角度來看，<code>private</code>成員是沒被繼承的。<br>
+      <br>
+      然而如果有兩個類別擁有一些相同的程式碼定義，從消除程式碼重複的觀點來看，可以將重複的程式碼定義提取（Pull up）至一個父類別，原本的兩個類別則繼承父類別中相同的原始碼實作，這可以提高程式碼的可維護性，如果改天修改了父類別的定義，像是某個內部使用的<code>private</code>方法演算，那子類別也自動繼承了那些修改後的原始碼實作，不少書籍或文件，都會從這個角度來解釋繼承的優點或運用場合。<br>
+      <br>
+      只是如此就在對繼承的解釋上產生了矛盾，JLS明確地說了，<code>private</code>成員不會被繼承，可是實際上從原始碼實作角度來看，<code>private</code>是有被繼承的，現在是在討論Java，JLS是用來規範Java，為了避免岐義，或許該直接採用JLS的說詞，只不過，當你試圖於子類別存取<code>private</code>成員時，編譯器xxx has private access之類的訊息卻透露出，其實<code>private</code>成員相關原始碼是有被繼承的，只是若在子類別存取它，編譯器會拋出編譯錯誤罷了，那麼是編譯器與JLS不一致嗎？<br>
+      <br>
+      <dl>
+        <dt>調查繼承的多種定義</dt>
+      </dl>
+      <br>
+      詳細看過繼承論戰中每個人的觀點之後，加上自己本身對繼承的認知，腦中想起了過去Java有個熱門的論戰議題：Java中到底是call by value還是call by reference？現在應該不會有人再為了這個議題吵架了，因為大家多半已知道這是reference一詞在不同的語言中有不同的意義，只是剛好都稱為reference而已。以前我也曾經因為看過太多各種不同對多型的解釋，決定對多型做個徹底的調查，才發現多型有著多個不同類型，因而有了先前〈多型的本質〉系列三篇專欄，實際上那也只是談到了多型類型中較常見的三種而已。那麼，會不會其實繼承也有不同的類型呢？<br>
+      <br>
+      後來在調查繼承的過程中發現確實如此，在蔡學鏞的〈思考物件導向(2)繼承與其階段性任務〉直接寫到：「繼承的目的，是要達到「程式碼再用」（Code Reuse）或「介面再用」。一開始我對繼承的想法，其實比較偏後者，也就是在設計上，若他人撰寫的類別中宣告了<code>private</code>成員，表示他不想讓我看到，實際上我不應該也不用關心是否有<code>private</code>成員被繼承，我只要關心可見的行為或成員上，是否有被繼承就可以了。<br>
+      <br>
+      尋找更多資料加強我既有的想法當然是可以的，然而我試著從程式碼再用的方向來進行調查繼承，後來看到維基百科上Inheritance條目寫到，在物件導向中，繼承是物件或類別基於其他物件或類別，使用了（從類別繼承而來的）相同實作，或在保有相同行為下作了特定實作，這是一種程式碼重用機制。<br>
+      <br>
+      進一步地，維基上談到繼承不應當與次型態（Subtyping）混淆，繼承是重用實作，而次型態是可代換（Substitutability）觀念，也就是若S是T的次型態，S型態實例可被當作T型態來使用。有的語言實現中，繼承的關係與次型態關係是一致的，有的語言中則不然，為了區別，次型態被視作一種介面繼承（interface inheritance），而程式碼重用的繼承被視為一種實作繼承（implementation inheritance）。<br>
+      <br>
+      <dl>
+        <dt>思考JLS的繼承定義</dt>
+      </dl>
+      <br>
+      調查結果顯示，繼承確實存在不同類型，而且不同語言因本身特性不同，實現繼承的方式也有所不同，有些語言具有繼承機制，但不具有Java中<code>private</code>關鍵字限制存取權限的概念，私有成員在某些語言中，只是使用命名慣例來約束；另一方面，從重用的程式碼角度來看，<code>private</code>也是程式碼的一部份，應該有繼承，然而從可見的外觀來看，<code>private</code>不屬於公開協定的一部份，不會被繼承，既然現在是在討論Java，那就用JLS的定義為主就好了，這樣大家使用Java上，對<code>private</code>是否有繼承才不會有岐義，對嗎？<br>
+      <br>
+      如果只追求一種標準答案，是可以這麼做沒錯，不過，既然繼承至今其實有不同類型，何不思考一下，JLS定義的繼承到底是哪種類型的繼承？Java是屬於繼承關係與次型態關係一致的語言，因而使用關鍵字<code>extends</code>父類別之後，就同時有了實作繼承與介面繼承，然而，以JLS著重在<code>public</code>、<code>protected</code>成員才會被繼承的觀點來看，它講的應該是「介面繼承」，著重在可見的協定，也就是只有在看得見成員的情況下，才被視為繼承下來的成員，從這個角度來看，JLS定義<code>private</code>不屬於被繼承的（協定）想法就可以理解。<br>
+      <br>
+      實際上，stackoverflow上為了<code>private</code>成員是不是有繼承也吵上了好幾輪了，在〈Does subclasses inherit private fields?〉選出的答案中，也有個有趣的說詞試圖幫JLS解釋：子類別的物件（OBJECTS）是包括了父類別的<code>private</code>值域，（然而）子類別本身並不懂（has NO NOTION of）父類別的private值域。也就是說，子類別看不到的協定，不視為繼承。<br>
+      <br>
+      <dl>
+        <dt>換位思考、更多角度</dt>
+      </dl>
+      <br>
+      「在Java中，<code>private</code>成員是否會被繼承？」並不是一個好題目，畢竟目前來說，繼承本來就有不同的類型，在還沒有搬出JLS的定義之前，每個人會從各自的經驗、角度、運用方式，來討論他們心中認定的繼承是什麼形式，實際上，如果從不同語言的角度來看繼承，形式或概念上還會有更多的差異，在試圖讓對方信服那是或不是繼承之時，也可以試著聽懂對方在講的是哪種繼承。<br>
+      <br>
+      有時甚至可以換位思考，假設自己是持相反意見的對方，從他們的角度為他們找更多資料佐證他們的說詞，反而能看到更多有趣的東西，與一直從自己已知的角度來釐清爭議相比，更能得到不一樣的想法，如果今天是面試或考試，只能有唯一的標準答案，那只好以JLS為主，不過，若不是為了考試，在爭議中能逐步理解自己與對方想的各是什麼，那才能得到特定技術或語言定義之外更多的觀念與想法，也才不會在討論不歡而散、毫無交集之後，覺得徒然浪費了時間。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

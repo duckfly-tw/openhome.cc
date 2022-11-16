@@ -1,0 +1,189 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如〈了解生命週期與架構〉中提過，若是巢狀標籤中的內層標籤，則還會呼叫標籤處理器的 setParent() 方法，並傳入外層標籤處理器的實例。
+同樣地，在這邊以開發 &lt;f:choose&gt;、&...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="與父標籤溝通">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/TagParentTag.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如〈了解生命週期與架構〉中提過，若是巢狀標籤中的內層標籤，則還會呼叫標籤處理器的 setParent() 方法，並傳入外層標籤處理器的實例。
+同樣地，在這邊以開發 &lt;f:choose&gt;、&...">
+
+    <title>與父標籤溝通</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TagParentTag.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>與父標籤溝通</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如〈<a href="TagAPILifeCycle.html">了解生命週期與架構</a>〉中提過，若是巢狀標籤中的內層標籤，則還會呼叫標籤處理器的 <code>setParent()</code> 方法，並傳入外層標籤處理器的實例。</p>
+<p>同樣地，在這邊以開發 <code>&lt;f:choose&gt;</code>、<code>&lt;f:when&gt;</code> 與 <code>&lt;f:otherwise&gt;</code> 作為示範。首先是標籤處理器的開發：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.TagSupport;
+
+public class ChooseTag extends TagSupport {
+    private boolean matched;
+
+    @Override
+    public int doStartTag() throws JspException {
+        matched = false;
+        return EVAL_BODY_INCLUDE;
+    }
+
+    public boolean isMatched() {
+        return matched;
+    }
+
+    public void setMatched(boolean matched) {
+        this.matched = matched;
+    }
+}  
+</code></pre>
+<p><code>ChooseTag</code> 基本上什麼都不作，之所以要重新定義 <code>doStartTag()</code>，因為 <code>TagSupport</code> 的 <code>doStartTag()</code> 方法預設傳回 <code>SKIP_BODY</code>，因為 <code>&lt;f:choose&gt;</code> 用來包括內層標籤，你不能忽略本體內容，所以必須傳回 <code>EVAL_BODY_INCLUDE</code>。另一方面，記得 <code>Tag</code> 的實 例會在不使用時放回標籤池，所以若標籤上一次執行過後有狀態存在，下次再度從標籤池中取出時，必須考慮進行狀態重置的動作，這個動作我們放在 <code>doStartTag()</code> 中完成。</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.JspTag;
+import javax.servlet.jsp.tagext.Tag;
+
+public class WhenTag extends BodyTagSupport {
+    private boolean test;
+
+    @Override
+    public int doStartTag() throws JspException {
+        JspTag parent = null;
+        if (!((parent = getParent()) instanceof ChooseTag)) {
+            throw new JspTagException("必須置於choose標籤中");
+        }
+
+        if (((ChooseTag) parent).isMatched() || !test) {
+            return SKIP_BODY;
+        }
+
+        ((ChooseTag) parent).setMatched(true);
+        return EVAL_BODY_INCLUDE;
+    }
+
+    public void setTest(boolean test) {
+        this.test = test;
+    }
+} 
+</code></pre>
+<p>在這邊，<code>doStartTag()</code> 判斷是否包括在 <code>&lt;f:choose&gt;</code> 標籤中，判斷先前的 <code>&lt;f:when&gt;</code> 是否曾經通過測試，以決定是否要執行或忽略自己的本體內容。</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.JspTag;
+import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.TagSupport;
+
+public class OtherwiseTag extends TagSupport {
+    @Override
+    public int doStartTag() throws JspException {
+        JspTag parent = null;
+        if (!((parent = getParent()) instanceof ChooseTag)) {
+            throw new JspTagException("必須置於choose標籤中");
+        }
+
+        if (((ChooseTag) parent).isMatched()) {
+            return SKIP_BODY;
+        }
+
+        return EVAL_BODY_INCLUDE;
+    }
+} 
+</code></pre>
+<p>基本上，<code>OtherwiseTag</code> 的 <code>doStartTag()</code> 與 <code>WhenTag</code> 是類似的，只不過不用檢查 test`屬性。記得在TLD檔案中加入標籤定義：</p>
+<h4>f.tld</h4>
+<pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;taglib version="2.1" xmlns="http://java.sun.com/xml/ns/j2ee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+   web-jsptaglibrary_2_1.xsd"&gt;
+    &lt;tlib-version&gt;1.0&lt;/tlib-version&gt;
+    &lt;short-name&gt;f&lt;/short-name&gt;
+    &lt;uri&gt;https://openhome.cc/jstl/fake&lt;/uri&gt;
+    // 略...
+    &lt;tag&gt;
+        &lt;name&gt;choose&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.ChooseTag&lt;/tag-class&gt;
+        &lt;body-content&gt;JSP&lt;/body-content&gt;
+    &lt;/tag&gt;
+    &lt;tag&gt;
+        &lt;name&gt;when&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.WhenTag&lt;/tag-class&gt;
+        &lt;body-content&gt;JSP&lt;/body-content&gt;
+        &lt;attribute&gt;
+            &lt;name&gt;test&lt;/name&gt;
+            &lt;required&gt;true&lt;/required&gt;
+            &lt;rtexprvalue&gt;true&lt;/rtexprvalue&gt;
+            &lt;type&gt;boolean&lt;/type&gt;
+        &lt;/attribute&gt;
+    &lt;/tag&gt;
+    &lt;tag&gt;
+        &lt;name&gt;otherwise&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.OtherwiseTag&lt;/tag-class&gt;
+        &lt;body-content&gt;JSP&lt;/body-content&gt;
+    &lt;/tag&gt;
+&lt;/taglib&gt; 
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

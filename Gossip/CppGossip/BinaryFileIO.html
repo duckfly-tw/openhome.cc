@@ -1,0 +1,169 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用二進位模式開啟檔案，在寫入或讀取檔案時不會發生字元轉換，數值在記憶體中的位元是如何，寫入檔案時就是如何，而讀入時也是相同。
+下面這個程式可以讀入任意檔案，每次讀入一個位元組，並將讀入資料以 16 ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="二進位檔案 I/O">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/BinaryFileIO.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="使用二進位模式開啟檔案，在寫入或讀取檔案時不會發生字元轉換，數值在記憶體中的位元是如何，寫入檔案時就是如何，而讀入時也是相同。
+下面這個程式可以讀入任意檔案，每次讀入一個位元組，並將讀入資料以 16 ...">
+
+    <title>二進位檔案 I/O</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BinaryFileIO.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>二進位檔案 I/O</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>使用二進位模式開啟檔案，在寫入或讀取檔案時不會發生字元轉換，數值在記憶體中的位元是如何，寫入檔案時就是如何，而讀入時也是相同。</p>
+<p>下面這個程式可以讀入任意檔案，每次讀入一個位元組，並將讀入資料以 16 進位數顯示，若讀入的資料前導位元為 1，為了輸出的對齊，使用其補數加以顯示：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include &lt;fstream&gt; 
+#include &lt;iomanip&gt; 
+using namespace std; 
+
+void print(ifstream &amp;in) {
+    char ch; 
+    int count = 0;     
+    while(!in.eof()) { 
+        in.get(ch); 
+        if(ch &lt; 0) {
+            ch = ~ch;     // 負數取補數 
+        }
+        cout &lt;&lt; setw(2) &lt;&lt; hex &lt;&lt; static_cast&lt;int&gt;(ch) &lt;&lt; " "; 
+        count++; 
+        if(count &gt; 16) {  // 換行 
+            cout &lt;&lt; endl; 
+            count = 0; 
+        } 
+    } 
+    cout &lt;&lt; endl; 
+}
+
+int main(int argc, char* argv[]) { 
+    ifstream in(argv[1], ios::in | ios::binary); 
+    if(!in) { 
+        cout &lt;&lt; "無法讀取檔案" &lt;&lt; endl; 
+        return 1; 
+    } 
+
+    print(in);
+    in.close(); 
+
+    return 0; 
+}
+</code></pre>
+<p>執行結果：</p>
+<pre class="prettyprint"><code lang="c++">23 69 6e 63 6c 75 64 65 20 3c 69 6f 73 74 72 65 61
+6d 3e  a 23 69 6e 63 6c 75 64 65 20 3c 66 73 74 72
+65 61 6d 3e  a 23 69 6e 63 6c 75 64 65 20 3c 69 6f
+6d 61 6e 69 70 3e  a 75 73 69 6e 67 20 6e 61 6d 65
+73 70 61 63 65 20 73 74 64 3b  a  a 69 6e 74 20 6d
+61 69 6e 28 69 6e 74 20 61 72 67 63 2c 20 63 68 61
+略....
+</code></pre>
+<p>下面這個程式可以讓將檔案複製至另一指定名稱：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include &lt;fstream&gt; 
+using namespace std; 
+
+int main(int argc, char* argv[]) { 
+    char ch; 
+
+    ifstream in(argv[1], ios::in | ios::binary); 
+    ofstream out(argv[2], ios::out | ios::binary); 
+
+    while(!in.eof()) { 
+        in.get(ch); 
+        if(!in.eof()) 
+            out.put(ch); 
+    } 
+
+    in.close(); 
+    out.close(); 
+
+    return 0;
+}
+</code></pre>
+<p>在寫入或讀取檔案時，也可以用 <code>read</code> 與 <code>write</code> 函式以區塊的方式寫入，它們的函式雛型如下：</p>
+<pre class="prettyprint"><code lang="c++">istream &amp;read(char *buf, streamsize num);
+ostream &amp;write(const char* buf, streamsize num);
+</code></pre>
+<p>其中 <code>num</code> 是要寫入的資料位元組數目，下面這個程式示範如何將陣列資料寫入檔案，然後再將之讀出：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include &lt;fstream&gt; 
+using namespace std; 
+
+int main(int argc, char* argv[]) { 
+    ofstream out("temp", ios::out | ios::binary); 
+    int arr[5] = {1, 2, 3, 4, 5}; 
+    out.write(reinterpret_cast&lt;char*&gt;(arr), sizeof(arr)); 
+    out.close(); 
+
+    ifstream fin("temp", ios::in | ios::binary); 
+    fin.read(reinterpret_cast&lt;char*&gt;(arr), sizeof(arr)); 
+    for(int i = 0; i &lt; 5; i++) {
+        cout &lt;&lt; arr[i] &lt;&lt; ' '; 
+    }
+    cout &lt;&lt; endl; 
+    fin.close(); 
+
+    return 0; 
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

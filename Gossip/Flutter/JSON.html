@@ -1,0 +1,202 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dart 本身的 dart:convert，就有 jsonEncode 可以將 Object 轉換為 JSON，以及 jsonDecode 能將 JSON 轉換為 Map&lt;String, dyn...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="JSON 與 dart:convert">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/JSON.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Dart 本身的 dart:convert，就有 jsonEncode 可以將 Object 轉換為 JSON，以及 jsonDecode 能將 JSON 轉換為 Map&lt;String, dyn...">
+
+    <title>JSON 與 dart:convert</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JSON.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>JSON 與 dart:convert</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Dart 本身的 <code>dart:convert</code>，就有 <code>jsonEncode</code> 可以將 <code>Object</code> 轉換為 JSON，以及 <code>jsonDecode</code> 能將 JSON 轉換為 <code>Map&lt;String, dynamic&gt;</code>。</p>
+<p><code>jsonEncode</code> 的第一個參數可接受數字、布林、字串、<code>null</code>、<code>List</code> 或 <code>Map</code>，例如，底下將 <code>Map&lt;String, dynamic&gt;</code> 轉換為 JSON：</p>
+<pre class="prettyprint"><code lang="dart">var map = {
+  'name' : 'Justin',
+  'age'  : 40,
+  'childs' : [
+    {
+      'name' : 'hamimi',
+      'age'  : 3
+    }
+  ]
+};
+
+var json = jsonEncode(map);
+print(json);   // 顯示 {"name":"Justin","age":40,"childs":[{"name":"hamimi","age":3}]}
+</code></pre>
+<p>因為 Dart 的 <code>Map</code>、<code>List</code> 的字面表示方式，組合起來很像是 JSON 格式，透過以上方式來轉換 JSON 是蠻常見的做法，第一個參數也可以接受具有 <code>toJson</code> 方法的物件，由物件自身負責 JSON 轉換，例如若有個 <code>User</code> 類別如下：</p>
+<pre class="prettyprint"><code lang="dart">class User {
+  String name;
+  int age;
+
+  User({this.name, this.age});
+
+  Map&lt;String, dynamic&gt; toJson() {
+    return {
+      'name': name,
+      'age': age
+    };
+  }
+}
+</code></pre>
+<p>就可以直接將 <code>User</code> 實例餵給 <code>jsonEncode</code>：</p>
+<pre class="prettyprint"><code lang="dart">var json = jsonEncode(User(name: 'Justin', age: '40'));
+print(json);  // 顯示 {"name":"Justin","age":"40"}
+</code></pre>
+<p>如果類別沒有定義 <code>toJson</code>，可以在呼叫 <code>jsonEncode</code> 時指定 <code>toEncodable</code>，例如，假設方才的 <code>User</code> 類別沒有定義 <code>toJson</code>：</p>
+<pre class="prettyprint"><code lang="dart">var json = jsonEncode(User(name: 'Justin', age: '40'), toEncodable: (nonEncodable) {
+  User user = nonEncodable;
+  return {
+    'name': user.name,
+    'age': user.age
+  };
+});
+print(json); // 顯示 {"name":"Justin","age":"40"}
+</code></pre>
+<p><code>jsonDecode</code> 能將 JSON 轉換為 <code>Map&lt;String, dynamic&gt;</code>，例如：</p>
+<pre class="prettyprint"><code lang="dart">var json = '''{
+  "name": "Justin",
+  "age": 40, 
+  "childs": [
+    {
+      "age": 8,
+      "name": "Irene"
+    }
+  ]
+}''';
+
+Map&lt;String, dynamic&gt; user = jsonDecode(json);
+user.forEach((key, value) =&gt; print('${key}: ${value}'));
+</code></pre>
+<p><code>childs</code> 的型態，也就是 <code>user['childs']</code> 的型態會是 <code>List&lt;Map&lt;String, dynamic&gt;&gt;</code>。<code>jsonDecode</code> 可以指定 <code>reviver</code> 函式，這會在每個被剖析出來的物件上呼叫，<code>reviver</code> 函式的參數是 <code>key</code> 與 <code>value</code>，<code>key</code> 會是字串、索引（<code>List</code> 的情況）或者是 <code>null</code>（整個剖析後的 <code>Map&lt;String, dynamic&gt;</code>），<code>value</code> 是對應的剖析結果物件。</p>
+<p>預設的 <code>reviver</code> 函式，單純地傳回 <code>value</code>，你可以在 <code>reviver</code> 調整剖析後的結果，例如將字串轉大寫：</p>
+<pre class="prettyprint"><code lang="dart">var json = '''{
+  "name": "Justin",
+  "age": 40, 
+  "childs": [
+    {
+      "age": 8,
+      "name": "Irene"
+    }
+  ]
+}''';
+
+Map&lt;String, dynamic&gt; user = jsonDecode(json, reviver: (key, value) {
+  if(value is String) {
+    return (value as String).toUpperCase();
+  }
+  return value;
+});
+
+// 字串會是大寫結果
+user.forEach((key, value) =&gt; print('${key}: ${value}'));
+</code></pre>
+<p>在一些文件上，常見使用以下的模式，在物件模型與 <code>Map&lt;String, dynamic&gt;</code> 之間轉換：</p>
+<pre class="prettyprint"><code lang="dart">class User {
+  String name;
+  int age;
+
+  User({this.name, this.age});
+
+  User.fromJson(Map&lt;String, dynamic&gt; json)
+      : name = json['name'],
+        age = json['age'];
+
+  Map&lt;String, dynamic&gt; toJson() {
+    return {
+      'name': name,
+      'age': age
+    };
+  }
+}
+</code></pre>
+<p>這麼一來，就可以如下搭配 <code>jsonEncode</code> 與 <code>jsonDecode</code>：</p>
+<pre class="prettyprint"><code lang="dart">var userMap = jsonEncode(User(name: 'Justin', age: 40));
+var user = User.fromJson(jsonDecode(userMap));
+</code></pre>
+<p>只不過我個人感覺這有點奇怪，<code>User.fromJson</code> 其實應該命名為 <code>User.fromMap</code>，而 <code>toJson</code> 也應該命名為 <code>toMap</code>，雖然合理的解釋是「為了配合 <code>jsonEncode</code>、<code>jsonDecode</code> 的 API 協定」，不過，比較好的方式，應該是物件模型與 JSON 之間的轉換，把 <code>jsonEncode</code>、<code>jsonDecode</code> 封裝起來吧！</p>
+<pre class="prettyprint"><code lang="dart">class User {
+  String name;
+  int age;
+
+  User({this.name, this.age});
+
+  User.fromJson(String json) {
+    var decoded = jsonDecode(json);
+    name = decoded['name'];
+    age = decoded['age'];
+  }
+
+  String json() {
+    return jsonEncode({
+      'name': name,
+      'age': age
+    });
+  }
+}
+</code></pre>
+<p>如此一來，就可以如下直接轉換：</p>
+<pre class="prettyprint"><code lang="dart">var json = User(name: 'Justin', age: 40).json();
+var user = User.fromJson(json);
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

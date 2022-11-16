@@ -1,0 +1,929 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="除了使用Qt現有元件預先定義好的Signal與Slot之外，您也可以定義自己物件的Signal與Slot，方式是繼承QObject或它的子類別（例如QWidget），以下直接使用實際例子來說明。
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="自訂 Signal 與 Slot">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/CustomSignalSlot.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="除了使用Qt現有元件預先定義好的Signal與Slot之外，您也可以定義自己物件的Signal與Slot，方式是繼承QObject或它的子類別（例如QWidget），以下直接使用實際例子來說明。
+...">
+
+
+    <title>自訂 Signal 與 Slot</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CustomSignalSlot.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自訂 Signal 與 Slot</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             除了使用Qt現有元件預先定義好的Signal與Slot之外，您也可以定義自己物件的Signal與Slot，方式是繼承QObject或它的子類別（例如QWidget），以下直接使用實際例子來說明。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+在 <a href="SimpleSignalSlot-2.html">使用 Signal 與 Slot（使用拉桿改變LCD數字）</a> 中，您直接使用拉桿來變動LCD數字顯示，假設現在您想要定義一個物件，當拉桿拉動時，必須通知該物件儲存拉桿的游標值，而物件儲存的游標值有變動時，LCD數字顯示也必須更新，這樣的一個物件不是圖形元件，它是個資料模型，用以儲存與圖形介面無關的資料。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+您可以這麼定義一個Model類別：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>Model.h</li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#ifndef MODEL_H<br>#define MODEL_H<br>#include &lt;QObject&gt;<br><br>class Model <span style="font-weight: bold;">: public QObject</span> {<br>     <span style="font-weight: bold;">Q_OBJECT</span><br><br> public:<br>     Model() { m_value = 0; }<br><br>     int value() const { return m_value; }<br><br><span style="font-weight: bold;"> public slots:</span><br><span style="font-weight: bold;">     void setValue(int);</span><br><br><span style="font-weight: bold;"> signals:</span><br><span style="font-weight: bold;">     void valueChanged(int);</span><br><br> private:<br>     int m_value;<br> };<br><br>#endif</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+      只有在MODEL_H名稱沒被定義過（#ifndef）的情況下，才會編譯以下的定義內容。這是個類別定義的技巧，可以避免類別定義的重覆，如果類別定義重覆，該段定義將不會被編譯：<br>
+
+
+
+
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">#ifndef MODEL_H</span></span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">#define MODEL_H</span></span><br>
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+      </span><span>再來簡介一下Qt的Meta-Object System，它基於以下三個部份：<br>
+
+
+
+
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>QObject類別</li>
+
+
+
+
+
+
+
+
+
+        <li>Q_OBJECT巨集</li>
+
+
+
+
+
+
+
+
+
+        <li><span>Meta-Object Compiler（moc）</span></li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+      </span><span>Qt管理的物件必須繼承QObject類別，以提供Qt物件的Meta訊息，若要實作Signal與Slot機制，則必須包括<span style="font-weight: bold;">Q_OBJECT</span>巨集，moc會處理Qt的C++擴充（Meta-Object System），使用moc讀取C++標頭檔案，若發現類別定義中包括Q_OBJECT巨集，就會產生Qt meta-object相關的C++程式碼。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+若您使用qmake來產生Makefile，若必要時，檔案中就會包括moc的使用，程式完成建置之後，會在release或debug目錄中，找到moc_Model.cpp，即為moc所提供的C++程式碼。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+      在Model中，自訂了Signal與Slot，slots與signals關鍵字其實是巨集，將被
+展開為相關的程式碼，其中Slot定義setValue(int)，將接收Signal傳來的整數資料，如果不想接受資料的話，int可以省去，
+Signal定義valueChanged(int)，表示將發出的Signal會帶有一個整數：<br>
+
+
+
+
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public slots:</span></span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; void setValue(int);</span></span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">signals:</span></span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp; void valueChanged(int);</span></span><br>
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+Signal與Slot的簽名是對應的，若Signal帶有參數，則對應的Slot也要帶有參數。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+接著定義Model.cpp：<br>
+
+
+
+
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>Model.cpp</li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include "Model.h"<br><br>void Model::setValue(int value) {<br>     if (value != m_value) {<br>         m_value = value;<br><span style="font-weight: bold;">         emit valueChanged(m_value);</span><br>     }<br>}</code></pre>
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+Slot只是</span><span>一般的函式，可以由程式的其它部份直接呼叫，也可以連接至Signal，</span><span>若有呼叫setValue()，程式執行到emit時，就會發出valueChanged()的Signal。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+接著修改一下 </span><a href="SimpleSignalSlot-2.html">使用 Signal 與 Slot（使用拉桿改變LCD數字）</a> 中的範例：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>main.cpp</li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QApplication&gt;<br>#include &lt;QWidget&gt;<br>#include &lt;QSlider&gt;<br>#include &lt;QLCDNumber&gt;<br>#include "Model.h"<br><br>int main(int argc, char *argv[]) {<br>     QApplication app(argc, argv);<br><br>     QWidget *parent = new QWidget;<br>     parent-&gt;setWindowTitle("Signal &amp; Slot");<br>     parent-&gt;setMinimumSize(240, 140);<br>     parent-&gt;setMaximumSize(240, 140);<br>          <br>     QLCDNumber *lcd = new QLCDNumber(parent);<br>     lcd-&gt;setGeometry(70, 20, 100, 30);<br>     <br>     QSlider *slider = new QSlider(Qt::Horizontal, parent);<br>     slider-&gt;setRange(0, 99);<br>     slider-&gt;setValue(0);<br>     slider-&gt;setGeometry(70, 70, 100, 30);<br>     <br>     Model model;<br>     <br><span style="font-weight: bold;">     QObject::connect(slider, SIGNAL(valueChanged(int)), </span><br><span style="font-weight: bold;">                      &amp;model, SLOT(setValue(int)));     </span><br><span style="font-weight: bold;">     QObject::connect(&amp;model, SIGNAL(valueChanged(int)), </span><br><span style="font-weight: bold;">                      lcd, SLOT(display(int)));</span><br>     <br>     parent-&gt;show();<br>     <br>     return app.exec();<br>}</code></pre>
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+您使用connect()連接QSlider的valueChanged() Signal及Model的setValue()
+Slot，所以拉動拉桿時，Model的m_value就會被設定為QSlider的游標值，而setValue()中使用了emit發出valueChanged() Signal，由於您將Model的valueChanged()
+Signal連接至QLCDNumber的display() Slot，所以LCD顯示數字也會改變。<br>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+一個Signal可以連至數個Slot，例如這個程式的Signal與Slot連接也可以改為，由QSlider同時發出Signal給Model及LCD顯示，執行結果不變：<br>
+
+
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QObject::connect(slider, SIGNAL(valueChanged(int)), </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;model,
+SLOT(setValue(int))); </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QObject::connect(slider, SIGNAL(valueChanged(int)), </span><br>
+
+
+
+
+
+
+
+      <span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lcd,
+SLOT(display(int)));&nbsp;&nbsp;&nbsp;</span>&nbsp; </span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <span>
+
+      </span><br>
+
+
+
+
+      
+
+
+一個Slot也可以被數個Signal連接，例如：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QObject::connect(slider, SIGNAL(valueChanged(int)), </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;model,
+SLOT(setValue(int))); </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QObject::connect(combox, SIGNAL(valueChanged(int)), </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;model,
+SLOT(setValue(int))); </span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <span>
+
+      </span><br>
+
+
+
+
+
+
+
+      Signal與Slot的簽名基本上要相同，但若Signal的參數多於Slot的參數，則額外的參數會被Slot忽略。如果要斷開Signal與Slot的連接，則使用disconnect()，例如：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QObject::disconnect(slider, SIGNAL(valueChanged(int)), </span><br>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&amp;model, SLOT(setValue(int))); </span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;"></span><br>
+
+
+
+
+
+
+
+      <span>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

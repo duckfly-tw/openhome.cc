@@ -1,0 +1,979 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/AlgorithmGossip/'https://openhome.cc/zh-tw/algorithm/basics/knapsack/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="說明
+
+      
+
+假設有一個背包的負重最多可達8公斤，而希望在背包中裝入負重範圍內可得之總價物品，假設是水果好了，水果的編號、單價與重量如下所示： 
+
+
+
+      
+   ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="背包問題（Knapsack Problem）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/AlgorithmGossip/KnapsackProblem.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="說明
+
+      
+
+假設有一個背包的負重最多可達8公斤，而希望在背包中裝入負重範圍內可得之總價物品，假設是水果好了，水果的編號、單價與重量如下所示： 
+
+
+
+      
+   ...">
+
+
+    <title>背包問題（Knapsack Problem）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="KnapsackProblem.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Algorithm</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>背包問題（Knapsack Problem）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+      <h2> 說明</h2>
+
+假設有一個背包的負重最多可達8公斤，而希望在背包中裝入負重範圍內可得之總價物品，假設是水果好了，水果的編號、單價與重量如下所示： <br><br>
+
+      <table border="1" width="50%">
+
+  <tbody>
+    <tr>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">李子 </td>
+      <td align="left" valign="top">4KG </td>
+      <td align="left" valign="top">NT$4500 </td>
+    </tr>
+    <tr>
+      <td align="left" valign="top">1 </td>
+      <td align="left" valign="top">蘋果 </td>
+      <td align="left" valign="top">5KG </td>
+      <td align="left" valign="top">NT$5700 </td>
+    </tr>
+    <tr>
+
+      <td align="left" valign="top">2 </td>
+      <td align="left" valign="top">橘子 </td>
+
+
+
+      <td align="left" valign="top">2KG </td>
+
+
+
+      <td align="left" valign="top">NT$2250 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">草莓 </td>
+
+
+
+      <td align="left" valign="top">1KG </td>
+
+
+
+      <td align="left" valign="top">NT$1100 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">4 </td>
+
+
+
+      <td align="left" valign="top">甜瓜 </td>
+
+
+
+      <td align="left" valign="top">6KG </td>
+
+
+
+      <td align="left" valign="top">NT$6700 </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+
+
+      
+      <p></p>
+
+
+
+      
+      <h2> 解法</h2>
+
+      
+
+背包問題是關於最佳化的問題，可以使用「動態規劃」（Dynamic programming），試著解決構成的大問題之小問題，基於小問題的最佳解答來解決大問題，最後得到的就是大問題的最佳解。 <br>
+
+      <br>
+
+
+以背包問題為例，要解決背包負重為8公斤，可能的水果有5個的最佳化問題，可以先解決背包負重為1公斤，可能的水果有1個的問題，接著解決背包負重為2公斤，可能的水果有1個的問題，然後解決背包負重為3公斤，可能的水果有1個的問題...<br><br>
+
+我們使用兩個陣列value與item，value表示目前負重下可得的最大總價，一開始都是0，item表示最後放至背包的水果，首先是只有李子，從可以負重1公斤到可以負重8公斤，能得到的最大總價各是：<br><br>
+      
+      <table border="1" width="50%"> 
+  <tbody> 
+    <tr> 
+      <td align="left" valign="top">背包負重 </td> 
+      <td align="left" valign="top">1</td> 
+      <td align="left" valign="top">2</td> 
+      <td align="left" valign="top">3</td> 
+      <td align="left" valign="top">4</td> 
+      <td align="left" valign="top">5</td> 
+      <td align="left" valign="top">6</td> 
+      <td align="left" valign="top">7</td> 
+      <td align="left" valign="top">8</td> 
+    </tr>
+    <tr>
+      <td align="left" valign="top">value </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">4500 </td>
+      <td align="left" valign="top">4500 </td>
+      <td align="left" valign="top">4500 </td>
+      <td align="left" valign="top">4500 </td>
+     <td align="left" valign="top">9000 </td>
+   </tr>
+    <tr>
+    <td align="left" valign="top">item </td>
+      <td align="left" valign="top">－ </td>
+     <td align="left" valign="top">－ </td>
+      <td align="left" valign="top">－ </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+      <td align="left" valign="top">0 </td>
+    </tr>     
+        </tbody>    
+      </table>
+<br><br>
+
+只有李子的情況下，可以直覺地寫出以上的表格，不過撰寫程式需要的不是直覺，而是演算的方式，做法是在負重3公斤以下時，不可能放入李子，總價皆為0，4公斤時可以放入一個李子，價值為4500元，還可以負擔0公斤，對應的價值為0元，4500+0的總價大於目前對應的value值，於是更新value與item；類似地，5公斤時可以放入一個李子，價值為4500元，還可以負擔1公斤，對應的價值為0元，4500+0的總價大於目前對應的value值，於是更新…8公斤時可以放入一個李子，價值為4500元，還可以負擔4公斤，對應的價值為4500元，4500+4500的總價大於目前對應的value值，於是更新。<br><br>
+
+因此在可以負重8公斤，只有李子的情況下，可以得到的最大總價是9000元，最後放入的李子是4公斤，裝入這顆李子前，背包能負重的是4公斤的水果，4公斤處對應的水果是李子，因此目前最佳解為9000元，兩顆李子。<br><br>
+
+接著處理背包負重為1公斤，可能的水果有2個的問題，背包負重為2公斤，可能的水果有2個的問題，背包負重為3公斤，可能的水果有2個的問題...因為方才已經處理過只有李子的運算，現在可以基於其結果，直接考慮該如何置入蘋果。<br><br>
+
+負重4公斤以下的情況，不可能放入蘋果，對應的value、item都不用更新，負重5公斤時，若先放入蘋果，表示只剩下1公斤負重，目前對應的value為0元，5700+0大於目前5公斤對應的value值4500，於是予以更新value與item，負重6、7時也都是這麼運算，負重8公斤時，若先放入蘋果，表示只剩下3公斤負重，對應的value為0元，0+5700不大於目前的value值9000，於是不更新。<br><br>
+
+      <table border="1" width="50%">
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">背包負重 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">4 </td>
+
+
+
+      <td align="left" valign="top">5 </td>
+
+
+
+      <td align="left" valign="top">6 </td>
+
+
+
+      <td align="left" valign="top">7 </td>
+
+
+
+      <td align="left" valign="top">8 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">value </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">4500 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">9000 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">item </td>
+
+
+
+      <td align="left" valign="top">－ </td>
+
+
+
+      <td align="left" valign="top">－ </td>
+
+
+
+      <td align="left" valign="top">－ </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+<br><br>
+因此在可以負重8公斤，只有李子、蘋果的情況下，可以得到的最大總價是9000元，最後放入的李子是4公斤，裝入這顆李子前，背包能負重的是4公斤的水果，4公斤處對應的水果是李子，因此目前最佳解為9000元，兩顆李子。<br><br>
+      
+接著處理背包負重為1公斤，可能的水果有3個的問題，背包負重為2公斤，可能的水果有3個的問題，背包負重為3公斤，可能的水果有3個的問題...因為方才已經處理過只有李子、蘋果的運算，現在可以基於其結果，直接考慮該如何置入橘子，依方才的演算方式，可以得到：<br><br>
+
+      
+      <table border="1" width="50%">
+
+
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">背包負重 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">4 </td>
+
+
+
+      <td align="left" valign="top">5 </td>
+
+
+
+      <td align="left" valign="top">6 </td>
+
+
+
+      <td align="left" valign="top">7 </td>
+
+
+
+      <td align="left" valign="top">8 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">value </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">2250 </td>
+
+
+
+      <td align="left" valign="top">2250 </td>
+
+
+
+      <td align="left" valign="top">4500 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">6750 </td>
+
+
+
+      <td align="left" valign="top">7950 </td>
+
+
+
+      <td align="left" valign="top">9000 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">item </td>
+
+
+
+      <td align="left" valign="top">－ </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+<br><br>
+接著基於以上，處理加上草莓的情況：<br><br>
+
+
+      
+      <table border="1" width="50%">
+
+
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">背包負重 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">4 </td>
+
+
+
+      <td align="left" valign="top">5 </td>
+
+
+
+      <td align="left" valign="top">6 </td>
+
+
+
+      <td align="left" valign="top">7 </td>
+
+
+
+      <td align="left" valign="top">8 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">value </td>
+
+
+
+      <td align="left" valign="top">1100 </td>
+
+
+
+      <td align="left" valign="top">2250 </td>
+
+
+
+      <td align="left" valign="top">3350 </td>
+
+
+
+      <td align="left" valign="top">4500 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">6800 </td>
+
+
+
+      <td align="left" valign="top">7950 </td>
+
+
+
+      <td align="left" valign="top">9050 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">item </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+
+<br><br>
+接著基於以上，處理加上甜瓜的情況：<br><br>
+
+      
+      <table border="1" width="50%">
+
+
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">背包負重 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">4 </td>
+
+
+
+      <td align="left" valign="top">5 </td>
+
+
+
+      <td align="left" valign="top">6 </td>
+
+
+
+      <td align="left" valign="top">7 </td>
+
+
+
+      <td align="left" valign="top">8 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">value </td>
+
+
+
+      <td align="left" valign="top">1100 </td>
+
+
+
+      <td align="left" valign="top">2250 </td>
+
+
+
+      <td align="left" valign="top">3350 </td>
+
+
+
+      <td align="left" valign="top">4500 </td>
+
+
+
+      <td align="left" valign="top">5700 </td>
+
+
+
+      <td align="left" valign="top">6800 </td>
+
+
+
+      <td align="left" valign="top">7950 </td>
+
+
+
+      <td align="left" valign="top">9050 </td>
+
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top">item </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">0 </td>
+
+
+
+      <td align="left" valign="top">1 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+      <td align="left" valign="top">2 </td>
+
+
+
+      <td align="left" valign="top">3 </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+
+
+<br><br>
+
+      
+由最後一個表格，可以得知在背包負重8公斤時，最多可以裝入9050元的水果，而最後一個裝入的水果是3號，也就是草莓，裝入了草莓，背包只能再放入7公斤的水果，所以必須看背包負重7公斤時的最佳解，最後一個放入的是2號，也就是橘子，現在背包剩下負重量5公斤，所以看負重5公斤的最佳解，最後放入的是1號，也就是蘋果，此時背包負重量剩下0公斤，無法再放入水果，所以求出最佳解為放入草莓、橘子與蘋果，而總價為9050元。<br>
+
+
+      <br>
+      
+      
+      <h2> 實作：<a href="KnapsackProblem.htm#Toy">Toy</a>&nbsp;&nbsp; &nbsp;<a href="KnapsackProblem.htm#C">C</a>&nbsp;&nbsp; &nbsp;<a href="KnapsackProblem.htm#Java">Java</a>&nbsp;&nbsp; &nbsp;<a href="KnapsackProblem.htm#Python">Python</a>&nbsp;&nbsp; &nbsp;<a href="KnapsackProblem.htm#Scala">Scala</a>&nbsp;&nbsp;&nbsp; <a href="KnapsackProblem.htm#Ruby">Ruby</a>&nbsp;&nbsp;&nbsp; <a href="KnapsackProblem.htm#JavaScript">JavaScript</a> &nbsp;&nbsp; <a href="KnapsackProblem.htm#Haskell">Haskell</a><br>
+      </h2>
+
+
+      <ul>
+
+        <li><a name="Toy"><a href="../Toy/index.html">Toy</a></a></li>
+
+      
+      </ul>
+      
+      <pre class="prettyprint"><code>from '/lib/math' import min
+
+class Fruit {
+    def init(name, weight, price) {
+        this.name = name 
+        this.weight = weight
+        this.price = price
+    }
+
+    def toString() {
+         return '{{0}:{1}w:${2}}'.format(this.name, this.weight, this.price)
+    }
+}
+
+def knapsack(fruits, values, items, limit) {
+    (iterate(0, fruits.length()).forEach(i ->
+        iterate(fruits.get(i).weight, limit + 1).forEach(w -> 
+            trySolution(i, w, fruits, values, limit)
+        ) 
+    ))
+}
+
+def trySolution(i, w, fruits, values, limit) {
+    p = w - fruits.get(i).weight
+    newValue = values.get(p) + fruits.get(i).price 
+    if newValue > values.get(w) {
+         values.set(w, newValue)
+         items.set(w, i) 
+    }
+}
+
+(fruits = [
+    new Fruit('李子', 4, 4500),
+    new Fruit('蘋果', 5, 5700),
+    new Fruit('橘子', 2, 2250),
+    new Fruit('草莓', 1, 1100),
+    new Fruit('甜瓜', 6, 6700)
+]) 
+
+WEIGHT_LIMIT = 8
+
+items = List.create(WEIGHT_LIMIT, 0)
+values = List.create(WEIGHT_LIMIT, 0)
+
+def fruit(i) {
+    return fruits.get(items.get(i))
+}
+
+knapsack(fruits, values, items, WEIGHT_LIMIT)
+
+min_weight = min(fruits.map(fruit -> fruit.weight))
+
+(iterate(WEIGHT_LIMIT, i -> i >= min_weight, i -> i - fruit(i).weight)
+     .forEach(i -> println(fruit(i))))
+
+println('${0}'.format(values.get(WEIGHT_LIMIT)))</code></pre>
+
+
+
+      <br>
+      
+      <ul>
+
+        <li><a name="C">C</a></li>
+
+      
+      </ul>
+      
+      <pre class="prettyprint"><code>#include &lt;stdio.h&gt; <br>#include &lt;stdlib.h&gt; <br><br>#define LIMIT 8   // 重量限制 <br><br>typedef struct { <br>    char name[20]; <br>    int weight; <br>    int price; <br>} Fruit; <br><br>void knapsack(Fruit*, int*, int*, int, int);<br>int min(Fruit*, int);<br><br><br>int main(void) { <br>    Fruit fruits[] = {{"李子", 4, 4500}, <br>                      {"蘋果", 5, 5700}, <br>                      {"橘子", 2, 2250}, <br>                      {"草莓", 1, 1100}, <br>                      {"甜瓜", 6, 6700}};<br>    int items[LIMIT + 1] = {0}; <br>    int values[LIMIT + 1] = {0};  <br>    <br>    int length = sizeof(fruits) / sizeof(fruits[0]);<br>    knapsack(fruits, values, items, length, LIMIT);<br><br>    printf("物品\t價格\n"); <br>    int i;<br>    for(i = LIMIT; i &gt;= min(fruits, length); i -= fruits[items[i]].weight) {<br>        printf("%s\t%d\n", fruits[items[i]].name, fruits[items[i]].price); <br>    } <br>    printf("合計\t%d\n", values[LIMIT]); <br><br>    return 0; <br>}  <br><br>void knapsack(Fruit* fruits, int* values, int* items, <br>              int length, int limit) {<br>    int i, w;<br>    for(i = 0; i &lt; length; i++) { <br>        for(w = fruits[i].weight; w &lt;= limit; w++) {<br>            int p = w - fruits[i].weight;<br>            int newValue = values[p] + fruits[i].price; <br>            if(newValue &gt; values[w]) {   // 找到階段最佳解 <br>                values[w] = newValue; <br>                items[w] = i; <br>            }<br>        } <br>    }<br>}<br><br>int min(Fruit* fruits, int length) {<br>    int i, m;<br>    for(i = 0, m = fruits[0].weight; i &lt; length; i++) {<br>        if(fruits[i].weight &lt; m) {<br>            m = fruits[i].weight;<br>        }<br>    }<br>    return m;<br>} <br></code></pre>
+
+
+
+      <br>
+
+
+
+      
+      <ul>
+
+        <li><a name="Java">Java</a> 
+  </li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code>import java.util.*;<br><br>class Fruit {<br>    String name;<br>    int weight;<br>    int price;<br>    Fruit(String name, int weight, int price) {<br>        this.name = name;<br>        this.weight = weight;<br>        this.price = price;<br>    }<br>    public String toString() {<br>        return String.format("(%s, %d, %d)", name, weight, price);<br>    }<br>}<br><br>public class Knapsack {<br>    public static List&lt;Fruit&gt; knapsack(List&lt;Fruit&gt; fruits, int limit) {<br>        int[] values = new int[limit + 1];<br>        int[] items = new int[limit + 1];<br>        for(int i = 0; i &lt; fruits.size(); i++) {<br>            for(int w = fruits.get(i).weight; w &lt;= limit; w++) {<br>                int p = w - fruits.get(i).weight;<br>                int newValue = values[p] + fruits.get(i).price; <br>                if(newValue &gt; values[w]) {<br>                    values[w] = newValue; <br>                    items[w] = i; <br>                }<br>            }<br>        }<br>        List&lt;Fruit&gt; solution = new ArrayList&lt;&gt;();<br>        // JDK8 Lambda<br>        int min = Collections.min(fruits<br>                   , (f1, f2) -&gt; f1.weight - f2.weight).weight;<br>        for(int i = limit; i &gt;= min; i -= fruits.get(items[i]).weight) {<br>            solution.add(fruits.get(items[i]));<br>        }<br>        return solution;<br>    }<br><br>    public static void main(String[] args) {<br>        System.out.println(knapsack(Arrays.asList(<br>                      new Fruit("李子", 4, 4500), new Fruit("蘋果", 5, 5700),<br>                      new Fruit("橘子", 2, 2250), new Fruit("草莓", 1, 1100),<br>                      new Fruit("甜瓜", 6, 6700)), 8));<br>    }<br>}</code></pre>
+
+
+      <br><ul><li><a name="Python">Python</a></li></ul><pre class="prettyprint"><code>from functools import reduce<br><br>def knapsack(fruits, limit):<br>    def nextVI(i, values, items):<br>        return reduce(<br>            (lambda vis, vi: (vis[0] + [vi[0]], vis[1] + [vi[1]])),  <br>            [(values[w - fruits[i][1]] + fruits[i][2], i) <br>                if w &gt;= fruits[i][1] and w &lt; limit + 1 and<br>                    values[w - fruits[i][1]] + fruits[i][2] &gt; values[w] <br>                else (values[w], items[w]) for w in range(len(values))], <br>            ([], [])<br>        )<br><br>    def iterate(i):<br>        if i == 0:<br>            return nextVI(i, [0] * (limit + 1), [0] * (limit + 1))<br>        else:<br>            values, items = iterate(i - 1)<br>            return nextVI(i, values, items)<br><br>    def solution(i, items, minWeight):<br>        return (([fruits[items[i]]] + <br>                    solution(i - fruits[items[i]][1], items, minWeight)) <br>                if i &gt;= minWeight else [])<br><br>    return solution(limit, <br>               iterate(len(fruits) - 1)[1], min([f[1] for f in fruits]))<br>    <br>print(knapsack([('李子', 4, 4500), ('蘋果', 5, 5700),<br>                ('橘子', 2, 2250), ('草莓', 1, 1100),<br>                ('甜瓜', 6, 6700)], 8))</code></pre><br><ul><li><a name="Scala"></a>Scala</li></ul><pre class="prettyprint"><code>case class Fruit(name: String, weight: Int, price: Int)<br><br>def knapsack(fruits: List[Fruit], limit: Int) = {<br>    def nextVI(i: Int, values: List[Int], items: List[Int]) = {<br>        val viList = (for(w &lt;- 0 until values.size) yield <br>            if(w &gt;= fruits(i).weight &amp;&amp; w &lt; limit + 1 &amp;&amp; <br>               values(w - fruits(i).weight) + fruits(i).price &gt; values(w)) <br>                (values(w - fruits(i).weight) + fruits(i).price, i) <br>            else (values(w), items(w)))<br>                <br>        ((Nil : List[Int], Nil : List[Int]) /: viList) {<br>            (vis: (List[Int], List[Int]), vi: (Int, Int)) <br>                 =&gt; (vis._1 ++ List(vi._1), vis._2 ++ List(vi._2))<br>        }<br>    }<br>    <br>    def iterate(i: Int): (List[Int], List[Int]) = {<br>        if(i == 0) {<br>            val arr = new Array[Int](limit + 1) <br>            nextVI(i, arr.toList, arr.toList)<br>        } else {<br>            val (values, items) = iterate(i - 1)<br>            nextVI(i, values, items)<br>        }<br>    }<br>    case class Fruit(name: String, weight: Int, price: Int)<br><br>def knapsack(fruits: List[Fruit], limit: Int) = {<br>    def nextVI(i: Int, values: List[Int], items: List[Int]) = {<br>        val viList = (for(w &lt;- 0 until values.size) yield <br>            if(w &gt;= fruits(i).weight &amp;&amp; w &lt; limit + 1 &amp;&amp; <br>               values(w - fruits(i).weight) + fruits(i).price &gt; values(w)) <br>                (values(w - fruits(i).weight) + fruits(i).price, i) <br>            else (values(w), items(w)))<br>                <br>        (viList :\ (Nil : List[Int], Nil : List[Int])) {<br>            (vi: (Int, Int), vis: (List[Int], List[Int])) <br>                 =&gt; (vi._1 :: vis._1, vi._2 :: vis._2)<br>        }<br>    }<br>    <br>    def iterate(i: Int): (List[Int], List[Int]) = {<br>        if(i == 0) {<br>            val arr = new Array[Int](limit + 1) <br>            nextVI(i, arr.toList, arr.toList)<br>        } else {<br>            val (values, items) = iterate(i - 1)<br>            nextVI(i, values, items)<br>        }<br>    }<br>    <br>    def solution(i: Int, items: List[Int], minWeight: Int): List[Fruit] = {<br>        if(i &gt;= minWeight) <br>            fruits(items(i)) :: solution(<br>                i - fruits(items(i)).weight, items, minWeight) <br>        else Nil<br>    }<br>    <br>    solution(limit, iterate(fruits.size - 1)._2, <br>             fruits.map(fruit =&gt; fruit.weight).min)<br>}<br><br>println(knapsack(List(Fruit("李子", 4, 4500), Fruit("蘋果", 5, 5700),<br>                      Fruit("橘子", 2, 2250), Fruit("草莓", 1, 1100),<br>                      Fruit("甜瓜", 6, 6700)), 8))<br></code></pre><br>
+      <ul>
+        <li><a name="Ruby">Ruby</a></li>
+      </ul>
+      <pre class="prettyprint"><code># encoding: Big5<br>def knapsack(fruits, limit)<br>    nextVI = -&gt;(i, values, items) {<br>        (0...values.size).map { |w|<br>            if w &gt;= fruits[i][:weight] and w &lt; limit + 1 and <br>               values[w - fruits[i][:weight]] + fruits[i][:price] &gt; values[w]<br>                {value: values[w - fruits[i][:weight]] + fruits[i][:price], <br>                 item: i}<br>            else<br>                {value: values[w], item: items[w]}<br>            end<br>        }.reduce({values: [], items: []}) { |vis, vi|<br>            {values: vis[:values] + [vi[:value]], <br>             items: vis[:items] + [vi[:item]]}<br>        }<br>    }<br><br>    iterate = -&gt;(i) {<br>        if i == 0<br>            nextVI.call(i, [0] * (limit + 1), [0] * (limit + 1))<br>        else<br>            vis = iterate.call(i - 1)<br>            nextVI.call(i, vis[:values], vis[:items])<br>        end<br>    }<br><br>    solution = -&gt;(i, items, minWeight) {<br>        if i &gt;= minWeight<br>            [fruits[items[i]]] + <br>            solution.call(i - fruits[items[i]][:weight], items, minWeight)<br>        else<br>            []<br>        end<br>    }<br><br>    solution.call(limit, iterate.call(fruits.size - 1)[:items], <br>                  fruits.map { |fruit| fruit[:weight] }.min)<br>end<br><br>def fruit(n, w, p)<br>    {name: n, weight: w, price: p}<br>end<br><br>knapsack([fruit('李子', 4, 4500), fruit('蘋果', 5, 5700),<br>          fruit('橘子', 2, 2250), fruit('草莓', 1, 1100),<br>          fruit('甜瓜', 6, 6700)], 8).each do |fruit|<br>    print "(#{fruit[:name]}, #{fruit[:weight]}, #{fruit[:price]})"<br>end<br></code></pre>
+      <br>
+      <ul>
+        <li><a name="JavaScript">JavaScript</a></li>
+      </ul>
+      <pre class="prettyprint"><code>function fruit(n, w, p) {<br>    return { name : n, weight : w, price : p };<br>}<br><br>function knapsack(fruits, limit) {<br>    Array.prototype.reduce = function(init, f) {<br>        var value = init;<br>	for(var i = 0; i &lt; this.length; i++) {<br>            value = f(value, this[i]);<br>        }<br>	return value;<br>    };<br>    <br>    function range(n) {<br>        var list = [];<br>        for(var i = 0; i &lt; n; i++) {<br>            list[i] = i;<br>        }<br>        return list;<br>    }<br>    <br>    function nextVI(i, values, items) {<br>        return range(values.length).map(function(w) {<br>            return w &gt;= fruits[i].weight &amp;&amp; w &lt; limit + 1 &amp;&amp; <br>               values[w - fruits[i].weight] + fruits[i].price &gt; values[w] ?<br>               {<br>                value : values[w - fruits[i].weight] + fruits[i].price, <br>                item : i<br>               } :<br>               {value : values[w], item : items[w]};<br>        }).reduce({values : [], items : []}, function(vis, vi) {<br>            return { values : vis.values.concat([vi.value]), <br>                     items : vis.items.concat([vi.item]) <br>            };<br>        });<br>    }<br>    <br>    function iterate(i) {<br>        if(i == 0) {<br>            return nextVI(i, <br>                range(limit + 1).map(function(elem) { return 0; }), <br>                range(limit + 1).map(function(elem) { return 0; }));<br>        } else {<br>            var vis = iterate(i - 1)<br>            return nextVI(i, vis.values, vis.items);<br>        }<br>    }<br>    <br>    function solution(i, items, minWeight) {<br>        if(i &gt;= minWeight) {<br>            return [fruits[items[i]]].concat(<br>                solution(i - fruits[items[i]].weight, items, minWeight));<br>        } else {<br>            return [];<br>        }<br>    }<br>    <br>    return solution(limit, iterate(fruits.length - 1).items, <br>            fruits.reduce(fruits[0].weight, function(seed, elem) {<br>                return elem &lt; seed ? elem : seed;<br>            })<br>    );<br>}<br><br>knapsack([fruit('李子', 4, 4500), fruit('蘋果', 5, 5700),<br>          fruit('橘子', 2, 2250), fruit('草莓', 1, 1100),<br>          fruit('甜瓜', 6, 6700)], 8).forEach(function(fruit) {<br>    print(fruit.name);<br>});<br></code></pre>
+<br>
+      <ul>
+        <li><a name="Haskell">Haskell</a></li>
+      </ul>
+      <pre class="prettyprint"><code>data Fruit = Fruit { name :: String, <br>                     weight :: Int,<br>                     price ::Int } deriving (Show)<br><br>knapsack fruits limit = <br>    solution limit (snd $ iterate $ length fruits - 1) <br>                   (minimum $ map (\f -&gt; weight f) fruits)<br><br>    where nextVI i values items = <br>            let viList = [if w &gt;= weight (fruits !! i) &amp;&amp; w &lt; limit + 1 &amp;&amp; <br>                  values !! (w - weight (fruits !! i)) + price (fruits !! i) <br>                  &gt; values !! w <br>                  then (values !! (w - weight (fruits !! i)) + <br>                       price (fruits !! i), i) <br>                  else (values !! w, items !! w) |<br>                       w &lt;- [0 .. length values - 1]]<br>            in foldr (\vi vis -&gt; (fst vi : fst vis, snd vi : snd vis)) <br>                     ([], []) viList<br><br>          iterate i = <br>              if i == 0 then<br>                  nextVI i [0 | i &lt;- [0..8]] [0 | i &lt;- [0..8]]<br>              else<br>                  let (values, items) = iterate $ i - 1<br>                  in nextVI i values items<br><br>          solution i items minWeight = <br>              if i &gt;= minWeight then<br>                  fruits !! (items !! i) : <br>                  solution (i - weight (fruits !! (items !! i))) <br>                           items minWeight<br>              else []<br><br>main = print $ knapsack [<br>    Fruit "Plum" 4 4500,  Fruit "Apple" 5 5700,<br>    Fruit "Tangerine" 2 2250, Fruit "Strawberry" 1 1100,<br>    Fruit "Sweet melon" 6 6700] 8<br></code></pre>
+<br>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

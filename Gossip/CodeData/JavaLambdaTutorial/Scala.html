@@ -1,0 +1,96 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="認識 Lambda/Closure（3）Python 對 Lambda/Closure 的支援 &lt;&lt; 前情
+      English
+      在〈認識 Lambda/Closur...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="認識 Lambda/Closure（4）從 Scala 中借鏡">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/Scala.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="認識 Lambda/Closure（3）Python 對 Lambda/Closure 的支援 &lt;&lt; 前情
+      English
+      在〈認識 Lambda/Closur...">
+
+
+    <title>認識 Lambda/Closure（4）從 Scala 中借鏡</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Scala.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/">回 Java Lambda</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>認識 Lambda/Closure（4）從 Scala 中借鏡</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+      <p style="text-align: right;"><a href="../../../eGossip/Blog/UnderstandingLambdaClosure4.html">English</a></p>
+      在〈認識 Lambda/Closure〉系列先前的文章中，我們使用了 JavaScript 與 Python 來示範 Lambda/Closure 為何，以及如何善用它們。就學習 Lambda/Closure 而言，這是個不錯的開始，因為 JavaScript 與 Python 都是動態語言，在這些語言中不用在意變數的型態。<br>
+      然而在步入靜態語言的世界時，我們都知道編譯器需要型態訊息，以便在編譯時期檢查出各種可能的型態不符之錯誤。這點很有助益，因為可以在撰寫程式的一開始就捕捉到一些錯誤，降低因錯誤而帶來的成本負擔。不過在討論到程式碼的簡潔度時，靜態語言中冗長的型態宣告常是令人詬病的對象。<br>
+      先來看看 Scala 中如何定義函式好了：
+      <pre class="prettyprint"><code lang="java">def max(m: Int, n: Int): Int = if(m &gt; n) m else n</code></pre>
+      Scala 是靜態語言，所以必須宣告函式的參數型態為何。在這邊型態宣告似乎沒什麼大問題。嗯…來看看如何宣告匿名函式並指定給變數好了。
+      <pre class="prettyprint"><code lang="java">val max: (Int, Int) =&gt; Int = (m: Int, n: Int) =&gt; if(m &gt; n) m else n</code></pre>
+      喔…看來語法一大垞！你必須聲明 <code>max</code> 的型態為 <code>(Int, Int) =&gt; Int</code>，這專用的函式型態表示，此函式會接受兩個 <code>Int</code> 引數，而傳回值是 <code>Int</code>。在定義匿名函式本身時，也必須宣告參數的型態，像是 <code>(m: Int, n: Int) =&gt; if(m &gt; n) m else n</code>。如果要定義一個可接受回呼函式的參數，也必須宣告該參數的函式型態。例如：
+      <pre class="prettyprint"><code lang="java">def bubbleSort(arr: Array[Int], order: (Int, Int) =&gt; Boolean): Unit {
+    ...
+    val o: Boolean = order(a, b)
+    ...
+}</code></pre>
+      上例中，<code>order</code> 參數接受一個函式，該函式會有兩個 <code>Int</code> 參數，並傳回 <code>Boolean</code> 值。以下的程式碼示範了如何呼叫 <code>bubbleSort</code> 函式。
+      <pre class="prettyprint"><code lang="java">val arr: Array[Int] = Array(2, 5, 1, 7, 8)
+bubbleSort(arr, (a: Int, b: Int) =&gt; a &gt; b)</code></pre>
+      如果在 Scala 中真的得用這麼冗長的語法，你還會想用 Lambda/Closure 嗎？所幸地是，Scala 的編譯器很聰明，能夠進行型態推斷（Type inference）。它能夠從原始碼前後文推斷出型態資訊，所以實際上在宣告變數或撰寫匿名函式時，有很大的機會是不用宣告型態的。例如，實際上先前的程式碼可以重新撰寫為以下的形式：
+      <pre class="prettyprint"><code lang="java">val arr = Array(2, 5, 1, 7, 8)
+bubbleSort(arr, (a, b) =&gt; a &gt; b)</code></pre>
+      在上例中，Scala 編譯器從 <code>Array(2, 5, 1, 7, 8)</code> 的程式碼中推斷出 <code>arr</code> 的型態會是 <code>Array[Int]</code>，所以你就不用作宣告了。而且，Scala 編譯器可以從 <code>arr</code> 推斷，匿名函式將接受的引數型態會是 <code>Int</code>，所以實際上你只要提供參數名稱及函式本體就可以了。事實上在 Scala 中，你還可以用更短的語法來呼叫該函式。例如：
+      <pre class="prettyprint"><code lang="java">val arr = Array(2, 5, 1, 7, 8)
+bubbleSort(arr, (_: Int) &gt; (_: Int))</code></pre>
+      或者，甚至是以下最短的語法：
+      <pre class="prettyprint"><code lang="java">val arr = Array(2, 5, 1, 7, 8)
+bubbleSort(arr, _ &gt; _)</code></pre>
+      在這邊不打算解釋 Scala 是如何完成這類的魔法，如果有興趣瞭解的話，可以進一步看看 <a href="https://openhome.cc/Gossip/Scala/">Scala 學習筆記</a>。這邊的重點在於，對於靜態語言來說，類型推斷是很重要的功能。在必須提供型態資訊的場合中，類型推斷可以讓程式碼簡潔易讀，像是在宣告變數或者是撰寫匿名函式的時候。Lambda/Closure 是個表達工具，如果沒有型態推斷，過於冗長的語法只會讓開發者望之卻步，不可能讓他們有意願採用。<br>
+      在下一步文章中，就會來談談 Java 中的 Lambda/Closure。不過，實際上會先來看個 <a href="http://cr.openjdk.java.net/%7Emr/lambda/straw-man/">舊的提案</a>，這有助於我們瞭解 Lambda/Closure 何以會演變為現今 JDK8 中的形態。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

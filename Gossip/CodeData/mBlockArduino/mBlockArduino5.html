@@ -1,0 +1,88 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中，我們試著使用 PWM 來模擬類比訊號輸出，其中談到 Arduino 腳位 A0 到 A5，實際上是用來做為類比訊號輸入...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（5）可變電阻、ADC 與節拍器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino5.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中，我們試著使用 PWM 來模擬類比訊號輸出，其中談到 Arduino 腳位 A0 到 A5，實際上是用來做為類比訊號輸入...">
+
+    <title>mBlock &amp; Arduino（5）可變電阻、ADC 與節拍器</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino5.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（5）可變電阻、ADC 與節拍器</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>在〈mBlock &amp; Arduino（4）利用 PWM 模擬類比訊號〉中，我們試著使用 PWM 來模擬類比訊號輸出，其中談到 Arduino 腳位 A0 到 A5，實際上是用來做為類比訊號輸入，在這一個主題中，我們將使用這些腳位，並搭配可變電阻（Variable Resistor）來製作一個節拍器。</p>
+<h1>認識可變電阻</h1>
+<p>為了要能調整節拍器的速度，我們需要一個可調元件，在這邊使用可變電阻，顧名思義，藉著調整電阻器上的旋鈕，就可以改變電阻值，可變電阻上會標示歐姆數，可分為 A（對數型）、B（線性型）與 C（反對數型），分別代表旋轉角度與歐姆值的變化關係，以我手邊的這顆可變電阻為例，標示為 A10K，表示為 A 型可變電阻，最高電阻值為 10 KΩ。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-1.jpg" alt="A10K 可變電阻"  /></div></div></p>
+<p>可以看到可變電阻有三個接腳，外側兩個接腳兩邊都可以分別接 GND 與電源，而中間的接腳與另兩個接腳之間的電阻值，會因為旋轉角度而不同：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-2.jpg" alt="A10K 可變電阻"  /></div></div></p>
+<p>視外側接腳哪個銜接 GND 而哪個銜接電源，可變電阻順時針與逆時針旋轉時的電阻值會分別是增加或減少，一般我們操作旋鈕的習慣是順時針增大訊號（例如音量），逆時針減少，因此，如果是上頭照片中的 A10K 可變電阻，左邊接腳會接 GND，右邊接腳會接電源，中間是訊號輸出，這麼一來，順時針旋轉時，中間接腳與電源間的電阻值會變小，因而電壓輸出會增加，逆時針旋轉則電壓會降低。</p>
+<h1>類比數位轉換器</h1>
+<p>Arduino 內建類比數位轉換器（Analog to Digital Converter, ADC），可使用腳位 A0 到 A5 來個 ADC 輸入，可讀取 0 到 5V 的電壓輸入，解析度為 10 個位元，也就是讀取而得到的值是 0 到 1023。</p>
+<p>如果要讀取可變電阻的輸出，可以如下銜接電路：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-3.jpg" alt="類比數位轉換器"  /></div></div></p>
+<p>我們打算利用可變電阻改變電壓，並利用 Arduino 的 ADC 腳位讀取電壓變化，轉換為節拍 BPM（Beats per minute）。</p>
+<h1>撰寫節拍器程式</h1>
+<p>在 mBlock 中，有個「彈奏鼓聲&hellip;」的方塊，其中「拍」的設定值，是指每幾秒打一下鼓，例如，下面這個方塊是指每 2 秒打一下鼓，同理類推，設定「拍」為 4 時，表示每 4 秒打一下鼓：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-4.jpg" alt="彈奏鼓聲..."  /></div></div></p>
+<p>因此，如果你想要 BPM 為 120 時，「拍」的設定就是 60 / 120 = 0.5，也就是半秒打一下鼓，我們希望轉動可變電阻時，BPM 可以從 40 到 208，因此設計了以下這個公式：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-5.jpg" alt="彈奏鼓聲..."  /></div></div></p>
+<p>為了顯示目前設定的 BPM，使用了 Scratch 中的貓咪來顯示目前的 BPM，而為了無聊一點，讓 Scratch 中的貓咪會隨著節拍而放大、縮小，這樣在視覺與聽覺上，都可以有節拍感&hellip;XD</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-6.jpg" alt="彈奏鼓聲..."  /></div></div></p>
+<p>聽說人走路的節奏是 112 BPM，要不要實際寫個程式聽聽看呢？</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino5-7.jpg" alt="彈奏鼓聲..."  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

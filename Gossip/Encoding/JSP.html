@@ -1,0 +1,126 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="這是一個簡單的JSP：
+&lt;%@ page contentType="text/html" pageEncoding="Big5"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;h...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="JSP 的轉譯">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Encoding/JSP.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="這是一個簡單的JSP：
+&lt;%@ page contentType="text/html" pageEncoding="Big5"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;h...">
+
+    <title>JSP 的轉譯</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JSP.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Encoding 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>JSP 的轉譯</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>這是一個簡單的JSP：</p>
+<pre class="prettyprint"><code>&lt;%@ page contentType="text/html" pageEncoding="Big5"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="Big5"&gt;
+&lt;title&gt;JSP 網頁&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;%= new java.util.Date() %&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>JSP 最後會轉譯為 Servlet，有關編碼方面的設定，最主要的是：</p>
+<pre class="prettyprint"><code>&lt;%@ page contentType="text/html" pageEncoding="Big5"%&gt;
+</code></pre>
+<p>在 Tomcat 中，容器會將 JSP 轉譯為 .java，.java 以 Big5 儲存，並以  Big5 編譯 .java， <code>pageEncoding</code> 主要是告知容器，這個 JSP 檔案的文字編碼為何，以正確地將字元轉譯至 .java， <code>pageEncoding</code> 也會影響內容類型（Content type），在沒有設定 <code>contentType</code> 屬性時，僅設定 <code>pageEncoding</code> 為Big5，產生的 .java 會有以下內容：</p>
+<pre class="prettyprint"><code>response.setContentType("text/html; charset=Big5");
+</code></pre>
+<p>如果 JSP 設定 <code>contentType</code> 時，沒有指定 <code>charset</code>，如上面那個簡單的 JSP 僅設定 <code>text/html</code>，那 <code>pageEncoding</code> 設定為 Big5 時，也會產生：</p>
+<pre class="prettyprint"><code>response.setContentType("text/html;charset=Big5");
+</code></pre>
+<p>如果故意這麼設定：</p>
+<pre class="prettyprint"><code>&lt;%@ page contentType="text/html; charset=UTF-8" pageEncoding="Big5"%&gt;
+</code></pre>
+<p>那產生的 Servlet 中會包括：</p>
+<pre class="prettyprint"><code>response.setContentType("text/html;charset=UTF-8");
+</code></pre>
+<p>這些是在 Tomcat 上的情況，為了避免困擾，通常在設定 <code>contentType</code> 屬性時，<code>charset</code> 會設定為與 <code>pageEncoding</code> 一致：</p>
+<pre class="prettyprint"><code>&lt;%@ page contentType="text/html; charset=Big5" pageEncoding="Big5"%&gt;
+</code></pre>
+<p><code>response</code> 的 <code>setContentType()</code>，會在 HTTP 回應中產生 Content-Type 標頭，告知瀏覽器所使用的內容類型與編碼，瀏覽器會根據其中的編碼指示來解譯傳回的 HTML，HTML 中的提示：</p>
+<pre class="prettyprint"><code>&lt;meta charset="Big5"&gt;
+</code></pre>
+<p>也是給瀏覽器參考用的，通常瀏覽器會以 <code>Content-Type</code> 標頭指示優先，<code>meta</code> 指示次之。</p>
+<p>可以在 web.xml 中統一預設的網頁編碼、內容類型、緩衝區大小等，例如：</p>
+<pre class="prettyprint"><code>&lt;web-app …&gt;
+    …
+    &lt;jsp-config&gt;
+        &lt;jsp-property-group&gt;
+            &lt;url-pattern&gt;*.jsp&lt;/url-pattern&gt;
+            &lt;page-encoding&gt;UTF8&lt;/page-encoding&gt;
+            &lt;default-content-type&gt;text/html&lt;/default-content-type&gt;
+            &lt;buffer&gt;16kb&lt;/buffer&gt;
+        &lt;/jsp-property-group&gt;
+    &lt;/jsp-config&gt;
+&lt;/web-app&gt;
+</code></pre>
+<p>如此一來，JSP 若沒有明確用 <code>page</code> 指示元素指定 <code>contentType</code> 或 <code>pageEncoding</code> 屬性，會使用 web.xml 中的設定。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

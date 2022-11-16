@@ -1,0 +1,209 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="來看看如何使用 Spring DI 的功能，將〈在 DI 之前〉中相依注入的職責，委由 Spring 來完成。
+為了要能使用 Spring DI，可以在 build.gradle 設定、管理 Spri...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 Spring DI">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/SpringDI.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="來看看如何使用 Spring DI 的功能，將〈在 DI 之前〉中相依注入的職責，委由 Spring 來完成。
+為了要能使用 Spring DI，可以在 build.gradle 設定、管理 Spri...">
+
+    <title>使用 Spring DI</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SpringDI.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Spring DI</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>來看看如何使用 Spring DI 的功能，將〈<a href="BeforeDI.html">在 DI 之前</a>〉中相依注入的職責，委由 Spring 來完成。</p>
+<p>為了要能使用 Spring DI，可以在 build.gradle 設定、管理 Spring 相關模組：</p>
+<pre class="prettyprint"><code lang="java">apply plugin: 'java-library'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+
+    compile 'com.h2database:h2:1.4.196'
+
+    compile 'org.springframework:spring-context:5.1.2.RELEASE'
+}
+</code></pre>
+<p>當然，物件與物件之間如何相依，必須告訴 Spring，它才有辦法將物件之間的關係聯繫起來。</p>
+<p>有時候需要使用 XML 來設定這些資訊，無論是為了維護舊專案，或者是集中某些設定資訊之時，這就請參考我撰寫過的〈<a href="../SpringGossip/index.html">舊版 Spring</a>〉文件，以及《<a href="https://openhome.cc/Gossip/Books/index.html#Spring">Spring 2.0 技術手冊</a>》。</p>
+<p>Spring 目前支援標註（Annotation）的設定方式，標註的優點之一，是可以將與程式碼相關的設定，就放在程式碼之中，讓這些設定，也成為閱讀、理解程式碼時的幫手。</p>
+<p>對於必須集中在某處的設定，例如整個應用程式都會使用的全域資訊，Spring 也善用標註，可將設定集中在一個 .java 之中，雖然副檔名為 .java，不過，應將之當成是一個設定檔來看待，Spring 稱這種設定方式為 JavaConfig，例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.sql.DataSource;
+
+import org.h2.jdbcx.JdbcDataSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan
+public class AppConfig {
+    @Bean
+    public DataSource getDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL("jdbc:h2:tcp://localhost/c:/workspace/SpringDI/gossip");
+        dataSource.setUser("caterpillar");
+        dataSource.setPassword("12345678");
+        return dataSource;
+    }
+}
+</code></pre>
+<p>由於 JavaConfig 也是個 Java 類別，使用它作為設定檔的好處之一是，可以在其中撰寫 Java 程式碼，因此對於更複雜的設定，像是過去 XML 方式無法滿足的設定，就可以使用程式碼來組裝，以便滿足設定需求。在這邊，由於 H2 的 <code>JdbcDataSource</code> 原始碼並不在我們專案控制之內，因此使用程式碼的方式設定相關資訊。</p>
+<p>為了令事情在一開始不要太過複雜，這個設定檔中，仍然是寫死了 JDBC URL 等資訊，之後會談到，如何將這些撰寫在 .properties。</p>
+<p>由 Spring 管理的實例稱之為 Bean ，<code>@Bean</code> 告訴 Spring，<code>getDataSource</code> 傳回的實例會作為一個 Bean 元件，雖然程式碼中撰寫了 <code>new</code>，然而，不要以為之後應用程式要取得 Bean，每次都會呼叫一次 <code>getDataSource</code> 而產生一個新的 <code>DataSource</code> 實例。</p>
+<p>是否產生多個 Bean 是可以設定的，而 Spring 會依設定來控制，這就是為何應該將 JavaConfig 看成是設定檔的原因；在沒有任何額外設定下，Spring 預設只會建立一個 Bean 實例。</p>
+<p>至於其他的 Bean，像是 <code>AccountDAOJdbcImpl</code>、<code>MessageDAOJdbcImpl</code>、<code>UserService</code> 等實例，實際上也可以寫在 <code>AppConfig</code> 裏，然而由於它們的原始碼在我們的控制之中，更方便的作法是透過 Spring 來自動掃描與自動綁定。</p>
+<p>為了能 Spring 能自動掃描 Bean 的存在，<code>AppConfig</code> 上標註了 <code>@ComponentScan</code>，如此 Spring 預設會自動掃描同一套件以及其子套件下，是否有 Bean 元件的存在。</p>
+<p>接著可以來處理 <code>AccountDAOJdbcImpl</code> 的自動綁定：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+... 略
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AccountDAOJdbcImpl implements AccountDAO {
+    private DataSource dataSource;
+
+    public AccountDAOJdbcImpl(@Autowired DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    ... 略
+}
+</code></pre>
+<p>在這邊看到 <code>DataSource</code> 建構式上的 <code>dataSource</code> 參數旁標註了 <code>@Autowired</code>，當 Spring 在自身管理的 Bean 中發現了相同類型的實例，會自動設定給 <code>dataSource</code>，而 <code>AccountDAOJdbcImpl</code> 本身也會被 Spring 作為 Bean 管理，因此可以使用 <code>@Component</code> 來標註，表示這也是個 Bean 元件。</p>
+<p><code>MessageDAOJdbcImpl</code> 也做了類似的標註：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+... 略
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MessageDAOJdbcImpl implements MessageDAO {
+    private DataSource dataSource;
+
+    public MessageDAOJdbcImpl(@Autowired DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    ... 略
+}
+</code></pre>
+<p>接下來 <code>UserService</code> 也是類似，只不過自動綁定的對象包括了 <code>AccountDAO</code> 與 <code>MessageDAO</code> 的實例：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+... 略
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserService {
+    private final AccountDAO acctDAO;
+    private final MessageDAO messageDAO;
+
+    public UserService(@Autowired AccountDAO acctDAO, @Autowired MessageDAO messageDAO) {
+        this.acctDAO = acctDAO;
+        this.messageDAO = messageDAO;
+    }
+
+    ... 略
+}
+</code></pre>
+<p>如上設定與標註之後，就可以透過 Spring 來取得 <code>DataSource</code>、<code>AccountDAOJdbcImpl</code>、<code>MessageDAOJdbcImpl</code> 或 <code>UserService</code> 實例了，然而，必須要有個物件來讀取 <code>AppConfig</code> 設定檔：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import cc.openhome.model.UserService;
+
+public class Main {
+    public static void main(String[] ags) {
+        ApplicationContext context = 
+                new AnnotationConfigApplicationContext(cc.openhome.AppConfig.class);
+
+        UserService userService = context.getBean(cc.openhome.model.UserService.class);
+
+        userService.messages("caterpillar")
+                   .forEach(message -&gt; {
+                       System.out.printf("%s\t%s%n",
+                               message.getLocalDateTime(),
+                               message.getBlabla());
+                   });
+    }
+}
+</code></pre>
+<p>由於這邊使用標註類別來作為設定檔，因此透過 <code>AnnotationConfigApplicationContext</code> 來讀取，在建立 <code>ApplicationContext</code> 實例之後，可以透過 <code>getBean</code> 方法來取得想要的 Bean，至於這些實例之間的相依性，就是由 Spring 來幫忙搓合。</p>
+<p>可以看到，你必須按照框架的規定，來完成相關的設定，如果你的應用程式沒有一定的複雜度，而使用框架換來的好處，沒有超過遵守框架規定而犧牲掉的自由，面對這些設定，大概只會覺得麻煩吧！</p>
+<p>當然，設定確實還是麻煩的，實際上為了省去設定的繁瑣，不少框架都會有慣例優於設定（Convention over Configuration）的設計，也就是沒有設定時自動採用預設值，Spring 也有這方面的方案，像是 Spring Boot，這是之後會談到的課題。</p>
+<p>這個範例的完成品，可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Core/SpringDI">SpringDI</a> 找到。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

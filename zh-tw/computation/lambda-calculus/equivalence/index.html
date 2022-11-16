@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="有一件事必須得承認，就如同 Y Combinator 從來不肯面對 x 從何而來這個問題，這一系列的文件也從來不面對 undefined 這個問題。 從〈未定義是值嗎？〉到〈真的未定義？〉，">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="運算隨想::等價匿名函式？" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/computation/lambda-calculus/equivalence/" />
+    <meta property="og:description" content="有一件事必須得承認，就如同 Y Combinator 從來不肯面對 x 從何而來這個問題，這一系列的文件也從來不面對 undefined 這個問題。 從〈未定義是值嗎？〉到〈真的未定義？〉，" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="運算隨想::等價匿名函式？" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/computation/lambda-calculus/equivalence/" />
+    <meta name="twitter:description" content="有一件事必須得承認，就如同 Y Combinator 從來不肯面對 x 從何而來這個問題，這一系列的文件也從來不面對 undefined 這個問題。 從〈未定義是值嗎？〉到〈真的未定義？〉，" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443677" type="image/x-icon">
+    <title> 運算隨想  :: 等價匿名函式？</title>
+    <link href="../../../css/nucleus.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443677.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443677.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443677"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/computation/lambda-calculus/equivalence/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/computation/" title="運算隨想" class="dd-item parent"><a href="../../index.html">運算隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/" title="lambda 隨想" class="dd-item parent"><a href="../index.html">| lambda 隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/y-combinator/" title="Y Combinator" class="dd-item"><a href="../y-combinator/index.html">Y Combinator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/adt/" title="代數資料型態" class="dd-item"><a href="../adt/index.html">代數資料型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/pair/" title="頭尾成對" class="dd-item"><a href="../pair/index.html">頭尾成對</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/bool/" title="是的！不是！" class="dd-item"><a href="../bool/index.html">是的！不是！</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/undef/" title="未定義是值嗎？" class="dd-item"><a href="../undef/index.html">未定義是值嗎？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/arithmetic/" title="算術的編碼" class="dd-item"><a href="../arithmetic/index.html">算術的編碼</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/nil/" title="真的未定義？" class="dd-item"><a href="../nil/index.html">真的未定義？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/let/" title="可以不要 let 嗎？" class="dd-item"><a href="../let/index.html">可以不要 let 嗎？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/simple-bool/" title="簡單是非" class="dd-item"><a href="../simple-bool/index.html">簡單是非</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/lang/" title="誰是微語言？" class="dd-item"><a href="../lang/index.html">誰是微語言？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/fixed-point/" title="不動點" class="dd-item"><a href="../fixed-point/index.html">不動點</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/lambda-calculus/equivalence/" title="等價匿名函式？" class="dd-item active"><a href="index.html">等價匿名函式？</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/" title="圖靈隨想" class="dd-item"><a href="../../automata/index.html">| 圖靈隨想</a><ul>
+          <li data-nav-id="/zh-tw/computation/automata/brainfuck/" title="空想 Brainfuck" class="dd-item"><a href="../../automata/brainfuck/index.html">空想 Brainfuck</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/brainfuck-js/" title="打造 Brainfuck" class="dd-item"><a href="../../automata/brainfuck-js/index.html">打造 Brainfuck</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/input/" title="Brainfuck 看輸入" class="dd-item"><a href="../../automata/input/index.html">Brainfuck 看輸入</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/state/" title="Brainfuck 看狀態" class="dd-item"><a href="../../automata/state/index.html">Brainfuck 看狀態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/rule/" title="Brainfuck 看規則" class="dd-item"><a href="../../automata/rule/index.html">Brainfuck 看規則</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/dtm/" title="特定機器" class="dd-item"><a href="../../automata/dtm/index.html">特定機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/utm/" title="通用機器" class="dd-item"><a href="../../automata/utm/index.html">通用機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/halting-problem/" title="停或不停？" class="dd-item"><a href="../../automata/halting-problem/index.html">停或不停？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/pda/" title="只能堆疊的機器" class="dd-item"><a href="../../automata/pda/index.html">只能堆疊的機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/dfa/" title="沒有記憶的機器" class="dd-item"><a href="../../automata/dfa/index.html">沒有記憶的機器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/nfa/" title="瞎猜的狀態機" class="dd-item"><a href="../../automata/nfa/index.html">瞎猜的狀態機</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/npda/" title="瞎猜的下推機" class="dd-item"><a href="../../automata/npda/index.html">瞎猜的下推機</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/computation/automata/non-deterministic/" title="外部神秘力量" class="dd-item"><a href="../../automata/non-deterministic/index.html">外部神秘力量</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">運算隨想</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">lambda 隨想</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">等價匿名函式？</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#匿名函式是否等價">匿名函式是否等價？</a></li>
+    <li><a href="index.html#停還是不停">停還是不停？</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/lambda-calculus/">lambda calculus</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/lambda-expression/">lambda expression</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/equivalence-problem/">equivalence problem</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/halting-problem/">halting problem</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>等價匿名函式？</h1>
+
+ <i class="space fa fa-calendar"> December 15, 2021</i> 
+<p>有一件事必須得承認，就如同 Y Combinator 從來不肯面對 <code>x</code> 從何而來這個問題，這一系列的文件也從來不面對 <code>undefined</code> 這個問題。</p>
+<p>從〈<a href="../undef/index.html">未定義是值嗎？</a>〉到〈<a href="../nil/index.html">真的未定義？</a>〉，不是已經解決 <code>undefined</code> 了嗎？不！並沒有，只是沒有使用 <code>undefined</code> 而已，就算是 <code>no_use</code>，那也不是 <code>undefined</code> 的匿名函式定義，只是函式中不會去理 <code>no_use</code> 而已。</p>
+<h2 id="匿名函式是否等價">匿名函式是否等價？</h2>
+<p>到底有沒有辦法使用匿名函式來定義 <code>undefined</code> 呢？如果針對特定需求，將 <code>undefined</code> 可適用的場合加以限制，應該是可以，不過，如果想要定義一個通用的匿名函式 <code>s</code> 來表示 <code>undefined</code>，這就得面對一個問題，勢必要有個通用的 <code>eq(x)(s)</code>，能夠決定 <code>x</code> 與 <code>s</code> 這兩個匿名函式是否等價。</p>
+<p>也許有人會說，<code>x === s</code> 不行嗎？不行！<code>===</code> 是 JavaScript 的東西，而且它比較的其實是 <code>x</code> 與 <code>s</code> 的記憶體位址，不是比較匿名函式是否等價，而且，如果函式物件不是全域的存在，單純像是 <code>(x =&gt; x) === (x =&gt; x)</code> 的結果會是 <code>false</code>，實際上兩者是等價的。</p>
+<p>試著呼叫匿名函式，看看它們是不是傳回相同的值呢？唔！因為是 <code>eq</code> 必須是通用的，你沒辦法預期會傳入什麼匿名函式，也就無法確定呼叫匿名函式時該傳入什麼引數，而且別忘了，值全部都使用匿名函式編碼了，傳回值也會是匿名函式，問題回到原點，如何確認傳回的兩個匿名函式等價？</p>
+<p>也許野心先別太大，來看看數字是怎麼比較相等性好了，在〈<a href="../arithmetic/index.html">算術的編碼</a>〉中看過 <code>is_$0</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">is_$0</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">n</span>(<span style="color:#a6e22e">x</span> =&gt; <span style="color:#a6e22e">no</span>)(<span style="color:#a6e22e">yes</span>);
+</span></span></code></pre></div><p>實際上它沒有直接比較 <code>$0</code> 與 <code>$0</code>，只是呼叫傳入的值，看看傳回 <code>yes</code> 或 <code>no</code>，那麼可以比較兩個數字是否相等嗎？來試試看：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">naturalEq</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">m</span> =&gt; <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">is_$0</span>(<span style="color:#a6e22e">sub</span>(<span style="color:#a6e22e">m</span>)(<span style="color:#a6e22e">n</span>)))
+</span></span><span style="display:flex;"><span>                                (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">is_$0</span>(<span style="color:#a6e22e">sub</span>(<span style="color:#a6e22e">n</span>)(<span style="color:#a6e22e">m</span>)))
+</span></span><span style="display:flex;"><span>                                (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">no</span>)(<span style="color:#a6e22e">no_use</span>);
+</span></span></code></pre></div><p>如果兩個數字相等，那麼相減結果必然是 <code>$0</code>，目前僅定義自然數，相減結果最小是 <code>$0</code>，因而除了 <code>m</code> 減去 <code>n</code> 必須為 <code>$0</code> 之外，也要檢查 <code>n</code> 減去 <code>m</code> 要是為 <code>$0</code>。</p>
+<p><code>naturalEq</code> 可以比較任意兩個數字並傳回 <code>yes</code> 或 <code>no</code>，最終是透過 <code>is_$0</code> 來確認等價性，在對匿名函式加以限制的情況下（例如限制在數字），這類的等價性確認是可以達成的，<code>naturalEq</code> 不是通用的 <code>eq</code>，不過可以解決數字等價的問題。</p>
+<p>那麼，若參數與傳回值是數字的函式，基於數字來確定函式的等價性是有可能的了，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">f</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">$1</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">g</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">$1</span>;
+</span></span></code></pre></div><p>可以判定 <code>f</code> 與 <code>g</code> 等價，因為對任意的數字 <code>n</code>，執行後一定傳回 <code>$1</code>，令 <code>f</code> 與 <code>g</code> 更複雜一些的話呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">某個數字</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">f</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">$1</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">g</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">naturalEq</span>(<span style="color:#a6e22e">x</span>)(<span style="color:#a6e22e">n</span>))
+</span></span><span style="display:flex;"><span>                    (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$1</span>)
+</span></span><span style="display:flex;"><span>                    (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">n</span>))(<span style="color:#a6e22e">no_use</span>);
+</span></span></code></pre></div><p>可以判定 <code>f</code> 與 <code>g</code> 等價，因為對任意的數字 <code>n</code>，執行後一定傳回 <code>$1</code>，如果是底下的 <code>f</code> 與 <code>g</code> 呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">some</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">某個箭號函式</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">x</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">某個數字</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">f</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$1</span>)(<span style="color:#a6e22e">some</span>(<span style="color:#a6e22e">x</span>));
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">g</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">naturalEq</span>(<span style="color:#a6e22e">x</span>)(<span style="color:#a6e22e">n</span>))
+</span></span><span style="display:flex;"><span>                    (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$1</span>)
+</span></span><span style="display:flex;"><span>                    (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">n</span>))(<span style="color:#a6e22e">no_use</span>);
+</span></span></code></pre></div><p>不管 <code>some</code> 是什麼，<code>some(n)</code> 執行完畢之後，當成是引數傳入，引數會被忽略直接傳回 <code>$1</code>，沒問題，<code>f</code> 與 <code>g</code> 可以判定為等價。</p>
+<p>等一下！<code>some(n)</code> 一定會執行完畢嗎？如果 <code>some</code> 是 <code>y(some =&gt; x =&gt; some(x))</code> 呢？那會發生無限遞迴，如果真有個通用的 <code>eq</code> 存在，可以在 <code>eq(f)(g)</code> 時列舉 <code>n</code>，用以判定 <code>f</code> 與 <code>g</code> 的等價性，既然是通用的 <code>eq</code>，那表示也可以用 <code>eq(x)(n)</code> 來取代 <code>naturalEq(x)(n)</code>，而且 <code>eq</code> 可以在發現無限遞迴時，直接傳回 <code>no</code>（因為無限遞迴時一定不會傳回 <code>$1</code>），而 <code>some(x)</code> 可以執行完畢的情況下，結果就是 <code>yes</code>（因為 <code>f</code> 與 <code>g</code> 等價）。</p>
+<h2 id="停還是不停">停還是不停？</h2>
+<p>也就是說，<code>eq(f)(g)</code> 等於是在判斷 <code>some(x)</code> 可否執行完畢，那就來寫個 <code>is_halt</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">is_halt</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">some</span> =&gt; <span style="color:#a6e22e">x</span> =&gt; 
+</span></span><span style="display:flex;"><span>    (<span style="color:#a6e22e">f</span> =&gt; 
+</span></span><span style="display:flex;"><span>        (<span style="color:#a6e22e">g</span> =&gt;
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">eq</span>(<span style="color:#a6e22e">f</span>)(<span style="color:#a6e22e">g</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        )(<span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">eq</span>(<span style="color:#a6e22e">x</span>)(<span style="color:#a6e22e">n</span>))(<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$1</span>)(<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">n</span>))(<span style="color:#a6e22e">no_use</span>))
+</span></span><span style="display:flex;"><span>    )(<span style="color:#a6e22e">n</span> =&gt; (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$1</span>)(<span style="color:#a6e22e">some</span>(<span style="color:#a6e22e">x</span>)));
+</span></span></code></pre></div><p>這個 <code>is_halt</code>，可以接受任意函式 <code>some</code> 與 <code>x</code>，如果 <code>some(x)</code> 可執行完畢就傳回 <code>yes</code>，不然就是 <code>no</code>。</p>
+<p>如果有個函式 <code>f</code>，可以接受自身作為輸入，像是 Y Combinator 中 <code>x[x]</code> 的情況，因而關心的是 <code>f(f)</code> 能不能執行完畢，若可以執行完畢的話，希望可以進入另一個永不停止的流程：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">forever</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">y</span>(<span style="color:#a6e22e">f</span> =&gt; <span style="color:#a6e22e">x</span> =&gt; <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span>));
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">foreverIfHalt</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">f</span> =&gt; <span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">is_halt</span>(<span style="color:#a6e22e">f</span>)(<span style="color:#a6e22e">f</span>))
+</span></span><span style="display:flex;"><span>                                (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">forever</span>(<span style="color:#a6e22e">$0</span>))
+</span></span><span style="display:flex;"><span>                                (<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">$0</span>)(<span style="color:#a6e22e">no_use</span>);
+</span></span></code></pre></div><p>這需求在直覺上或許會認為不奇怪且可能（若指定 <code>f</code> 回呼會執行完畢，那就執行另一個預設的、不會停止的函式），如果被指定的回呼函式就是 <code>foreverIfHalt</code> 呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">foreverIfHalt</span>(<span style="color:#a6e22e">foreverIfHalt</span>);
+</span></span></code></pre></div><p>如果上式能執行完畢，表示 <code>is_halt(foreverIfHalt)(foreverIfHalt)</code> 必須是 <code>no</code>，也就是表示 <code>some</code> 是 <code>foreverIfHalt</code>，而 <code>x</code> 也是 <code>foreverIfHalt</code> 時，<code>eq(f)(g)</code> 的行為會是「<code>some(x)</code> 可以執行完畢的情況下，傳回 <code>no</code>」，可是剛才說「<code>some(x)</code> 可以執行完畢的情況下，結果就是 <code>yes</code>」。</p>
+<p>如果上式不能執行完畢，表示 <code>is_halt(foreverIfHalt)(foreverIfHalt)</code> 必須是 <code>yes</code>，也就是表示 <code>some</code> 是 <code>foreverIfHalt</code>，而 <code>x</code> 也是 <code>foreverIfHalt</code> 時，<code>eq(f)(g)</code> 的行為會是「<code>some(x)</code> 不能執行完畢的情況下，傳回 <code>yes</code>」，可是剛才說「<code>eq</code> 可以在發現無限遞迴時，直接傳回 <code>no</code>」。</p>
+<p>之前說應該 <code>yes</code> 的情況，現在卻變成 <code>no</code>，之前說應該 <code>no</code> 的情況，現在卻變成 <code>yes</code>，這是政治上流行的髮夾彎嗎？這樣的政治人物…嗯…咳…這樣的 <code>eq</code> 根本就不該存在！</p>
+<p>也就是說，可以判斷任意兩個匿名函式是否等價的運算不存在！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/computation/lambda-calculus/equivalence/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/computation/lambda-calculus/equivalence/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e9%81%8b%e7%ae%97%e9%9a%a8%e6%83%b3%3a%3a%e7%ad%89%e5%83%b9%e5%8c%bf%e5%90%8d%e5%87%bd%e5%bc%8f%ef%bc%9f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fcomputation%2flambda-calculus%2fequivalence%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../fixed-point/index.html" title="不動點"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../../automata/index.html" title="圖靈隨想"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443677"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443677"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443677"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443677"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443677"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443677"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443677"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443677"></script>
+  </body>
+</html>

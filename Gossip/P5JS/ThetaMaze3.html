@@ -1,0 +1,459 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Theta 迷宮（二）〉中談到，可以依圓周長決定選擇將細胞一切為二的時機，只不過就目前 Maze 的細胞資料結構設計而言，實作這個需求會有些麻煩，如果細胞可以知道自身的細胞鄰居，特別是往內及外往的...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Theta 迷宮（三）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/ThetaMaze3.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Theta 迷宮（二）〉中談到，可以依圓周長決定選擇將細胞一切為二的時機，只不過就目前 Maze 的細胞資料結構設計而言，實作這個需求會有些麻煩，如果細胞可以知道自身的細胞鄰居，特別是往內及外往的...">
+
+    <title>Theta 迷宮（三）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[iflte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[ifgt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ThetaMaze3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx='partner-pub-9750319131714390:3926766884';var gcse=document.createElement('script');gcse.type='text/javascript';gcse.async=true;gcse.src=(document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle=window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Theta 迷宮（三）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle=window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ThetaMaze2.html">Theta 迷宮（二）</a>〉中談到，可以依圓周長決定選擇將細胞一切為二的時機，只不過就目前 <code>Maze</code> 的細胞資料結構設計而言，實作這個需求會有些麻煩，如果細胞可以知道自身的細胞鄰居，特別是往內及外往的鄰居有哪些，實作時會簡單許多。</p>
+<h1>鄰居與牆面設計</h1>
+<p>可以使用鏈結的概念來實作細胞與細胞鄰居間的關係，對於以下的紅色細胞，它會有的鄰居定義為 <code>inward</code>（往內）、<code>outwards（往外）</code>、<code>cw</code>（順時針）、<code>ccw</code>（逆時針），<code>outwards</code> 是複數，因為往外的鄰居可能是一個，或者在切分處會有兩個：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-1.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>因為現在就是要針對 Theta 迷宮設計，因此就直接採 inward、outwards 之類的名詞了，當然如果你願意，將這邊的迷宮設計畫為像在〈<a href="ThetaMaze2.html">Theta 迷宮（二）</a>〉中的方形迷宮，也是可以的。</p>
+<p>在牆面設計上，每個細胞預設的牆面有內牆與逆時針牆，座標 (row, column) 等的關係如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-2.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>注意！你不能為細胞設計外牆，因為在切分點時，往外會有兩個鄰居，若這時選擇其中一個往外的鄰居，往外走時拆掉了目前細胞的外牆，就等於往外的那兩個鄰居門戶都開了，這就不正確了。</p>
+<p>（〈<a href="ThetaMaze.html">Theta 迷宮（一）</a>〉中的牆面就算設計了外牆，也不會有這個問題，是因為沒有切分細胞。）</p>
+<h1>根據圓周切分細胞</h1>
+<p>接下來就直接用程式實作來進行說明，首先還是要先定義細胞的資料結構：</p>
+<pre class="prettyprint"><code lang="javascript">function cell(row, column, wallType) {
+    // inward、outwards、cw、ccw 預設都是 undefined
+    return {row, column, wallType, notVisited: true};
+}
+</code></pre>
+<p>因為 JavaScript 中，物件的特性沒有定義時，試圖存取該特性會得到 <code>undefined</code>，<code>cell</code> 函式中不用特別定義 <code>inward</code>、<code>outwards</code>、<code>cw</code>、<code>ccw</code> 特性後指定為 <code>undefined</code>，因為就執行效果來說會得到相同的結果（雖然技術上有些差別，這邊不是在討論 JavaScript，就不多談了）。</p>
+<p>來看一下迷宮細胞的初始建構：</p>
+<pre class="prettyprint"><code lang="javascript">class ThetaMaze {
+    constructor(totalRows, beginingColumns, dividedRatio=1.5) { 
+        constructRows(this, totalRows, beginingColumns, dividedRatio);
+        configNeighbors(this);
+    }
+}
+
+ThetaMaze.NO_WALL='no_wall';
+ThetaMaze.INWARD_WALL='inward_wall';
+ThetaMaze.CCW_WALL='ccw_wall';
+ThetaMaze.INWARD_CCW_WALL='inward_ccw_wall';
+
+// 處理每個細胞的便捷函式
+function forEachCell(maze, cellAction) {
+    maze.rows.forEach(row =&gt; {
+        row.forEach(cellAction);
+    });
+}
+</code></pre>
+<p><code>constructRows</code> 為迷宮建構每一列的細胞，細胞的劃分會根據圓周決定，在這邊並不會考慮繪圖時的處理，不會有細胞寬度資訊，因此計算圓周的方式是基於單位圓，也就是半徑為 1 的圓：</p>
+<pre class="prettyprint"><code lang="javascript">function constructRows(maze, totalRows, beginingColumns, dividedRatio) {
+    maze.rows=[];
+
+    // 建構索引 0 列
+    const cells=[];
+    for(let column=0; column &lt; beginingColumns; column++) {
+        cells.push(cell(0, column, ThetaMaze.INWARD_CCW_WALL));
+    }
+    maze.rows.push(cells);
+
+    // 建構其餘的列
+    const cellWidth=1 / totalRows;      // 基於單元圓計算細胞寬度
+    for(let row=1; row &lt; totalRows; row++) {
+        const r=row * cellWidth;       
+        const circumference=TWO_PI * r; // 該列外圓周長
+
+        // 若依舊使用前一列的細胞數，細胞外牆的長度
+        const previousColumns=maze.rows[row - 1].length;
+        const estimatedOutWallWidth=circumference / previousColumns;
+
+        // 細胞外牆的長度與細胞寬度相比，超過 dividedRatio 時切分為 2
+        const ratio=estimatedOutWallWidth / cellWidth &gt;= dividedRatio ? 2 : 1;
+        const cols=previousColumns * ratio;
+        const cells=[];
+        for(let column=0; column &lt; cols; column++) {
+            cells.push(cell(row, column, ThetaMaze.INWARD_CCW_WALL));
+        }
+        maze.rows.push(cells);
+    }
+}
+</code></pre>
+<p>程式碼中的註解說明了切分的方式，這邊可注意的是 <code>dividedRatio</code>，預設為 1.5，也就是細胞外牆的長度與細胞寬度相比，大於等於 1.5 時就切分，這個比例可以應付約 30 環左右的切分：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-3.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>不過你可以看出三個明顯的環狀區段，更多的環數會有更多的環狀區段，例如 50 環：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-4.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>這種狀況是正常的，因為你是圓周到一定程度才切分，在切分處細胞一定較小，然後往外較大，留個 <code>dividedRatio</code> 作為參數，可以微調環狀區段，例如同為 50 環，然後 <code>dividedRatio</code> 變成 2：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-5.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>選擇 <code>dividedRatio</code> 預設值為 1.5，是因為我覺得就算到了 30 環，畫出來的迷宮也蠻好看的，30 幾環差不多也是執行環境在遞迴回溯演算時，會遇到堆疊數量的限制了，如果你想要更多的環，可以試著將 <code>dividedRatio</code> 設更高，並看看繪圖後的效果。</p>
+<p>另一個考量是，<code>ratio</code> 也可以是根據 <code>r</code> 的不同而變動，例如：</p>
+<pre class="prettyprint"><code lang="javascript">const ratio=estimatedOutWallWidth / cellWidth &gt;= (dividedRatio + r * r) ? 2 : 1;
+</code></pre>
+<p>這會讓超過百環的切分時，細胞趨向一個穩定大小，程式中我沒這麼做的原因是，在不調整執行環境堆疊數量的限制下，這種考量沒有意義，畢竟你也算不出迷宮。</p>
+<p>接著來看看建立細胞間關係的 <code>configNeighbors</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function configNeighbors(maze) {
+    forEachCell(maze, cell =&gt; {
+        // 除了最外環之外，每個細胞都有向外的一或兩個鄰居，這邊先準備好陣列
+        if(cell.row &lt; maze.rows.length - 1) {
+           cell.outwards=[];
+        }
+    });
+
+    forEachCell(maze, cell =&gt; {
+        const row=maze.rows[cell.row];
+        // 逆時針與順時針的鄰居
+        cell.ccw=row[(cell.column + 1) % row.length];
+        cell.cw=row[cell.column &gt; 0 ? cell.column - 1 : cell.column - 1 + row.length];
+
+        if(cell.row &gt; 0) {
+            // 往內與往外的鄰居
+            const ratio=row.length / maze.rows[cell.row - 1].length;
+            cell.inward=maze.rows[cell.row - 1][floor(cell.column / ratio)];
+            cell.inward.outwards.push(cell);
+        }
+    });
+}
+</code></pre>
+<p>因為資料結構上的改變，我們可以知道每列的細胞數，用來計算往內與往外的鄰居就方便多了，畢竟 <code>ratio</code> 只會是 1 或 2，在 1 的時候，表示兩列的細胞數相同，為 2 的時候，表示目前這列比前一列的細胞數多一倍，內牆細胞的 <code>column</code> 座標自然就是除以 2 後的整數部份。</p>
+<p>接下來呢？資料結構改變了，遞迴回溯演算還能用嗎？當然！只是實作面上調整了一下罷了，遞迴回溯演算本身的流程還是不變的：</p>
+<pre class="prettyprint"><code lang="javascript">function notVisited(maze, row, column) {
+    return maze.rows[row][column].notVisited;
+}
+
+function isVisitable(cell) {
+    return cell.notVisited;
+} 
+
+const IN =0;  // 內
+const OUT=1;  // 外
+const CW =2;  // 順
+const CCW=3;  // 逆
+
+// 一律傳回陣列，這便於呼叫者使用一致的方式處理
+function nextCells(cell, dir) {
+    return [
+        cell.inward ? [cell.inward] : [], 
+        cell.outwards ? cell.outwards : [],
+        cell.cw ? [cell.cw] : [], 
+        cell.ccw ? [cell.ccw] : []
+    ][dir];
+}
+
+// 往內走，打掉目前細胞內牆
+function visitIN(maze, next, currentCell) {
+    if(currentCell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+        currentCell.wallType=ThetaMaze.CCW_WALL;
+    }
+    else {
+        currentCell.wallType=ThetaMaze.NO_WALL;
+    }
+    next.notVisited=false;
+}
+
+// 往外走，打掉下個細胞的內牆
+function visitOUT(maze, next, currentCell) {
+    next.wallType=ThetaMaze.CCW_WALL;
+    next.notVisited=false;
+}
+
+// 順時針，打掉下個細胞的逆時牆
+function visitCW(maze, next, currentCell) {
+    next.wallType=ThetaMaze.INWARD_WALL;
+    next.notVisited=false;
+}
+
+// 逆時針，打掉目前細胞的逆時針牆
+function visitCCW(maze, next, currentCell) {
+    if(currentCell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+        currentCell.wallType=ThetaMaze.INWARD_WALL;
+    }
+    else {
+        currentCell.wallType=ThetaMaze.NO_WALL;
+    }
+    next.notVisited=false;
+}
+
+function visitNext(maze, next, currentCell, dir) {
+    switch(dir) {
+        case IN:  
+            visitIN(maze, next, currentCell); break;
+        case OUT:
+            visitOUT(maze, next, currentCell); break;
+        case CW:
+            visitCW(maze, next, currentCell); break;
+        case CCW:
+            visitCCW(maze, next, currentCell); break;
+    }
+}
+
+function backtracker(maze, currentCell) {
+    // 隨機的四個方向
+    const rdirs=shuffle([IN, OUT, CW, CCW]);
+
+    // 找出可造訪的方向清單
+    const vdirs=rdirs.filter(dir =&gt; {
+        return nextCells(currentCell, dir).some(isVisitable);
+    });
+
+    // 完全沒有可造訪的方向就回溯
+    if(vdirs.length === 0) {
+        return;
+    }
+
+    // 逐一造訪可行方向
+    vdirs.forEach(dir =&gt; {
+        const cells=nextCells(currentCell, dir);
+        // 原先可造訪的方向，可能因為深度優先的關係被造訪過了
+        // 因此必須再次確認一次是否仍然可以造訪
+        cells.forEach(cell =&gt; {
+            if(isVisitable(cell)) {
+                visitNext(maze, cell, currentCell, dir);
+                // 就目前迷宮狀態進行遞迴回溯演算
+                backtracker(maze, cell);
+            }
+        });
+    });
+}
+</code></pre>
+<p>其實，你要在方形迷宮中，就設計細胞間的關係以鏈結來串起，也是可以的，只不過這是需求與設計間平衡的問題！</p>
+<p>如果只是面對方形迷宮，〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉的實作方式比較簡單，畢竟上、下、左、右就只是座標索引加減 1 的問題，當時若透過鏈結來設計，或許你還會覺得多此一舉。</p>
+<p>然而，如果你一開始就是想使用遞迴回溯演算，並用同一個程式作為通用實作，可處理完方形迷宮與 Theta 迷宮，那麼一開始就設計使用鏈結來串起細胞間的關係，這樣的實作就會有價值。</p>
+<p>一開始該設計到什麼程度呢？看需求！需求會變化啊！不能一開始就考量多一些嗎？這又會引發過度設計的問題&hellip;因此才說，這是需求與設計間平衡的問題&hellip;這已經不是 p5.js 這系列的重點了&hellip;XD</p>
+<p>話題拉回來，<code>ThetaMaze</code> 要加個 <code>backtracker</code>：</p>
+<pre class="prettyprint"><code lang="javascript">class ThetaMaze {
+    constructor(totalRows, beginingColumns, dividedRatio=1.5) { /
+        constructRows(this, totalRows, beginingColumns, dividedRatio);
+        configNeighbors(this);
+    }
+
+    backtracker() {
+        const currentCell=this.rows[0][0];
+        currentCell.notVisited=false;
+        backtracker(this, currentCell);
+    }   
+}
+</code></pre>
+<p>最後就是繪製迷宮了，這沒什麼困難的了吧！</p>
+<pre class="prettyprint"><code lang="javascript">function drawMaze(maze, cellWidth) {
+    forEachCell(maze, cell =&gt; {
+        const thetaStep=TWO_PI / maze.rows[cell.row].length;
+
+        const innerR=(cell.row + 1) * cellWidth;
+        const outerR=(cell.row + 2) * cellWidth; 
+        const theta1=-thetaStep * cell.column;
+        const theta2=-thetaStep * (cell.column + 1);
+
+        const innerVt1=p5.Vector.fromAngle(theta1, innerR);
+        const innerVt2=p5.Vector.fromAngle(theta2, innerR);
+        const outerVt2=p5.Vector.fromAngle(theta2, outerR);
+
+        if(cell.wallType === ThetaMaze.INWARD_WALL || cell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+            line(innerVt1.x, innerVt1.y, innerVt2.x, innerVt2.y);
+        }
+
+        if(cell.wallType === ThetaMaze.CCW_WALL || cell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+            line(innerVt2.x, innerVt2.y, outerVt2.x, outerVt2.y);
+        }
+    });
+
+    const thetaStep=TWO_PI / maze.rows[maze.rows.length - 1].length;
+    const r=cellWidth * (maze.rows.length + 1);
+    for(let theta=0; theta &lt; TWO_PI; theta=theta + thetaStep) {
+        const vt1=p5.Vector.fromAngle(theta, r);
+        const vt2=p5.Vector.fromAngle(theta + thetaStep, r);
+        line(vt1.x, vt1.y, vt2.x, vt2.y);
+    }  
+}
+</code></pre>
+<p>來看看〈<a href="ThetaMaze2.html">Theta 迷宮（二）</a>〉中會開始過密的 24 x 8 迷宮，改為以上實作後的表現：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze3-6.JPG" alt="Theta 迷宮（三）"  /></div></div></p>
+<p>以下是完整的程式實作：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+  createCanvas(300, 300);
+  noLoop();
+}
+
+function draw() {
+  background(220);
+  const totalRows=24;
+  const beginingColumns=8;
+  const cellWidth=(width - 20) / totalRows / 2;
+  const maze=new ThetaMaze(totalRows, beginingColumns);
+  maze.backtracker();
+  strokeWeight(2);
+  translate(width / 2, height / 2);
+  drawMaze(maze, cellWidth);
+}
+
+function cell(row, column, wallType) { return {row, column, wallType, notVisited: true };}
+class ThetaMaze {
+  constructor(totalRows, beginingColumns, dividedRatio=1.5) {
+    constructRows(this, totalRows, beginingColumns, dividedRatio);
+    configNeighbors(this);
+  }
+  backtracker() {
+    const currentCell=this.rows[0][0];
+    currentCell.notVisited=false;
+    backtracker(this, currentCell);
+  }
+}
+ThetaMaze.NO_WALL='no_wall';
+ThetaMaze.INWARD_WALL='inward_wall';
+ThetaMaze.CCW_WALL='ccw_wall';
+ThetaMaze.INWARD_CCW_WALL='inward_ccw_wall';
+function forEachCell(maze, cellAction) { maze.rows.forEach(row => row.forEach(cellAction));}
+function constructRows(maze, totalRows, beginingColumns, dividedRatio) {
+  maze.rows=[];
+  const cells=[];
+  for(let column=0; column < beginingColumns; column++) { cells.push(cell(0, column, ThetaMaze.INWARD_CCW_WALL));}
+  maze.rows.push(cells);
+  const cellWidth=1 / totalRows;
+  for(let row=1; row < totalRows; row++) {
+    const r=row * cellWidth;
+    const circumference=TWO_PI * r;
+    const previousColumns=maze.rows[row - 1].length;
+    const estimatedOutWallWidth=circumference / previousColumns;
+    const ratio=estimatedOutWallWidth / cellWidth >= dividedRatio ? 2 : 1;
+    const cols=previousColumns * ratio;
+    const cells=[];
+    for(let column=0; column < cols; column++) { cells.push(cell(row, column, ThetaMaze.INWARD_CCW_WALL));}
+    maze.rows.push(cells);
+  }
+}
+function configNeighbors(maze) {
+  forEachCell(maze, cell => {
+    if(cell.row < maze.rows.length - 1) { cell.outwards=[]; }
+  });
+  forEachCell(maze, cell => {
+    const row=maze.rows[cell.row];
+    cell.ccw=row[(cell.column + 1) % row.length];
+    cell.cw=row[cell.column > 0 ? cell.column - 1 : cell.column - 1 + row.length];
+    if(cell.row > 0) {
+      const ratio=row.length / maze.rows[cell.row - 1].length;
+      cell.inward=maze.rows[cell.row - 1][floor(cell.column / ratio)];
+      cell.inward.outwards.push(cell);
+    }
+  });
+}
+function notVisited(maze, row, column) { return maze.rows[row][column].notVisited; }
+function isVisitable(cell) { return cell.notVisited; }
+const IN=0, OUT=1, CW=2, CCW=3;
+function nextCells(cell, dir) { return [cell.inward ? [cell.inward] : [], cell.outwards ? cell.outwards : [], cell.cw ? [cell.cw] : [], cell.ccw ? [cell.ccw] : []][dir];}
+function visitIN(maze, next, currentCell) {
+  if(currentCell.wallType === ThetaMaze.INWARD_CCW_WALL) { currentCell.wallType=ThetaMaze.CCW_WALL; } 
+  else { currentCell.wallType=ThetaMaze.NO_WALL; }
+  next.notVisited=false;
+}
+function visitOUT(maze, next, currentCell) { next.wallType=ThetaMaze.CCW_WALL; next.notVisited=false;}
+function visitCW(maze, next, currentCell) { next.wallType=ThetaMaze.INWARD_WALL; next.notVisited=false; }
+function visitCCW(maze, next, currentCell) {
+  if(currentCell.wallType === ThetaMaze.INWARD_CCW_WALL) { currentCell.wallType=ThetaMaze.INWARD_WALL; } 
+  else { currentCell.wallType=ThetaMaze.NO_WALL; }
+  next.notVisited=false;
+}
+function visitNext(maze, next, currentCell, dir) {
+  switch (dir) {
+    case IN: visitIN(maze, next, currentCell); break;
+    case OUT: visitOUT(maze, next, currentCell); break;
+    case CW: visitCW(maze, next, currentCell); break;
+    case CCW: visitCCW(maze, next, currentCell); break;
+  }
+}
+function backtracker(maze, currentCell) {
+  const rdirs=shuffle([IN, OUT, CW, CCW]);
+  const vdirs=rdirs.filter(dir => nextCells(currentCell, dir).some(isVisitable));
+  if(vdirs.length === 0) { return; }
+  vdirs.forEach(dir => {
+    nextCells(currentCell, dir).forEach(cell => {
+      if(isVisitable(cell)) {
+        visitNext(maze, cell, currentCell, dir);
+        backtracker(maze, cell);
+      }
+    });
+  });
+}
+function drawMaze(maze, cellWidth) {
+  forEachCell(maze, cell => {
+    const thetaStep=TWO_PI / maze.rows[cell.row].length;
+    const innerR=(cell.row + 1) * cellWidth;
+    const outerR=(cell.row + 2) * cellWidth;
+    const theta1=-thetaStep * cell.column;
+    const theta2=-thetaStep * (cell.column + 1);
+    const innerVt1=p5.Vector.fromAngle(theta1, innerR);
+    const innerVt2=p5.Vector.fromAngle(theta2, innerR);
+    const outerVt2=p5.Vector.fromAngle(theta2, outerR);
+    if(cell.wallType === ThetaMaze.INWARD_WALL || cell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+      line(innerVt1.x, innerVt1.y, innerVt2.x, innerVt2.y);
+    }
+    if(cell.wallType === ThetaMaze.CCW_WALL || cell.wallType === ThetaMaze.INWARD_CCW_WALL) {
+      line(innerVt2.x, innerVt2.y, outerVt2.x, outerVt2.y);
+    }
+  });
+  const thetaStep=TWO_PI / maze.rows[maze.rows.length - 1].length;
+  const r=cellWidth * (maze.rows.length + 1);
+  for(let theta=0; theta < TWO_PI; theta=theta + thetaStep) {
+    const vt1=p5.Vector.fromAngle(theta, r), vt2=p5.Vector.fromAngle(theta + thetaStep, r);
+    line(vt1.x, vt1.y, vt2.x, vt2.y);
+  }
+}
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle=window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle=window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

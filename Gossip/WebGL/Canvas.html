@@ -1,0 +1,188 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="最近玩 3D 建模發現了 SculptGL，一個簡單、基於瀏覽器的雕塑應用程式，執行之流暢令人驚奇。
+SculptGL 的底層是基於 WebGL，WebGL 則是基於OpenGL ES（OpenGL ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="準備 WebGL Canvas">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/Canvas.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="最近玩 3D 建模發現了 SculptGL，一個簡單、基於瀏覽器的雕塑應用程式，執行之流暢令人驚奇。
+SculptGL 的底層是基於 WebGL，WebGL 則是基於OpenGL ES（OpenGL ...">
+
+    <title>準備 WebGL Canvas</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Canvas.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>準備 WebGL Canvas</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>最近玩 3D 建模發現了 <a href="https://stephaneginier.com/sculptgl/">SculptGL</a>，一個簡單、基於瀏覽器的雕塑應用程式，執行之流暢令人驚奇。</p>
+<p>SculptGL 的底層是基於 <a href="https://zh.wikipedia.org/zh-tw/WebGL">WebGL</a>，WebGL 則是基於OpenGL ES（OpenGL for Embedded Systems），這是 OpenGL（Open Graphics Library） 的嵌入式系統特化版本，至於 OpenGL 應該不用多做解釋了，玩 2D、3D 渲染的開發者，都知道的高效程式庫。</p>
+<p>透過 WebGL，瀏覽器可以將大部份的繪圖渲染運算，送進專司影像運算的圖形處理器（Graphics Processing Unit，GPU），從而增加瀏覽器上的繪圖效率，若對 HTML5 Canvas API、SVG 繪圖等在效率上不滿意的話，可以試著使用基於 WebGL 的程式庫，像是 <a href="http://www.pixijs.com/">PixiJS</a>、<a href="https://threejs.org/">Three.js</a> 等，或者直接玩 WebGL。</p>
+<p>WebGL 常被誤解為一套 JavaScript API，確實地，開發者可以透過 JavaScript 來處理 HTML 頁面、與使用者的互動等，並呼叫 WebGL 制訂的 JavaScript API 與著色器程式進行溝通，然而，撰寫著色器程式需要 <a href="https://zh.wikipedia.org/zh-tw/GLSL">GLSL（OpenGL Shading Language）</a>，這是一個類似 C 語言的程式語言。</p>
+<p>開發者需要使用 GLSL 撰寫著色器（Shader），透過 JavaScript API 編譯、為 Canvas 繫結、建立著色器並送入 GPU，之後透過 JavaScript 將繪圖需要的資料透過 API 送給著色器程式來渲染，也就是說，想要認識 WebGL，對 GLSL 的認識也是不可少的。</p>
+<p>圖像最後是在 Canvas 上渲染的，因此起手式就是準備一個 Canvas，就 WebGL 第一個範例來說，目標就設定在令 Canvas 使用整個瀏覽器視埠（viewport），背景為黑色，暫時不會涉及 GLSL 與著色器！</p>
+<p>無論如何，先有個 Canvas 再說：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="utf-8"&gt;
+        &lt;meta name="viewport" content="width=device-width"&gt;
+        &lt;title&gt;Hello Canvas&lt;/title&gt;      
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;canvas id="glCanvas" width="640" height="480"&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>在這邊，Canvas 的大小是 640 x 480 對吧！？你指的是哪個大小？DOM 元素本身的尺寸還是顯示尺寸呢？因為這個 HTML 頁面沒有任何 CSS 設置，因此 DOM 元素本身尺寸是 640 x 480，顯示尺寸也會是 640 x 480，不過，若是使用了 CSS 來調整其寬高：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="utf-8"&gt;
+        &lt;meta name="viewport" content="width=device-width"&gt;
+        &lt;title&gt;Hello Canvas&lt;/title&gt;      
+        &lt;style&gt;
+            #glCanvas {
+                width: 1024px;
+                height: 768px;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;canvas id="glCanvas" width="640" height="480"&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>這個 HTML 頁面中的 Canvas，像素是 640 x 480，然而顯示尺寸也會是 1024 x 768，這會如何？若在上頭繪圖，顯示的結果就會像是將一張 640 x 480 的點陣圖拉大兩倍，結果可能就會出現鋸齒狀的圖像。</p>
+<p>也就是說，HTML 標籤的 <code>width</code>、<code>height</code> 調整的 DOM 元素的尺寸，也可以透過 DOM 元素的 <code>width</code>、<code>height</code> 特性取得或設定值；CSS 的 <code>width</code>、<code>height</code> 調整的是顯示尺寸，可以透過 DOM 元素的 <code>clientWidth</code>、<code>clientHeight</code> 特性取得或設定值，或者是透過 <code>window.getComputedStyle</code> 取得運算樣式（Computed style）。</p>
+<p>如果會使用 CSS 來放大 Canvas 顯示尺寸，並希望不希望有鋸齒狀的顯示結果，可以在取得 Canvas 顯示尺寸之後，設定 DOM 元素的 <code>width</code>、<code>height</code> 特性，例如，想要使用整個瀏覽器視埠的話，基本上可以這麼做：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="utf-8"&gt;
+        &lt;meta name="viewport" content="width=device-width"&gt;
+        &lt;title&gt;Hello Canvas&lt;/title&gt;      
+        &lt;style&gt;
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;canvas id="glCanvas"&gt;
+        &lt;script&gt;
+            const glCanvas = document.getElementById('glCanvas');
+            glCanvas.width = glCanvas.clientWidth;
+            glCanvas.height = glCanvas.clientHeight;
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>將 <code>margin</code> 設為 0，<code>overflow</code> 設為 <code>hidden</code>，而 Canvas 使用 CSS 設定整個視埠尺寸，這樣顯示上 Canvas 就會是整個視埠，接著用顯示大小來設定 DOM 元素大小。</p>
+<p>接著，可以從 Canvas 取得支援 WebGL 的 Context 物件，這是透過 Canvas DOM 物件的 <code>getContext</code> 方法指定 Context 類型來取得，對於支援 WebGL 第一版的瀏覽器要傳入字串 <code>'webgl'</code>，這系列的文件，若沒有特別提醒，討論的對象就是指 WebGL 第一版，對於 WebGL 第二版要傳入 <code>'webgl2'</code>，如果不支援的話，<code>getContext</code> 傳回 <code>null</code>，如果支援的話，傳回 <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext"><code>WebGLRenderingContext</code></a> 實例。</p>
+<p>第一次建立 WebGL 的 Context 物件時，視埠的大小與 Canvas 大小是一樣的，如果需要自行設定視埠大小，或者在 Canvas 改變大小時，重新設定視埠大小，可以使用 <code>viewport</code> 方法：</p>
+<pre class="prettyprint"><code lang="javascript">gl.viewport(0, 0, canvas.width, canvas.height);
+</code></pre>
+<p>想要設定背景為黑色，方式是設定清除色為黑，並用清除色來清除色彩緩衝區。</p>
+<p>設定清除色可以使用 <code>WebGLRenderingContext</code> 的 <code>clearColor</code> 方法，其前三個參數為 RGB 設定，最後一個參數為不透明度，都是接受 0.0 到 1.0 的值；清除色彩緩衝區的話，可使用 <code>clear</code> 方法傳入 <code>WebGLRenderingContext</code> 上的  <code>COLOR_BUFFER_BIT</code> 常數。</p>
+<p>因此整個範例可以寫為：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="utf-8"&gt;
+        &lt;meta name="viewport" content="width=device-width"&gt;
+        &lt;title&gt;Hello Canvas&lt;/title&gt;      
+        &lt;style&gt;
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;canvas id="glCanvas"&gt;
+        &lt;script&gt;
+            const glCanvas = document.getElementById('glCanvas');
+            glCanvas.width = glCanvas.clientWidth;
+            glCanvas.height = glCanvas.clientHeight;
+
+            const gl = glCanvas.getContext('webgl');
+            if (!gl) {
+                throw '無法初始化 WebGL，您的瀏覽器不支援';
+            }
+
+
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/WebGL/samples/Canvas-1.html">按我觀看結果</a></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

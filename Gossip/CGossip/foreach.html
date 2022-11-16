@@ -1,0 +1,186 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在處理陣列時，經常會是從頭至尾迭代陣列元素，針對這類需求，現代語言中都有 foreach 之類的語法，C++ 11 之後也有提供，然而 C 語言沒有。
+透過巨集，可以來建立簡單的 foreach，以進...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="foreach 與陣列">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CGossip/foreach.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在處理陣列時，經常會是從頭至尾迭代陣列元素，針對這類需求，現代語言中都有 foreach 之類的語法，C++ 11 之後也有提供，然而 C 語言沒有。
+透過巨集，可以來建立簡單的 foreach，以進...">
+
+    <title>foreach 與陣列</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="foreach.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C 語言目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>foreach 與陣列</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在處理陣列時，經常會是從頭至尾迭代陣列元素，針對這類需求，現代語言中都有 foreach 之類的語法，C++ 11 之後也有提供，然而 C 語言沒有。</p>
+<p>透過巨集，可以來建立簡單的 foreach，以進行陣列的迭代，方式有許多種，這邊採取的出發點是以下範例：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int arr[] = {10, 20, 30, 40, 50}; 
+    int size = *(&amp;arr + 1) - arr;
+    for(int i = 0; i &lt; size; i++) {
+        printf("%d ", *(arr + i));
+    }
+
+    return 0;
+}
+</code></pre>
+<p>這邊希望的 foreach 語法，可以如下使用：</p>
+<pre class="prettyprint"><code lang="c-lang">int arr[] = {10, 20, 30, 40, 50};     
+foreach(int *v, arr) {
+    printf("%d ", *v);
+}
+</code></pre>
+<p>這個語法如何展開為方才範例的完整語法呢？因為可用的展開項目只有 <code>int *v</code> 與 <code>arr</code>，因此必須整理一下範例：</p>
+<pre class="prettyprint"><code lang="c-lang">int arr[] = {10, 20, 30, 40, 50}; 
+for(int size = *(&amp;arr + 1) - arr, i = 0; i &lt; size; i++) {
+    int *v = arr + i;
+    printf("%d ", *v);
+}  
+</code></pre>
+<p>現在可以初步定義巨集：</p>
+<pre class="prettyprint"><code lang="c-lang">#define foreach(item, arr)                                  \
+    for(int size = *(&amp;arr + 1) - arr, i = 0; i &lt; size; i++) \
+        item = (arr + i);
+</code></pre>
+<p>問題來了，你不能在巨集中直接寫死 <code>{}</code>，因為 foreach 的使用者要能自行決定是否使用 <code>{}</code>，因此 <code>item =  arr + i</code> 這行必須能建立一個範疇，而 foreach 的使用者決定該範疇要不要使用 <code>{}</code>，要能建立範疇又可以建立變數的陳述句，也只有 <code>for</code> 了，因此試著將範例再整理一下：</p>
+<pre class="prettyprint"><code lang="c-lang">int arr[] = {10, 20, 30, 40, 50}; 
+for(int size = *(&amp;arr + 1) - arr, i = 0, j = 0; i &lt; size; i++, j = 0) {
+    for(int *v = arr + i; j &lt; 1; j++)
+        printf("%d ", *v);
+}
+</code></pre>
+<p>內層的 <code>for</code> 作用純粹用來建立範疇，因此只執行一次，現在可以定義巨集如下：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define foreach(item, arr)                                                \
+    for(int size = *(&amp;arr + 1) - arr, i = 0, j = 0; i &lt; size; i++, j = 0) \
+        for(item = arr + i; j &lt; 1; j++)
+
+int main(void) {
+    int arr[] = {10, 20, 30, 40, 50}; 
+    foreach(int *v, arr) {
+        printf("%d ", *v);
+    }
+
+    return 0;
+}
+</code></pre>
+<p>看來好像 OK，不過這個 foreach 在處理 <code>break</code> 時會有問題，底下還是會顯示全部的陣列元素：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define foreach(item, arr)                                                \
+    for(int size = *(&amp;arr + 1) - arr, i = 0, j = 0; i &lt; size; i++, j = 0) \
+        for(item = arr + i; j &lt; 1; j++)
+
+int main(void) {
+    int arr[] = {10, 20, 30, 40, 50}; 
+    foreach(int *v, arr) {
+        printf("%d ", *v);
+        if(*v &gt; 30) {
+            break;
+        }
+    }
+
+    return 0;
+}
+</code></pre>
+<p>理由很簡單，展開就是 <code>break</code> 只中斷內部的 <code>for</code> 迴圈，必須有個方式知道內層 <code>for</code> 被中斷了，因此不採取計數 <code>j</code> 的方式，改用個 <code>loop</code> 旗標：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define foreach(item, arr)                                                                  \
+    for(int size = *(&amp;arr + 1) - arr, i = 0, loop = 1; loop &amp;&amp; i &lt; size; i++, loop = !loop) \
+        for(item = arr + i; loop; loop = !loop)
+
+int main(void) {
+    int arr[] = {10, 20, 30, 40, 50, 60}; 
+    foreach(int *v, arr) {
+        printf("%d ", *v);
+        if(*v &gt; 30) {
+            break;
+        }
+    }
+
+    return 0;
+}
+</code></pre>
+<p>這個 <code>foreach</code> 可以處理 <code>break</code>，因為 <code>loop</code> 一開始是 1，表示預設執行外層與內層 <code>for</code>，內層 <code>for</code> 執行過後將 <code>loop</code> 反相，此時 <code>loop</code> 為 0，外層 <code>for</code> 又將之反相，此時 <code>loop</code> 又回到 1，也就可以繼續下次的迴圈。</p>
+<p>如果內層 <code>for</code> 被 <code>break</code>，<code>loop</code> 就不會被反相，也就是 <code>loop</code> 維持為 1，外層 <code>for</code> 將之反相後 <code>loop</code> 成為 0，接下來外層 <code>for</code> 也就不會執行了。</p>
+<p>這個 foreach 也可以用於其他型態的陣列，例如字串陣列：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define foreach(item, arr)                                                                  \
+    for(int size = *(&amp;arr + 1) - arr, i = 0, loop = 1; loop &amp;&amp; i &lt; size; i++, loop = !loop) \
+        for(item = arr + i; loop; loop = !loop)
+
+typedef const char* String;
+
+int main(void) {
+    String names[] = {"Justin", "Monica", "Irene"};
+    foreach(String *name, names) {
+        printf("%s ", *name);
+    }
+
+    return 0;
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

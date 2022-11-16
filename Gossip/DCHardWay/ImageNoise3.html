@@ -1,0 +1,160 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈圖片雜訊處理（一）〉與〈圖片雜訊處理（二）〉中談過了建立圖片雜訊的基本方式，那麼若圖片本身就有雜訊，該如何去除呢？
+首先，「去除」雜訊這件事，本身描述上就不是很正確，對於圖片中的雜訊處，像素資訊已...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="圖片雜訊處理（三）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/ImageNoise3.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈圖片雜訊處理（一）〉與〈圖片雜訊處理（二）〉中談過了建立圖片雜訊的基本方式，那麼若圖片本身就有雜訊，該如何去除呢？
+首先，「去除」雜訊這件事，本身描述上就不是很正確，對於圖片中的雜訊處，像素資訊已...">
+
+    <title>圖片雜訊處理（三）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImageNoise3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>圖片雜訊處理（三）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ImageNoise.html">圖片雜訊處理（一）</a>〉與〈<a href="ImageNoise2.html">圖片雜訊處理（二）</a>〉中談過了建立圖片雜訊的基本方式，那麼若圖片本身就有雜訊，該如何去除呢？</p>
+<p>首先，「去除」雜訊這件事，本身描述上就不是很正確，對於圖片中的雜訊處，像素資訊已經被雜訊掩蓋而失真，你只能試著在該處填個資訊，令其與周圍像素看來協調一些，或說看來不明顯、不突兀，也就是模糊處理，希望讓肉眼看不出來，或者令後續程式處理時能忽略該處資訊，就這點來看，「抑制」雜訊應該是比較正確的說法。</p>
+<p>試著讓雜訊處與周圍像素看來協調一些的方式之一，是取周圍像素值加總後平均，將得到的值取代雜訊處的像素，這種方式稱為均值濾波（Mean filter），OpenCV 提供了 <code>blur</code> 函式，可以指定周圍像素大小的長寬來進行模糊處理，例如指定 3x3：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import numpy as np
+
+def salt_pepper_noise(image, fraction, salt_vs_pepper):
+    img = np.copy(image)
+    size = img.size
+    num_salt = np.ceil(fraction * size * salt_vs_pepper).astype('int')
+    num_pepper = np.ceil(fraction * size * (1 - salt_vs_pepper)).astype('int')
+    row, column = img.shape
+
+    x = np.random.randint(0, column - 1, num_pepper)
+    y = np.random.randint(0, row - 1, num_pepper)
+    img[y, x] = 0  
+
+    x = np.random.randint(0, column - 1, num_salt)
+    y = np.random.randint(0, row - 1, num_salt)
+    img[y, x] = 255 
+    return img
+
+def white_noise(image, min_noise, max_noise):
+    img = np.copy(image)
+    noise = np.random.randint(min_noise, max_noise, img.shape)
+    return np.clip(img + noise, 0, 255).astype('uint8')
+
+def gaussian_noise(image, mean = 0, sigma = 1):
+    img = np.copy(image)
+    noise = np.random.normal(mean, sigma, img.shape)
+    return np.clip(img + noise, 0, 255).astype('uint8')
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+s_p_noisy = salt_pepper_noise(img, 0.1, 0.5)
+white_noisy = white_noise(img, -5, 5)
+gaussian_noisy = gaussian_noise(img, 0, 15)
+
+cv2.imshow('s_p_noisy', cv2.blur(s_p_noisy, (3, 3)))
+cv2.imshow('white_noisy', cv2.blur(white_noisy, (3, 3)))
+cv2.imshow('gaussian_noisy', cv2.blur(gaussian_noisy, (3, 3)))
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>來看看三種雜訊處理過後的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise3-1.JPG" alt="圖片雜訊處理（三）"  /></div></div></p>
+<p>由於是取周圍像素平均值，對於選定的像素範圍，均值濾波本身的作用在於抑制範圍內較為高頻訊號，如果範圍內灰階值變化不大，也就是範圍內的訊號屬於低頻，均值濾波會有比較好的效果。</p>
+<p>另一方面也就是說，均值濾波處理對於椒鹽雜訊或高頻雜訊的效果不大，畢竟椒鹽雜訊處是 0 或 255，取周圍像素平均後的值會受到這兩個極端值的影響，如果雜訊只出現在圖像的某些部份，擴大像素範圍雖然在某些程度上，可以對高頻雜訊有更大的振制，然而取平均的結果就是，邊緣細節容易失去，圖像會更為模糊。</p>
+<p>如果取鄰近像素值排序後取中間數，稱為中值濾波（Median filter），OpenCV 的 <code>medianBlur</code> 函式提供了實作。例如：</p>
+<pre class="prettyprint"><code lang="python">... 同前 ... 略
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+s_p_noisy = salt_pepper_noise(img, 0.1, 0.5)
+white_noisy = white_noise(img, -5, 5)
+gaussian_noisy = gaussian_noise(img, 0, 15)
+
+cv2.imshow('s_p_noisy', cv2.medianBlur(s_p_noisy, 3))
+cv2.imshow('white_noisy', cv2.medianBlur(white_noisy, 3))
+cv2.imshow('gaussian_noisy', cv2.medianBlur(gaussian_noisy, 3))
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>來看看效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise3-2.JPG" alt="圖片雜訊處理（三）"  /></div></div></p>
+<p>因為是取排序後的中值，像素選擇範圍內差異極大的像素比較不會被選中，若鄰近像素範圍選擇適當，中值濾波可以有效地抑制高頻雜訊，畢竟排序後，因雜訊而差異大的像素值會是兩側，比較不會被選中，例如椒鹽雜訊這邊看來抑制的效果不錯。</p>
+<p>中值濾波也能夠保留較多邊緣的細節，因為圖像邊緣處往往是灰階變化大的地方，若選定的範圍是在圖像邊緣處，排序後大致上是一邊很高，一邊偏很低，選擇的中值基本上會落在其中一邊，較容易維持邊緣的細節，只不過處理後的邊緣不免會產生鋸齒狀。</p>
+<p>方才談到均值濾波的原理，是單純取鄰近像素的平均值，高斯濾波的原理也是取鄰近像素平均值，然而計算平均值時會考慮鄰近像素的權重，權重是透過二維的高斯函式來計算，也就是考量了一定範圍內的雜訊會具有高斯分佈。</p>
+<p>實際環境中不少雜訊分佈就具有此特性，因此高斯濾波常用來抑制照片中的雜訊，缺點就是計算上比較耗時，OpenCV 的 <code>GaussianBlur</code> 函式提供了實現，例如：</p>
+<pre class="prettyprint"><code lang="python">... 同前 ... 略
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+
+s_p_noisy = salt_pepper_noise(img, 0.1, 0.5)
+white_noisy = white_noise(img, -5, 5)
+gaussian_noisy = gaussian_noise(img, 0, 15)
+
+cv2.imshow('s_p_noisy', cv2.GaussianBlur(s_p_noisy, (3, 3), 15))
+cv2.imshow('white_noisy', cv2.GaussianBlur(white_noisy, (3, 3), 15))
+cv2.imshow('gaussian_noisy', cv2.GaussianBlur(gaussian_noisy, (3, 3), 15))
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+</code></pre>
+<p>來看看效果，在保留細節部份，高斯濾波有不錯的表現，對於低頻雜訊也有不錯的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ImageNoise3-3.JPG" alt="圖片雜訊處理（三）"  /></div></div></p>
+<p>均值濾波、中值濾波、高斯濾波等，是認識雜訊抑制（也是模糊）時很好的一個起點，它們都利用像素的局部資訊，來達到抑制雜訊之目的；然而，雜訊抑制還有許多其他方式，例如，透過分析整個圖片的資訊，來達到抑制雜訊的目的，在 OpenCV 的官方文件〈<a href="https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html">Image Denoising</a>〉，就有談到這類雜訊抑制的相關函式，有進一步雜訊處理的需求時可以參考。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

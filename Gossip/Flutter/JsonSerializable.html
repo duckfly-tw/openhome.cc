@@ -1,0 +1,171 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈JSON 與 dart:convert〉中的範例，必須自行實作 User 類別的 fromJson、toJson 的內容，這個動作蠻無趣，只是一些對照的動作，你可以透過套件來自動產生這些內容，例如...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 json_serializable">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/JsonSerializable.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈JSON 與 dart:convert〉中的範例，必須自行實作 User 類別的 fromJson、toJson 的內容，這個動作蠻無趣，只是一些對照的動作，你可以透過套件來自動產生這些內容，例如...">
+
+    <title>使用 json_serializable</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JsonSerializable.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 json_serializable</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="JSON.html">JSON 與 dart:convert</a>〉中的範例，必須自行實作 <code>User</code> 類別的 <code>fromJson</code>、<code>toJson</code> 的內容，這個動作蠻無趣，只是一些對照的動作，你可以透過套件來自動產生這些內容，例如 <code>json_serializable</code>。</p>
+<p><code>json_serializable</code> 透過 <code>json_annotation</code> 標註的資訊，結合 <code>build_runner</code> 來自動產生程式碼，因此必須在 pubspec.yaml 中加入：</p>
+<pre class="prettyprint"><code lang="dart">dependencies:
+  json_annotation: ^3.0.1
+
+dev_dependencies:
+  build_runner: ^1.10.0
+  json_serializable: ^3.4.1
+</code></pre>
+<p>以〈<a href="JSON.html">JSON 與 dart:convert</a>〉中的範例來說，接著你可以定義 user.dart：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:json_annotation/json_annotation.dart';
+
+part 'user.g.dart'; // 這個檔案的程式碼是 User 定義的一部份，它稍後才會建構產生
+
+@JsonSerializable() // 標註這個類別中的程式碼要自動產生
+class User {
+  String name;
+  int age;
+
+  User({this.name, this.age});
+
+  factory User.fromJson(Map&lt;String, dynamic&gt; json) =&gt; _$UserFromJson(json);
+
+  Map&lt;String, dynamic&gt; toJson() =&gt; _$UserToJson(this);
+}
+</code></pre>
+<p>接著執行 <code>flutter packages pub run build_runner build</code>，建構出 user.g.dart，內容會是：</p>
+<pre class="prettyprint"><code lang="dart">// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'user.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+User _$UserFromJson(Map&lt;String, dynamic&gt; json) {
+  return User(
+    name: json['name'] as String,
+    age: json['age'] as int,
+  );
+}
+
+Map&lt;String, dynamic&gt; _$UserToJson(User instance) =&gt; &lt;String, dynamic&gt;{
+      'name': instance.name,
+      'age': instance.age,
+    };
+</code></pre>
+<p>接下來使用的方式就跟〈<a href="JSON.html">JSON 與 dart:convert</a>〉中的範例相同：</p>
+<pre class="prettyprint"><code lang="dart">var json = jsonEncode(User(name: 'Justin', age: 40));
+var user = User.fromJson(jsonDecode(json));
+
+print(json);
+print(user);
+</code></pre>
+<p>在產生的 user.g.dart 中可以看到，預設會使用 <code>User</code> 的欄位名稱來作為 <code>Map</code> 的 key，如果呼叫的 API 使用的 key 與欄位名稱不同，可以使用 <code>@JsonKey</code> 來標註，例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:json_annotation/json_annotation.dart';
+
+part 'user.g.dart';
+
+@JsonSerializable()
+class User {
+  String name;
+  int age;
+
+  // 標註 API 的 key 與欄位名稱的對應
+  @JsonKey(name: 'address') 
+  String email;
+
+  User({this.name, this.age, this.email});
+
+  factory User.fromJson(Map&lt;String, dynamic&gt; json) =&gt; _$UserFromJson(json);
+
+  Map&lt;String, dynamic&gt; toJson() =&gt; _$UserToJson(this);
+}
+</code></pre>
+<p>如此一來，產生的 user.g.dart 會是：</p>
+<pre class="prettyprint"><code lang="dart">// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'user.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+User _$UserFromJson(Map&lt;String, dynamic&gt; json) {
+  return User(
+    name: json['name'] as String,
+    age: json['age'] as int,
+    email: json['address'] as String,
+  );
+}
+
+Map&lt;String, dynamic&gt; _$UserToJson(User instance) =&gt; &lt;String, dynamic&gt;{
+      'name': instance.name,
+      'age': instance.age,
+      'address': instance.email,
+    };
+</code></pre>
+<p>如果只是命名上 Snake case 與 Camel case 的差別，可以透過 <code>@JsonSerializable(fieldRename: FieldRename.snake)</code> 來標註，就不用逐一在各欄位上使用 <code>@JsonKey</code> 標註名稱了，其他還有可設置的特性，詳情可查看 <a href="https://pub.dev/packages/json_serializable"><code>json_serializable</code></a> 的文件。</p>
+<p>如果你持續地在修改模型，也可以執行 <code>flutter package pub run build_runner watch</code>，這會持續監看模型的內容是否有更動，自動產生新的程式碼。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

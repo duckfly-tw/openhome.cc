@@ -1,0 +1,128 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="+、
+-、*、/...這些一般語言所謂的運算子，在Scala中其實是方法定義，如果一個運算式中混合了多個「運算子」，那麼該如何決定其優先順序呢？又或者
+說，如何決定該呼叫哪個物件的哪個方法？例如 ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="操作順序與關聯">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/OperatorPrecedenceAssociativity.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="+、
+-、*、/...這些一般語言所謂的運算子，在Scala中其實是方法定義，如果一個運算式中混合了多個「運算子」，那麼該如何決定其優先順序呢？又或者
+說，如何決定該呼叫哪個物件的哪個方法？例如 ...">
+
+
+    <title>操作順序與關聯</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OperatorPrecedenceAssociativity.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>操作順序與關聯</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            +、
+-、*、/...這些一般語言所謂的運算子，在Scala中其實是方法定義，如果一個運算式中混合了多個「運算子」，那麼該如何決定其優先順序呢？又或者
+說，如何決定該呼叫哪個物件的哪個方法？例如 1 + 2 * 3，如何能決定為
+(1).+((2).*(3))？而不是((1).+(2)).*(3)？<br>
+<br>
+Scala主要是由方法名稱的第一個字元來決定運算的順序，如果方法名稱的第一個字元是*，則它比+有更高的優先順序，以下是方法第一個字元的優先順序
+（由高而低），同一列表示優先順序相同：<br>
+
+<ul>
+<li>除了以下字元外的其它特殊字元</li>
+<li>*、/、%</li>
+<li>+、:</li>
+<li>=、!</li>
+<li>&lt;、&gt;</li>
+<li>&amp;</li>
+<li>ふ</li>
+<li>|</li>
+<li>字母</li>
+<li>指定運算（非=、&lt;=、&gt;=、==，且以=結尾方法）</li>
+</ul>
+<br>
+所以運算符號一定優先於字母名稱的方法，例如 1 + 2 equals 3，結果就是 (1 + 2) equals
+3。指定運算是+=、-=、*= 、/=等以=結尾，但又不是=、&lt;=、
+&gt;=、==的運算方法，指定運算優先順序最低，所以 a *= 1 + 4，結果會是 a *= (1 +
+4)。當然，最簡單的方式，還是使用括號來釐清優先順序。<br>
+<br>
+當優先順序相同時，基本上由左至右進行運算，所以若1 + 2 +
+3時，運算的順序是(1 + 2) + 3，+號是左邊物件的方法，運算方法到底屬於哪個物件，這稱之為「關聯性」（Associativity）。<span style="font-weight: bold;">一般情況下，運算方法都是屬於左邊物件，不過，當方法名稱是以:結尾時，
+則該名稱會是右運算元的方法。</span>在Scala中的例子是List
+的::，它用來在List「前端」附加物件，例如：<br>
+
+<pre class="prettyprint"><code lang="scala">val x = List(1, 2)<br>println(0 :: x)</code></pre>
+<br>
+這會顯示List(0, 1,
+2)，但0是個Int，並沒有定義::方法（就算是隱式轉換後的RichInt類別也沒有定義::方法），這個操作是如何完成的？答案是::是右邊物件的
+方法，也就是x所參考的List物件上的方法，所以上面這個程式，等同於：<br>
+
+<pre class="prettyprint"><code lang="scala">val x = List(1, 2)<br>println(x.::(0))</code></pre>
+<br>
+這個程式顯示的結果也是List(0, 1, 2)。如果你這麼寫，則程式會出錯：<br>
+
+<pre class="prettyprint"><code lang="scala">val x = List(1, 2)<br>println(x :: 3)</code></pre>
+<br>
+由於::以:結尾，所以Scala會認為要由右邊物件來呼叫::方法，但3是個Int，不會有::方法，所以會出現「value :: is not
+a member of Int」的錯誤訊息。<br>
+<br>
+由於:結尾的方法會被Scala視為右邊物件的方法，所以如果是-1 :: 0 :: x，實際上的運算順序會是反過來從右至左，也就是(-1
+:: (0 :: x))。<br>
+<br>
+由於在Scala中，任何的方法都可以撰寫運算子的形式，當你嘗試定義自己的「運算子」時，就必須注意操作的優先順序與關聯性（也許像是Array的/:
+這樣的方法）。<br>
+<br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

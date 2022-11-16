@@ -1,0 +1,365 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Python 2 Tutorial 第三堂（2）資料處理函式&nbsp;&lt;&lt; 前情
+      
+      
+      在 &nbsp;Python 2 Tutorial 第一堂（4）中...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 2 Tutorial 第三堂（3）永續化機制">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/Persistence.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Python 2 Tutorial 第三堂（2）資料處理函式&nbsp;&lt;&lt; 前情
+      
+      
+      在 &nbsp;Python 2 Tutorial 第一堂（4）中...">
+
+
+    <title>Python 2 Tutorial 第三堂（3）永續化機制</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Persistence.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/PythonTutorial/">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 2 Tutorial 第三堂（3）永續化機制</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <br>
+      <br>
+      在 &nbsp;<a href="UnicodeBasicIO.html">Python 2 Tutorial 第一堂（4）</a>中談過基本輸入輸出，除了利用基本 I/O 來保存運算結果之外，Python 中還提供了一些方式，可以直接保存物件狀態，在下次重新執行程式時讀取以恢復運算時必要的資料，在這邊要介紹幾個方式，像是 …
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">物件序列化（Serialization）
+            - 如透過 &nbsp;<code>marshal</code>、<code>pickle</code>、<code>cPickle</code> 模組</span></li>
+        <li>DBM（Database Manager）
+          - 簡單的 "資料庫" 介面。DBM 物件行為上像個字典（Dictionary）物件，不過鍵（Key）值（Value）型態都必須是字串。</li>
+        <li><code>shelve</code> 模組
+          - 一個 <code>shelve</code> 物件是個像字典的永續物件，不過值可以是<code>pickle</code> 模組可處理的 Python 物件。</li>
+        <li>DB-API 2.0（PEP 249）
+          - 存取資料庫的標準介面。</li>
+      </ul>
+      除此之外，你還可以透過第三方程式庫，進行物件關聯對應（Object-Relational Mapping），像是 <a href="http://www.sqlalchemy.org">SQLAlchemy</a>、<a
+
+        href="http://www.sqlobject.org">SQLObject</a>，由於時間的關係，ORM 沒辦法在這節課做說明，不過稍後介紹 Django 時，會看到一些 ORM 的實際例子。
+      <h1>marshal、pickle 與 cPickle</h1>
+      在物件序列化方面，<code>marshal</code> 是個很基礎的模組，其存在主要是為了支援 Python 的 .pyc 檔案。
+      <br>
+      <br>
+      一般來說，如果要序列化 Python 物件，使用 <code>pickle</code> 模組會是比較好的方式，<code>pickle</code> 會記錄已經序列化的物件，如果後續有物件參考到相同物件，才不會再度被序列化。<code>pickle</code> 可以序列化使用者自定義的類別及實例，在格式方面，<code>pickle</code> 格證向後相容於新的 Python 版本。
+      <br>
+      <br>
+      <code>cPickle</code> 模組則是用 C 實作的模組，介面上與 <code>pickle</code> 相同，速度在理想上可達 <code>pickle</code> 的 1000 倍。
+      <br>
+      <br>
+      來看看使用 <code>pickle</code> 的一些程式範例，這個範例也示範了實作永續機制時的一種模式，用來序列化 <code>DVD</code> 物件的狀態：
+      <pre class="prettyprint"><code lang="python">class DVD:
+    def __init__(self, title, year=None,
+        duration=None, director_id=None):
+        self.title = title
+        self.year = year
+        self.duration = duration
+        self.director_id = director_id
+        self.filename = self.title.replace(' ', '_') + '.pkl'
+
+    def check_filename(self, filename):
+        if filename is not None:
+            self.filename = filename</code></pre>
+      <br>
+      這個 <code>DVD</code> 物件有 <code>title</code>、<code>year</code>、<code>duration</code>、<code>director_id</code> 四個狀態，每個 <code>DVD</code> 物件會以 <code>title</code> 作主檔名，加上 .pkl 副檔名進行儲存。接下來列出儲存物件的 <code>save</code> 方法：
+      <pre class="prettyprint"><code lang="python">def save(self, filename=None):
+    self.check_filename(filename)
+    fh = None
+    try:
+        data = (self.title, self.year, 
+                self.duration, self.director_id)
+        fh = open(self.filename, 'wb')
+        pickle.dump(data, fh)
+    except (EnvironmentError, pickle.PicklingError) as err:
+        raise SaveError(str(err))
+    finally:
+        if fh is not None:
+            fh.close()</code></pre>
+      <br>
+      最主要地，你要以 <code>'wb'</code> 模式開啟檔案，然後使用 <code>pickle.dump</code> 進行物件序列化。接下來列出載入檔案 <code>load</code> 方法定義：
+      <pre class="prettyprint"><code lang="python">def load(self, filename=None):
+    self.check_filename(filename)
+    fh = None
+    try:
+        fh = open(self.filename, 'rb')
+        data = pickle.load(fh)
+        (self.title, self.year, 
+         self.duration, self.director_id) = data
+    except (EnvironmentError, pickle.PicklingError) as err:
+        raise LoadError(str(err))
+    finally:
+        ...</code></pre>
+      <br>
+      這次是讀取，因此你要用 <code>'rb'</code> 模式開啟檔案，然後使用 <code>pickle.load</code> 載入檔案。這個 <code>DVD</code> 物件可以這麼使用：
+      <pre class="prettyprint"><code lang="python">filename = 'PyConTutorial2013.pkl'
+dvd1 = DVD('PyCon Tutorial', 2013, 1, 'Justin Lin')
+dvd1.save()
+
+dvd2 = DVD('PyCon Tutorial')
+dvd2.load()
+print dvd2</code></pre>
+      <h1>DBM</h1>
+      dbm 為柏克萊大學發展的檔案型資料庫，Python 的 <code>dbm</code> 模組提供了對 Unix 程式庫的介面。<code>dbm</code> 物件就像個字典，在不需要關聯式資料庫，只需要快速存取鍵值的場合可以使用，<strong><code>dbm</code> 物件的鍵值都必須是字串</strong>。Python 提供 DBM 的多數實現，如果你不確定要用哪一種，可以使用 <code>anydbm</code> 模組，它會檢查並選擇系統上可用的 DBM 實作。
+      <br>
+      <br>
+      在這邊直接轉貼 <a href="http://docs.python.org/2.7/library/anydbm.html">anydbm — Generic access to DBM-style databases</a> 中的範例程式碼作個示範：
+      <pre class="prettyprint"><code lang="python">import anydbm
+
+# Open database, creating it if necessary.
+db = anydbm.open('cache', 'c')
+
+# Record some values
+db['www.python.org'] = 'Python Website'
+db['www.cnn.com'] = 'Cable News Network'
+
+# Loop through contents. Other dictionary methods
+# such as .keys(), .values() also work.
+for k, v in db.iteritems():
+    print k, '\t', v
+
+# Storing a non-string key or value will raise an exception (most
+# likely a TypeError).
+db['www.yahoo.com'] = 4
+
+# Close when done.
+db.close()</code></pre>
+      <h1>shelve 模組</h1>
+      <code>shelve</code> 物件也是個行為上像是字典的物件，<strong>與 DBM 差別在於值的部份可以是 <code>pickle</code> 模組可處理的 Python 物件</strong>。以下來看個實例，搭配 <a
+
+        href="http://en.wikipedia.org/wiki/Data_access_object">DAO 模式</a> 來使用 <code>shelve</code> 模組的功能：
+      <pre class="prettyprint"><code lang="python">class DvdDao:
+    def __init__(self, shelve_name):
+        self.shelve_name = shelve_name
+
+    def save(self, dvd):
+        shelve_db = None
+        try:
+            shelve_db = shelve.open(self.shelve_name)
+            shelve_db[dvd.title] = (dvd.year,
+                dvd.duration, dvd.director_id)
+            shelve_db.sync()
+        finally:
+            if shelve_db is not None:
+                shelve_db.close()</code></pre>
+      <code><br>
+        save</code> 方法中，主要是使用 <code>shelve.open</code> 來開啟永續化時的字典檔案，在指定鍵值之後，使用 <code>sync</code> 方法將資料從快取中寫回檔案。接下來列出的 DAO 方法實作也是類似的操作：
+      <pre class="prettyprint"><code lang="python">    def all(self):
+        shelve_db = None
+        try:
+            shelve_db = shelve.open(self.shelve_name)
+            return [DVD(title, *shelve_db[title]) 
+                    for title in sorted(shelve_db, key=str.lower)]
+        finally:
+            if shelve_db is not None:
+                shelve_db.close()
+        return []
+
+    def load(self, title):
+        shelve_db = None
+        try:
+            shelve_db = shelve.open(self.shelve_name)
+            if title in shelve_db:
+                return DVD(title, *shelve_db[title])
+        finally:
+            if shelve_db is not None:
+                shelve_db.close()
+        return None
+
+    def remove(self, title):
+        shelve_db = None
+        try:
+            shelve_db = shelve.open(self.shelve_name)
+            del shelve_db[title]
+            shelve_db.sync()
+        finally:
+            if shelve_db is not None:
+                shelve_db.close()</code></pre>
+      <br>
+      以下是個使用 <code>DvdDao&nbsp;</code>的例子：
+      <pre class="prettyprint"><code lang="python">filename = 'dvd_library.slv'
+dao = DvdDao(filename)
+dvd1 = DVD('PyCon Tutorial 2012', 2012, 1, 'Justin Lin')
+dvd2 = DVD('PyCon Tutorial 2013', 2013, 1, 'Justin Lin')
+dao.save(dvd1)
+dao.save(dvd2)
+print dao.all()
+print dao.load('PyCon Tutorial 2012')
+dao.remove('PyCon Tutorial 2013')
+print dao.all()</code></pre>
+      <h1>DB-API 2.0（PEP 249）</h1>
+      為 Python 中<strong>存取資料庫的標準介面</strong>，就我的認知而言，其角色應該是類似於 Java 中的 JDBC。Python 中的 <code>sqlite3</code> 模組，提供了 DB-API 2.0 的實作，可用以存取 <a
+
+        href="http://www.sqlite.org/">SQLite</a> 資料庫。接下來的範例，會存取的資料庫表格如下：
+      <br>
+      <br>
+      <a href="http://openhome.cc/Gossip/CodeData/PythonTutorial/images/python-tutorial-the-3rd-class-3-1.png"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" class="alignnone size-medium wp-image-3756"
+
+          alt="python-tutorial-the-3rd-class-3-1" src="images/python-tutorial-the-3rd-class-3-1-300x178.png"
+
+          height="178" width="300" /></div></div></a>
+      <br>
+      <br>
+      以下直接列出範例程式碼，程式很簡單，應該一目瞭然，API 細節可參考&nbsp;<a href="http://docs.python.org/2.7/library/sqlite3.html">sqlite3 — DB-API 2.0 interface for SQLite databases</a>。
+      <pre class="prettyprint"><code lang="python">def connect(name):
+    create = not os.path.exists(name)
+    conn = sqlite3.connect(name)
+    if create:
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE directors ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
+            "name TEXT UNIQUE NOT NULL)")
+        cursor.execute("CREATE TABLE dvds ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, "
+            "title TEXT NOT NULL, "
+            "year INTEGER NOT NULL, "
+            "duration INTEGER NOT NULL, "
+            "director_id INTEGER NOT NULL, "
+            "FOREIGN KEY (director_id) REFERENCES directors)")
+        conn.commit()
+
+    return conn
+
+def add_dvd(conn, title, year, duration, director):
+    director_id = get_and_set_director(conn, director)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO dvds "
+                   "(title, year, duration, director_id) "
+                   "VALUES (?, ?, ?, ?)",
+                   (title, year, duration, director_id))
+    conn.commit()
+
+def get_and_set_director(conn, director):
+    director_id = get_director_id(conn, director)
+    if director_id is not None:
+        return director_id
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO directors (name) VALUES (?)",
+                   (director,))
+    conn.commit()
+    return get_director_id(conn, director)
+
+def get_director_id(conn, director):
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM directors WHERE name=?",
+                   (director,))
+    fields = cursor.fetchone()
+    return fields[0] if fields is not None else None
+
+def all_dvds(conn):
+    cursor = conn.cursor()
+    sql = ("SELECT dvds.title, dvds.year, dvds.duration, "
+           "directors.name FROM dvds, directors "
+           "WHERE dvds.director_id = directors.id"
+           " ORDER BY dvds.title")
+    cursor.execute(sql)
+    return [(str(fields[0]), fields[1], fields[2], str(fields[3]))
+            for fields in cursor]
+
+def all_directors(conn):
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM directors ORDER BY name")
+    return [str(fields[0]) for fields in cursor]</code></pre>
+      <br>
+      以下是個存取資料庫的例子：
+      <pre class="prettyprint"><code lang="python">db_name = 'dvd_library.sqlite3'
+conn = connect(db_name)
+add_dvd(conn, 'Python Tutorial 2013', 2013, 1, 'Justin')
+print all_directors(conn)
+print all_dvds(conn)</code></pre>
+      <span style="color: #ff0000;"><strong><br>
+          練習 8：永續化機制</strong></span>
+      <br>
+      <br>
+      在 Lab 檔案中有個&nbsp;lab/exercises/exercise8，當中有 pickle、shelve、sql 三個資料夾，分別是上頭三個程式範例，不過程式碼內容不完整，請任選你想要練習的對象，按加上頭列出的範例程式碼，就不齊全的部份補齊。
+      <br>
+      <br>
+      完成這個練習後，第三堂應該時間就差不多到了，休息一下，接下來的第三堂課要來認識 Python 的 Web 框架 …
+      <h1>參考資源</h1>
+      <ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">The Community</span></li>
+        <ul>
+          <li><a href="http://www.python.org/%7Eguido/">http://www.python.org/~guido/</a> </li>
+          <li><a href="http://www.python.org/psf/">http://www.python.org/psf/</a> </li>
+          <li><a href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> </li>
+          <li><a href="http://www.pycon.org/">http://www.pycon.org/</a> </li>
+          <li><a href="http://wiki.python.org/moin/LocalUserGroups/">http://wiki.python.org/moin/LocalUserGroups/</a>
+          </li>
+        </ul>
+      </ul>
+      <ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">文件</span></li>
+        <ul>
+          <li><a href="http://docs.python.org/2.7/">http://docs.python.org/2.7/</a> </li>
+          <li><a href="http://docs.python.org/2/library/pydoc.html">http://docs.python.org/2/library/pydoc.html</a>
+          </li>
+        </ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">資料處理函式</span></li>
+        <ul>
+          <li><a href="http://docs.python.org/2.7/library/functions.html">http://docs.python.org/2.7/library/functions.html</a></li>
+        </ul>
+      </ul>
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">永續化</span></li>
+        <ul>
+          <li><a href="http://docs.python.org/2/library/pickle.html">http://docs.python.org/2/library/pickle.html</a> </li>
+          <li><a href="http://docs.python.org/2.7/library/dbm.html">http://docs.python.org/2.7/library/dbm.html</a> </li>
+          <li><a href="http://docs.python.org/2/library/shelve.html">http://docs.python.org/2/library/shelve.html</a> </li>
+          <li><a href="http://docs.python.org/2.7/library/sqlite3.html">http://docs.python.org/2.7/library/sqlite3.html</a></li>
+        </ul>
+      </ul>
+      
+      &nbsp;<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

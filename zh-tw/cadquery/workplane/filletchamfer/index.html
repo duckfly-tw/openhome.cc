@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="使用 OpenSCAD、CadQuery 這類 Code &#43; CAD 方案，建模的對象多半是硬表面物件，也就是模型最後多半稜角分明，若想建立「軟」一點的物件，會是">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="CadQuery::fillet 與 chamfer" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/workplane/filletchamfer/" />
+    <meta property="og:description" content="使用 OpenSCAD、CadQuery 這類 Code &#43; CAD 方案，建模的對象多半是硬表面物件，也就是模型最後多半稜角分明，若想建立「軟」一點的物件，會是" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="CadQuery::fillet 與 chamfer" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/cadquery/workplane/filletchamfer/" />
+    <meta name="twitter:description" content="使用 OpenSCAD、CadQuery 這類 Code &#43; CAD 方案，建模的對象多半是硬表面物件，也就是模型最後多半稜角分明，若想建立「軟」一點的物件，會是" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443676" type="image/x-icon">
+    <title> CadQuery  :: fillet 與 chamfer</title>
+    <link href="../../../css/nucleus.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443676.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443676.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443676"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/cadquery/workplane/filletchamfer/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/cadquery/" title="CadQuery" class="dd-item parent"><a href="../../index.html">CadQuery</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/" title="CadQuery 入門" class="dd-item"><a href="../../basics/index.html">| CadQuery 入門</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/basics/hello/" title="Hello, CadQuery" class="dd-item"><a href="../../basics/hello/index.html">Hello, CadQuery</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/conda/" title="使用 conda 安裝" class="dd-item"><a href="../../basics/conda/index.html">使用 conda 安裝</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/workplane/" title="Workplane 入門" class="dd-item"><a href="../../basics/workplane/index.html">Workplane 入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/boolop/" title="實體布林操作" class="dd-item"><a href="../../basics/boolop/index.html">實體布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/2dop/" title="基本 2D 操作" class="dd-item"><a href="../../basics/2dop/index.html">基本 2D 操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/brep/" title="認識 BREP" class="dd-item"><a href="../../basics/brep/index.html">認識 BREP</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/basics/stksel/" title="堆疊與選擇器" class="dd-item"><a href="../../basics/stksel/index.html">堆疊與選擇器</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/" title="使用 Workplane" class="dd-item parent"><a href="../index.html">| 使用 Workplane</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/workplane/holecut/" title="挖洞與切除" class="dd-item"><a href="../holecut/index.html">挖洞與切除</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/shell/" title="殼的建立" class="dd-item"><a href="../shell/index.html">殼的建立</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/sweeploft/" title="sweep 與 loft" class="dd-item"><a href="../sweeploft/index.html">sweep 與 loft</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/arc/" title="圓弧" class="dd-item"><a href="../arc/index.html">圓弧</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/curvesurface/" title="曲線與曲面" class="dd-item"><a href="../curvesurface/index.html">曲線與曲面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/mirror/" title="鏡像" class="dd-item"><a href="../mirror/index.html">鏡像</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/workplane/filletchamfer/" title="fillet 與 chamfer" class="dd-item active"><a href="index.html">fillet 與 chamfer</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/" title="CadQuery 類別" class="dd-item"><a href="../../classes/index.html">| CadQuery 類別</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/classes/brep/" title="操作 BREP 實例" class="dd-item"><a href="../../classes/brep/index.html">操作 BREP 實例</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/polyhedron/" title="實作 polyhedron" class="dd-item"><a href="../../classes/polyhedron/index.html">實作 polyhedron</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/surface/" title="建立網格面" class="dd-item"><a href="../../classes/surface/index.html">建立網格面</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/face/" title="Face 布林操作" class="dd-item"><a href="../../classes/face/index.html">Face 布林操作</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/text/" title="文字的處理" class="dd-item"><a href="../../classes/text/index.html">文字的處理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/classes/extending/" title="擴充 Workplane" class="dd-item"><a href="../../classes/extending/index.html">擴充 Workplane</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/" title="結合 SciPy" class="dd-item"><a href="../../scipy/index.html">| 結合 SciPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/scipy/hull/" title="建立 Convex hull" class="dd-item"><a href="../../scipy/hull/index.html">建立 Convex hull</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/polyline/" title="hull 折線" class="dd-item"><a href="../../scipy/polyline/index.html">hull 折線</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/voronoi/" title="Voronoi 2D/3D" class="dd-item"><a href="../../scipy/voronoi/index.html">Voronoi 2D/3D</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/scipy/delaunay/" title="Delaunay 三角分割" class="dd-item"><a href="../../scipy/delaunay/index.html">Delaunay 三角分割</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/" title="基於 NumPy" class="dd-item"><a href="../../numpy/index.html">| 基於 NumPy</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/numpy/matrix/" title="實作轉換矩陣" class="dd-item"><a href="../../numpy/matrix/index.html">實作轉換矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/turtle/" title="3D 海龜繪圖" class="dd-item"><a href="../../numpy/turtle/index.html">3D 海龜繪圖</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/perlin/" title="Perlin 雜訊" class="dd-item"><a href="../../numpy/perlin/index.html">Perlin 雜訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/numpy/sweep/" title="多面體版本 sweep" class="dd-item"><a href="../../numpy/sweep/index.html">多面體版本 sweep</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/" title="cqMore plugin" class="dd-item"><a href="../../cqmore/index.html">| cqMore plugin</a><ul>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/hello/" title="Hello, cqMore" class="dd-item"><a href="../../cqmore/hello/index.html">Hello, cqMore</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/dice/" title="柏拉圖多面骰" class="dd-item"><a href="../../cqmore/dice/index.html">柏拉圖多面骰</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/mobiusband/" title="莫比烏斯帶" class="dd-item"><a href="../../cqmore/mobiusband/index.html">莫比烏斯帶</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/torusknot/" title="環面扭結" class="dd-item"><a href="../../cqmore/torusknot/index.html">環面扭結</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/cadquery/cqmore/tree/" title="3D 碎形樹" class="dd-item"><a href="../../cqmore/tree/index.html">3D 碎形樹</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">CadQuery</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">使用 Workplane</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">fillet 與 chamfer</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#基本使用">基本使用</a></li>
+    <li><a href="index.html#併用-filletchamfer">併用 fillet、chamfer</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/fillet/">fillet</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/chamfer/">chamfer</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>fillet 與 chamfer</h1>
+
+ <i class="space fa fa-calendar"> November 26, 2021</i> 
+<p>使用 OpenSCAD、CadQuery 這類 Code + CAD 方案，建模的對象多半是硬表面物件，也就是模型最後多半稜角分明，若想建立「軟」一點的物件，會是一個挑戰，我的 <a href="https://cults3d.com/en/users/JustinSDK/creations">OpenSCAD 作品</a>，就嘗試過不少的「軟」類型。</p>
+<p>在 OpenSCAD 的領域，針對物件的稜角修飾，fillet 與 chamfer 是常見的需求，fillet 是稜角具有圓弧外觀，chamfer 是讓稜角可以成為「倒角」，也就是像是多做了一次切面。</p>
+<h2 id="基本使用">基本使用</h2>
+<p><code>Workplane</code> 針對 3D 實體，提供了 <code>fillet</code> 與 <code>chamfer</code> 方法，來看看它們最基本的用法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>box(<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>filleted <span style="color:#f92672">=</span> box<span style="color:#f92672">.</span>fillet(radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>chamfered <span style="color:#f92672">=</span> box<span style="color:#f92672">.</span>chamfer(length <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>show_object(box)
+</span></span><span style="display:flex;"><span>show_object(filleted<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">0</span>)))
+</span></span><span style="display:flex;"><span>show_object(chamfered<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">0</span>)))
+</span></span></code></pre></div><p><code>fillet</code> 要指定圓弧半徑，<code>chamfer</code> 要指定建立倒角的邊距，一個邊會兩個邊距，預設第二個邊距會與第一個邊距相同，結果會顯示如下：</p>
+<p><img src="images/filletchamfer-1.jpg" alt="fillet 與 chamfer"></p>
+<p><code>fillet</code> 與 <code>chamfer</code> 的對象是邊，可以選取特定的邊後再執行方法，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>box <span style="color:#f92672">=</span> cq<span style="color:#f92672">.</span>Workplane()<span style="color:#f92672">.</span>box(<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>filleted <span style="color:#f92672">=</span> box<span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&gt;Z&#39;</span>)<span style="color:#f92672">.</span>fillet(radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>chamfered <span style="color:#f92672">=</span> box<span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&lt;Y&#39;</span>)<span style="color:#f92672">.</span>chamfer(length <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>show_object(box)
+</span></span><span style="display:flex;"><span>show_object(filleted<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">0</span>)))
+</span></span><span style="display:flex;"><span>show_object(chamfered<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">0</span>)))
+</span></span></code></pre></div><p>這會顯示以下的結果：</p>
+<p><img src="images/filletchamfer-2.jpg" alt="fillet 與 chamfer"></p>
+<h2 id="併用-filletchamfer">併用 fillet、chamfer</h2>
+<p>當然，必要時可以併用：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wired_box <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>box(<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&gt;Z&#39;</span>)<span style="color:#f92672">.</span>fillet(radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&gt;X and &lt;Z&#39;</span>)<span style="color:#f92672">.</span>chamfer(<span style="color:#ae81ff">.25</span>, <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&lt;Y&#39;</span>)<span style="color:#f92672">.</span>chamfer(<span style="color:#ae81ff">.25</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;&lt;Y&#39;</span>)<span style="color:#f92672">.</span>fillet(radius <span style="color:#f92672">=</span> <span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>      )
+</span></span></code></pre></div><p>以上的組合是隨意的，純示範邊的選取、<code>fillet</code> 與 <code>chamfer</code> 間可以併用罷了，這會建立以下的模型：</p>
+<p><img src="images/filletchamfer-3.jpg" alt="fillet 與 chamfer"></p>
+<p>因為 <code>fillet</code> 與 <code>chamfer</code> 是針對邊，也可以如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cadquery <span style="color:#66d9ef">as</span> cq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>frame <span style="color:#f92672">=</span> (cq<span style="color:#f92672">.</span>Workplane()
+</span></span><span style="display:flex;"><span>           <span style="color:#f92672">.</span>box(<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>           <span style="color:#f92672">.</span>faces(<span style="color:#e6db74">&#39;&gt;X or &lt;X&#39;</span>)
+</span></span><span style="display:flex;"><span>           <span style="color:#f92672">.</span>shell(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>filleted <span style="color:#f92672">=</span> (frame<span style="color:#f92672">.</span>faces(<span style="color:#e6db74">&#39;&gt;X&#39;</span>)
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;not(&gt;Y or &lt;Y or &gt;Z or &lt;Z)&#39;</span>)
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span>fillet(<span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>           )
+</span></span><span style="display:flex;"><span>           
+</span></span><span style="display:flex;"><span>chamfered <span style="color:#f92672">=</span> (frame<span style="color:#f92672">.</span>faces(<span style="color:#e6db74">&#39;&gt;X&#39;</span>)
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">.</span>edges(<span style="color:#e6db74">&#39;not(&gt;Y or &lt;Y or &gt;Z or &lt;Z)&#39;</span>)
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">.</span>chamfer(<span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>           
+</span></span><span style="display:flex;"><span>show_object(frame)
+</span></span><span style="display:flex;"><span>show_object(filleted<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">6</span>)))
+</span></span><span style="display:flex;"><span>show_object(chamfered<span style="color:#f92672">.</span>translate((<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">12</span>)))
+</span></span></code></pre></div><p>這會建立以下的結果：</p>
+<p><img src="images/filletchamfer-4.jpg" alt="fillet 與 chamfer"></p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/cadquery/workplane/filletchamfer/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/cadquery/workplane/filletchamfer/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=CadQuery%3a%3afillet%20%e8%88%87%20chamfer&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fcadquery%2fworkplane%2ffilletchamfer%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../mirror/index.html" title="鏡像"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../../classes/index.html" title="CadQuery 類別"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443676"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443676"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443676"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443676"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443676"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443676"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443676"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443676"></script>
+  </body>
+</html>

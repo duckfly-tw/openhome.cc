@@ -1,0 +1,188 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈定義類別〉中談過，如果沒有定義任何建構式，編譯器會自動產生沒有參數的預設建構式，那麼預設建構式做了什麼呢？如果就以下的類別來說：
+class Account { 
+public: 
+    str...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="建構式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Constructor.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈定義類別〉中談過，如果沒有定義任何建構式，編譯器會自動產生沒有參數的預設建構式，那麼預設建構式做了什麼呢？如果就以下的類別來說：
+class Account { 
+public: 
+    str...">
+
+    <title>建構式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Constructor.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>建構式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ClassABC.html">定義類別</a>〉中談過，如果沒有定義任何建構式，編譯器會自動產生沒有參數的預設建構式，那麼預設建構式做了什麼呢？如果就以下的類別來說：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+public: 
+    string id;  
+    string name; 
+    double balance;
+};
+</code></pre>
+<p>預設建構式對每個值域進行預設初始化，對基本型態來說，會初始為各型態的零值，就類別型態來說，使用其無參數建構式來初始化，例如 <code>string</code> 來說，會初始為空字串。</p>
+<p>如果定義了類別內初始式（in-class initializer），那麼預設建構式會使用初始式，例如：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+public: 
+    string id = "000-000-000";  
+    string name = "Anonymous"; 
+    double balance;
+};
+</code></pre>
+<p><code>id</code> 以定義的初始式初始為 <code>string("000-000-000")</code>、<code>name</code> 以定義的初始式初始為 <code>string("Anonymous")</code>，而 <code>double</code> 預設初始為 0.0。</p>
+<p>預設建構式只在沒有自定義任何建構式時，編譯器才會產生，若自定義了建構式，就算定義了參數建構式，也不稱為預設建構式。例如：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    Account() {
+        this-&gt;id = "000-000-000";
+        this-&gt;name = "Anonymous";
+        this-&gt;balance = 0.0;
+    };
+};
+</code></pre>
+<p>在 C++ 中，絕大多數的情況下，可能不用區分初始化與指定，然而實際上是有分別的，就以上的類別來說，若實例化 <code>Account</code>，<code>id</code>、<code>name</code>、<code>balance</code> 會進行預設初始化，之後執行建構式，將 <code>"000-000-000"</code>、<code>"Anonymous"</code>、0.0 指定給對應的值域。</p>
+<p>預設建構式只在沒有自定義任何建構式時，編譯器才會產生，建構式可以重載，如果自定義了建構式，也想提供無參建構式，並希望其行為與預設建構式相同，可以加上 <code>default</code>。例如：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    Account() = default;
+    Account(string id, string name, double balance);
+};
+</code></pre>
+<p>在〈<a href="ClassABC.html">定義類別</a>〉中看過 <code>Account</code> 的建構式是這麼定義的：</p>
+<pre class="prettyprint"><code lang="c++">Account::Account(string id, string name, double balance) {
+    this-&gt;id = id;
+    this-&gt;name = name;
+    this-&gt;balance = balance;
+}
+</code></pre>
+<p>如果建構式中想要指定某個值域的值，可以定義初始式清單（constructor initializer list），就上例來說，可以直接在定義類別時撰寫：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    Account(string id, string name, double balance) : 
+        id(id), name(name), balance(balance) {};
+};
+</code></pre>
+<p>這麼一來，<code>id</code> 值域就會用參數 <code>id</code> 的值初始化，<code>name</code> 值域就會用參數 <code>name</code> 的值初始化，<code>balance</code> 值域就會用參數 <code>balance</code> 的值初始化，括號中指定不一定要是參數，也可以是運算式，如果初始式清單省略了某個值域，那就會使用預設初始化；在這邊，初始式清單的順序並不代表值域初始化的順序，值域初始化的順序是依類別中值域定義的順序而定。</p>
+<p>絕大多數的情況下，不區分初始化與指定不會有什麼問題，然而底下不區分的話，就會有問題：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+    const int wat;
+    Foo(int wat) {
+        this-&gt;wat = wat;
+    }
+};
+</code></pre>
+<p>若以 <code>Foo(1)</code> 實例化，<code>wat</code> 會預設初始為 0，之後執行建構式流程，然而 <code>wat</code> 被 <code>const</code> 修飾過，不可以在建構式中被指定值了，因此會編譯失敗，然而以下可以通過編譯：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+    const int wat;
+    Foo(int wat) : wat(wat) {}
+}
+</code></pre>
+<p>如果建構過程，想要委由另一個版本的建構式，可以在 <code>:</code> 後指定。例如：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    Account(string id, string name, double balance) : 
+        id(id), name(name), balance(balance) {};
+    Account(string id, string name) : Account(id, name, 0.0) {}
+};
+</code></pre>
+<p>若以 <code>Account acct("123-456-789", "Justin Lin")</code> 建構實例，那麼會先執行 <code>Account(string id, string name, double balance)</code> 的流程，接著才是 <code>Account(string id, string name)</code> 的流程。</p>
+<p>在〈<a href="ClassABC.html">定義類別</a>〉中看過，可以使用以下的方式來建構 <code>Account</code> 實例：</p>
+<pre class="prettyprint"><code lang="c++">Account acct = {"123-456-789", "Justin Lin", 1000};
+</code></pre>
+<p>在〈<a href="VarArg.html">不定長度引數</a>〉看過，清單初始化 <code>{}</code> 會建立 <code>initializer_list</code>，不過這邊不是建立 <code>initializer_list</code>，因為〈<a href="ClassABC.html">定義類別</a>〉中看到的 <code>Account</code>，沒有定義可接受 <code>initializer_list</code> 的建構式，在這種情況下，其實是隱含地尋找符合初始式清單的建構式來進行實例建構</p>
+<p>實際上 <code>string</code> 也是如此，<code>string name = "Justin Lin"</code> 時，<code>"Justin Lin"</code> 是 <code>const *char</code> 型態，隱含地會使用對應的建構式來建構 <code>string</code> 實例。</p>
+<p>如果不希望有這種行為，可以在對應的建構式上加上 <code>explicit</code>，例如〈<a href="ClassABC.html">定義類別</a>〉中的類別若定義為：</p>
+<pre class="prettyprint"><code lang="c++">class Account { 
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    explicit Account(string id, string name, double balance);
+    void deposit(double amount);
+    void withdraw(double amount);
+    string to_string();
+};
+</code></pre>
+<p>編譯的時候就會看到以下的錯誤訊息：</p>
+<pre class="prettyprint"><code lang="c++">error: converting to 'Account' from initializer list would use explicit constructor
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

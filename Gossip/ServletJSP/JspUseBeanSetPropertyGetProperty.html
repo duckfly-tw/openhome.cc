@@ -1,0 +1,166 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="&lt;jsp:useBean&gt; 標籤是用來搭配 JavaBean 元件的標準標籤，這邊所指的 JavaBean 並非桌面系統或 EJB（Enterprise JavaBeans）中的 Java...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="簡介 <jsp:useBean>、<jsp:setProperty> 與 <jsp:getProperty>">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/JspUseBeanSetPropertyGetProperty.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="&lt;jsp:useBean&gt; 標籤是用來搭配 JavaBean 元件的標準標籤，這邊所指的 JavaBean 並非桌面系統或 EJB（Enterprise JavaBeans）中的 Java...">
+
+    <title>簡介 <jsp:useBean>、<jsp:setProperty> 與 <jsp:getProperty></title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JspUseBeanSetPropertyGetProperty.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 &lt;jsp:useBean&gt;、&lt;jsp:setProperty&gt; 與
+      &lt;jsp:getProperty&gt;</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p><code>&lt;jsp:useBean&gt;</code> 標籤是用來搭配 JavaBean 元件的標準標籤，這邊所指的 JavaBean 並非桌面系統或 EJB（Enterprise JavaBeans）中的 JavaBean 元件，而是只要滿足以下條件的純綷 Java 物件：</p>
+<ul>
+<li>必須實作 <code>java.io.Serializable</code> 介面</li>
+<li>沒有公開（<code>public</code>）的類別變數</li>
+<li>具有無參數的建構式</li>
+<li>具有公開的設值方法（Setter）與取值方法（Getter）</li>
+</ul>
+<p>舉個實際的範例來說，以下的類別就是一個 JavaBean 元件：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.Serializable;
+
+public class User implements Serializable {
+    private String name;
+    private String password;
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isValid() {
+        return "caterpillar".equals(name) &amp;&amp; "123456".equals(password);
+    }
+} 
+</code></pre>
+<p>雖然你可以直接在 JSP 頁面上撰寫 Scriptlet 來直接使用這個 JavaBean，像是以下的程式片段：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page import="cc.openhome.*"
+        contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%
+    User user = (User) request.getAttribute("user");
+    if(user == null) {
+        user = new User();
+        request.setAttribute("user", user);
+    }
+    user.setName(request.getParameter("name"));
+    user.setPassword(request.getParameter("password"));
+%&gt;
+    // 略...
+    &lt;body&gt;
+&lt;%
+    if(user.isValid()) {
+%&gt;
+    &lt;h1&gt;&lt;%= user.getName() %&gt; 登入成功&lt;/h1&gt;
+&lt;%
+    }
+    else {
+%&gt;
+    &lt;h1&gt;登入失敗&lt;/h1&gt;
+&lt;%
+    }
+%&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>但使用 JavaBean 的目的，基本上是在於減少 JSP 頁面上 Scriptlet 的使用。你應該搭配 <code>&lt;jsp:useBean&gt;</code> 來使用這個 JavaBean，並使用 <code>&lt;jsp:setProperty&gt;</code> 與 <code>&lt;jsp:getProperty&gt;</code> 來對 JavaBean 進行設值與取值的動作。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;jsp:useBean id="user" class="cc.openhome.User" scope="request"/&gt;
+&lt;jsp:setProperty name="user" property="*"/&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;登入頁面&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+&lt;%
+    if(user.isValid()) {
+%&gt;
+    &lt;h1&gt;&lt;jsp:getProperty name="user" property="name"/&gt; 登入成功&lt;/h1&gt;
+&lt;%
+    }
+    else {
+%&gt;
+    &lt;h1&gt;登入失敗&lt;/h1&gt;
+&lt;%
+    }
+%&gt;
+    &lt;/body&gt;
+&lt;/html&gt;  
+</code></pre>
+<p><code>&lt;jsp:useBean&gt;</code> 標籤是用來取得或建立 JavaBean。<code>id</code> 屬性用於指定 JavaBean 實例的參考名稱，之後在使用 <code>&lt;jsp:setProperty&gt;</code> 或 <code>&lt;jsp:getProperty&gt;</code> 標籤時，就可以根據這個名稱來取得所建立的 JavaBean 名稱。<code>class</code> 屬性用以指定實例化哪一個類別。<code>scope</code> 指定可先找看看哪個屬性範圍是否有 JavaBean 的屬性存在。</p>
+<p><code>&lt;jsp:setProperty&gt;</code> 標籤用於設定 JavaBean 的屬性值。<code>name</code> 屬性用於指定你要使用哪個名稱取得 JavaBean 實例。在 <code>property</code> 屬性設定 <code>"*"</code>，表示將自動尋找符合 JavaBean 中設值方法名稱的請求參數值。如果請求參數名稱為 <code>xxx</code>，就將請求參數值使用 <code>setXxx()</code> 方法設定給 JavaBean 實例。</p>
+<p><code>&lt;jsp:getProperty&gt;</code> 用來取得 JavaBean 的屬性值。<code>name</code> 屬性用於指定你要使用哪個名稱取得 JavaBean 實例。在 <code>property</code> 屬性則指定要取得哪一個屬性值。如果指定為 <code>xxx</code>，則使用 <code>getXxx()</code> 方法取得 JavaBean 屬性值並顯示在網頁上。</p>
+<p>在上面這個 JSP 中，首先使用 <code>&lt;jsp:useBean&gt;</code> 建立 <code>User</code> 類別的實例，而後使用 <code>&lt;jsp:setProperty&gt;</code> 來設定 JavaBean 的值，由於在 <code>property</code> 屬性設定 <code>"*"</code>，所以會自動找尋請求參數中是否有 <code>name</code> 與 <code>password</code> 參數，如果有的話，將請求參數值透過 <code>setName()</code> 及 <code>setPassword()</code> 方法設定給 JavaBean 實例。</p>
+<p>由於使用 <code>&lt;jsp:useBean&gt;</code> 時，指定了 <code>id</code> 屬性為 <code>user</code> 名稱，因此在接下來的頁面中若有 Scriptlet，也可以使用 <code>user</code> 名稱來操作 JavaBean 實例。程式中呼叫了 <code>isValid()</code> 方法，看看使用者的名稱及密碼是否正確。如果正確，<code>&lt;jsp:getProperty&gt;</code> 指定 <code>property</code> 屬性為 <code>name</code> 以取得 JavaBean 中儲存的使用者名稱，以及顯示登入成功字樣。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

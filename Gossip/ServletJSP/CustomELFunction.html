@@ -1,0 +1,129 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果你設計了一個 Util 類別，當中有個 length() 靜態方法可以將所傳入的 Collection 長度傳回。例如原先可能這麼使用它：
+&lt;%= Util.length(reqeust.g...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="自訂 EL 函式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/CustomELFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果你設計了一個 Util 類別，當中有個 length() 靜態方法可以將所傳入的 Collection 長度傳回。例如原先可能這麼使用它：
+&lt;%= Util.length(reqeust.g...">
+
+    <title>自訂 EL 函式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CustomELFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自訂 EL 函式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果你設計了一個 <code>Util</code> 類別，當中有個 <code>length()</code> 靜態方法可以將所傳入的 <code>Collection</code> 長度傳回。例如原先可能這麼使用它：</p>
+<pre class="prettyprint"><code lang="java">&lt;%= Util.length(reqeust.getAttribute("someList")) %&gt;
+</code></pre>
+<p>如果 <code>someList</code> 實際上是個 <code>List</code> 介面實作，而其長度為 10，這會傳回結果 10。</p>
+<p>如果函式的部份也可以使用 EL 來呼叫，以下也許是你想要的撰寫方式：</p>
+<pre class="prettyprint"><code lang="java">${ util:length(requestScope.someList)  }
+</code></pre>
+<p>這樣的寫法著實簡潔許多，如果這是你想要的需求，則可以自訂 EL 函式來滿足這項需求。自訂 EL 函式的第一步是撰寫類別，它必須是個公開（<code>public</code>）類別，而想要呼叫的方法必須是公開且為靜態方法。例如你的 <code>Util</code> 類別可能是這麼撰寫的：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.util.Collection;
+
+public class Util {
+    public static int length(Collection collection) {
+        return collection.size();
+    }
+}
+</code></pre>
+<p>Web 容器必須知道如何將這個類別中的 <code>length()</code> 方法當作 EL 函式來使用，所以你必須撰寫一個標籤程式庫描述檔（Tag Library Descriptor, TLD）檔案，這個檔案是個 XML 文件，副檔名為 *.tld。例如：</p>
+<h4>openhome.tld</h4>
+<pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;taglib version="2.1" xmlns="http://java.sun.com/xml/ns/javaee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+    http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"&gt;
+  &lt;tlib-version&gt;1.0&lt;/tlib-version&gt;
+  &lt;short-name&gt;openhome&lt;/short-name&gt;
+  &lt;uri&gt;https://openhome.cc/util&lt;/uri&gt;
+  &lt;function&gt;
+    &lt;description&gt;Collection Length&lt;/description&gt;
+    &lt;name&gt;length&lt;/name&gt;
+    &lt;function-class&gt;
+        cc.openhome.Util
+    &lt;/function-class&gt;
+    &lt;function-signature&gt;
+        int length(java.util.Collection)
+    &lt;/function-signature&gt;
+  &lt;/function&gt;
+&lt;/taglib&gt;
+</code></pre>
+<p>在 TLD 檔案中，重要的部份已在程式碼中直接標示。<code>${util.length(...)}</code> 的例子中，<code>length</code> 名稱就對應於 <code>&lt;name&gt;</code> 標籤的設定，而實際上 <code>length</code> 名稱背後執行的類別與真正的靜態方法，則分別由 <code>&lt;function-class&gt;</code> 與 <code>&lt;function-signature&gt;</code> 來設定。至於 <code>&lt;uri&gt;</code> 標籤則是在 JSP 網頁中會使用到，稍後就會了解其作用。</p>
+<p>你可以將這個 TLD 檔案直接放在 WEB-INF 資料夾下，如此容器會自動找到 TLD 檔案並載入。如果要放在JAR檔案中，設定的方式之後還會作說明。在這邊為了簡化，先將 TLD 檔案放在 WEB-INF 資料夾下。接著可以撰寫一個 JSP 來使用這個自訂 EL 函式。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@taglib prefix="util" uri="https://openhome.cc/util"%&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;自訂EL函式&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        ${ util:length(requestScope.someList) }
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>在這邊使用 <code>taglib</code> 指示元素告訴容器，在轉譯這個 JSP 時，會用到對應 <code>uri</code> 屬性的自訂 EL 函式，容器會尋找讀入的 TLD 中，<code>&lt;uri&gt;</code> 標籤設定中有對應 <code>uri</code> 屬性的名稱，這就是剛才在 openhome.tld 中定義 <code>&lt;uri&gt;</code> 標籤的目的。至於 <code>prefix</code> 屬性則是設定前置名稱，如此若 JSP 中有多個來自不同設計者的 EL 自訂函式時，就可以避免名稱衝突的問題，所以要使用這個自訂 EL 函式時，就可以用 <code>${util:length(...)}</code> 的方式。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

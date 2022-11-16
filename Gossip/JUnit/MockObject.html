@@ -1,0 +1,120 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Dummy 物件
+是一種用來隔離真實環境，使受測程式不受其它物件或外在環境影響的方式。Dummy物件之所以為Dummy，就是它通常沒有複雜的行為，只單純傳回必要的
+值或物件，供受測程式可以運行。...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Mock 物件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/MockObject.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Dummy 物件
+是一種用來隔離真實環境，使受測程式不受其它物件或外在環境影響的方式。Dummy物件之所以為Dummy，就是它通常沒有複雜的行為，只單純傳回必要的
+值或物件，供受測程式可以運行。...">
+
+
+    <title>Mock 物件</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MockObject.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Mock 物件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <a href="DummyObject.html">Dummy 物件</a>
+是一種用來隔離真實環境，使受測程式不受其它物件或外在環境影響的方式。Dummy物件之所以為Dummy，就是它通常沒有複雜的行為，只單純傳回必要的
+值或物件，供受測程式可以運行。<br>
+      <br>
+相較而言，<span style="font-weight: bold;">Mock物件</span>就複雜了一些，Mock物件的作用與
+Dummy物件類似，隔離真實環境，使受測程式不受其它物件或外在環境影響，所不同的是，<span style="font-weight: bold;">Mock物件模擬了真實物件的行為</span>，真實物件被操作後應有什麼狀態變化，
+Mock物件就會模擬類似的變化。<br>
+      <br>
+舉個例子來說，你設計了以下的<span style="font-family: Courier New,Courier,monospace;">BookmarkService</span>：<br>
+      
+      <pre class="prettyprint"><code lang="java">package cc.openhome.model;<br><br>import cc.openhome.dao.BookmarkDAO;<br><br>// 其中Bookmark物件會實作equals()與hashCode()<br>public class BookmarkService {<br>    private BookmarkDAO dao;<br>    public BookmarkService(BookmarkDAO dao) {<br>        this.dao = dao;<br>    }<br>    public void add(Bookmark bookmark) {<br>        if(!dao.get().contains(bookmark)) {<br>            dao.add(bookmark);<br>        }<br>    }<br>}<br></code></pre>
+      <br>
+      BookmarkService
+委託BookmarkDAO來作資料庫增刪查找的動作：<br>
+      
+      <pre class="prettyprint"><code lang="java">package cc.openhome.dao;<br><br>import cc.openhome.model.Bookmark;<br>import java.util.List;<br><br>public interface BookmarkDAO {<br>    public List&lt;Bookmark&gt; get();<br>    public void add(Bookmark bookmark);<br>    public void delete(Bookmark bookmark);<br>}<br></code></pre>
+      <br>
+檢查目前是否有重複書籤記錄的商務邏輯由BookmarkService負責，假設這邊的作法是從BookmarkDAO<span style="font-family: Courier New,Courier,monospace;">取得所有書籤並比較，若無重複再新增書籤
+至資料庫。顯然這邊要能測試BookmarkService，就一定得有個BookmarkDAO實作，但你的目的僅在測試
+BookmarkService的add()，而不是要連同BookmarkDAO實作物件一同測試。<br>
+      <br>
+因此在這邊你要有個假貨，這個假貨會有BookmarkDAO的增刪查找行為，但又不是真正與資料庫作</span><span style="font-family: Courier New,Courier,monospace;">增刪查找，因此你可以這麼設計：<br>
+      </span>
+      <pre class="prettyprint"><code lang="java">package test.cc.openhome;<br><br>import static org.junit.Assert.*;<br>import java.util.ArrayList;<br>import java.util.List;<br>import org.junit.Test;<br>import cc.openhome.dao.BookmarkDAO;<br>import cc.openhome.model.Bookmark;<br>import cc.openhome.model.BookmarkService;<br><br><span style="font-weight: bold;">class MockDAO implements BookmarkDAO {</span><br><span style="font-weight: bold;">    private List&lt;Bookmark&gt; bookmarks = new ArrayList&lt;Bookmark&gt;();</span><br><span style="font-weight: bold;">    public void add(Bookmark bookmark) {</span><br><span style="font-weight: bold;">        bookmarks.add(bookmark);</span><br><span style="font-weight: bold;">    }</span><br><br><span style="font-weight: bold;">    public void delete(Bookmark bookmark) {</span><br><span style="font-weight: bold;">        bookmarks.remove(bookmark);</span><br><span style="font-weight: bold;">    }</span><br><br><span style="font-weight: bold;">    public List&lt;Bookmark&gt; get() {</span><br><span style="font-weight: bold;">        return bookmarks;</span><br><span style="font-weight: bold;">    }</span><br><span style="font-weight: bold;">}</span><br><br>public class BookmarkServiceTest {<br>    @Test<br>    public void testAdd() {<br><span style="font-weight: bold;">        BookmarkDAO mockDAO = new MockDAO();</span><br><span style="font-weight: bold;">        Bookmark bookmark1 = </span><br><span style="font-weight: bold;">            new Bookmark("testURL1", "testTitle1", "testCategory1");</span><br><span style="font-weight: bold;">        Bookmark bookmark2 = </span><br><span style="font-weight: bold;">            new Bookmark("testURL2", "testTitle2", "testCategory2");</span><br><span style="font-weight: bold;">        mockDAO.add(new Bookmark("testURL1", "testTitle1", "testCategory1"));</span><br>        <br>        BookmarkService service = new BookmarkService(<span style="font-weight: bold;">mockDAO</span>);<br>        service.add(bookmark1);<br>        assertEquals(1, mockDAO.get().size());<br>        <br>        service.add(bookmark2);<br>        assertEquals(2, mockDAO.get().size());<br>        assertEquals(bookmark2, mockDAO.get().get(1));<br>    }<br>}<br></code></pre>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+實際上需要</span>Mock<span style="font-family: Courier New,Courier,monospace;">物件進行測試時，有一些現成框架可以使
+用，像是</span>EasyMock或JMock<span style="font-family: Courier New,Courier,monospace;">，這之後會再說明。<br>
+      <br>
+再觀察</span><a href="DummyObject.html">Dummy 物件</a>
+中的例子，其實你要的傳回一個<span style="font-family: Courier New,Courier,monospace;">InputStream，
+原本該文中範例的作法最後的作法是，實作一個DummyURLConnection</span>作為Dummy物件，傳回測試所需的<span style="font-family: Courier New,Courier,monospace;">InputStream，其實那個傳回的
+InputStream，就是個</span>Mock<span style="font-family: Courier New,Courier,monospace;">物件的概念，因為它並不是真正代表
+HTTP連結的輸入串流，只不過用來與HttpHelper的getContent()作互動，你真正想測試的，其實是取回的InputStream與
+getContent()中其它部份，實作是否正確。<br>
+      <br>
+你可以修改一下HttpHelper：<br>
+      </span>
+      <pre class="prettyprint"><code lang="java">package cc.openhome;<br><br>import java.io.*;<br>import java.net.URL;<br><br>public class HttpHelper {<br>    public String getContent(URL url) throws IOException {<br>        InputStream input = <span style="font-weight: bold;">createInputStream(url);</span><br>        StringWriter writer = new StringWriter();<br>        byte[] data = new byte[2048];<br>        int length = -1;<br>        while((length = input.read(data)) != -1) {<br>            writer.write(new String(data, 0, length));<br>        }<br>        input.close();<br>        writer.close();<br>        return writer.toString();<br>    }<br><br><span style="font-weight: bold;">    protected InputStream createInputStream(URL url) throws IOException {</span><br><span style="font-weight: bold;">        return url.openStream();</span><br><span style="font-weight: bold;">    }</span><br>}<br></code></pre>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">為了要能進行測
+試，傳回InputStream的假貨，你的測試程式可以如下撰寫：</span><br>
+      
+      <pre class="prettyprint"><code lang="java">package test.cc.openhome;<br><br>import static org.junit.Assert.assertEquals;<br>import java.io.ByteArrayInputStream;<br>import java.io.IOException;<br>import java.io.InputStream;<br>import java.net.URL;<br>import org.junit.Test;<br>import cc.openhome.HttpHelper;<br><br><span style="font-weight: bold;">class TestForHttpHelper extends HttpHelper {</span><br><span style="font-weight: bold;">    @Override</span><br><span style="font-weight: bold;">    protected InputStream createInputStream(URL url) throws IOException {</span><br><span style="font-weight: bold;">        // 傳回的 InputStream 就是 Mock 物件的概念</span><br><span style="font-weight: bold;">        return new ByteArrayInputStream(new String("success").getBytes());</span><br><span style="font-weight: bold;">    }</span><br><span style="font-weight: bold;">}</span><br><br>public class HttpHelperTest {<br>    @Test<br>    public void testGetContent() throws Exception {<br>        HttpHelper helper = <span style="font-weight: bold;">new TestForHttpHelper();</span><br>        String expected = "success";<br>        String result = helper.getContent(new URL("http://localhost:8080"));<br>        assertEquals(expected, result);<br>    }<br>}<br></code></pre>
+      <span style="font-family: Courier New,Courier,monospace;">
+      </span><br>
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

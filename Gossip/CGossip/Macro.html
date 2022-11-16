@@ -1,0 +1,333 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="前置處理器語言，顧名思義，並不是 C 語言的一部份，而是編譯過程中前置處理部份處理的簡單語言，以最簡單的 Hello, World 程式為例：
+#include &lt;stdio.h&gt;
+
+in...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="巨集簡介">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CGossip/Macro.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="前置處理器語言，顧名思義，並不是 C 語言的一部份，而是編譯過程中前置處理部份處理的簡單語言，以最簡單的 Hello, World 程式為例：
+#include &lt;stdio.h&gt;
+
+in...">
+
+    <title>巨集簡介</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Macro.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C 語言目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>巨集簡介</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>前置處理器語言，顧名思義，並不是 C 語言的一部份，而是編譯過程中前置處理部份處理的簡單語言，以最簡單的 Hello, World 程式為例：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Hello! World!\n");
+    printf("哈囉！C 語言！\n");
+
+    return 0;
+}
+</code></pre>
+<p><code>#include</code> 是前置處理器的原始碼含括指令，表示將含括的檔案插入目前原始碼之中，使用 <code>gcc</code> 的話，可以指定 <code>-E</code> 表示只進行前置處理，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">gcc -E main.c -o main.i
+</code></pre>
+<p>開啟 main.i 的話，你會發現在 <code>main</code> 函式定義之前，安插了 stdio.h 的內容。</p>
+<p>至目前為止，常使用到的另一個前置處理器指令是 <code>#define</code>，它本質上是個字串取代（或說為擴展、展開），例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#define LEN 10
+int arr[LEN];
+</code></pre>
+<p>被定義的內容稱為巨集（Macro），<code>gcc</code> 編譯時指定 <code>-E</code>，會產生以下內容，<code>LEN</code> 被展開為 10：</p>
+<pre class="prettyprint"><code lang="c-lang"># 1 "test.c"
+# 1 "&lt;built-in&gt;"
+# 1 "&lt;command-line&gt;"
+# 1 "test.c"
+
+int arr[10];
+</code></pre>
+<p><code>#define</code> 常用來定義一個模版，以取代經常撰寫的程式片段，例如最常見的教學範例是交換兩變數：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+
+    printf("%d %d\n", x, y);
+    {
+        int temp = x;
+        x = y;
+        y = temp;
+    }
+    swap(x, y)
+
+    printf("%d %d\n", x, y);
+
+    return 0;
+}
+</code></pre>
+<p><code>temp</code> 定義在區塊之中，因此不為區塊外所見，可以將其定義為模版：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define swap(a, b) { \
+    int temp = a;    \
+    a = b;           \
+    b = temp;        \
+}
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+
+    printf("%d %d\n", x, y);
+    swap(x, y)
+    printf("%d %d\n", x, y);
+
+    return 0;
+}
+</code></pre>
+<p><code>#define</code> 的內容跨越多行時，每行結尾必須使用 <code>\</code>，可以在 <code>swap(x, y)</code> 之後加上分號，這會令其看來像是函式呼叫，實際上是展開了 <code>swap</code> 的內容後加上分號，也會是合法的程式碼罷了，類似地，<code>swap</code> 的定義看來像是定義函式，實際上那對大括號只是定義了陳述句區塊，而不是函式區塊。</p>
+<p>如果上例定義巨集時不加上大括號會如何呢？</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define swap(a, b)  \
+    int temp = a;   \
+    a = b;          \
+    b = temp;       \
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+
+    printf("%d %d\n", x, y);
+    swap(x, y)
+    printf("%d %d\n", x, y);
+
+    return 0;
+}
+</code></pre>
+<p>就以上來說，結果是正確的，只不過 <code>main</code> 範疇中多了個 <code>temp</code> 變數，也就是說，如果同一範疇內也有 <code>temp</code> 變數，編譯就會失敗，另一個問題是以下也會編譯失敗：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define swap(a, b)  \
+    int temp = a;   \
+    a = b;          \
+    b = temp;       \
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+
+    printf("%d %d\n", x, y);
+
+    if(x &gt; y) 
+        swap(x, y)
+
+    printf("%d %d\n", x, y);
+
+    return 0;
+}
+</code></pre>
+<p>因為 <code>if</code> 的部份展開後會是：</p>
+<pre class="prettyprint"><code lang="c-lang">if(x &gt; y) 
+    int temp = x;   
+    x = y;          
+    y = temp;       
+</code></pre>
+<p>也就是 <code>temp</code> 只有 <code>if</code> 中可見，<code>y = temp</code> 該行也就編譯失敗了：</p>
+<pre class="prettyprint"><code lang="c-lang">if(x &gt; y) 
+    int temp = x;   
+x = y;          
+y = temp;       
+</code></pre>
+<p>如果是一開始有加上大括號的 <code>swap</code> 巨集就不會有問題：</p>
+<pre class="prettyprint"><code lang="c-lang">if(x &gt; y) {
+    int temp = x;   
+    x = y;          
+    y = temp;    
+}
+</code></pre>
+<p><code>#define</code> 只是文字替代，因此要小心項目展開後計算先後順序的問題：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define pow(a) a * a
+
+int main(void) {
+    int x = 10;
+    printf("%d\n", pow(x));     
+    printf("%d\n", pow(x + x)); 
+
+    return 0;
+}
+</code></pre>
+<p><code>pow</code> 目的是計算二次方，<code>pow(x + x)</code> 預期結果應該是 400，實際上顯示會是 120，因為展開後會是 <code>x + x * x + x</code>，為了避免這個問題，可以在定義巨集時，將輸入項目加上括號：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define pow(a) (a) * (a)
+
+int main(void) {
+    int x = 10;
+    printf("%d\n", pow(x));     // (x) * (x)
+    printf("%d\n", pow(x + x)); // (x + x) * (x + x)
+
+    return 0;
+}
+</code></pre>
+<p><code>#define</code> 的輸入項目要避免副作用，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define pow(a) (a) * (a)
+
+int main(void) {
+    int x = 10;
+    printf("%d\n", pow(x++));
+
+    return 0;
+}
+</code></pre>
+<p>你覺得結果應該會是多少呢？若覺得是 100 就錯了，因為 <code>pow(x++)</code> 會被展開為 <code>(x++) * (x++)</code>，結果會是 110；別在巨集中重複使用輸入項目，雖然可以解決問題，然而這有時無法做到，因此最重要的是記得，使用巨集時，輸入項目要避免副作用，上例應該寫為以下：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define pow(a) (a) * (a)
+
+int main(void) {
+    int x = 10;
+    printf("%d\n", pow(x));
+    x++;
+
+    return 0;
+}
+</code></pre>
+<p>這就是為何有些開發者認為，應該避免使用巨集的原因，因為撰寫不易、除錯不易，然而使用上又容易出錯；然而有些功能又只有巨集辦得到，C 語言本身的標準實際上也包含了一些以巨集提供的功能，只能說巨集是把雙面刃、必要之惡了。</p>
+<p><code>#define</code> 用來定義巨集，相對地，<code>#undef</code> 用來取消巨集。</p>
+<p>C 語言本身預先定義了 <code>__STDC__</code>、<code>__LINE__</code> 等名稱，可以在〈<a href="https://en.cppreference.com/w/c/preprocessor/replace">Replacing text macros</a>〉找到，例如，可以透過 <code>__FILE__</code>、<code>__LINE__</code> 來寫個簡單的除錯資訊：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 10;
+    int y = 20;
+
+    fprintf(stderr, "(%s:%d) %s %d\n", __FILE__, __LINE__, "Shit happen!", 1);
+
+    return 0;
+}
+</code></pre>
+<p>將 <code>fprintf</code> 定義為巨集是個不錯的主意，可以簡化程式的撰寫：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define debug(fmt, ...) { \
+    fprintf(stderr, "(%s:%d) "fmt"\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+}
+
+int main(void) {
+    debug("%s %d", "Shit happen!", 1);
+
+    return 0;
+}
+</code></pre>
+<p><code>...</code> 在巨集中表示其餘的項目，後續可以使用 <code>__VA_ARGS__</code> 來代表；<code>#</code> 會將項目加上雙引號含括，因此 <code>#__VA_ARGS__</code> 的話，表示將其餘項目展開為字串。</p>
+<p><code>##</code> 的話是合併項目，例如若項目是 <code>a</code> 與 <code>b</code>，巨集中撰寫 <code>ab</code> 是不會分別展開的，因為項目必須使用空白區隔，這時可以撰寫 <code>a##b</code>，這麼一來，<code>a</code> 與 <code>b</code> 會分別展開後合併，例如若 <code>a</code> 為 12、<code>b</code> 為 34，那麼 <code>a##b</code> 就會是 1234。</p>
+<p>如果 <code>##</code> 出現在逗號之後，有些編譯器（例如 <code>gcc</code>）會在 <code>__VAR_ARGS__</code> 為空時，自動移除逗號，上面的範例若將 <code>##</code> 拿掉，<code>debug</code> 時若沒有指定 <code>fmt</code> 外的引數，展開後編譯就會出錯。</p>
+<p>那為什麼不把 <code>debug</code> 定義為函式就好，而是要定義為巨集？同樣的疑問應該也會發生在先前的 <code>swap</code>、<code>pow</code> 巨集，畢竟它們也可以定義為函式！</p>
+<p>在過去也許有個好理由將 <code>swap</code>、<code>pow</code> 等定義為巨集：「不會產生函式呼叫，比較有效率」。不過在不用這麼斤斤計較的場合，將 <code>swap</code>、<code>pow</code> 等定義為巨集的價值不大。</p>
+<p>巨集的本質是文字替換，如果經常寫出某個 C 語言片段，而該片段不適合封裝為函式，或者封裝為函式時使用上突冗，才是適用巨集的場合，例如方才的 <code>debug</code> 定義為函式會比較麻煩，因為得使用到不定長度引數、字串串接等，相對來說，定義巨集反而容易得多，另一個情況是循序迭代陣列，這可以參考〈<a href="foreach.html">foreach 與陣列</a>〉。</p>
+<p>前置處理指令中，還有 <code>#if</code>、<code>#endif</code>、<code>#ifdef</code>、<code>#ifndef</code>、<code>#elif</code>、<code>#else</code>、<code>#endif</code>，可用來判定巨集是否存在，根據條件進行不同的程式碼含括。例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+#define __DEBUG__
+
+#define debug(fmt, ...) { \
+    fprintf(stderr, "(%s:%d) "fmt"\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+}
+
+int main(void) {
+
+#ifdef __DEBUG__    
+    debug("%s %d", "Shit happen!", 1);
+#endif
+
+    return 0;
+}
+</code></pre>
+<p>只要在 <code>__DEBUG__</code> 有定義的情況下，<code>debug("%s %d", "Shit happen!", 1)</code> 該行才會被納入原始碼，而後進行編譯的動作，如此一來，就可以透過 <code>__DEBUG__</code> 是否有定義，來決定要不要包含除錯資訊。</p>
+<p>在〈<a href="https://en.cppreference.com/w/c/preprocessor/conditional">Conditional inclusion</a>〉有個範例，可以看到 <code>defined</code> 以及條件式中還可以進行簡單的運算：</p>
+<pre class="prettyprint"><code lang="c-lang">#define ABCD 2
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+
+#ifdef ABCD
+    printf("1: yes\n");
+#else
+    printf("1: no\n");
+#endif
+
+#ifndef ABCD
+    printf("2: no1\n");
+#elif ABCD == 2
+    printf("2: yes\n");
+#else
+    printf("2: no2\n");
+#endif
+
+#if !defined(DCBA) &amp;&amp; (ABCD &lt; 2*4-3)
+    printf("3: yes\n");
+#endif
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

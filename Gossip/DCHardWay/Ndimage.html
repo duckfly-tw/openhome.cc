@@ -1,0 +1,159 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在先前的 OpenCV 系列文件中，〈Laplacian 轉換（一）〉與〈Laplacian 轉換（二）〉，透過 Laplacian 運算等來取得圖像邊緣，如果現在不依賴 OpenCV，該怎麼進行呢？...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 ndimage">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/Ndimage.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在先前的 OpenCV 系列文件中，〈Laplacian 轉換（一）〉與〈Laplacian 轉換（二）〉，透過 Laplacian 運算等來取得圖像邊緣，如果現在不依賴 OpenCV，該怎麼進行呢？...">
+
+    <title>使用 ndimage</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Ndimage.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 ndimage</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在先前的 OpenCV 系列文件中，〈<a href="Laplacian.html">Laplacian 轉換（一）</a>〉與〈<a href="Laplacian2.html">Laplacian 轉換（二）</a>〉，透過 Laplacian 運算等來取得圖像邊緣，如果現在不依賴 OpenCV，該怎麼進行呢？</p>
+<p>雖然 Scipy 不是專用於影像處理，然而有時確實有分析影像的需求，因此 Scipy 提供有 <a href="https://docs.scipy.org/doc/scipy/reference/ndimage.html#module-scipy.ndimage"><code>ndimage</code></a> 模組，可以應付基本的影像分析。</p>
+<p>首先來解決讀取影像檔的問題，如〈<a href="Scipy.html">簡介 Scipy</a>〉談到的，<code>ndimage</code> 已經不再提供讀取影像的函式，官方是建議安裝與使用 <a href="https://pypi.org/project/imageio/">imageio</a>：</p>
+<pre class="prettyprint"><code lang="python">import imageio
+
+img = imageio.imread('caterpillar.jpg')
+</code></pre>
+<p>讀入檔案後，傳回的是 NumPy 陣列，在第三個維度部份，是像素的 RGB 資料，若要轉為灰階，可以使用常見的轉灰階公式 <code>R * 0.299 + G * 0.587 + B * 0.114</code>（<a href="https://en.wikipedia.org/wiki/Grayscale">轉灰階有多種不同的公式</a>）：</p>
+<pre class="prettyprint"><code lang="python">gray = np.dot(img[...,:3], [0.299, 0.587, 0.114])
+</code></pre>
+<p>若想要去除雜訊，<code>ndimage</code> 可以使用 <code>gaussian_filter</code>、<code>median_filter</code> 等濾波，這邊使用中值濾波 <code>median_filter</code>：</p>
+<pre class="prettyprint"><code lang="python">filtered = ndimage.median_filter(gray, size = (3, 3))
+</code></pre>
+<p>如果要進行卷積（convolution）運算，可以使用 <code>convolve</code> 函式並指定核，不過對於 Laplacian 運算直接提供有 <code>laplace</code> 函式：</p>
+<pre class="prettyprint"><code lang="python">laplace = ndimage.laplace(filtered)
+</code></pre>
+<p>以下是完整的程式：</p>
+<pre class="prettyprint"><code lang="python">import imageio
+from scipy import ndimage
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+img = imageio.imread('caterpillar.jpg')
+
+# 轉灰階
+gray = np.dot(img[...,:3], [0.299, 0.587, 0.114])
+
+# 中值濾波
+filtered = ndimage.median_filter(gray, size = (3, 3))
+
+# Laplacian 運算
+laplace = ndimage.laplace(filtered)
+
+# 取絕對值轉 uint8
+edge = np.abs(laplace).astype('uint8') 
+
+plt.imshow(edge, cmap = cm.gray)
+plt.show()
+</code></pre>
+<p>執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ndimage-1.JPG" alt="使用 ndimage"  /></div></div></p>
+<p>除了 <code>laplace</code> 函式可以使用之外，<code>ndimage</code> 還提供有 <code>sobel</code> 函式（當然，OpenCV 也有 Sobel 的實作），可以用來偵測邊緣，Sobel 運算的原理也是基於二階偏導數，在 x 方向與 y 方向各自求偏導數的差（懶得用方程式編輯器畫了，直接純文字寫公式XD）：</p>
+<pre class="prettyprint"><code lang="python">Gx = (f(x + 1,y - 1) + 2 * f(x + 1, y) + f(x + 1, y + 1)) -
+     (f(x - 1,y - 1) + 2 * f(x - 1, y) + f(x - 1, y + 1))
+
+Gy = (f(x - 1, y - 1) + 2 * f(x, y - 1) + f(x + 1,y - 1)) -
+     (f(x - 1, y + 1) + 2 * f(x, y + 1) + f(x + 1, y + 1))
+
+G = sqrt(Gx * Gx, Gy * Gy)
+</code></pre>
+<p><code>Gx</code>、<code>Gy</code> 整理一下，以矩陣表示的話就是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ndimage-2.JPG" alt="使用 ndimage"  /></div></div></p>
+<p><code>ndimage</code> 的 <code>sobel</code> 函式可以透過 <code>axis</code> 來指定處理哪個軸的方向，預設是 -1，也就是考量兩個方向，指定軸 0 時，就圖像而言是指垂直方向（也就是 y 方向），指定軸 1 時是指水平方向（也就是 x 方向），底下的程式可以顯示三個處理的不同結果：</p>
+<pre class="prettyprint"><code lang="python">import imageio
+from scipy import ndimage
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+img = imageio.imread('caterpillar.jpg')
+
+# 轉灰階
+gray = np.dot(img[...,:3], [0.299, 0.587, 0.114])
+
+# 中值濾波
+filtered = ndimage.median_filter(gray, size = (3, 3))
+
+# 兩個方向
+s = ndimage.sobel(filtered)
+plt.subplot(1, 3, 1)
+plt.imshow(np.abs(s).astype('uint8') , cmap = cm.gray)
+
+# 水平方向
+sx = ndimage.sobel(filtered, axis = 1)
+plt.subplot(1, 3, 2)
+plt.imshow(np.abs(sx).astype('uint8') , cmap = cm.gray)
+
+# 垂直方向
+sy = ndimage.sobel(filtered, axis = 0)
+plt.subplot(1, 3, 3)
+plt.imshow(np.abs(sy).astype('uint8') , cmap = cm.gray)
+
+plt.show()
+</code></pre>
+<p>執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ndimage-3.JPG" alt="使用 ndimage"  /></div></div></p>
+<p>其他更多有關 <code>ndimage</code> 的使用，可以參考〈<a href="https://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html">Multidimensional image processing (scipy.ndimage)</a>〉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

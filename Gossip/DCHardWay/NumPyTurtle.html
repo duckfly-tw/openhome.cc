@@ -1,0 +1,169 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Python 內建的 turtle 模組，提供了海龜繪圖的實作，例如，以下這個簡單的程式，可以畫出星狀圖：
+from turtle import *
+
+leng = 200
+a = 170
+n = 3...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="NumPy 與海龜繪圖（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/NumPyTurtle.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Python 內建的 turtle 模組，提供了海龜繪圖的實作，例如，以下這個簡單的程式，可以畫出星狀圖：
+from turtle import *
+
+leng = 200
+a = 170
+n = 3...">
+
+    <title>NumPy 與海龜繪圖（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="NumPyTurtle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>NumPy 與海龜繪圖（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Python 內建的 <code>turtle</code> 模組，提供了海龜繪圖的實作，例如，以下這個簡單的程式，可以畫出星狀圖：</p>
+<pre class="prettyprint"><code lang="python">from turtle import *
+
+leng = 200
+a = 170
+n = 37
+
+speed(0)
+for _ in range(n):
+    forward(leng) # 前進
+    left(a)       # 轉向（角度）
+
+done() # 繪圖完成（不關閉視窗）
+</code></pre>
+<p>執行結果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/NumPyTurtle-1.JPG" alt="NumPy 與海龜繪圖（一）"  /></div></div></p>
+<p>這又跟 NumPy 有什麼關係呢？使用 NumPy 其實是種重新看待需求的過程，將一切都看成是資料的處理，使用 NumPy 來實現海龜繪圖，可以很好地示範出這個看待需求的過程。</p>
+<p>首先，試著用 Matplotlib 來製出相同的圖案吧！這只要線圖就可以了，當然，你需要提供線的每個座標點，這可以使用 <code>turtle</code> 模組的 <code>pos</code> 函式，用來取得海龜的位置：</p>
+<pre class="prettyprint"><code lang="python">from turtle import *
+import matplotlib.pyplot as plt
+
+leng = 200
+a = 170
+n = 37
+
+speed(0)
+coords = []
+for _ in range(n):
+    coords.append(pos())
+    forward(leng)
+    left(a)
+
+x = [coord[0] for coord in coords]
+y = [coord[1] for coord in coords]
+
+plt.gca().set_aspect(1)
+plt.plot(x, y)  
+plt.show()
+</code></pre>
+<p>程式中使用 <code>coords</code> 收集了海龜繪圖迭代過程的座標點，這可以畫出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/NumPyTurtle-2.JPG" alt="NumPy 與海龜繪圖（一）"  /></div></div></p>
+<p>接著來用 NumPy 實現，基本出發點就是，可以不用迴圈就不用，不使用迴圈的意義其實在於，儘量透過 Universal 函式來處理資料，為了能透過 Universal 函式，你得有一筆資料，這該是什麼資料呢？</p>
+<p>觀察上面的程式，你迭代了 <code>n</code> 次，每次的迭代會取得一次海龜座標，也就是說，你是將 0 到 <code>n - 1</code> 轉換為海龜座標，因此一開始的資料就只是：</p>
+<pre class="prettyprint"><code lang="python">step = np.arange(n)
+</code></pre>
+<p>有了初始的資料，接下來是將 0 到 <code>n - 1</code> 轉換為海龜座標：</p>
+<pre class="prettyprint"><code lang="python">def forward_left(_, leng, a):
+    forward(leng)
+    left(a)
+    return np.array(pos())
+forward_left = np.frompyfunc(forward_left, 3, 1)
+
+coord = np.array(forward_left(step, leng, a).tolist())
+
+x = np_pos[:,0] 
+y = np_pos[:,1] 
+</code></pre>
+<p><code>forward_left</code> 取 <code>step</code> 中的每個元素，將之轉換為 <code>pos</code> 取得的座標，最後得到的結果，重組為 NumPy 陣列，這是為了後續可以透過索引範圍取出 <code>x</code> 與 <code>y</code>，將以上片段組合起來：</p>
+<pre class="prettyprint"><code lang="python">from turtle import *
+import numpy as np
+import matplotlib.pyplot as plt
+
+def forward_left(_, leng, a):
+    forward(leng)
+    left(a)
+    return np.array(pos())
+forward_left = np.frompyfunc(forward_left, 3, 1)
+
+leng = 200
+a = 170
+n = 37
+
+speed(0)
+
+step = np.arange(n)
+coord = forward_left(step, leng, a)
+np_pos = np.array(coord.tolist())
+
+x = np_pos[:,0] 
+y = np_pos[:,1] 
+
+plt.gca().set_aspect(1)
+plt.plot(x, y)  
+plt.show()
+</code></pre>
+<p>執行結果與上一張圖是相同的，如果 <code>forward_left</code> 不是你實作的，你只要看成是個黑箱就可以了，當它是個傳入引數就傳回值的函式就可以了。</p>
+<p>只不過，<code>forward_left</code> 中使用了 <code>forward</code>、<code>left</code>、<code>pos</code>，其實是有點作弊的方式，前兩者是有副作用的函式，改變了內部海龜的狀態，而且實際上也沒用到 <code>step</code> 每次傳入的元素值，這些看來都…很不 NumPy！</p>
+<p>很不 NumPy 的意思是，<code>forward</code>、<code>left</code>、<code>pos</code> 看來只是指令，不像是在做資料處理與轉換，如果想更 NumPy 一些，就得知道海龜繪圖的原理，進一步將原理看待為資料處理的過程，這下篇文件再來談&hellip;</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

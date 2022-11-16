@@ -1,0 +1,319 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈閘道與 Spring Security〉中提過，對於多個服務之間授權，會是 OAuth 2 應用的一個場景，你已經知道 OAuth 2 的四種授權類型了，也知道 Client Credential...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="OAuth 2 與 gossip">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/OAuth2Gossip.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈閘道與 Spring Security〉中提過，對於多個服務之間授權，會是 OAuth 2 應用的一個場景，你已經知道 OAuth 2 的四種授權類型了，也知道 Client Credential...">
+
+    <title>OAuth 2 與 gossip</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OAuth2Gossip.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>OAuth 2 與 gossip</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="GatewaySecurity.html">閘道與 Spring Security</a>〉中提過，對於多個服務之間授權，會是 OAuth 2 應用的一個場景，你已經知道 OAuth 2 的四種授權類型了，也知道 Client Credentials 可說是 BASIC 驗證的延伸，那麼在這邊就用來施加在 gossip 架構上吧！</p>
+<p>具體來說，這邊打算將授權的職責拉出來，由一台授權伺服器負責，Access Token 採用 JWT，因此閘道、各個服務伺服器，只要看 Access Token 中的資訊來決定是否提供資源：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2Gossip-1.JPG" alt="OAuth 2 與 gossip"  /></div></div></p>
+<p>圖中灰色方框表示，該伺服器被施加了存取控制，gossip 的部份是直接採用 Spring Security 做表單驗證，而不是 OAuth 2，基本上也可以改造 gossip 採用 OAuth 2，不過需要一些前端的技術，這並不是這系列文件要記錄的，就還是保留原樣了。</p>
+<p>這邊先從授權伺服器的部份開始處理，基本上採用〈<a href="OAuth2ClientGrant1.html">Client Credentials 核發流程（一）</a>〉的成果來修改，主要是增加 JWT 的支援，當然，有些組態可以由組態伺服器來處理，因此就啟動主類別的設定來說可以是：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...
+
+@SpringBootApplication
+@EnableAuthorizationServer
+public class AuthSvrApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AuthSvrApplication.class, args);
+    }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Bean
+    public AuthorizationServerConfigurer authorizationServerConfigurer(
+            @Value("${client.web.name}") String clientName, 
+            @Value("${client.web.secret}") String clientSecret) {
+        return new AuthorizationServerConfigurerAdapter() {
+
+            @Override
+            public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+                clients.inMemory()
+                       .withClient(clientName)
+                       .secret(passwordEncoder.encode(clientSecret))
+                       .scopes("account", "message", "email")
+                       .authorizedGrantTypes("client_credentials");
+            }
+
+            @Override
+            public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+                oauthServer.checkTokenAccess("isAuthenticated()");    
+            }
+
+            @Override
+            public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+                endpoints.accessTokenConverter(accessTokenConverter());
+            }
+        };
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+      return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        converter.setSigningKey("CATERPILLAR_KEY");
+        return converter;
+    }
+}
+</code></pre>
+<p><code>CATERPILLAR_KEY</code> 也可以由組態伺服器處理，不過這邊就留給你處理了，隨著服務越來越多，會越來越多重複的組態，記得，組態也可以重構的。</p>
+<p>雖然在練習中，經常得處理多個服務的設定或程式撰寫，然而，實際上，各個服務應該是各自團隊去負責的，而且團隊只關心自己的設定與使用到的其他服務，不見得要知曉整個架構，因此，在練習時也是如此，記得轉換自身角色，在處理某個服務時，就獨立、專心地處理好該服務，並完成相關測試，這樣服務之間才會有好的隔離，而不會產生錯綜複雜的相依。</p>
+<p>不過因為是練習，還是要一個人處理許多細節，最後我會提供全部的專案作為參考，因此就不逐一最出 build.gradle、application.properties 等又各設定了什麼了，只列出必須得知道的重點部份。</p>
+<p>接下來，處理 Account 服務，它要能接受 JWT 存取令牌，只允許擁有 <code>account</code> 範圍的客戶端請求資源：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.gossip;
+
+...略
+
+@EnableResourceServer
+public class AcctApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(AcctApplication.class, args);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ResourceServerConfigurer resourceServerConfigurer() {
+        return new ResourceServerConfigurer() {
+            @Override
+            public void configure(HttpSecurity http) throws Exception {
+                http.authorizeRequests()
+                    .anyRequest().access("#oauth2.hasScope('account')");
+            }
+
+            @Override
+            public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+                resources.tokenStore(tokenStore());
+            }
+        };
+    }
+
+    @Bean
+    public TokenStore tokenStore() {
+        return new JwtTokenStore(accessTokenConverter());
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        converter.setSigningKey("CATERPILLAR_KEY");
+        return converter;
+    }
+}
+</code></pre>
+<p>Message 服務、Email 服務也是做相同設定，只不過範圍分別設定為 <code>message</code>、<code>email</code>。接著來設定閘道，在撰寫本文的這個時間點，Spring Cloud Gateway 還沒整合 Spring OAuth 2，這邊就採用 Zuul，基本上是從〈<a href="Zuul.html">使用 Zuul</a>〉的成果修改而來。</p>
+<p>因為它會是 Account 服務、Message 服務與 Email 服務的閘道，因此分別設定三個端點的存取權限，各需要有 <code>account</code>、<code>message</code> 與 <code>email</code> 的範圍：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...
+
+@SpringBootApplication
+@EnableZuulProxy
+@EnableResourceServer
+public class ZuulServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ZuulServerApplication.class, args);
+    }
+
+    @Bean
+    public ResourceServerConfigurer resourceServerConfigurer() {
+        return new ResourceServerConfigurer() {
+            @Override
+            public void configure(HttpSecurity http) throws Exception {
+                http.authorizeRequests()
+                    .antMatchers("/api/acct/**").access("#oauth2.hasScope('account')")
+                    .antMatchers("/api/msg/**").access("#oauth2.hasScope('message')")
+                    .antMatchers("/api/email/**").access("#oauth2.hasScope('email')");
+            }
+
+            @Override
+            public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+                resources.tokenStore(tokenStore());
+            }
+        };
+    }
+
+    @Bean
+    public TokenStore tokenStore() {
+        return new JwtTokenStore(accessTokenConverter());
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        converter.setSigningKey("CATERPILLAR_KEY");
+        return converter;
+    }
+}
+</code></pre>
+<p>然後，閘道必須將 <code>Authorization</code> 標頭傳送到下游，這樣下游服務才能收到存取令牌，預設 Zuul 會濾掉 <code>Authorization</code>、<code>Cookie</code>、<code>Set-Cookie</code> 三個標頭，若要允許 <code>Authorization</code> 通過閘道，必須在 application.properties 或 bootstrap.properties 中設定：</p>
+<pre class="prettyprint"><code lang="java">zuul.sensitiveHeaders: Cookie,Set-Cookie
+</code></pre>
+<p><code>zuul.sensitiveHeaders</code> 是個黑名單，設定在其中的表示不允許通過的標頭，不設定的話，<code>Authorization</code>、<code>Cookie</code>、<code>Set-Cookie</code> 都會是黑名單成員，因此如上設定之後，<code>Authorization</code> 不在黑名單內，就可以通過閘道。</p>
+<p>接著就是 gossip 本身的授權請求了，因為實作上它一直都採用 Feign，因此在這邊就還是寫個 Feign 客戶端來請求存取令牌：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+import javax.ws.rs.core.MediaType;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import cc.openhome.feign.AuthServiceConfig;
+
+@FeignClient(name = "authsvr", configuration = AuthServiceConfig.class)
+public interface AuthService {
+    @PostMapping(value = "oauth/token?grant_type=client_credentials",  consumes = MediaType.APPLICATION_FORM_URLENCODED)
+    TokenInfo token();
+}
+</code></pre>
+<p>在請求 Access Token 時，必須有客戶端 ID 與密碼來做基本 BASIC 驗證，這是設定在 <code>configuration</code> 指定的 <code>AuthServiceConfig</code> 之中：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.feign;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+
+import feign.RequestInterceptor;
+import feign.auth.BasicAuthRequestInterceptor;
+
+public class AuthServiceConfig {
+    @Bean
+    public RequestInterceptor requestInterceptor(
+            @Value("${client.web.name}") String clientName, 
+            @Value("${client.web.secret}") String clientSecret) {
+         return new BasicAuthRequestInterceptor(clientName, clientSecret);
+    }
+}
+</code></pre>
+<p>注意，個別 <code>@FeignClient</code> 的 <code>configuration</code> 指定的組態，只會套用在個別的 Feign Client，如果是在 Spring 容器掃描到的組態中，則會套用至全部的 Feign Client。</p>
+<p>至於 <code>MessageService</code>，需要指定 Bearer Token，這是設定在 <code>AccessTokenConfig</code> 之中：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.feign;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+
+import cc.openhome.model.Credentials;
+import feign.RequestInterceptor;
+
+public class AccessTokenConfig {
+    @Bean
+    public RequestInterceptor requestInterceptor(@Autowired Credentials credentials) {
+         return template -&gt; template.header("Authorization",  credentials.bearerToken());
+    }
+}
+</code></pre>
+<p><code>Credentials</code> 是個自定義的 <code>RequestInterceptor</code>，會判斷 Access Token 是否過期，若是則對授權伺服器要求新的 Access Token：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Credentials {
+    @Autowired
+    private AuthService authService;
+
+    private Long expirationSeconds = 0L;
+    private String bearerToken;
+
+    public String bearerToken() {
+        if(expirationSeconds &lt; java.time.Instant.now().getEpochSecond()) {
+            TokenInfo token= authService.token();
+            expirationSeconds = java.time.Instant.now().getEpochSecond() + Long.parseLong(token.getExpires_in());
+            bearerToken = "Bearer " + token.getAccess_token();
+        }       
+        return bearerToken;
+    }
+}
+</code></pre>
+<p><code>MessageService</code>、<code>AccountService</code>、<code>EmailService</code>，都會指定 <code>AccessTokenConfig</code> 作為組態檔，以 <code>MessageService</code> 為例：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.model;
+
+...略
+
+@FeignClient(name = "zuulsvr/api/msg", fallback = MessageServiceFallback.class, configuration = AccessTokenConfig.class)
+public interface MessageService {
+    ...略
+}
+</code></pre>
+<p>差不多就這樣了，需要 Access Token 的客戶端，向授權伺服器拿 Access Token，之後就可以拿著 Access Token 到處跑了。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Cloud/OAuth2/OAuth2Gossip">OAuth2Gossip</a> 找到支援以上架構的全部專案。</p>
+<p>或許在未來，你會因為需求，必須得對外公開一些 API，這時建議公開 API 與內部 API 分開，採用公開閘道與內部閘道，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2Gossip-2.JPG" alt="OAuth 2 與 gossip"  /></div></div></p>
+<p>公開閘道只開放公開 API，或許也透過內部閘道來獲取服務，為了隱藏內部服務，公開給第三方應用程式的服務，會註冊公開的服務發現伺服器，與內部服務發現伺服器可發現的服務區隔等，這只是個大致概念，實際上看需求規劃，沒有一定要怎麼做。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

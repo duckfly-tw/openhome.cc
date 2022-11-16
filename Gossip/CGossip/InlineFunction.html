@@ -1,0 +1,122 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在呼叫函式時會有額外的資源負擔，一些小函式，可以「建議」編譯器設為 inline 行內，若建議被採納，該函式會自動在呼叫點展現為程式碼，例如：
+math.h
+int power2(int);
+int ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="inline 函式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CGossip/InlineFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在呼叫函式時會有額外的資源負擔，一些小函式，可以「建議」編譯器設為 inline 行內，若建議被採納，該函式會自動在呼叫點展現為程式碼，例如：
+math.h
+int power2(int);
+int ...">
+
+    <title>inline 函式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InlineFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C 語言目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>inline 函式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在呼叫函式時會有額外的資源負擔，一些小函式，可以「建議」編譯器設為 inline 行內，若建議被採納，該函式會自動在呼叫點展現為程式碼，例如：</p>
+<p><strong>math.h</strong></p>
+<pre class="prettyprint"><code lang="c-lang">int power2(int);
+int power(int, int);
+</code></pre>
+<p>配合標頭檔，可以如下實作 <code>power</code> 函式本體：</p>
+<p><strong>math.c</strong></p>
+<pre class="prettyprint"><code lang="c-lang">#include "math.h"
+
+inline int power2(int num) {
+    return num * num;
+}
+
+int power(int n, int p) {
+    int r = 1;
+    for(int i = 0; i &lt; p; i++) {
+        r *= n;
+    }
+
+    return r;
+}
+</code></pre>
+<p>呼叫函式時不用任何改變，例如：</p>
+<p><strong>main.c</strong></p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include "math.h"
+
+int main(void) {
+    int num = 0;
+    int p = 0;
+
+    printf("輸入數值：");
+    scanf("%d", &amp;num);
+
+    printf("輸入平方：");
+    scanf("%d", &amp;p);
+
+    printf("%d 平方：%d\n", num, power2(num));
+    printf("%d 的 %d 次方 %d\n", num, p, power(num, p));
+
+    return 0;
+}
+</code></pre>
+<p><code>inline</code> 函式只能建議編譯器，建議不一定被採納，例如遞迴函式無法在呼叫點展開，數千行的函式也不適合在呼叫點展開，如果編譯器拒絕將函式展開，會視為一般函式進行編譯，<code>inline</code> 的建議會被忽略。</p>
+<p>C99 的 <code>inline</code> 規則，與 GNU 的 <code>inline</code> 規則有所不同，詳情可參考〈<a href="http://www.greenend.org.uk/rjk/tech/inline.html">Inline Functions In C</a>〉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

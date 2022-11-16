@@ -1,0 +1,184 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Heart chain with text is one of my hot things. (I also designed Text heart chain which can coil up h...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Circular sector and arc">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/OpenSCAD/SectorArc.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Heart chain with text is one of my hot things. (I also designed Text heart chain which can coil up h...">
+
+    <title>Circular sector and arc</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SectorArc.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/OpenSCAD/index.html">&lt;&lt; OpenSCAD TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Circular sector and arc</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p><a href="https://www.thingiverse.com/thing:1504859">Heart chain with text</a> is one of my hot things. (I also designed <a href="https://www.thingiverse.com/thing:1784637">Text heart chain</a> which can coil up hearts.)</p>
+
+<p>There are two small rings between hearts. The rings don't overlap so you can print it in place. Before creating these hearts, what should you prepare for such a simple ring? Different people have different thoughts. As for me, it's better to define a module which can draw an arc according to given angles.</p>
+<h1>Sector</h1>
+<p>Before defining an <code>arc</code> module, it's better to have a module which can draw a sector. If the built-in <code>circle</code> module can provide an <code>angles</code> parameter, implementing this requirement will be easy. Unfortunately, OpenSCAD doesn't provide it, so it's time to do it yourself.</p>
+<p>In <a href="Circle.html">Circle</a>, we learned about that you can use triangles to construct a circle. Seriously speaking, this creates a regular polygon. When it comes to the polygon, we know that the built-in <code>polygon</code> module can create a multi-sided shape. If we can calculate every vertex's coordinate of the sector, the <code>polygon</code> module will be able to create a sector, right?</p>
+<pre class="prettyprint"><code lang="openscad">radius = 10;
+angles = [45, 135];
+points = [
+    for(a = [angles[0]:1:angles[1]]) [radius * cos(a), radius * sin(a)]
+];
+polygon(concat([[0, 0]], points));
+</code></pre>
+<p>As you see, we are right. We draw a sector from 45 to 135 degrees.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-1.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>I have more to take into consideration. The <code>sector</code> module should provide a <code>$fn</code> parameter, maybe <code>$fa</code> and <code>$fs</code> as well, to be consistent with the <code>circle</code> module. Then, the users of the <code>sector</code> module can use angles to create a sector which looks like being cut from a circle with the given <code>$fn</code>. For example, we can use 0 and 135 degrees to cut a sector from a circle of <code>$fn = 12</code>.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-2.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>Do you see that? Because <code>$fn</code> is 12, the length of the leftmost side is smaller than others. I deliberately use <code>$fn = 12</code> to highlight this condition. You can create a circle and <code>difference</code> the unwanted part to obtain the sector.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-3.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>According to the above idea, we may write a rough implementation.</p>
+<pre class="prettyprint"><code lang="openscad">radius = 20;
+angles = [45, 135];
+fn = 12;
+
+module sector(radius, angles, fn = 24) {
+    step = -360 / fn;
+
+    points = concat([[0, 0]],
+        [for(a = [angles[0] : step : angles[1] - 360]) 
+            [radius * cos(a), radius * sin(a)]
+        ],
+        [[radius * cos(angles[1]), radius * sin(angles[1])]]
+    );
+
+    difference() {
+        circle(radius, $fn = fn);
+        #polygon(points);
+    }
+}
+
+sector(radius, angles, fn);
+</code></pre>
+<p>But, the result is not what we want.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-4.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>Oh, no! The differenced part is not large enough to cover the edge of the circle. You can create a larger polygon to solve this problem, however, how large should it be? Twice the radius of the circle is surely enough. If you want to have fun with precision, let's do some calculations.</p>
+<p>The figure below shows the worst case. One leg of the yellow triangle intersects the base of the red triangle at the middle.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-5.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>So, the polygon can cover the yellow circle if the radius of the red circle is <code>r</code> derived below.</p>
+<pre class="prettyprint"><code lang="openscad">a = 180 / fn;
+r = radius / cos(a);
+</code></pre>
+<p>The modified version of the <code>sector</code> module is here.</p>
+<pre class="prettyprint"><code lang="openscad">radius = 20;
+angles = [45, 135];
+fn = 24;
+
+module sector(radius, angles, fn = 24) {
+    r = radius / cos(180 / fn);
+    step = -360 / fn;
+
+    points = concat([[0, 0]],
+        [for(a = [angles[0] : step : angles[1] - 360]) 
+            [r * cos(a), r * sin(a)]
+        ],
+        [[r * cos(angles[1]), r * sin(angles[1])]]
+    );
+
+    difference() {
+        circle(radius, $fn = fn);
+        polygon(points);
+    }
+}
+
+sector(radius, angles, fn);  
+</code></pre>
+<p>We get a sector now.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-6.JPG" alt="Circular sector and arc"  /></div></div></p>
+<h1>Arc</h1>
+<p>Once the <code>sector</code> module is ready, defining an <code>arc</code> module is easy. Just difference a smaller sector from a bigger sector.</p>
+<pre class="prettyprint"><code lang="openscad">radius = 20;
+angles = [45, 290];
+width = 2;
+fn = 24;
+
+module sector(radius, angles, fn = 24) {
+    r = radius / cos(180 / fn);
+    step = -360 / fn;
+
+    points = concat([[0, 0]],
+        [for(a = [angles[0] : step : angles[1] - 360]) 
+            [r * cos(a), r * sin(a)]
+        ],
+        [[r * cos(angles[1]), r * sin(angles[1])]]
+    );
+
+    difference() {
+        circle(radius, $fn = fn);
+        polygon(points);
+    }
+}
+
+module arc(radius, angles, width = 1, fn = 24) {
+    difference() {
+        sector(radius + width, angles, fn);
+        sector(radius, angles, fn);
+    }
+} 
+
+linear_extrude(1) arc(radius, angles, width);
+</code></pre>
+<p>We obtain an arc.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/SectorArc-7.JPG" alt="Circular sector and arc"  /></div></div></p>
+<p>Some of my things on Thingiverse needed sectors and arcs. The implementations of <code>sector</code> and <code>arc</code> in them are different from here. That is because they are my early works, some considerations were still immature when designing them.</p>
+<p>Writing documents always gives me opportunities to think more about those things. Are there other considerations? Are there better designs?</p>
+<p>Writing is not only about writing.</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

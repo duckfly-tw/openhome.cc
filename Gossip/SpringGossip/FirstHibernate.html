@@ -1,0 +1,407 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="撰寫本文的時候，Hibernate最新的版本是3.1，請連接至 Hibernate的官方網站 進行檔案的下載。
+
+
+      
+
+
+下載zip檔案並解壓縮之後，在解開的目錄下就有Hibe...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="第一個 Hibernate 程式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/FirstHibernate.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="撰寫本文的時候，Hibernate最新的版本是3.1，請連接至 Hibernate的官方網站 進行檔案的下載。
+
+
+      
+
+
+下載zip檔案並解壓縮之後，在解開的目錄下就有Hibe...">
+
+
+    <title>第一個 Hibernate 程式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstHibernate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>第一個 Hibernate 程式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      撰寫本文的時候，Hibernate最新的版本是3.1，請連接至<a href="http://www.hibernate.org/"> Hibernate的官方網站 </a>進行檔案的下載。<br>
+
+
+      <br>
+
+
+下載zip檔案並解壓縮之後，在解開的目錄下就有Hibernate3.jar，這是Hibernate 3所需要的API之封裝，可以在doc目錄中找到API說明或相關參考文件，在lib 目錄中的則是您可能會用到的相依檔案。<br>
+
+
+      <br>
+
+
+對於將撰寫的第一個Hibernate程式，所需要的.jar檔案除了hibernate3.jar之外，您還需要：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>antlr-2.7.6rc1.jar</li>
+
+
+        <li>asm.jar</li>
+
+
+        <li>cglib-2.1.3.jar</li>
+
+
+        <li>commons-collections-2.1.1.jar</li>
+
+
+        <li>commons-logging-1.0.4.jar</li>
+
+
+        <li>dom4j-1.6.1.jar、ehcache-1.1.jar</li>
+
+
+        <li>jta.jar</li>
+
+
+        <li>log4j-1.2.11.jar</li>
+
+
+      
+      
+      </ul>
+
+
+      <br>
+
+
+Hibernate在底層仍是使用JDBC，所以您也必須要有JDBC的驅動程式的jar檔案。<br>
+
+
+      <br>
+
+
+接來撰寫個專案，示範一下Hibernate的功能與使用方式，在這個示範中暫時不使用到Spring的功能，稍後會再來改寫它，以了解Spring與
+Hibernate整合之後的方便性。同樣的，先設計一個User類別，這個User類別將對應至demo資料庫中的一個user表格：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>User.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public class User {<br>    private Integer id;<br>    private String name;<br>    private Integer age;<br>    <br>    public Integer getId() {<br>        return id;<br>    }<br>    <br>    public void setId(Integer id) {<br>        this.id = id;<br>    }<br>    <br>    public String getName() {<br>        return name;<br>    }<br>    <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>    <br>    public Integer getAge() {<br>        return age;<br>    }<br>    <br>    public void setAge(Integer age) {<br>        this.age = age;<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+User類別必須有一個id屬性，用來作為物件於程式中唯一性的識別，這個id值可以由Hibernate為您產生。<br>
+
+
+      <br>
+
+
+在這邊使用的MySQL資料庫，表格建立時是使用以下的SQL：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">CREATE TABLE user (</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; id INT(11) NOT NULL auto_increment PRIMARY KEY,</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; name VARCHAR(100) NOT NULL default '',</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; age INT</span><br>
+
+
+      <span style="font-weight: bold;">) TYPE = InnoDB;</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+      <br>
+
+
+User類別與user表格之間要建立對映關係，實際上是靠一個映射文件來完成，映射文件可以使用XML來撰寫，通當命名為.hbm.xml，例如設計一個User.hbm.xml映射文件：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>User.hbm.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br>    PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br>    "http://hibernate.sourceforge.net/<br>            &rarr; hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping&gt; <br>    &lt;class name="onlyfun.caterpillar.User" <br>           table="user"&gt; <br><br>        &lt;id name="id" column="id"&gt; <br>            &lt;generator class="native"/&gt; <br>        &lt;/id&gt; <br><br>        &lt;property name="name" column="name"/&gt; <br><br>        &lt;property name="age" column="age"/&gt; <br><br>    &lt;/class&gt; <br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+      <br>
+
+
+在映射文件中，&lt;class&gt;標籤用來定義類別與表格的對映，"name"屬性用來設定類別名稱，"table"屬性用來設定表格名稱；
+&lt;id&gt;標籤中"name"屬性用來設定物件的唯一性識別id，通常對應至資料表中的主鍵欄位，也就是"column"屬性所設定的對應欄
+位；&lt;generator&gt;的"class"用來設定主鍵的產生方式，設定為"native"表示依資料庫自己的主鍵生成方式來生成主鍵值，
+例如我的user表格在建立時，主鍵設定為auto_increment，所以會每加入一筆資料後都自動遞增主鍵值。<br>
+
+
+      <br>
+
+
+接下來的&lt;property&gt;標籤則設定User物件的每一個屬性（由"name"屬性設定），分別對應至資料庫中user表格的哪一個欄位（由"column"屬性設定）。<br>
+
+
+      <br>
+
+
+接著同樣的，設計一個IUserDAO介面，讓應用程式在存取資料庫時，依賴於抽象的介面而非實際的類別實作，如下所示：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>IUserDAO.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>public interface IUserDAO {<br>    public void insert(User user);<br>    public User find(Integer id);<br>}</code></pre>
+
+
+      <br>
+
+
+然後由UserDAO類別來實作IUserDAO介面，這次實作時使用Hibernate的API，需要注入一個org.hibernate.SessionFactory物件：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>UserDAO.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.hibernate.Session;<br>import org.hibernate.SessionFactory;<br>import org.hibernate.Transaction;<br><br>public class UserDAO implements IUserDAO {<br>    private SessionFactory sessionFactory; <br>    <br>    public UserDAO() {<br>    }<br>    <br>    public UserDAO(SessionFactory sessionFactory) { <br>        this.setSessionFactory(sessionFactory);<br>    }<br>    <br>    public void setSessionFactory(<br>                        SessionFactory sessionFactory) { <br>        this.sessionFactory = sessionFactory; <br>    } <br>    <br>    public void insert(User user) {<br>        // 取得Session<br>        Session session = sessionFactory.openSession();<br>        // 開啟交易<br>        Transaction tx= session.beginTransaction();<br>        // 直接儲存物件<br>        session.save(user); <br>        // 送出交易<br>        tx.commit();<br>        session.close(); <br>    }<br><br>    public User find(Integer id) {<br>        Session session = sessionFactory.openSession(); <br>        <br>        User user = (User) session.get(User.class, id);<br>        <br>        session.close();<br>        <br>        return user;<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+在Hibernate中，SessionFactory是用來管理org.hibernate.Session，Session的作用類似於JDBC中
+Connection的作用，在Hibernate中每次進行資料存取之前都必須開啟Session，在進行資料變更或儲存時，則必須開啟交易，在儲存資
+料的時候，您可以使用Session的save()方法直接將物件儲存，在org.hibernate.Transaction執行commit()方法
+之後，Hibernate會根據映射文件，將物件中的各個屬性資料轉換並儲存至user表格中對應的欄位。<br>
+
+
+      <br>
+
+
+在不使用資料庫連線的時候，要記得使用close()方法關閉Session，關閉Session並不等於關閉Connection，在
+Hibernate中如果您有使用連接池（Connection
+pool），在Session的close()方法執行完畢後，會將Connection置回連接池之中，而不是直接關閉。<br>
+
+
+      <br>
+
+
+而在UserDAO的find()方法實作中，您可以直接使用Session的get()方法，指定資料的id值與要封裝資料的類別型態，接著查詢回來的物件中就包括了相對應的資料，將之轉換回User型態，您就可以操作User物件上各種方法來取得資料。<br>
+
+
+      <br>
+
+
+在使用Hibernate時，還必須定義一個設定檔，告知資料庫名稱、使用者名稱、密碼、映射文件位置等，可以使用XML檔案來定義，檔名為hibernate.cfg.xml，如下所示：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>hibernate.cfg.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-configuration PUBLIC<br>	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"<br>	"http://hibernate.sourceforge.net/<br>				&rarr; hibernate-configuration-3.0.dtd"&gt;<br>	<br>&lt;hibernate-configuration&gt; <br>    &lt;session-factory&gt; <br>        &lt;property name="show_sql"&gt;<br>            true<br>        &lt;/property&gt; <br><br>        &lt;property name="dialect"&gt;<br>            org.hibernate.dialect.MySQLDialect<br>        &lt;/property&gt; <br><br>        &lt;property name="connection.driver_class"&gt;<br>            com.mysql.jdbc.Driver<br>        &lt;/property&gt; <br><br>        &lt;property name="connection.url"&gt;<br>            jdbc:mysql://localhost/demo<br>        &lt;/property&gt; <br><br>        &lt;property name="connection.username"&gt;<br>            caterpillar<br>        &lt;/property&gt; <br><br>        &lt;property name="connection.password"&gt;<br>            123456<br>        &lt;/property&gt; <br><br>        &lt;!-- 以下設置物件與資料庫表格映射文件 --&gt; <br>        &lt;mapping resource="onlyfun/caterpillar/User.hbm.xml"/&gt; <br>    &lt;/session-factory&gt; <br>&lt;/hibernate-configuration&gt;</code></pre>
+
+
+      <br>
+
+
+在&lt;session-factory&gt;的設定中，"show_sql"被設定為true，表示在執行資料庫存取動作時顯示Hibernate
+所生成、使用的SQL語法；Hibernate可以使用許多不同的資料庫，不同的資料庫在SQL或操作上會有所差別，可以設定"dialect"來表示將
+使用哪一種資料庫適用的語句操作，由於這邊所使用的是MySQL資料庫，所以設定為
+org.hibernate.dialect.MySQLDialect；接著來的"connection.driver_class"、
+"connection.url"、"connection.username"、"connection.password"分別用以設定JDBC驅動
+程式類別、URL、使用者名稱與密碼。<br>
+
+
+      <br>
+
+
+在&lt;mapping&gt;中的"resource"設定的是物件與資料庫表格的映射文件位置，在上面的設定為
+onlyfun/caterpillar/User.hbm.xml，表示檔案在Classpath路徑下的onlyfun資料夾的
+caterpillar資料夾下，通常hbm.xml建議與對應的Java類別放置在一起。<br>
+
+
+      <br>
+
+
+接著就是建立org.hibernate.cfg.Configuration物件來讀取設定檔，它是hibernate.cfg.xml中相關設定的具
+體代表物件，Configuration物件建立之後就不會變動，如果您修改了設定檔案的內容，則必須另外再產生新的Configuration物件，新
+的變更才會被再次讀取。<br>
+
+
+      <br>
+
+
+直接來看一個簡單的程式，了解如何使用以上設計的程式進行資料的儲存與查詢：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>HibernateDemo.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.hibernate.SessionFactory;<br>import org.hibernate.cfg.Configuration;<br><br>public class HibernateDemo {<br>    public static void main(String[] args) {<br>        // Configuration 負責管理 Hibernate 配置訊息<br>        Configuration config = <br>            new Configuration().configure();<br>        // 根據 config 建立 SessionFactory<br>        // SessionFactory 將用於建立 Session<br>        SessionFactory sessionFactory = <br>            config.buildSessionFactory();<br>        <br>        // 建立DAO物件<br>        IUserDAO userDAO = new UserDAO(sessionFactory);<br>        <br>        User user = new User();<br>        user.setName("caterpillar");<br>        user.setAge(new Integer(30));<br>        <br>        userDAO.insert(user);<br>        <br>        user = userDAO.find(new Integer(1));<br>        <br>        System.out.println("name: " + user.getName());<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+在建立Configuration物件之後，就可以使用它當中所包括的資訊來建立SessionFactory物件，接著在建立UserDAO時將SessionFactory的實例指定給它，然後您就可以操作UserDAO物件來進行資料的儲存了。<br>
+
+
+      <br>
+
+
+有關於Hibernate更詳盡的介紹，可以參考 <a href="https://openhome.cc/Gossip/HibernateGossip/HibernateGossip.html">Hibernate</a>。<br>
+
+
+      <br>
+
+
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

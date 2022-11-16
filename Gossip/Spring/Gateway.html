@@ -1,0 +1,232 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在閘道方案上，Spring 5 自己推出了 Spring Cloud Gateway，支援 Java 8、Reactor API，可在 Spring Boot 2 使用，看到了 Reactor，可以理...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 Spring Cloud Gateway">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/Gateway.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在閘道方案上，Spring 5 自己推出了 Spring Cloud Gateway，支援 Java 8、Reactor API，可在 Spring Boot 2 使用，看到了 Reactor，可以理...">
+
+    <title>使用 Spring Cloud Gateway</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Gateway.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Spring Cloud Gateway</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在閘道方案上，Spring 5 自己推出了 Spring Cloud Gateway，支援 Java 8、Reactor API，可在 Spring Boot 2 使用，看到了 Reactor，可以理解到這個閘道方案目標之一，是能夠採用 Reactive 來實現高效率的閘道。</p>
+<p>想要建立一個 Spring Cloud Gateway 的話，在 Spring Tool Suite 上可以選擇「Gateway」這個 Starter，為了能註冊到服務發現伺服器，也為了能開放 gateway/routes 端點，以便觀察路由資訊，就順便加入 Eureka 與 Actuator 的 Starter，也就是 build.gradle 中可以包含：</p>
+<pre class="prettyprint"><code lang="java">implementation('org.springframework.boot:spring-boot-starter-actuator')  
+implementation('org.springframework.cloud:spring-cloud-starter-gateway')
+implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+</code></pre>
+<p>Spring Cloud Gateway 可以從服務發現伺服器上註冊的服務 ID，自動建立路由資訊，為此，可以如下設定 bootstrap.properties：</p>
+<pre class="prettyprint"><code lang="java">server.port=5555
+
+spring.cloud.gateway.discovery.locator.enabled=true
+spring.cloud.gateway.discovery.locator.lowerCaseServiceId=true
+
+eureka.instance.preferIpAddress=true
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+
+management.endpoints.web.exposure.include: gateway
+</code></pre>
+<p><code>spring.cloud.gateway.discovery.locator.enabled</code> 啟用了自動從服務 ID 建立路由，然而，路由的路徑對應，預設會使用大寫 ID，若想要使用小寫 ID，可將 <code>spring.cloud.gateway.discovery.locator.lowerCaseServiceId</code> 設為 <code>true</code>；在設定中也開放了 <code>gateway</code> 端點。</p>
+<p>必要時，可以自行實作 <code>RouteLocator</code> 來自定義路由方式。</p>
+<p>接下來啟動相關服務，並且啟動 Spring Cloud Gateway 專案，預設會跑在 Netty 上，請求 <code>http://localhost:5555/actuator/gateway/routes</code> 的話，就可以看到以下資訊：</p>
+<pre class="prettyprint"><code lang="java">[
+    {
+        "route_id": "CompositeDiscoveryClient_ACCTSVI",
+        "route_definition": {
+            "id": "CompositeDiscoveryClient_ACCTSVI",
+            "predicates": [
+                {
+                    "name": "Path",
+                    "args": {
+                        "pattern": "/acctsvi/**"
+                    }
+                }
+            ],
+            "filters": [
+                {
+                    "name": "RewritePath",
+                    "args": {
+                        "regexp": "/acctsvi/(?&lt;remaining&gt;.*)",
+                        "replacement": "/${remaining}"
+                    }
+                }
+            ],
+            "uri": "lb://ACCTSVI",
+            "order": 0
+        },
+        "order": 0
+    },
+    ...
+]
+</code></pre>
+<p>每個路由設定會有個 <code>route_id</code> 作為識別，在路由定義的 <code>predicates</code> 中，可以看到設定了 <code>Path</code>，這是 Spring Cloud Gateway 內建的斷言器工廠 Bean 名稱，<code>pattern</code>，這表示對於 <code>http://localhost:5555/acctsvi/xxxx</code> 的請求，會轉給 <code>uri</code> 設定的對象，<code>lb://ACCTSVI</code> 表示轉給服務 ID 為 <code>ACCTSVI</code> 的服務。</p>
+<p><code>filters</code> 中設定了 <code>RewritePath</code>，這是個過濾器工廠 Bean 名稱，依照 <code>regexp</code> 的規則，會捕捉請求中的 <code>/acctsvi/</code> 之後的部份，套用至服務的 URI 上，也就是 <code>http://localhost:5555/acctsvi/xxxx</code> 的請求，將會轉發至 <code>http://acctsvi-uri/xxxx</code>。</p>
+<p><code>predicates</code> 與 <code>filters</code> 是 Spring Cloud Gateway 的重要特性，<code>predicates</code> 斷言哪些路徑符合路由定義，<code>filters</code> 設定哪些過濾器要套用在上頭，除了透過設定檔之外，必要時，都可以透過程式碼來自訂。</p>
+<p>Spring Cloud Gateway 也內建了一些<a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.1.0.RC3/multi/multi_gateway-request-predicates-factories.html">斷言器工廠</a>與<a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.1.0.RC3/multi/multi__gatewayfilter_factories.html">過濾器工廠</a>，這些工廠類別，是可以透過屬性檔來定義的，必要時，也可以<a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.1.0.RC3/multi/multi__developer_guide.html">自訂工廠類別</a>。</p>
+<p>就以上的設定來說，請求 <code>http://localhost:5555/acctsvi/accountByName?username=caterpillar</code> 就可以得到以下回應：</p>
+<pre class="prettyprint"><code lang="java">{
+    "name": "caterpillar",
+    "email": "caterpillar@openhome.cc",
+    "password": "$2a$10$CEkPOmd.Uid2FpIOHA6Cme1G.mvhWfelv2hPu7cxZ/vq2drnXaVo.",
+    "_links": {
+        "self": {
+            "href": "http://Justin-2017:8084/accountByNameEmail?username=caterpillar"
+        }
+    }
+}
+</code></pre>
+<p>如果想要自訂路由，可以寫個 application.yml（若不想自動建立路由，可以將 <code>spring.cloud.gateway.discovery.locator.enabled</code> 與 <code>spring.cloud.gateway.discovery.locator.lowerCaseServiceId</code> 註解掉）：</p>
+<pre class="prettyprint"><code lang="java">spring:
+    application:
+            name: gateway
+    cloud:
+        gateway:
+            routes: 
+                - predicates:
+                    - Path=/acct/**
+                  filters:
+                      - StripPrefix=1
+                  uri: lb://acctsvi
+                - predicates:
+                    - Path=/msg/**
+                  filters:
+                      - StripPrefix=1
+                  uri: lb://msgsvi     
+                - predicates:
+                    - Path=/email/**
+                  filters:
+                      - StripPrefix=1
+                  uri: lb://email                                                                                                           
+</code></pre>
+<p><code>StripPrefix</code> 也是內建的過濾器工廠 Bean 名稱，設定值為 1 表示將路徑中的第一個階層去除，其餘保留用來轉發請求，請求 <code>http://localhost:5555/actuator/gateway/routes</code> 的話，就可以看到以下資訊：</p>
+<pre class="prettyprint"><code lang="java">[
+    {
+        "route_id": "545d278b-192b-4370-8156-161815957f91",
+        "route_definition": {
+            "id": "545d278b-192b-4370-8156-161815957f91",
+            "predicates": [
+                {
+                    "name": "Path",
+                    "args": {
+                        "_genkey_0": "/acct/**"
+                    }
+                }
+            ],
+            "filters": [
+                {
+                    "name": "StripPrefix",
+                    "args": {
+                        "_genkey_0": "1"
+                    }
+                }
+            ],
+            "uri": "lb://acctsvi",
+            "order": 0
+        },
+        "order": 0
+    },
+    ...
+]
+</code></pre>
+<p>也就是對 <code>http://localhost:5555/acct/accountByName?username=caterpillar</code> 的請求，會轉給 <code>http://acctsvi-url/accountByName?username=caterpillar</code>。</p>
+<p>如果想要設定 api 前置路徑，就是修改一下 <code>StripPrefix=1</code> 為 <code>StripPrefix=2</code>：</p>
+<pre class="prettyprint"><code lang="java">spring:
+    application:
+            name: gateway
+    cloud:
+        gateway:
+            default-filters:
+                - StripPrefix=2
+            routes: 
+                - predicates:
+                    - Path=/api/acct/**
+                  uri: lb://acctsvi
+                - predicates:
+                    - Path=/api/msg/**
+                  uri: lb://msgsvi     
+                - predicates:
+                    - Path=/api/email/**
+                  uri: lb://email               
+</code></pre>
+<p>對於每個路由都要套用的過濾器，可以使用 <code>default-filters</code> 來設置，就以上設定來說，可以請求 <code>http://localhost:5555/api/acct/accountByName?username=caterpillar</code> 來取得使用者資訊。</p>
+<p>一開始自動根據服務 ID 建立路由時，可以看到 <code>RewritePath</code>，它也是內建的過濾器工廠，可以運用<a href="../Regex/index.html">規則表示式</a>來進行路徑重寫，因此，也可以這麼設置 api 前置：</p>
+<pre class="prettyprint"><code lang="java">spring:
+    application:
+            name: gateway
+    cloud:
+        gateway:
+            default-filters:
+                - RewritePath=/api/.*?/(?&lt;remaining&gt;.*), /$\{remaining}
+            routes: 
+                - predicates:
+                    - Path=/api/acct/**
+                  uri: lb://acctsvi
+                - predicates:
+                    - Path=/api/msg/**
+                  uri: lb://msgsvi     
+                - predicates:
+                    - Path=/api/email/**
+                  uri: lb://email                                 
+</code></pre>
+<p>就目前的設定來說，在客戶端的部份，〈<a href="Zuul.html">使用 Zuul</a>〉中的 gossip 就可以了，畢竟溝通的介面沒有改變，因為 <code>spring.application.gateway</code> 設為 <code>gateway</code>，記得改一下 <code>@FeignClient</code> 中設定的服務 ID 為 <code>gateway</code>。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Cloud/Routing/CloudGateway/Gateway">Gateway</a> 中找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

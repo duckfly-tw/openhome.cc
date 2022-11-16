@@ -1,0 +1,702 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈認識矩陣〉中談到，如果你的計算過程涉及矩陣運算，想以最後運算出來的矩陣做轉換，可以使用 applyMatrix，那麼來寫個簡單的矩陣程式庫吧！
+那麼該怎麼以程式碼來表示矩陣呢？應該直覺地會想到，可...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="寫個 2D 矩陣庫">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/Matrix2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈認識矩陣〉中談到，如果你的計算過程涉及矩陣運算，想以最後運算出來的矩陣做轉換，可以使用 applyMatrix，那麼來寫個簡單的矩陣程式庫吧！
+那麼該怎麼以程式碼來表示矩陣呢？應該直覺地會想到，可...">
+
+    <title>寫個 2D 矩陣庫</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Matrix2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>寫個 2D 矩陣庫</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Matrix1.html">認識矩陣</a>〉中談到，如果你的計算過程涉及矩陣運算，想以最後運算出來的矩陣做轉換，可以使用 <code>applyMatrix</code>，那麼來寫個簡單的矩陣程式庫吧！</p>
+<p>那麼該怎麼以程式碼來表示矩陣呢？應該直覺地會想到，可以使用 JavaScript 陣列，那麼該怎麼表示呢？以位移矩陣為例：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Matrix2-1.JPG" alt="寫個 2D 矩陣庫"  /></div></div></p>
+<p>你會怎麼用陣列表示呢？如下嗎？</p>
+<pre class="prettyprint"><code lang="javascript">[
+    1, 0, tx, 
+    0, 1, ty, 
+    0, 0, 1
+]
+</code></pre>
+<p>視覺上看來，這似乎比較符合矩陣表示法，若你是這麼想，表示你支持列為主（row-major）的派別，在線性陣列中實現時是逐列編寫，也就是這派是這麼看待陣列中的矩陣元素的：</p>
+<pre class="prettyprint"><code lang="javascript">[
+    row1
+    row2 
+    row3 
+]
+</code></pre>
+<p>不過，其實有行為主（column-major）的實現方式：</p>
+<pre class="prettyprint"><code lang="javascript">[
+     1,   0,  0, 
+     0,   1,  0, 
+     tx, ty,  1
+]
+</code></pre>
+<p>也就是在線性陣列中實現時是逐列編寫，也就是這派是這麼看待陣列中的矩陣元素的：</p>
+<pre class="prettyprint"><code lang="javascript">[column1 column2 column3]
+</code></pre>
+<p>那麼 p5.js 中該怎麼做呢？根據 <a href="https://p5js.org/reference/#/p5/applyMatrix"><code>applyMatrix</code></a> 的 API 文件，若有個矩陣：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Matrix1-7.JPG" alt="寫個 2D 矩陣庫"  /></div></div></p>
+<p>要指定給 <code>applyMatrix</code> 的話，參數順序是 <code>applyMatrix(a, b, c, d, e, f)</code>，如果你排版一下：</p>
+<pre class="prettyprint"><code lang="javascript">applyMatrix(
+    a, b,
+    c, d,
+    e, f
+);
+</code></pre>
+<p>看來像是以行為主，只不過 0、0 與 1 的部份不用指定；實際上，<code>applyMatrix</code> 可以指定 3D 轉換矩陣，p5.js 也有 3D 版本的轉換函式，以 <a href="https://p5js.org/reference/#/p5/rotateY"><code>rotateY</code></a> API 文件中的這個範例為例：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">function setup() {
+    createCanvas(100, 100, WEBGL);
+}
+
+function draw() {
+    background(255);
+    rotateY(millis() / 1000);
+    box();
+}
+</script>
+<p>若要套用轉換矩陣列話，可以如下：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">function setup() {
+    createCanvas(100, 100, WEBGL);
+}
+
+function draw() {
+    background(255);
+
+    let rad = millis() / 1000;
+    let ct = cos(rad);
+    let st = sin(rad);
+
+    applyMatrix(
+        ct, 0.0, -st, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        st, 0.0, ct, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+
+    box();
+}
+</script>
+<p>目前還沒有正式介紹 3D 的處理，焦點可以先放在 <code>applyMatrix</code> 接受的參數，其實就是以下轉換矩陣以行為主的表示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Matrix2-2.JPG" alt="寫個 2D 矩陣庫"  /></div></div></p>
+<p>那麼就使用行為主的方式來表達矩陣，來定義出位移、縮放、旋轉與反射等操作：</p>
+<pre class="prettyprint"><code lang="javascript">const mat3 = {
+    // 移動矩陣
+    translation(tx, ty) {
+        return [
+             1,  0, 0,
+             0,  1, 0,
+            tx, ty, 1
+        ];
+    },
+
+    // 縮放矩陣 
+    scaling(sx, sy) {
+        return [
+            sx,  0,  0, 
+             0, sy,  0,  
+             0,  0,  1 
+        ];
+    },
+
+    // 旋轉矩陣
+    rotation(degree) {
+        const c = cos(degree);
+        const s = sin(degree);
+        return [
+             c, s, 0, 
+            -s, c, 0,
+             0, 0, 1, 
+        ];
+    },
+
+    // 反射矩陣（以 (x, y) 向量為鏡）
+    reflection(x, y) {
+        const uu = pow(createVector(x, y).mag(), 2);
+
+        const xx = x * x;
+        const yy = y * y;
+        const xy2 = x * y * 2;
+
+        return [
+            (xx - yy) / uu, xy2 / uu, 0,
+            xy2 / uu, (yy - xx) / uu, 0,
+            0, 0, 1,
+        ];
+    }, 
+
+    // 移動
+    translate(m, tx, ty) {
+        return this.multiply(m, this.translation(tx, ty));
+    },
+
+    // 縮放
+    scale(m, sx, sy) {
+        return this.multiply(m, this.scaling(sx, sy));
+    },        
+
+    // 旋轉
+    rotate(m, degree) {
+        return this.multiply(m, this.rotation(degree));
+    },            
+
+    // 反射（以 (x, y) 向量為鏡）
+    reflect(m, x, y) {
+        return this.multiply(m, this.reflection(x, y));
+    },  
+
+    // 轉為 applyMatrix 可用參數
+    forApplyMatrix(m) {
+        return m.filter((elem, idx) => (idx + 1) % 3 !== 0);
+    },        
+
+    // 矩陣相乘
+    multiply(a, b) {
+        const a00 = a[0], a01 = a[1], a02 = a[2];
+        const a10 = a[3], a11 = a[4], a12 = a[5];
+        const a20 = a[6], a21 = a[7], a22 = a[8];
+
+        const b00 = b[0], b01 = b[1], b02 = b[2];
+        const b10 = b[3], b11 = b[4], b12 = b[5];
+        const b20 = b[6], b21 = b[7], b22 = b[8];
+
+         return [
+             b00 * a00 + b01 * a10 + b02 * a20,
+             b00 * a01 + b01 * a11 + b02 * a21,
+             b00 * a02 + b01 * a12 + b02 * a22,
+
+             b10 * a00 + b11 * a10 + b12 * a20,
+             b10 * a01 + b11 * a11 + b12 * a21,
+             b10 * a02 + b11 * a12 + b12 * a22,
+
+             b20 * a00 + b21 * a10 + b22 * a20,
+             b20 * a01 + b21 * a11 + b22 * a21,
+             b20 * a02 + b21 * a12 + b22 * a22
+        ];
+    }           
+};
+</code></pre>
+<p>為了便於 3 x 3 矩陣轉為 <code>applyMatrix</code> 可用的引數，也寫了個 <code>forApplyMatrix</code>，先來看看怎麼使用，對於以下的範例：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">const d1 = 150;
+const d2 = 50;
+
+function setup() {
+    createCanvas(300, 300);
+    angleMode(DEGREES);
+    frameRate(15);
+}
+
+let angle = 0;
+function draw() {
+    angle = (angle + 10) % 360;
+    let cos_a = cos(angle);
+    let sin_a = sin(angle);
+
+    background(255, 0, 0);
+    translate(width / 2, height / 2);
+    rotate(angle);           // 使用 rotate
+    circle(d1 / 2, 0, d2);
+}
+</script>
+<p>可以改寫為以下：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">const d1 = 150;
+const d2 = 50;
+
+function setup() {
+    createCanvas(300, 300);
+    angleMode(DEGREES);
+    frameRate(15);
+}
+
+let angle = 0;
+function draw() {
+    angle = (angle + 10) % 360;
+
+    let m = mat3.translation(width / 2, height / 2);       
+    m = mat3.rotate(m, angle); 
+
+    background(255, 0, 0);
+
+    applyMatrix(...mat3.forApplyMatrix(m)); // 套用矩陣
+    circle(d1 / 2, 0, d2);
+}
+
+const mat3 = {
+    // 移動矩陣
+    translation(tx, ty) {
+        return [
+             1,  0, 0,
+             0,  1, 0,
+            tx, ty, 1
+        ];
+    },
+
+    // 縮放矩陣 
+    scaling(sx, sy) {
+        return [
+            sx,  0,  0, 
+             0, sy,  0,  
+             0,  0,  1 
+        ];
+    },
+
+    // 旋轉矩陣
+    rotation(degree) {
+        const c = cos(degree);
+        const s = sin(degree);
+        return [
+             c, s, 0, 
+            -s, c, 0,
+             0, 0, 1, 
+        ];
+    },
+
+    // 反射矩陣（以 (x, y) 向量為鏡）
+    reflection(x, y) {
+        const uu = pow(createVector(x, y).mag(), 2);
+
+        const xx = x * x;
+        const yy = y * y;
+        const xy2 = x * y * 2;
+
+        return [
+            (xx - yy) / uu, xy2 / uu, 0,
+            xy2 / uu, (yy - xx) / uu, 0,
+            0, 0, 1,
+        ];
+    }, 
+
+    // 移動
+    translate(m, tx, ty) {
+        return this.multiply(m, this.translation(tx, ty));
+    },
+
+    // 縮放
+    scale(m, sx, sy) {
+        return this.multiply(m, this.scaling(sx, sy));
+    },        
+
+    // 旋轉
+    rotate(m, degree) {
+        return this.multiply(m, this.rotation(degree));
+    },            
+
+    // 反射（以 (x, y) 向量為鏡）
+    reflect(m, x, y) {
+        return this.multiply(m, this.reflection(x, y));
+    },  
+
+    // 轉為 applyMatrix 可用參數
+    forApplyMatrix(m) {
+        return m.filter((elem, idx) => (idx + 1) % 3 !== 0);
+    },        
+
+    // 矩陣相乘
+    multiply(a, b) {
+        const a00 = a[0], a01 = a[1], a02 = a[2];
+        const a10 = a[3], a11 = a[4], a12 = a[5];
+        const a20 = a[6], a21 = a[7], a22 = a[8];
+
+        const b00 = b[0], b01 = b[1], b02 = b[2];
+        const b10 = b[3], b11 = b[4], b12 = b[5];
+        const b20 = b[6], b21 = b[7], b22 = b[8];
+
+         return [
+             b00 * a00 + b01 * a10 + b02 * a20,
+             b00 * a01 + b01 * a11 + b02 * a21,
+             b00 * a02 + b01 * a12 + b02 * a22,
+
+             b10 * a00 + b11 * a10 + b12 * a20,
+             b10 * a01 + b11 * a11 + b12 * a21,
+             b10 * a02 + b11 * a12 + b12 * a22,
+
+             b20 * a00 + b21 * a10 + b22 * a20,
+             b20 * a01 + b21 * a11 + b22 * a21,
+             b20 * a02 + b21 * a12 + b22 * a22
+        ];
+    }           
+};
+</script>
+<p>這邊注意一下矩陣計算的順序，如〈<a href="Matrix1.html">認識矩陣</a>〉中談到的，使用 <code>translate</code>、<code>rotate</code>、<code>applyMatrix</code> 等操作時，基本的出發點就是，先畫出圖，再逐一疊加轉換操作，這邊在矩陣運算時，也採取與使用 p5.js 時的 <code>translate</code>、<code>rotate</code> 的順序，結果再餵給 <code>applyMatrix</code>。</p>
+<p>來看看這個例子，使用 <code>translate</code>、<code>rotate</code> 來完成不斷繪出變色的圓：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">function setup() {
+    createCanvas(200, 200);
+    frameRate(24);
+    background(220);
+    strokeWeight(5);    // 筆刷大小
+    angleMode(DEGREES); // 角度模式
+}
+
+function draw() {
+    const r1 = 10; // 小圓半徑
+    const r2 = 50; // 大圓半徑
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+    translate(centerX, centerY); // 原點位移
+
+    for(let theta = 0; theta < 360; theta += 30) {
+        push();   // 在堆疊儲存當前繪圖設定
+
+        rotate(theta);
+        translate(r2, 0);
+        stroke(random(255), random(255), random(255));
+        dotCircle(r1);
+
+        pop();   // 從堆疊回復繪圖設定
+    }
+}
+
+function dotCircle(r) {
+    for(let theta = 0; theta < 360; theta += 30) {
+        push();
+
+        rotate(theta);
+        point(r, 0);
+
+        pop();
+    }
+}
+</script>
+<p>可以觀察到，在角度的變化方面是相同的，若建立可重複使用的引數給 <code>applyMatrix</code>，是否能改變效能呢？</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">const rots = [];
+
+function setup() {
+    createCanvas(200, 200);
+    frameRate(24);
+    background(220);
+    strokeWeight(5);    // 筆刷大小
+    angleMode(DEGREES); // 角度模式
+
+    // 建立可重複使用的引數
+    for(let theta = 0; theta < 360; theta += 30) {
+        const m = mat3.rotation(theta);
+        rots.push(mat3.forApplyMatrix(m));
+    }
+}
+
+function draw() {
+    const r1 = 10; // 小圓半徑
+    const r2 = 50; // 大圓半徑
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+    translate(centerX, centerY); // 原點位移
+
+    rots.forEach(rot => {
+        push();   // 在堆疊儲存當前繪圖設定
+
+        applyMatrix(...rot);
+        translate(r2, 0);
+        stroke(random(255), random(255), random(255));
+        dotCircle(r1);
+
+        pop();   // 從堆疊回復繪圖設定
+    });
+}
+
+function dotCircle(r) {
+    rots.forEach(rot => {
+        push();
+
+        applyMatrix(...rot);
+        point(r, 0);
+
+        pop();
+    });  
+}
+
+const mat3 = {
+    // 移動矩陣
+    translation(tx, ty) {
+        return [
+             1,  0, 0,
+             0,  1, 0,
+            tx, ty, 1
+        ];
+    },
+
+    // 縮放矩陣 
+    scaling(sx, sy) {
+        return [
+            sx,  0,  0, 
+             0, sy,  0,  
+             0,  0,  1 
+        ];
+    },
+
+    // 旋轉矩陣
+    rotation(degree) {
+        const c = cos(degree);
+        const s = sin(degree);
+        return [
+             c, s, 0, 
+            -s, c, 0,
+             0, 0, 1, 
+        ];
+    },
+
+    // 反射矩陣（以 (x, y) 向量為鏡）
+    reflection(x, y) {
+        const uu = pow(createVector(x, y).mag(), 2);
+
+        const xx = x * x;
+        const yy = y * y;
+        const xy2 = x * y * 2;
+
+        return [
+            (xx - yy) / uu, xy2 / uu, 0,
+            xy2 / uu, (yy - xx) / uu, 0,
+            0, 0, 1,
+        ];
+    }, 
+
+    // 移動
+    translate(m, tx, ty) {
+        return this.multiply(m, this.translation(tx, ty));
+    },
+
+    // 縮放
+    scale(m, sx, sy) {
+        return this.multiply(m, this.scaling(sx, sy));
+    },        
+
+    // 旋轉
+    rotate(m, degree) {
+        return this.multiply(m, this.rotation(degree));
+    },            
+
+    // 反射（以 (x, y) 向量為鏡）
+    reflect(m, x, y) {
+        return this.multiply(m, this.reflection(x, y));
+    },  
+
+    // 轉為 applyMatrix 可用參數
+    forApplyMatrix(m) {
+        return m.filter((elem, idx) => (idx + 1) % 3 !== 0);
+    },        
+
+    // 矩陣相乘
+    multiply(a, b) {
+        const a00 = a[0], a01 = a[1], a02 = a[2];
+        const a10 = a[3], a11 = a[4], a12 = a[5];
+        const a20 = a[6], a21 = a[7], a22 = a[8];
+
+        const b00 = b[0], b01 = b[1], b02 = b[2];
+        const b10 = b[3], b11 = b[4], b12 = b[5];
+        const b20 = b[6], b21 = b[7], b22 = b[8];
+
+         return [
+             b00 * a00 + b01 * a10 + b02 * a20,
+             b00 * a01 + b01 * a11 + b02 * a21,
+             b00 * a02 + b01 * a12 + b02 * a22,
+
+             b10 * a00 + b11 * a10 + b12 * a20,
+             b10 * a01 + b11 * a11 + b12 * a21,
+             b10 * a02 + b11 * a12 + b12 * a22,
+
+             b20 * a00 + b21 * a10 + b22 * a20,
+             b20 * a01 + b21 * a11 + b22 * a21,
+             b20 * a02 + b21 * a12 + b22 * a22
+        ];
+    }           
+};
+</script>
+<p>當然，就這個範例來說，可能看不出什麼效能上的差異，這是個概念示範，若有些複雜的座標運算是重複的話，有時可以試著從矩陣運算來思考，看看那些複雜的運算是否可以重用。</p>
+<p>另外，在〈<a href="Coordinate.html">座標處理</a>〉中談過，轉換操作會累計，背後都是矩陣運算，其實每個轉換操作呼叫時，都相當於對內部管理的矩陣進行乘法運算，可以用以下程式來模擬一下：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="300" data-preview-width="300">function setup() {
+    createCanvas(200, 200);
+    background(220);
+    strokeWeight(10);   // 筆刷大小
+    angleMode(DEGREES); // 角度模式
+    noLoop();
+}
+
+function draw() {
+    const r = 50;       // 半徑
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    let m = mat3.translation(centerX, centerY); 
+
+    for(let n = 0; n < 3; n++) {
+        m = mat3.translate(m, 15, 0); // 乘法運算
+        stroke(random(255), random(255), random(255));   
+        applyMatrix(...mat3.forApplyMatrix(m));
+        for(let theta = 0; theta < 360; theta += 10) {
+            const {x, y} = polarToCartesian(r, theta);
+            point(x, y);
+        }
+        // 因為 applyMatrix 也是會累計的，因此這邊要重置內部矩陣作為模擬
+        resetMatrix();  
+    }
+}
+
+function polarToCartesian(r, theta) {
+    return {
+        x: r * cos(theta),
+        y: r * sin(theta)
+    };
+}
+
+const mat3 = {
+    // 移動矩陣
+    translation(tx, ty) {
+        return [
+             1,  0, 0,
+             0,  1, 0,
+            tx, ty, 1
+        ];
+    },
+
+    // 縮放矩陣 
+    scaling(sx, sy) {
+        return [
+            sx,  0,  0, 
+             0, sy,  0,  
+             0,  0,  1 
+        ];
+    },
+
+    // 旋轉矩陣
+    rotation(degree) {
+        const c = cos(degree);
+        const s = sin(degree);
+        return [
+             c, s, 0, 
+            -s, c, 0,
+             0, 0, 1, 
+        ];
+    },
+
+    // 反射矩陣（以 (x, y) 向量為鏡）
+    reflection(x, y) {
+        const uu = pow(createVector(x, y).mag(), 2);
+
+        const xx = x * x;
+        const yy = y * y;
+        const xy2 = x * y * 2;
+
+        return [
+            (xx - yy) / uu, xy2 / uu, 0,
+            xy2 / uu, (yy - xx) / uu, 0,
+            0, 0, 1,
+        ];
+    }, 
+
+    // 移動
+    translate(m, tx, ty) {
+        return this.multiply(m, this.translation(tx, ty));
+    },
+
+    // 縮放
+    scale(m, sx, sy) {
+        return this.multiply(m, this.scaling(sx, sy));
+    },        
+
+    // 旋轉
+    rotate(m, degree) {
+        return this.multiply(m, this.rotation(degree));
+    },            
+
+    // 反射（以 (x, y) 向量為鏡）
+    reflect(m, x, y) {
+        return this.multiply(m, this.reflection(x, y));
+    },  
+
+    // 轉為 applyMatrix 可用參數
+    forApplyMatrix(m) {
+        return m.filter((elem, idx) => (idx + 1) % 3 !== 0);
+    },        
+
+    // 矩陣相乘
+    multiply(a, b) {
+        const a00 = a[0], a01 = a[1], a02 = a[2];
+        const a10 = a[3], a11 = a[4], a12 = a[5];
+        const a20 = a[6], a21 = a[7], a22 = a[8];
+
+        const b00 = b[0], b01 = b[1], b02 = b[2];
+        const b10 = b[3], b11 = b[4], b12 = b[5];
+        const b20 = b[6], b21 = b[7], b22 = b[8];
+
+         return [
+             b00 * a00 + b01 * a10 + b02 * a20,
+             b00 * a01 + b01 * a11 + b02 * a21,
+             b00 * a02 + b01 * a12 + b02 * a22,
+
+             b10 * a00 + b11 * a10 + b12 * a20,
+             b10 * a01 + b11 * a11 + b12 * a21,
+             b10 * a02 + b11 * a12 + b12 * a22,
+
+             b20 * a00 + b21 * a10 + b22 * a20,
+             b20 * a01 + b21 * a11 + b22 * a21,
+             b20 * a02 + b21 * a12 + b22 * a22
+        ];
+    }           
+};
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

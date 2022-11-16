@@ -1,0 +1,349 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="對於靜態定型語言（Statically-typing language），因為變數有型態資訊，因而編譯器等工具，可以在程式運行之前檢查出許多型態不正確的資訊。
+Python 是動態定型語言（Dynam...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 3 Tutorial 第十一堂（1）使用 assert 與 doctest">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/AssertDocTestPy3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="對於靜態定型語言（Statically-typing language），因為變數有型態資訊，因而編譯器等工具，可以在程式運行之前檢查出許多型態不正確的資訊。
+Python 是動態定型語言（Dynam...">
+
+    <title>Python 3 Tutorial 第十一堂（1）使用 assert 與 doctest</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="AssertDocTestPy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/PythonTutorial/">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 3 Tutorial 第十一堂（1）使用 assert 與 doctest</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>對於靜態定型語言（Statically-typing language），因為變數有型態資訊，因而編譯器等工具，可以在程式運行之前檢查出許多型態不正確的資訊。</p>
+<p>Python 是動態定型語言（Dynamically-typing language），也就是說，在 Python 中變數沒有型態，只是用來作為參考實際物件的一根柄（Handle），如果有型態錯誤上的操作，基本上會是在執行時期運行至該段程式碼時，才會產生錯誤訊息，因此對於 Python 來說，檢查出型態不正確的任務，必須開發者本身來承擔，為程式設計測試程式，會是個不錯的方式之一。</p>
+<blockquote><p>對於靜態定型語言，雖然有編譯器等工具，協助開發者於程式運行之前檢查型態錯誤問題，然而，設計優良測試程式檢測執行時期功能是否符合預期亦非常重要；對於動態語言，現在也有一些型態註解方案，可提供分析工具於程式運行前檢查型態資訊，像是 Python 3.5 中也加入的 <a href="https://docs.python.org/3/library/typing.html">Type hinting</a>。</p>
+</blockquote>
+<p>在 Python 的世界中，當然不乏撰寫測試的相關工具，像是 …</p>
+<ul>
+<li><code>assert</code> 陳述在程式中安插除錯用的斷言（Assertion）檢查時很方便的一個方式。</li>
+<li><code>doctest</code> 模組在程式碼中找尋類似 Python 互動環境的文字片段，執行並驗證程式是否如預期方式執行。</li>
+<li><code>unittest</code> 模組有時稱為 &ldquo;PyUnit&rdquo;，是 JUnit 的 Python 語言實現。</li>
+<li>第三方測試工具（已支援 Python 3）<ul>
+<li><a href="https://pypi.python.org/pypi/nose">nose</a></li>
+<li><a href="https://pypi.python.org/pypi/pytest">pytest</a></li>
+</ul>
+</li>
+</ul>
+<p>這一篇會先介紹一下 <code>assert</code> 與 <code>doctest</code>，不過在繼續之前，先來談一下每個模組中都會有的 <code>__name__</code> 全域變數，當你執行直接某個 Python 模組時，例如：</p>
+<pre class="prettyprint"><code lang="python">python3.5 fibo.py
+</code></pre>
+<p>模組中的程式碼會像你執行 <code>import</code> 時般運行，不過 <code>__name__</code> 這個變數會被設定為 <code>'__main__'</code> 這個字串名稱，因此，如果想要為這個模組撰寫一個簡單的自我測試，可以如以下方式撰寫：</p>
+<pre class="prettyprint"><code lang="python">if __name__ == "__main__":
+    測試的程式碼
+</code></pre>
+<p>當你直接執行某個模組時，<code>if</code> 條件才會成立，測試的程式碼才會執行，而 <code>import</code> 該模組時，因為 <code>__name__</code> 會是模組名稱，因此就不會在 <code>import</code> 執行測試的程式碼。</p>
+<h1><code>assert</code></h1>
+<p>要在程式中安插斷言，使用 <code>assert</code> 很方便，其語法如下：</p>
+<pre class="prettyprint"><code lang="python">assert_stmt ::=  "assert" expression ["," expression]
+</code></pre>
+<p>使用 <code>assert expression</code> 的話，相當於以下的程式片段：</p>
+<pre class="prettyprint"><code lang="python">if __debug__:
+    if not expression: raise AssertionError
+</code></pre>
+<p>如果有兩個 <code>expression</code>，例如 <code>assert expression1, expression2</code>，相當於以下的程式片段：</p>
+<pre class="prettyprint"><code lang="python">if __debug__:
+    if not expression1: raise AssertionError(expression2)
+</code></pre>
+<p>也就是說，第二個 <code>expression</code> 的結果，會被當作 <code>AssertionError</code> 的錯誤資訊結果。 <code>__debug__</code> 是個內建變數，一般情況下會是 <code>True</code>，如果執行時需要最佳化時（在執行時加上 <strong><code>-O</code></strong> 引數）則會是 <code>False</code>。例如以下是互動環境中的一些例子：</p>
+<pre class="prettyprint"><code lang="python">$ python3.5
+Python 3.5.0+ (default, Oct 11 2015, 09:05:38) 
+[GCC 5.2.1 20151010] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; assert 1 == 1
+&gt;&gt;&gt; assert 1 != 1
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+AssertionError
+&gt;&gt;&gt; __debug__
+True
+&gt;&gt;&gt; exit()
+$ python3.5 -O
+Python 3.5.0+ (default, Oct 11 2015, 09:05:38) 
+[GCC 5.2.1 20151010] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; assert 1 != 1
+&gt;&gt;&gt; __debug__
+False
+&gt;&gt;&gt; 
+</code></pre>
+<p>那麼何時該使用斷言呢？&hellip;一般有幾個建議：</p>
+<ul>
+<li>前置條件（通常在私有函式之中）斷言客戶端呼叫函式前，已經準備好某些條件。</li>
+<li>後置條件驗證客戶端呼叫函式後，具有函式承諾有結果。</li>
+<li>類別不變量（Class invariant）驗證物件某個時間點下的狀態。</li>
+<li>內部不變量（Internal invariant）使用斷言取代註解。</li>
+<li>流程不變量（Control-flow invariant）斷言程式流程中絕不會執行到的程式碼部份。</li>
+</ul>
+<p>前置條件斷言的例子如下：</p>
+<pre class="prettyprint"><code lang="python">def __set_refresh_Interval(interval):
+    if interval &gt; 0 and interval &lt;= 1000 / MAX_REFRESH_RATE:
+        raise ValueError('Illegal interval: ' + interval)
+    # 函式中的程式流程
+</code></pre>
+<p>程式中的 <code>if</code> 檢查進行了防禦式程式設計（Defensive programming ），如果想要用 <code>assert</code> 取代，可以如下：</p>
+<pre class="prettyprint"><code lang="python">def __set_refresh_Interval(rate):
+    (assert interval &gt; 0 and interval &lt;= 1000 / MAX_REFRESH_RATE, 
+            'Illegal interval: ' + interval)
+    # 函式中的程式流程
+</code></pre>
+<blockquote><p>防禦式程式設計有些不好的名聲，不過並不是做了防禦式程式設計就不好，可以參考〈<a href="../../Programmer/DefensiveProgramming.html">避免隱藏錯誤的防禦性設計</a>〉。</p>
+</blockquote>
+<p>一個內部不變量的例子則是如下：</p>
+<pre class="prettyprint"><code lang="python">if balance &gt;= 10000:
+    ...
+elif 10000 &gt; balance &gt;= 100:
+    ...
+else: # balance 一定是少於 100 的情況
+    ...
+</code></pre>
+<p>如果要在 <code>else</code> 的 <code>balance</code> 不是少於 100 的情況下拋出 <code>AssertError</code>，以實現速錯（Fail fast）概念，而不是只使用註解來提醒開發者，則可以改為以下：</p>
+<pre class="prettyprint"><code lang="python">if balance &gt;= 10000:
+    ...
+else if 10000 &gt; balance &gt;= 100:
+    ...
+else:
+    assert balance &lt; 100, balance
+    ...
+</code></pre>
+<p>另一個情況是：</p>
+<pre class="prettyprint"><code lang="python">if suit == Suit.CLUBS:
+    ...
+elif suit == Suit.DIAMONDS:
+    ...
+elif suit == Suit.HEARTS:
+    ...
+elif suit == Suit.SPADES:
+    ...
+</code></pre>
+<p>如果列舉檢查只會有以上四個條件，也可以運用斷言來實現速錯：</p>
+<pre class="prettyprint"><code lang="python">if suit == Suit.CLUBS:
+    ...
+elif suit == Suit.DIAMONDS:
+    ...
+elif suit == Suit.HEARTS:
+    ...
+elif suit == Suit.SPADES:
+    ...
+else:
+    assert False, suit
+</code></pre>
+<p>程式碼中有些一定不會執行到的流程區段，可以使用斷言來確保這些區段被執行時拋出錯誤。例如：</p>
+<pre class="prettyprint"><code lang="python">def foo(list):
+    for ele in list:
+        if ...:
+            return
+    # 這邊應該永遠不會被執行到
+</code></pre>
+<p>可以改為：</p>
+<pre class="prettyprint"><code lang="python">def foo(list):
+    for ele in list:
+        if ...:
+            return
+    assert False
+</code></pre>
+<h1>doctest</h1>
+<p><code>doctest</code> 一方面是測試程式碼，一方面也是用來確認 docStrings 的內容沒有過期，基本上它驗證互動式的範例來執行<a href="https://zh.wikipedia.org/wiki/%E5%9B%9E%E5%BD%92%E6%B5%8B%E8%AF%95">回歸測試（Regression testing）</a>，開發者只要為套件撰寫輸入輸出式的教學範例就可以了，這有點文學測試（Literate testing） 或可執行文件（executable documentation）的味道。</p>
+<p>舉例來說，你也許為 util.py 中的 <code>sorted</code> 撰寫了以下的 docstrings：</p>
+<pre class="prettyprint"><code lang="python">import functools
+
+def ascending(a, b): return a - b
+def descending(a, b): return -ascending(a, b)
+
+def __select(xs, compare):
+    selected = functools.reduce(
+        lambda slt, elem: elem if compare(elem, slt) &lt; 0 else slt, xs)
+    remain = [elem for elem in xs if elem != selected]
+    return (xs if not remain
+               else [elem for elem in xs if elem == selected]
+                   + __select(remain, compare))
+
+def sorted(xs, compare = ascending):
+    '''
+    sorted(xs) -&gt; new sorted list from xs' item in ascending order.
+    sorted(xs, func) -&gt; new sorted list. func should return a negative integer, 
+                        zero, or a positive integer as the first argument is 
+                        less than, equal to, or greater than the second.
+
+    &gt;&gt;&gt; sorted([2, 1, 3, 6, 5])
+    [1, 2, 3, 5, 6]
+    &gt;&gt;&gt; sorted([2, 1, 3, 6, 5], ascending)
+    [1, 2, 3, 5, 6]
+    &gt;&gt;&gt; sorted([2, 1, 3, 6, 5], descending)
+    [6, 5, 3, 2, 1]
+    &gt;&gt;&gt; sorted([2, 1, 3, 6, 5], lambda a, b: a - b)
+    [1, 2, 3, 5, 6]
+    &gt;&gt;&gt; sorted([2, 1, 3, 6, 5], lambda a, b: b - a)
+    [6, 5, 3, 2, 1]
+    '''
+
+    return [] if not xs else __select(xs, compare)
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+</code></pre>
+<p>在同一個模組中，撰寫了以下的程式片段：</p>
+<pre class="prettyprint"><code lang="python">if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+</code></pre>
+<p>那麼直接執行模組時，就會執行測試，加上 <code>-v</code> 會顯示細節：</p>
+<pre class="prettyprint"><code lang="python">$ python3.5 util.py
+$ python3.5 util.py -v
+Trying:
+    sorted([2, 1, 3, 6, 5])
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], ascending)
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], descending)
+Expecting:
+    [6, 5, 3, 2, 1]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], lambda a, b: a - b)
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], lambda a, b: b - a)
+Expecting:
+    [6, 5, 3, 2, 1]
+ok
+4 items had no tests:
+    __main__
+    __main__.__select
+    __main__.ascending
+    __main__.descending
+1 items passed all tests:
+   5 tests in __main__.sorted
+5 tests in 5 items.
+5 passed and 0 failed.
+Test passed.
+</code></pre>
+<p>你也可以將這類文件寫在文字檔案中，例如一個 util_test.txt：</p>
+<pre class="prettyprint"><code lang="python">The ``util`` module
+======================
+
+Using ``sorted``
+-------------------
+
+&gt;&gt;&gt; from util import *
+&gt;&gt;&gt; sorted([2, 1, 3, 6, 5])
+[1, 2, 3, 5, 6]
+&gt;&gt;&gt; sorted([2, 1, 3, 6, 5], ascending)
+[1, 2, 3, 5, 6]
+&gt;&gt;&gt; sorted([2, 1, 3, 6, 5], descending)
+[6, 5, 3, 2, 1]
+&gt;&gt;&gt; sorted([2, 1, 3, 6, 5], lambda a, b: a - b)
+[1, 2, 3, 5, 6]
+&gt;&gt;&gt; sorted([2, 1, 3, 6, 5], lambda a, b: b - a)
+[6, 5, 3, 2, 1]
+</code></pre>
+<p>而 util.py 中改寫為以下，就可以從文字檔案中讀取內容並執行測試：</p>
+<pre class="prettyprint"><code lang="python">if __name__ == '__main__':
+    import doctest
+    doctest.testfile("util_test.txt")
+</code></pre>
+<p>你也可以直接執行 <code>doctest</code> 模組來載入測試用的文字檔案以執行測試，例如：</p>
+<pre class="prettyprint"><code lang="python">$ python3.5 -m doctest -v util_test.txt
+Trying:
+    from util import *
+Expecting nothing
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5])
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], ascending)
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], descending)
+Expecting:
+    [6, 5, 3, 2, 1]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], lambda a, b: a - b)
+Expecting:
+    [1, 2, 3, 5, 6]
+ok
+Trying:
+    sorted([2, 1, 3, 6, 5], lambda a, b: b - a)
+Expecting:
+    [6, 5, 3, 2, 1]
+ok
+1 items passed all tests:
+   6 tests in util_test.txt
+6 tests in 1 items.
+6 passed and 0 failed.
+Test passed.
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

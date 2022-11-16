@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Shader Program</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 position;
+            
+            void main(void) {
+                gl_Position = vec4(position.x, position.y * aspect, position.z, 1.0);
+                gl_PointSize = 5.0;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main(void) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+            const gl = getGLContext(document.getElementById('glCanvas'));
+            const prog = installProgram(gl, 
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader')
+            );
+
+            const r = 0.25;
+            const fn = 24;
+            const verteices = [0.0, 0.0, 0.0];
+            for(let i = 0, step = 2 * Math.PI / fn; i < fn; i++) {
+                let a = step * i;
+                verteices.push(r * Math.cos(a));
+                verteices.push(r * Math.sin(a));
+                verteices.push(0.0); 
+            }
+            verteices.push(r);
+            verteices.push(0.0);
+            verteices.push(0.0);
+
+            // 建立、指定、綁定 Buffer
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);
+
+            const attr_position = gl.getAttribLocation(prog, 'position');
+            gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+            gl.enableVertexAttribArray(attr_position);
+
+            gl.uniform1f(
+                gl.getUniformLocation(prog, 'aspect'),
+                gl.canvas.clientWidth / gl.canvas.clientHeight
+            );
+
+            // 繪製
+            let i = 0;
+            gl.canvas.addEventListener('mousedown', () => {
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(gl.TRIANGLE_FAN, 0, 3 + i);
+                i = (i + 1) % fn;
+            });
+
+            
+        </script>
+    </body>
+</html>

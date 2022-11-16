@@ -1,0 +1,327 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈foreach 與陣列〉中使用巨集實現了 foreach，這是種創造新語法的概念，然而，由於巨集撰寫與維護不易，C 程式碼中若使用了巨集，也會增加除錯的困難，基本上不建議定義過於複雜的巨集。
+若只...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="例外處理">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CGossip/exception.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈foreach 與陣列〉中使用巨集實現了 foreach，這是種創造新語法的概念，然而，由於巨集撰寫與維護不易，C 程式碼中若使用了巨集，也會增加除錯的困難，基本上不建議定義過於複雜的巨集。
+若只...">
+
+    <title>例外處理</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="exception.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C 語言目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>例外處理</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="foreach.html">foreach 與陣列</a>〉中使用巨集實現了 foreach，這是種創造新語法的概念，然而，由於巨集撰寫與維護不易，C 程式碼中若使用了巨集，也會增加除錯的困難，基本上不建議定義過於複雜的巨集。</p>
+<p>若只是單純將定義新語法，作為一種挑戰，倒也是種樂趣，間接地也可以增進對 C 語言或巨集的瞭解，例如，來試著實現現代高階語言中的例外處理機制？</p>
+<p>C 語言的錯誤處理，可由函式傳回錯誤碼，函式呼叫方檢查錯誤碼來實現，然而，若函式呼叫鏈很深，想在底層錯誤發生時逐一返回，就必須在每層呼叫時都記得檢查錯誤，例如：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+
+enum Either { LEFT = 1, RIGHT = 0 };
+
+int b(int p) {
+    if(p == 0) {
+       return LEFT; 
+    }
+    puts("do b");
+    return RIGHT;
+}
+
+int a(int p) {
+    if(b(p)) {
+       return LEFT; 
+    }
+    puts("do a");
+    return RIGHT;
+}
+
+int main(void) {
+    if(a(0)) {
+        puts("Shit happens!");
+        return;
+    }
+
+    puts("繼續流程");
+
+    return 0;
+}
+</code></pre>
+<p>如果想在錯誤發生時，能夠直接跳回最初的函式呼叫點，能不能做到呢？談到跳躍會想到 <code>goto</code>，不過 <code>goto</code> 只能在指定同一函式的標籤進行跳躍，若想在函式間進行跳躍，要使用 setjmp.h 定義的 <code>setjmp</code> 與 <code>longjmp</code>：</p>
+<pre class="prettyprint"><code lang="c-lang">#define setjmp(env) /* 實作品的定義 */
+_Noreturn void longjmp( jmp_buf env, int status );
+</code></pre>
+<p><code>setjmp</code> 與 <code>longjmp</code> 之間必須透過 <code>jmp_buf</code> 來合作，<code>setjmp</code> 本身就是個巨集，作用上有點像是設定 <code>goto</code> 目標標籤的概念，只不過是資訊是儲存在 <code>jmp_buf</code>，首次執行 <code>setjmp</code>，傳回值會是 0。</p>
+<p><code>longjmp</code> 則可以對比為 <code>goto</code> 的概念，<code>_Noreturn</code> 是 C11 標準制定的關鍵字，開發者也可以使用 <code>noreturn</code> 巨集（定義於 stdnoreturn.h），表示函式不會是執行了 <code>return</code> 或執行至函式底部而結束，編譯器可以據此決定是否實行檢查。</p>
+<p>呼叫 <code>longjmp</code> 時指定的 <code>jmp_buf</code>，決定了該跳回哪個 <code>setjmp</code> 呼叫處，而 <code>status</code> 決定了回到 <code>setjmp</code> 呼叫處時的傳回值，例如上面的範例可以修改為：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include &lt;setjmp.h&gt;
+
+enum Either { LEFT = 1, RIGHT = 0 };
+
+jmp_buf env;
+
+void b(int p) {
+    if(p == 0) {
+        longjmp(env, LEFT);
+    }
+    puts("do b");
+}
+
+void a(int p) {
+    b(p);
+    puts("do a");
+}
+
+int main(void) {
+    switch(setjmp(env)) {
+        case RIGHT:
+            a(0);
+            puts("繼續流程");
+            break;
+        case LEFT:
+            puts("Shit happens!");
+    }
+
+    return 0;
+}
+</code></pre>
+<p>因為 <code>status</code> 決定了回到 <code>setjmp</code> 呼叫處時的傳回值，也就可以區分不同的錯誤：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include &lt;setjmp.h&gt;
+
+enum Status { OK, ZERO_ERR, OUT_OF_RANGE };
+
+jmp_buf env;
+
+void b(int p) {
+    if(p == 0) {
+        longjmp(env, ZERO_ERR);
+    }
+    else if(p &gt; 100) {
+        longjmp(env, OUT_OF_RANGE);
+    }
+    puts("do b");
+}
+
+void a(int p) {
+    b(p);
+    puts("do a");
+}
+
+int main(void) {
+    switch(setjmp(env)) {
+        case OK: 
+            a(101);
+            puts("繼續流程");
+            break;
+        case ZERO_ERR:
+            puts("不能為 0");
+            break;
+        case OUT_OF_RANGE:
+            puts("不能超過 100");
+    }
+
+    return 0;
+}
+</code></pre>
+<p>若單純根據這個簡單流程作為基礎，可以初步定義以下巨集來取代：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include &lt;setjmp.h&gt;
+
+#define try switch(setjmp(env)) { case OK:
+#define catch(x) break; case x:
+#define throw(x) longjmp(env, x)
+
+enum Status { OK, ZERO_ERR, OUT_OF_RANGE };
+
+jmp_buf env;
+
+void b(int p) {
+    if(p == 0) {
+        throw(ZERO_ERR);
+    }
+    else if(p &gt; 100) {
+        throw(OUT_OF_RANGE);
+    }
+    puts("do b");
+}
+
+void a(int p) {
+    b(p);
+    puts("do a");
+}
+
+int main(void) {
+    try
+        a(111);
+        puts("繼續流程");
+    catch(ZERO_ERR) 
+        puts("不能為 0");
+    catch(OUT_OF_RANGE) 
+        puts("不能超過 100");
+    } // 這邊的 } 怎麼辦？
+
+    return 0;
+}
+</code></pre>
+<p>只是用巨集單純地展開為原始程式碼罷了，範例中孤獨的 <code>}</code> 感覺很怪，那就用個 finally 來取代好了：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include &lt;setjmp.h&gt;
+
+#define try switch(setjmp(env)) { case OK:
+#define catch(x) break; case x:
+#define finally }
+#define throw(x) longjmp(env, x)
+
+enum Status { OK, ZERO_ERR, OUT_OF_RANGE };
+
+jmp_buf env;
+
+void b(int p) {
+    if(p == 0) {
+        throw(ZERO_ERR);
+    }
+    else if(p &gt; 100) {
+        throw(OUT_OF_RANGE);
+    }
+    puts("do b");
+}
+
+void a(int p) {
+    b(p);
+    puts("do a");
+}
+
+int main(void) {
+    try {
+        a(111);
+        puts("繼續流程");
+    }
+    catch(ZERO_ERR) {
+        puts("不能為 0");
+    }
+    catch(OUT_OF_RANGE) {
+        puts("不能超過 100");
+    }
+    finally {
+        puts("一定要做的…");
+    }
+
+    return 0;
+}
+</code></pre>
+<p>如果沒有最後一定要做的事情，那麼只寫個 <code>finally</code> 不要定義區塊，閱讀上也代表著沒做什麼事，這個巨集也可以結合 <code>{}</code> 來區別 <code>try</code>、<code>catch</code>，不過語法上有個小問題，這樣寫也可以：</p>
+<pre class="prettyprint"><code lang="c-lang">try {
+    a(1);
+    puts("繼續流程");
+}
+catch(ZERO_ERR) {
+    puts("不能為 0");
+}
+catch(OUT_OF_RANGE) {
+    puts("不能超過 100");
+}}
+</code></pre>
+<p>如果想強制 <code>try</code> 一定得與 <code>finally</code> 匹配，可以使用 <code>do/while</code>，因為 <code>do</code> 與 <code>while</code> 正好也是一對：</p>
+<pre class="prettyprint"><code lang="c-lang">#include &lt;stdio.h&gt;
+#include &lt;setjmp.h&gt;
+
+#define try do { switch(setjmp(env)) { case OK:
+#define catch(x) break; case x:
+#define finally }} while(0);
+#define throw(x) longjmp(env, x)
+
+enum Status { OK, ZERO_ERR, OUT_OF_RANGE };
+
+jmp_buf env;
+
+void b(int p) {
+    if(p == 0) {
+        throw(ZERO_ERR);
+    }
+    else if(p &gt; 100) {
+        throw(OUT_OF_RANGE);
+    }
+    puts("do b");
+}
+
+void a(int p) {
+    b(p);
+    puts("do a");
+}
+
+int main(void) {
+    try {
+        a(1);
+        puts("繼續流程");
+    }
+    catch(ZERO_ERR) {
+        puts("不能為 0");
+    }
+    catch(OUT_OF_RANGE) {
+        puts("不能超過 100");
+    } finally
+
+    return 0;
+}
+</code></pre>
+<p>這個範例只是個簡單探討，看看巨集創造語法的可能性，開發者建立巨集應該避免複雜，最好是基於既有程式碼，若發現流程具有固定模式，使用函式封裝流程不易或者無法以函式封裝時，再來考慮可否以巨集取代，而非憑空創造。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

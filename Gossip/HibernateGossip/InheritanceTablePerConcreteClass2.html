@@ -1,0 +1,365 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="續 繼
+承 - Table per concrete class with implicit polymorphism，除了分別為兩個子類別撰寫個別的HBM檔案之外，您可以在一個HBM檔案中，將父類...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="繼承 - Table per concrete class with unions">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/InheritanceTablePerConcreteClass2.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="續 繼
+承 - Table per concrete class with implicit polymorphism，除了分別為兩個子類別撰寫個別的HBM檔案之外，您可以在一個HBM檔案中，將父類...">
+
+
+    <title>繼承 - Table per concrete class with unions</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="InheritanceTablePerConcreteClass2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>繼承 - Table per concrete class with unions</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            續 <a href="InheritanceTablePerConcreteClass.html">繼
+承 - Table per concrete class with implicit polymorphism</a>，除了分別為兩個子類別撰寫個別的HBM檔案之外，您可以在一個HBM檔案中，將父類別與子類別的屬性對應撰寫在一起，直接以實例來說明：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>User.hbm.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping package="onlyfun.caterpillar"&gt; <br>    &lt;!-- abstract 表明User是抽象的，無需對應至任何表格 --&gt;<br>    &lt;class name="User" <span style="font-weight: bold;">abstract="true"</span>&gt; <br>        &lt;id name="id"&gt; <br>            &lt;generator class="increment"/&gt; <br>        &lt;/id&gt; <br>	<br>        &lt;!-- 從父類別繼承下來的共同屬性 --&gt;<br>        &lt;property name="name"/&gt;<br>	<br>        &lt;!-- 子類別的新增屬性 --&gt;<br>        &lt;union-subclass name="DefaultUser" table="defaultuser"&gt;<br>	    &lt;property name="someProperty"/&gt; <br>	&lt;/union-subclass&gt;<br><br>        &lt;!-- 子類別的新增屬性 --&gt;<br>	&lt;union-subclass name="PowerUser" table="poweruser"&gt;<br>	    &lt;property name="otherProperty"/&gt; <br>	&lt;/union-subclass&gt;<br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+      <br>
+
+
+可以看到，現在您不用在兩個HBM檔中，針對相同的屬性撰寫重複的定義內容，而hibernate.cfg.xml中，只要設定User.hbm.xml即可：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>hibernate.cfg.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-configuration PUBLIC<br>	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"<br>	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd"&gt;<br>	<br>&lt;hibernate-configuration&gt; <br>    &lt;session-factory&gt; <br>        ....<br>        <span style="font-weight: bold;">&lt;mapping resource="onlyfun/caterpillar/User.hbm.xml"/&gt; </span><br>	<br>    &lt;/session-factory&gt; <br><br>&lt;/hibernate-configuration&gt;</code></pre>
+
+
+      <br>
+
+
+除了設定檔上的簡化之外，觀察 <a href="InheritanceTablePerConcreteClass.html">繼
+承 - Table per concrete class with implicit polymorphism</a> 中同一程式新增資料時的SQL：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max(ids_.id) </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( select</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultuser </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; union</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; select</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; poweruser </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ) ids_</span><br>
+
+
+      <span style="font-weight: bold;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; poweruser</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, otherProperty, id) </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?, ?)</span><br>
+
+
+      <span style="font-weight: bold;">Hibernate: </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; insert </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; into</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultuser</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (name, someProperty, id) </span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; values</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?, ?, ?)</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+由於generator設定為increment，在新增資料之前，先確定了兩個表格的id值最大為何，再分別遞增id並儲存物件至表格之中，所以您直接查詢資料庫中的表格，會發現id值有前後遞增的關係：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mysql&gt; select * from defaultuser;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+------+--------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">| id | name | someProperty |</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+------+--------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">|&nbsp; 2 | Bush | hu....hu...&nbsp; |</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+------+--------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">1 row in set (0.00 sec)</span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">mysql&gt; select * from poweruser;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+-------------+---------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">| id | name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | otherProperty |</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+-------------+---------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">|&nbsp; 1 | caterpillar | Bla...Bla...&nbsp; |</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">+----+-------------+---------------+</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">1 row in set (0.00 sec)</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+而觀察利用多型特性查詢時的SQL，可以看到利用了子查詢在一個SQL語句中完成查詢動作：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">Hibernate: <br>
+
+
+      &nbsp;&nbsp;&nbsp; select<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.id as id0_,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.someProperty as someProp1_1_,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.otherProperty as otherPro1_2_,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.clazz_ as clazz_ <br>
+
+
+      &nbsp;&nbsp;&nbsp; from<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( select<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; null as otherProperty,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; someProperty,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 as clazz_ <br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultuser <br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; union<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; select<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherProperty,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; null as someProperty,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 as clazz_ <br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; poweruser <br>
+
+
+      &nbsp;&nbsp;&nbsp; ) user0_<br>
+
+
+      </div>
+
+
+      <br>
+
+
+相對於兩次的SQL進入資料庫，利用子查詢在同一個SQL語句中完成所有的資料查詢，會有可能有效能上的改進，而使用此方法，對往後若有多型查詢的需求時，修改上會比較方便。<br>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,446 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈自相似的碎形〉中談過，自相似性是一種內在重複的模式，是另一種規律，如果給予海龜自相似性的規律，它也能畫出碎形。
+來讓海龜畫出一棵樹吧！在這之前，必須讓海龜能畫出一個 Y，這很簡單，如果海龜一開始是...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="海龜也懂碎形">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/Fractal2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈自相似的碎形〉中談過，自相似性是一種內在重複的模式，是另一種規律，如果給予海龜自相似性的規律，它也能畫出碎形。
+來讓海龜畫出一棵樹吧！在這之前，必須讓海龜能畫出一個 Y，這很簡單，如果海龜一開始是...">
+
+    <title>海龜也懂碎形</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Fractal2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>海龜也懂碎形</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Fractal.html">自相似的碎形</a>〉中談過，自相似性是一種內在重複的模式，是另一種規律，如果給予海龜自相似性的規律，它也能畫出碎形。</p>
+<p>來讓海龜畫出一棵樹吧！在這之前，必須讓海龜能畫出一個 Y，這很簡單，如果海龜一開始是頭朝上，從 Y 有底部開始，必須前進、轉彎、前進，接著沿原路爬回 Y 的分岐點，調整為頭朝上，轉彎、前進…</p>
+<p>就目前的 <code>Turtle</code> 實作來說，是也能做到沿原路爬回，不過要多個 <code>forward</code>、<code>turn</code> 步驟來組成，比較麻煩，為了寫程式上的方便，這邊在 <code>Turtle</code> 增加 <code>push</code>、<code>pop</code> 兩個方法：</p>
+<pre class="prettyprint"><code lang="javascript">class Turtle {
+    constructor(x = 0, y = 0, angle = 0) {
+        this.coordinateVector = createVector(x, y);
+        this.headingVector = createVector(1, 0).rotate(angle);
+        this.state = [];  // 儲存海龜目前狀態
+    }
+
+    …略
+
+    // 將目前狀態置入堆疊
+    push() {
+        this.state.push(new Turtle(
+            this.coordinateVector.x,
+            this.coordinateVector.y,
+            this.headingVector.heading()
+        ));
+    }
+
+    // 將堆疊頂的第一個狀態彈出，作為目前海龜狀態
+    pop() {
+        const t = this.state.pop();
+        this.coordinateVector = t.coordinateVector;
+        this.headingVector = t.headingVector;
+    }
+}
+</code></pre>
+<p>如果目前海龜已來到一個狀態，無論後續操作為何，想回到目前狀態的話，就使用 <code>push</code> 先保存狀態，之後若想回復，就 <code>pop</code> 彈出狀態，這就相當於海龜沿原路爬回該狀態了。</p>
+<p>先來畫個 Y：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+  createCanvas(400, 400);
+  angleMode(DEGREES);
+  noLoop();
+}
+
+const length = 80;
+const angle = 30;
+function draw() {
+    background(220);
+    translate(width / 2, height);
+    rotate(-90);
+
+    const t = new Turtle();
+    drawForward(t, length);  // Y 的主幹
+
+    t.push();
+    t.turn(37);
+    drawForward(t, length * 0.75);  // 分枝
+    t.pop();  
+
+    t.turn(-37);
+    drawForward(t, length * 0.75);  // 分枝
+}
+
+function drawForward(t, length) {
+    const {from, to} = t.forward(length);
+    line(from.x, from.y, to.x, to.y);
+}
+
+class Turtle {
+    // 起始位置 (x, y) 與頭面向的角度
+    constructor(x = 0, y = 0, angle = 0) {
+        this.coordinateVector = createVector(x, y);
+        this.headingVector = createVector(1, 0).rotate(angle);
+        this.state = [];
+    }
+
+    // 傳回座標
+    coordinate() {
+        return {
+            x: this.coordinateVector.x,
+            y: this.coordinateVector.y
+        };
+    }
+
+    // 前進，為了便於繪圖，傳回起點與終點座標
+    forward(length) {
+        const from = this.coordinate();
+
+        const v = p5.Vector.mult(this.headingVector, length);
+        this.coordinateVector.add(v);
+
+        const to = this.coordinate();
+
+        return {from, to};
+    }
+
+    // 轉彎
+    turn(angle) {
+        this.headingVector.rotate(angle);
+    }
+
+    // 將目前狀態置入堆疊
+    push() {
+        this.state.push(new Turtle(
+            this.coordinateVector.x,
+            this.coordinateVector.y,
+            this.headingVector.heading()
+        ));
+    }
+
+    // 將堆疊頂的第一個狀態彈出，作為目前海龜狀態  
+    pop() {
+        const t = this.state.pop();
+        this.coordinateVector = t.coordinateVector;
+        this.headingVector = t.headingVector;
+    }
+}
+</script>
+<p>如果每個分支也都是個 Y 呢？</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(400, 400);
+    angleMode(DEGREES);
+    noLoop();
+}
+
+const length = 80;
+const angle = 30;
+const n = 8;
+function draw() {
+    background(220);
+    translate(width / 2, height);
+    rotate(-90);
+
+    tree(new Turtle(), length, angle, n);  
+}
+
+function tree(t, length, angle, n) {
+    if(n >= 0) {
+        drawForward(t, length);  // 主幹
+
+        t.push();
+        t.turn(angle);
+        tree(t, length * 0.75, angle, n - 1);  // 分支
+        t.pop();
+
+        t.turn(-angle);
+        tree(t, length * 0.75, angle, n - 1);  // 分支
+    }
+}
+
+function drawForward(t, length) {
+    const {from, to} = t.forward(length);
+    line(from.x, from.y, to.x, to.y);
+}
+
+class Turtle {
+    // 起始位置 (x, y) 與頭面向的角度
+    constructor(x = 0, y = 0, angle = 0) {
+        this.coordinateVector = createVector(x, y);
+        this.headingVector = createVector(1, 0).rotate(angle);
+        this.state = [];
+    }
+
+    // 傳回座標
+    coordinate() {
+        return {
+            x: this.coordinateVector.x,
+            y: this.coordinateVector.y
+        };
+    }
+
+    // 前進，為了便於繪圖，傳回起點與終點座標
+    forward(length) {
+        const from = this.coordinate();
+
+        const v = p5.Vector.mult(this.headingVector, length);
+        this.coordinateVector.add(v);
+
+        const to = this.coordinate();
+
+        return {from, to};
+    }
+
+    // 轉彎
+    turn(angle) {
+        this.headingVector.rotate(angle);
+    }
+
+    // 將目前狀態置入堆疊
+    push() {
+        this.state.push(new Turtle(
+            this.coordinateVector.x,
+            this.coordinateVector.y,
+            this.headingVector.heading()
+        ));
+    }
+
+    // 將堆疊頂的第一個狀態彈出，作為目前海龜狀態  
+    pop() {
+        const t = this.state.pop();
+        this.coordinateVector = t.coordinateVector;
+        this.headingVector = t.headingVector;
+    }
+}
+</script>
+<p>那就長成一棵樹了，只不過因為分支的長度與角度是固定的，使得這棵規律到太不自然了，若故意加入一些隨機：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(400, 400);
+    angleMode(DEGREES);
+    noLoop();
+}
+
+const length = 80;
+const angle = 30;
+const n = 8;
+function draw() {
+    background(220);
+    translate(width / 2, height);
+    rotate(-90);
+
+    tree(new Turtle(), length, angle, n);  
+}
+
+function tree(t, length, angle, n) {
+    if(n >= 0) {
+        drawForward(t, length);
+
+        t.push();
+        t.turn(angle);
+        tree(t, length * random(0.65, 0.85), angle * random(0.9, 1.1), n - 1); // 加點隨機性
+        t.pop();
+
+        t.turn(-angle);
+        tree(t, length * random(0.65, 0.85), angle * random(0.9, 1.1), n - 1); // 加點隨機性
+    }
+}
+
+function drawForward(t, length) {
+    const {from, to} = t.forward(length);
+    line(from.x, from.y, to.x, to.y);
+}
+
+class Turtle {
+    // 起始位置 (x, y) 與頭面向的角度
+    constructor(x = 0, y = 0, angle = 0) {
+        this.coordinateVector = createVector(x, y);
+        this.headingVector = createVector(1, 0).rotate(angle);
+        this.state = [];
+    }
+
+    // 傳回座標
+    coordinate() {
+        return {
+            x: this.coordinateVector.x,
+            y: this.coordinateVector.y
+        };
+    }
+
+    // 前進，為了便於繪圖，傳回起點與終點座標
+    forward(length) {
+        const from = this.coordinate();
+
+        const v = p5.Vector.mult(this.headingVector, length);
+        this.coordinateVector.add(v);
+
+        const to = this.coordinate();
+
+        return {from, to};
+    }
+
+    // 轉彎
+    turn(angle) {
+        this.headingVector.rotate(angle);
+    }
+
+    // 將目前狀態置入堆疊
+    push() {
+        this.state.push(new Turtle(
+            this.coordinateVector.x,
+            this.coordinateVector.y,
+            this.headingVector.heading()
+        ));
+    }
+
+    // 將堆疊頂的第一個狀態彈出，作為目前海龜狀態  
+    pop() {
+        const t = this.state.pop();
+        this.coordinateVector = t.coordinateVector;
+        this.headingVector = t.headingVector;
+    }
+}
+</script>
+<p>看來就比較自然一些了，如果要製造點樹搖曳的感覺，可以只令分支角度隨機變化的幅度小一些，結合動畫就會有點像了：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(400, 400);
+    angleMode(DEGREES);
+    frameRate(6);
+}
+
+const length = 80;
+const angle = 30;
+const n = 8;
+function draw() {
+    background(220);
+    translate(width / 2, height);
+    rotate(-90);
+
+    tree(new Turtle(), length, angle, n);  
+}
+
+function tree(t, length, angle, n) {
+    if(n >= 0) {
+        drawForward(t, length);
+
+        t.push();
+        t.turn(angle);
+        tree(t, length * 0.7, angle * random(0.9, 1.1), n - 1);  // 小幅改變角度
+        t.pop();
+
+        t.turn(-angle);
+        tree(t, length * 0.75, angle * random(0.9, 1.1), n - 1); // 小幅改變角度
+    }
+}
+
+function drawForward(t, length) {
+    const {from, to} = t.forward(length);
+    line(from.x, from.y, to.x, to.y);
+}
+
+class Turtle {
+    // 起始位置 (x, y) 與頭面向的角度
+    constructor(x = 0, y = 0, angle = 0) {
+        this.coordinateVector = createVector(x, y);
+        this.headingVector = createVector(1, 0).rotate(angle);
+        this.state = [];
+    }
+
+    // 傳回座標
+    coordinate() {
+        return {
+            x: this.coordinateVector.x,
+            y: this.coordinateVector.y
+        };
+    }
+
+    // 前進，為了便於繪圖，傳回起點與終點座標
+    forward(length) {
+        const from = this.coordinate();
+
+        const v = p5.Vector.mult(this.headingVector, length);
+        this.coordinateVector.add(v);
+
+        const to = this.coordinate();
+
+        return {from, to};
+    }
+
+    // 轉彎
+    turn(angle) {
+        this.headingVector.rotate(angle);
+    }
+
+    // 將目前狀態置入堆疊
+    push() {
+        this.state.push(new Turtle(
+            this.coordinateVector.x,
+            this.coordinateVector.y,
+            this.headingVector.heading()
+        ));
+    }
+
+    // 將堆疊頂的第一個狀態彈出，作為目前海龜狀態  
+    pop() {
+        const t = this.state.pop();
+        this.coordinateVector = t.coordinateVector;
+        this.headingVector = t.headingVector;
+    }
+}
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

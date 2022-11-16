@@ -1,0 +1,143 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在〈Python 3 Tutorial 第八堂（2）建立 App 與模型〉中，已經撰寫了模型程式碼，並且利用 Django 的遷移（Migration）功能，自動建立了資料庫中的相關表格，接下來，我們...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Python 3 Tutorial 第九堂（1）ORM 操作">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/PythonTutorial/ORMPy3.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在〈Python 3 Tutorial 第八堂（2）建立 App 與模型〉中，已經撰寫了模型程式碼，並且利用 Django 的遷移（Migration）功能，自動建立了資料庫中的相關表格，接下來，我們...">
+
+    <title>Python 3 Tutorial 第九堂（1）ORM 操作</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ORMPy3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python Tutorial</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 3 Tutorial 第九堂（1）ORM 操作</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="AppModelPy3.html">Python 3 Tutorial 第八堂（2）建立 App 與模型</a>〉中，已經撰寫了模型程式碼，並且利用 Django 的遷移（Migration）功能，自動建立了資料庫中的相關表格，接下來，我們就來操作模型與資料庫吧！</p>
+<h1>查詢全部資料</h1>
+<p>你可以鍵入 <code>python3.5 manage.py shell</code> 指令，這會設定 <code>DJANGO_SETTINGS_MODULE</code> 環境變數，讓你可以取用 Django 的 Python 模組，然後進入 Python 互動環境，在當中體驗一些 API 的使用。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ORMPy3-1.JPG" alt="ORM 操作"  /></div></div></p>
+<p>一開始從 <code>polls.models</code> 模組中，匯入了 <code>Question</code> 與 <code>Choice</code> 類別，若想查詢全部的「問題」或「選項」，可以使用 <code>Question.objects.all()</code> 與 <code>Choice.objects.all()</code>，也就是在類別名稱之後，接下 <code>objects.all()</code>。</p>
+<p>可以看到，你不用撰寫任何 SQL，Django 會自動幫你轉換對應的 SQL，取得結果然後包裝為物件，你不用自行進行物件與關聯式資料庫之間的對應，這樣的技術稱之為 ORM（Object-Relational Mapping），對於應用程式快速開發時非常便利，當然，目前「問題」與「選項」都沒有任何資訊，因此傳回空 <code>list</code>。</p>
+<h1>資料儲存、欄位查詢與更新</h1>
+<p>接著在資料庫進行資料的儲存，直接來看看如何儲存「問題」：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; from django.utils import timezone
+&gt;&gt;&gt; q = Question(question_text="What's new?", pub_date=timezone.now())
+&gt;&gt;&gt; q.save()
+&gt;&gt;&gt; q.id
+1
+&gt;&gt;&gt; q.question_text
+"What's new?"
+&gt;&gt;&gt; q.pub_date
+datetime.datetime(2016, 3, 5, 9, 18, 10, 991796, tzinfo=&lt;UTC&gt;)
+&gt;&gt;&gt; q.question_text = "What's up?"
+&gt;&gt;&gt; q.save()
+&gt;&gt;&gt; Question.objects.all()
+[&lt;Question: What's up?&gt;]
+&gt;&gt;&gt; 
+</code></pre>
+<p>因為 <code>Question</code> 在儲存時，必須提供時間資訊，因此從 <code>django.utils</code> 模組中匯入了 <code>timezone</code>，要儲存一個「問題」，只要建立 <code>Question</code> 實例，並呼叫其 <code>save()</code> 就可以了，至於查詢或更新相關欄位，也只是對屬性做操作。</p>
+<h1>特定條件查詢</h1>
+<p>那麼，如果有多個「問題」，想要進行條件過濾呢？可以使用 <code>filter</code> 函式，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; Question.objects.filter(id=1)
+[&lt;Question: What's up?&gt;]
+&gt;&gt;&gt; Question.objects.filter(question_text__startswith='What')
+[&lt;Question: What's up?&gt;]
+&gt;&gt;&gt; Question.objects.filter(id=2)
+[]
+&gt;&gt;&gt; Question.objects.filter(question_text__startswith='What')
+[&lt;Question: What's up?&gt;]
+&gt;&gt;&gt; 
+</code></pre>
+<p>可以看到，<code>filter</code> 函式會以 <code>list</code> 傳回符合條件的資料，如果你只想取回一筆資料，也可以使用 <code>get</code>，不過，若查詢的條件不存在，<code>get</code> 會引發 <code>DoesNotExist</code> 的錯誤，例如：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; Question.objects.get(pub_date__year=timezone.now().year)
+&lt;Question: What's up?&gt;
+&gt;&gt;&gt; Question.objects.get(id=1)
+&lt;Question: What's up?&gt;
+&gt;&gt;&gt; Question.objects.get(id=2)
+Traceback (most recent call last):
+略...
+polls.models.DoesNotExist: Question matching query does not exist.
+&gt;&gt;&gt; Question.objects.get(pk=1)
+&lt;Question: What's up?&gt;
+&gt;&gt;&gt; 
+</code></pre>
+<p>在查詢主鍵時，使用 <code>get(id=1)</code> 或 <code>get(pk=1)</code> 都可以。</p>
+<h1>建立關聯與刪除資料</h1>
+<p>一個「問題」會有多個「選項」，來看看怎麼建立兩者之間的關聯：</p>
+<pre class="prettyprint"><code lang="python">&gt;&gt;&gt; q = Question.objects.get(pk=1)
+&gt;&gt;&gt; q.choice_set.all()
+[]
+&gt;&gt;&gt; q.choice_set.create(choice_text='Not much', votes=0)
+&lt;Choice: Not much&gt;
+&gt;&gt;&gt; q.choice_set.create(choice_text='The sky', votes=0)
+&lt;Choice: The sky&gt;
+&gt;&gt;&gt; c = q.choice_set.create(choice_text='Just hacking again', votes=0)
+&gt;&gt;&gt; c.question
+&lt;Question: What's up?&gt;
+&gt;&gt;&gt; q.choice_set.all()
+[&lt;Choice: Not much&gt;, &lt;Choice: The sky&gt;, &lt;Choice: Just hacking again&gt;]
+&gt;&gt;&gt; q.choice_set.count()
+3
+&gt;&gt;&gt; Choice.objects.filter(question__pub_date__year=timezone.now().year)
+[&lt;Choice: Not much&gt;, &lt;Choice: The sky&gt;, &lt;Choice: Just hacking again&gt;]
+&gt;&gt;&gt; c = q.choice_set.filter(choice_text__startswith='Just hacking')
+&gt;&gt;&gt; c.delete()
+(1, {'polls.Choice': 1})
+&gt;&gt;&gt;
+</code></pre>
+<p>這些操作都不太需要多做解釋，若想進一步瞭解更多這類操作，可以參考〈<a href="https://docs.djangoproject.com/en/1.9/topics/db/queries/">Database API reference</a>〉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,213 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="若您要直接在Servlet中使用JPA，要記得的是，EntityManager不是Thread-safe，所以切記，不可直接將EntityManager注入Servlet中成為物件成員之一，Servl...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="在 Servlet 中直接使用 JPA">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/ServletJPA.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="若您要直接在Servlet中使用JPA，要記得的是，EntityManager不是Thread-safe，所以切記，不可直接將EntityManager注入Servlet中成為物件成員之一，Servl...">
+
+
+    <title>在 Servlet 中直接使用 JPA</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ServletJPA.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>在 Servlet 中直接使用 JPA</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            若您要直接在Servlet中使用JPA，要記得的是，EntityManager不是Thread-safe，所以切記，不可直接將EntityManager注入Servlet中成為物件成員之一，Servlet被共用存取的情況下，會有資料共用存取的問題。<br>
+
+
+      <br>
+
+若您要在Servlet中直接使用JPA，有兩種方式可以進行，一是透過在類別上宣告@PersistenceContext並設定JNDI名稱來查找，
+二是透過@PersistenceUnit注入EntityManagerFactory並用其取得EntityManager，前者的方式為
+Container-Managed Entity，後者的方式則為Application-Managed EntityManager。<br>
+
+
+      <br>
+
+
+第一個方法若以 <a href="https://openhome.cc/Gossip/EJB3Gossip/FirstContainManagedJPA.html">第一個 JPA（容器管理）</a> 中的User實體為例，您可以如下撰寫Servlet：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>UserAdmin.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.*;<br><br>import java.util.logging.*;<br>import javax.annotation.*;<br>import javax.naming.*;<br>import javax.persistence.*;<br>import javax.rmi.PortableRemoteObject;<br>import javax.servlet.*;<br>import javax.servlet.http.*;<br>import javax.transaction.*;<br><br><span style="font-weight: bold;">@PersistenceContext(name="sample/EntityManager", unitName="sample")</span><br>public class UserAdmin extends HttpServlet {    <br><span style="font-weight: bold;">    @Resource <br>    private UserTransaction ut;<br><br></span>    protected void processRequest(HttpServletRequest request, <br>                                HttpServletResponse response)<br>                                    throws ServletException, IOException {<br>        <br>        String name = request.getParameter("name");<br>        String age = request.getParameter("age");<br>        <br>        User user = new User();<br>        user.setName(name);<br>        user.setAge(new Long(Long.parseLong(age)));<br>        <br>        response.setContentType("text/html;charset=UTF-8");<br>        PrintWriter out = response.getWriter();<br><span style="font-weight: bold;">        EntityManager entityManager = null;<br><br></span>        try {<br><span style="font-weight: bold;">            InitialContext context = new InitialContext();</span><br><span style="font-weight: bold;">            Object obj = context.lookup(</span><br><span style="font-weight: bold;">                    "java:comp/env/sample/EntityManager");</span><br><span style="font-weight: bold;">            entityManager = (EntityManager) </span><br><span style="font-weight: bold;">               PortableRemoteObject.narrow(obj, EntityManager.class);</span><br><span style="font-weight: bold;">            </span><br><span style="font-weight: bold;">            ut.begin();</span><br><span style="font-weight: bold;">            entityManager.persist(user);</span><br><span style="font-weight: bold;">            ut.commit();</span><br><span style="font-weight: bold;"></span><br>        } catch (Exception ex) {<br>            Logger.getLogger(UserAdmin.class.getName())<br>                    .log(Level.SEVERE, null, ex);<br>        } finally { <br><span style="font-weight: bold;">            entityManager.close();</span><br>            out.close();<br>        }<br>    } <br><br>    protected void doGet(HttpServletRequest request, <br>                         HttpServletResponse response)<br>                                  throws ServletException, IOException {<br>        processRequest(request, response);<br>    } <br><br>    protected void doPost(HttpServletRequest request, <br>                          HttpServletResponse response)<br>                                 throws ServletException, IOException {<br>        processRequest(request, response);<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+      在您的Web應用程式可存取的Classpath路徑中（例如WEB-INF/classes下），要建立META-INF/persistence.xml：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>persistence.xml</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" <br>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" <br>xsi:schemaLocation="http://java.sun.com/xml/ns/persistence <br>http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"&gt;<br>  &lt;persistence-unit name="<span style="font-weight: bold;">sample</span>" transaction-type="JTA"&gt;<br>    &lt;jta-data-source&gt;jdbc/sample&lt;/jta-data-source&gt;<br>    &lt;properties&gt;<br>      &lt;property name="toplink.ddl-generation" <br>                value="drop-and-create-tables"/&gt;<br>    &lt;/properties&gt;<br>  &lt;/persistence-unit&gt;<br>&lt;/persistence&gt;</code></pre>
+
+
+      <br>
+
+
+      @PersistenceContext的name名稱將作為JNDI查找名稱，從unitName設定得知，實際上查找到的
+是&lt;persistence-unit&gt;中對應的sample定義，Servlet中使用JNDI查找name名稱以取得
+EntityManager實例，並透過注入的UserTransaction啟用交易，在交易中進行持久化動作。<br>
+
+
+      <br>
+
+
+若不在類別上使用@PersistenceContext，您也可以在web.xml中加入以下的定義：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">....<br>
+
+
+      &nbsp; &nbsp; &lt;persistence-context-ref&gt;<br>
+
+
+      &nbsp; &nbsp; &nbsp; &nbsp; &lt;persistence-context-ref-name&gt;<br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sample/EntityManager<br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/persistence-context-ref&gt;<br>
+
+
+      &nbsp; &nbsp; &nbsp; &nbsp; &lt;persistence-unit-name&gt;<br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sample<br>
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;/persistence-unit-name&gt;<br>
+
+
+      &nbsp; &nbsp; &lt;/persistence-context-ref&gt;<br>
+
+
+....<br>
+
+
+      </div>
+
+
+      <br>
+
+
+      第一個方法直接使用@PersistenceUnit注入EntityManagerFactory，例如：<br>
+
+
+      
+      
+      
+      <ul>
+
+
+        <li>UserAdmin.java</li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.*;<br><br>import java.util.logging.*;<br>import javax.annotation.*;<br>import javax.persistence.*;<br>import javax.servlet.*;<br>import javax.servlet.http.*;<br>import javax.transaction.*;<br><br>public class UserAdmin extends HttpServlet {    <br><span style="font-weight: bold;">    @PersistenceUnit(unitName="sample")</span><br><span style="font-weight: bold;">    private EntityManagerFactory emFactory;</span><br>    <br><span style="font-weight: bold;">    @Resource </span><br><span style="font-weight: bold;">    private UserTransaction ut;</span><br>    protected void processRequest(HttpServletRequest request, <br>                                HttpServletResponse response)<br>                                    throws ServletException, IOException {<br>        <br>        String name = request.getParameter("name");<br>        String age = request.getParameter("age");<br>        <br>        User user = new User();<br>        user.setName(name);<br>        user.setAge(new Long(Long.parseLong(age)));<br>        <br>        response.setContentType("text/html;charset=UTF-8");<br>        PrintWriter out = response.getWriter();<br><span style="font-weight: bold;">        EntityManager entityManager = null;</span><br>        <br>        try {<br><span style="font-weight: bold;">            entityManager = emFactory.createEntityManager();</span><br><span style="font-weight: bold;">            </span><br><span style="font-weight: bold;">            ut.begin();</span><br><span style="font-weight: bold;">            entityManager.persist(user);</span><br><span style="font-weight: bold;">            ut.commit();</span><br><br>        } catch (Exception ex) {<br>            Logger.getLogger(UserAdmin.class.getName())<br>                    .log(Level.SEVERE, null, ex);<br>        } finally { <br><span style="font-weight: bold;">            entityManager.close();</span><br>            out.close();<br>        }<br>    } <br><br>    protected void doGet(HttpServletRequest request, <br>                         HttpServletResponse response)<br>                                  throws ServletException, IOException {<br>        processRequest(request, response);<br>    } <br><br>    protected void doPost(HttpServletRequest request, <br>                          HttpServletResponse response)<br>                                 throws ServletException, IOException {<br>        processRequest(request, response);<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+      類似於 <a href="FirstLocalJPA.html">第一個 JPA（單機客戶端）</a> 中的例子，您從注入的EntityManagerFactory中建立EntityManager，之後利用其進行持久化物件或其它的操作。<br>
+
+
+      <br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

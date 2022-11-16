@@ -1,0 +1,201 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/object/introspection/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="因為 JavaScript 是動態語言，通常很少直接確認物件的型態，對於物件的操作，僅要求是否具備所需特性，而不在意所謂的類型，物件的特性偵測絕大多數情況下就足夠了。例如：
+if(obj.somePr...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="檢驗物件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/Introspection.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="因為 JavaScript 是動態語言，通常很少直接確認物件的型態，對於物件的操作，僅要求是否具備所需特性，而不在意所謂的類型，物件的特性偵測絕大多數情況下就足夠了。例如：
+if(obj.somePr...">
+
+    <title>檢驗物件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Introspection.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>檢驗物件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>因為 JavaScript 是動態語言，通常很少直接確認物件的型態，對於物件的操作，僅要求是否具備所需特性，而不在意所謂的類型，物件的特性偵測絕大多數情況下就足夠了。例如：</p>
+<pre class="prettyprint"><code lang="javascript">if(obj.someProperty) { 
+    // 特性存在時作某些事
+}
+</code></pre>
+<p>因為特性不存在的話，會傳回 <code>undefined</code>，而在判斷式中會被作為 <code>false</code>，若存在，則會傳回物件，在判斷式中會被作為 <code>true</code>，這就是物件特性偵測的基本原理。</p>
+<p>如果真得確認物件的型態，有許多方式，但這些方式基本上不是提供的資訊有限，就是不能完全信任。</p>
+<p>例如，許多場合最常看到的 <code>typeof</code> 運算子，傳回值是字串，對於基本資料型態，數值會傳回 <code>'number'</code>、字串會傳回 <code>'string'</code>、布林會傳回 <code>'boolean'</code>、對於 <code>Function</code> 實例會傳回 <code>'function'</code>、對於 <code>undefined</code> 會傳回 <code>'undefined'</code>、對於其他物件一律傳回 <code>'object'</code>，包括 <code>null</code> 也是傳回 <code>'object'</code>，所以使用 <code>typeof</code>，只要是非函式實例的物件，基本上無從辨別真正型態。</p>
+<p>你可以從物件的 <code>constructor</code> 特性來確認物件的建構式為何，因為如〈<a href="Prototype.html">函式 prototype 特性</a>〉有談過，每個函式的實例，其 <code>prototype</code> 會有個 <code>constructor</code> 特性，參考至實例化物件時的函式，這是確認物件型態的方式之一，只不過，<code>constructor</code> 是個可修改的特性，雖然沒什麼人會去修改 <code>constructor</code> 特性，但是如果是在原型鏈的情況下：</p>
+<pre class="prettyprint"><code lang="javascript">function Car() {}
+Car.prototype.wheels = 4;
+
+function SportsCar() {}
+SportsCar.prototype = new Car();
+SportsCar.prototype.doors = 2;
+
+var sportsCar = new SportsCar();
+console.log(sportsCar.doors);        // 2
+console.log(sportsCar.wheels);       // 4
+console.log(sportsCar.constructor);  // [Function: Car]
+</code></pre>
+<p>上面這個例子，是經常見到利用原型鏈查找機制，實現出繼承的效果。由於 <code>SportsCar.prototype</code> 設定為 <code>Car</code> 的實例，所以在查找 <code>wheels</code> 特性時，<code>sportsCar</code> 參考的物件本身沒有，就到原型物件上找，也就是 <code>SportsCar.prototype</code> 所參考的物件上找，這個物件是 <code>Car</code> 的實例，本身也沒有 <code>wheels</code> 特性，所以就到 <code>Car</code> 實例的原型尋找，也就是 <code>Car.prototype</code> 參考的物件，此時就找到了。</p>
+<p>然而，在查找 <code>constructor</code> 時，依同樣的機制，找到的其實是 <code>Car.prototype.constructor</code> 特性，上例中應該再加一行才會比較正確：</p>
+<pre class="prettyprint"><code lang="javascript">SportsCar.prototype.constructor = SportsCar;
+</code></pre>
+<p>如果忘了作這個動作，試圖透過 <code>constructor</code> 識別物件的型態，得到的就會是不正確的結果。</p>
+<p>關於使用 <code>new</code> 建立實例，〈<a href="Prototype.html">函式 prototype 特性</a>〉中談過，使用 <code>new</code> 關鍵字時，JavaScript 會先建立一個空物件實例，接著設定實例的原型物件為函式的 <code>prototype</code> 特性參考的物件，然後呼叫建構式並將建立的實例設為 <code>this</code>。</p>
+<p>注意，實例的原型物件是在建立實例之後就確立下來的，原型鏈查找特性時，是根據實例上的原型物件，而不是函式上的 <code>prototype</code>。例如，你可以看看以下為何無法取得特性：</p>
+<pre class="prettyprint"><code lang="javascript">function Car() {
+    Car.prototype.wheels = 4;
+}
+
+function SportsCar() {
+    SportsCar.prototype = new Car();
+    SportsCar.prototype.doors = 2;
+}
+
+var sportsCar = new SportsCar();
+console.log(sportsCar.doors);    // undefined
+console.log(sportsCar.wheels);   // undefined
+</code></pre>
+<p>這是初學者常犯的錯誤。注意，物件的原型是在建立物件之後就確立下來的，所以在這行：</p>
+<pre class="prettyprint"><code lang="javascript">var sportsCar = new SportsCar();
+</code></pre>
+<p><code>sportsCar</code> 參考的實例就被指定了原型物件，也就是當時的 <code>SportsCar.prototype</code> 參考的物件，預設就是具有一個 <code>constructor</code> 特性的 <code>Object</code> 實例，之後你在 <code>SportsCar</code> 函式中將 <code>SportsCar.prototype</code> 指定為 <code>Car</code> 的實例，對 <code>sportsCar</code> 的原型物件根本沒有影響，<code>sportsCar</code> 的原型物件仍是 <code>Object</code> 實例，而不是 <code>Car</code> 實例，自然就找不到 <code>doors</code> 特性，更別說是 <code>wheels</code> 特性了。</p>
+<p>再來用實際的程式示範會更清楚，這次用非標準的 <code>Object.getPrototypeOf</code> 來驗證：</p>
+<pre class="prettyprint"><code lang="javascript">function Car() {
+    Car.prototype.wheels = 4;
+}
+
+function SportsCar() {
+    SportsCar.prototype = new Car();
+    SportsCar.prototype.doors = 2;
+}
+
+var sportsCar = new SportsCar();
+
+console.log(
+    Object.getPrototypeOf(sportsCar) === SportsCar.prototype
+); // false
+</code></pre>
+<p>從上例中可以看到，建立實側時就設定了原型物件，而實例上的原型物件最後跟 <code>SportsCar.prototype</code> 根本就不是同一個物件了。</p>
+<p>事實上，<code>instanceof</code> 也是根據物件的原型物件來判斷 <code>true</code> 或 <code>false</code> 的。例如：</p>
+<pre class="prettyprint"><code lang="javascript">function Car() {}
+function SportsCar() {}
+SportsCar.prototype = new Car();
+
+var sportsCar = new SportsCar();
+console.log(sportsCar instanceof SportsCar);  // true
+console.log(sportsCar instanceof Car);        // true
+console.log(sportsCar instanceof Object);     // true
+</code></pre>
+<p>簡單地說，<code>instanceof</code> 是根據原型鏈來查找。明白這個機制，就可以用 <code>Object.create</code> 來建立一個類陣列物件，並令 <code>instanceof Array</code> 檢驗結果為 <code>true</code>：</p>
+<pre class="prettyprint"><code lang="javascript">var arrayLike = Object.create(Array.prototype, {
+    '0'    : {value : 10},
+    '1'    : {value : 20},
+    '2'    : {value : 30},
+    length : {value : 3}
+});
+
+console.log(arrayLike instanceof Array);  // true
+</code></pre>
+<p>根據〈<a href="Prototype.html">函式 prototype 特性</a>〉中對 <code>Object.create</code> 的介紹，上例中建立的物件，並不是直接從 <code>Array</code> 建構而來，不過，最後的結果依然顯示為 <code>true</code>。</p>
+<p>如果你想要檢驗物件原型，除了使用 <code>Object.getPrototypeOf</code> 取得原型物件外，也可以使用 <code>isPrototypeOf</code> 方法。例如：</p>
+<pre class="prettyprint"><code lang="javascript">console.log(Array.prototype.isPrototypeOf([]));              // true
+console.log(Function.prototype.isPrototypeOf(Array));         // true
+console.log(Object.prototype.isPrototypeOf(Array.prototype)); // true
+</code></pre>
+<p><code>isPrototypeOf</code> 的作用與 <code>instanceof</code> 類似，都是透過原型鏈來確認：</p>
+<pre class="prettyprint"><code lang="javascript">console.log(Array.prototype.isPrototypeOf([]));  // true
+console.log(Object.prototype.isPrototypeOf([])); // true
+</code></pre>
+<p>在取得一個物件的特性時會尋找原型鏈，如果想確認特性是物件本身所擁有，或是其原型上的特性，可透過物件都具有的 <code>hasOwnProperty</code> 方法（當然，這是 <code>Object.prototype</code> 上的一個特性）。例如：</p>
+<pre class="prettyprint"><code lang="javascript">var o = {x : 10};
+console.log(o.hasOwnProperty('x'));        // true
+console.log(o.hasOwnProperty('toString')); // false
+console.log(o.hasOwnProperty('xyz')); // false
+</code></pre>
+<p>如果特性不是物件本身擁有，而是原型鏈上可取得，則會傳回 <code>false</code>，尋找不到特性也是傳回 <code>false</code>。</p>
+<p>在物件上直接使用 <code>.</code> 或 <code>[]</code> 新建的特性可以用 <code>for in</code> 列舉，有些內建特性或特性的 <code>enumerable</code> 被設為 <code>false</code> 時無法列舉，想要知道特性是不是可用 <code>for in</code> 列舉，則可以使用 <code>propertyIsEnumerable</code> 方法。例如：</p>
+<pre class="prettyprint"><code lang="javascript">var o = {x : 10};
+console.log(o.propertyIsEnumerable('x'));        // true
+console.log(o.propertyIsEnumerable('toString')); // false
+console.log(o.propertyIsEnumerable('xyz'));      // false
+</code></pre>
+<p>當然，特性不存在時就無法列舉，所以會傳回 <code>false</code>。</p>
+<p>ECMAScript 5 中，想要一次取得物件上可列舉的特性名稱，可以使用 <code>Object.keys</code>，例如：</p>
+<pre class="prettyprint"><code lang="javascript">console.log(Object.keys({x : 10, y : 20}).join(', ')); // x, y
+</code></pre>
+<p>如果想要取得物件本身的特性名稱，無論 <code>enumerable</code> 是否設為 <code>false</code>，可以使用 <code>Object.getOwnPropertyNames</code>，例如：</p>
+<pre class="prettyprint"><code lang="javascript">var obj = {};
+
+Object.defineProperties(obj, {
+    'name': {
+         value      : 'John',
+         enumerable : true
+     },
+     'age': {
+         value      : 39,
+         enumerable : false
+     },
+});
+
+console.log(Object.keys(obj).join(', '));                // name
+console.log(Object.getOwnPropertyNames(obj).join(', ')); // name, age
+</code></pre>
+<p>另外，ECMAScript 規格要求 <code>Object</code> 預設的 <code>toString</code> 要傳回 <code>'[object class]'</code> 格式的字串。JavaScript 的內建型態基本上都會遵守這樣的規定，例如 <code>Object</code> 實例會傳回 <code>[object Object]</code>、陣列會傳回 <code>[object Array]</code>、函式會傳回 <code>[object Function]</code> 等，這也可作為判斷型態的依據，基於對標準的支持，現在一些程式庫多使用這個來作判斷。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

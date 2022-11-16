@@ -1,0 +1,113 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈定義類別〉中，Account 的 deposit 及 withdraw，在參數值 amount 不正確時，都是直接顯示文字模式下的訊息後直接 return，如果這個類別不只使用在文字模式中呢？
+這...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="簡介例外處理">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/ExceptionHandling.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈定義類別〉中，Account 的 deposit 及 withdraw，在參數值 amount 不正確時，都是直接顯示文字模式下的訊息後直接 return，如果這個類別不只使用在文字模式中呢？
+這...">
+
+    <title>簡介例外處理</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ExceptionHandling.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介例外處理</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ClassABC.html">定義類別</a>〉中，<code>Account</code> 的 <code>deposit</code> 及 <code>withdraw</code>，在參數值 <code>amount</code> 不正確時，都是直接顯示文字模式下的訊息後直接 <code>return</code>，如果這個類別不只使用在文字模式中呢？</p>
+<p>這就需要有個方式，令 <code>deposit</code> 及 <code>withdraw</code> 的呼叫方程式碼，可以得知引數不正確，方式之一是透過傳回值，例如，令 <code>deposit</code> 及 <code>withdraw</code> 可以傳回 <code>int</code>，以不同的傳回值代表發生了什麼問題，呼叫方必須檢查傳回值，知道方法是否順利執行成功，並在傳回值代表發生錯誤時予以處理，基於 C 風格的錯誤處理，就是這麼一回事。</p>
+<p>不過，因為 C/C++ 的傳回值只能有一個，若方法本身就會傳回執行結果，例如，若 <code>withdraw</code> 本身就會傳回提領的數目，型態為 <code>double</code>，那麼就無法再以傳回 <code>int</code> 值來通知錯誤是否發生，當然，透過適當的設計，還是可以達到通知錯誤的效果，例如傳回負的 <code>double</code> 表示提領失敗，或者是以類別封裝提領款項與錯誤碼，令 <code>withdraw</code> 傳回該類別實例，透過檢查實例中代表錯誤的值域來確認執行成功與否，若成功則提取實例中的款項欄位，若失敗進行錯誤處理。</p>
+<p>然而，有時開發者會忘了要檢查錯誤，程式也可能因此在發生錯誤時，繼續往下執行，因而在後續發生不可預期的結果；另一方面，也許會希望有一種方式，在錯誤發生時，直接中斷流程，而且傳播錯誤，在每個上層的呼叫點都中斷，直到有某個呼叫點處理錯誤為止。</p>
+<p>當然，這也可以透過逐層撰寫檢查錯誤的程式碼來達成，不過，若想令傳播錯誤，在每個上層的呼叫點都中斷，直到有某個呼叫點處理錯誤為止。這件事成為某些誤發生時的預設行為呢？</p>
+<p>C++ 可以藉由拋出錯誤來達到，錯誤值可以是任何型態，例如拋出錯誤訊息的字串：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+void Account::deposit(double amount) {
+    if(amount &lt;= 0) {
+        throw "必須存入正數";
+    }
+    this-&gt;balance += amount;
+}
+
+void Account::withdraw(double amount) {
+    if(amount &gt; this-&gt;balance) {
+        throw "餘額不足";
+    }
+    this-&gt;balance -= amount;
+}
+</code></pre>
+<p>被拋出的錯誤稱為例外（exception），在呼叫 <code>deposit</code>、<code>withdraw</code> 時，若指定了錯誤的引數，例外會被拋出，執行流程就會中斷：</p>
+<pre class="prettyprint"><code lang="c++">Account acct = {"123-456-789", "Justin Lin", 1000};
+cout &lt;&lt; acct.to_string() &lt;&lt; endl;
+
+acct.deposit(-500); // terminate called after throwing an instance of 'char const*'
+</code></pre>
+<p>實際執行執行程式時，流程從拋出例外後就整個中斷了，程式整個掛點，若想處理被拋出的例外，可以使用 <code>try-catch</code> 語法，例如：</p>
+<pre class="prettyprint"><code lang="c++">Account acct = {"123-456-789", "Justin Lin", 1000};
+
+try {
+    acct.deposit(-500);
+}
+catch(char const* error) {
+    cout &lt;&lt; error &lt;&lt; endl;  // 顯示「必須存入正數」
+}
+</code></pre>
+<p>可能拋出例外的程式碼，可以撰寫在 <code>try</code> 區塊之中，如果沒有發生錯誤，執行完 <code>try</code> 區塊後，就不會執行 <code>catch</code> 區塊，若執行時發生錯誤，流程會從例外拋出處中斷，然後對應的 <code>catch</code> 區塊可以指定例外型態來捕捉，例外捕捉後會指定給括號中的變數，接著執行 <code>catch</code> 區塊。</p>
+<p>若 <code>Account</code> 是某程式庫的類別，由於錯誤發生時的處理方式並沒有寫死，而是拋出例外，讓呼叫方自行決定是否捕捉處理；這邊在文字模式執行時，捕捉例外後顯示錯誤值；想像一下，如果 <code>Account</code> 被用於圖形介面環境，捕捉例外後就可以操作圖形介面，來顯示相對應的錯誤訊息。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

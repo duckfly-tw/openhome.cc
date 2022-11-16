@@ -1,0 +1,272 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Widget 的 Key（二）〉談到了個既有的 Element 會被丟棄的情況，新的 Element 建立，因而也產生新的 State 物件。
+Element 是透過 Widget 的 creat...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="createElement 與 createState">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/ElementState.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Widget 的 Key（二）〉談到了個既有的 Element 會被丟棄的情況，新的 Element 建立，因而也產生新的 State 物件。
+Element 是透過 Widget 的 creat...">
+
+    <title>createElement 與 createState</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ElementState.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>createElement 與 createState</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Key2.html">Widget 的 Key（二）</a>〉談到了個既有的 <code>Element</code> 會被丟棄的情況，新的 <code>Element</code> 建立，因而也產生新的 <code>State</code> 物件。</p>
+<p><code>Element</code> 是透過 <code>Widget</code> 的 <code>createElement</code> 建立，而狀態是透過 <code>createState</code> 建立，在 <code>Widget</code> 的 API 文件上談到：</p>
+<blockquote><p>A given widget can be included in the tree zero or more times. In particular a given widget can be placed in the tree multiple times. Each time a widget is placed in the tree, it is inflated into an Element, which means a widget that is incorporated into the tree multiple times will be inflated multiple times.</p>
+</blockquote>
+<p>也就是說，<code>Widget</code> 是可以重用的（畢竟它是組態物件），可以被放到 <code>Widget</code> 樹的多個位置，也可以從 <code>Widget</code> 樹取下後放到其他位置，每次 <code>Widget</code> 被放到 <code>Widget</code> 樹上，就會生成一個 <code>Element</code>，如果一個 <code>Widget</code> 被用在 <code>Widget</code> 樹多個位置，就會生成多個 <code>Element</code>。</p>
+<p>（雖說一個 <code>Widget</code> 可以被放置到 <code>Widget</code> 樹的多個位置，不過若 <code>Widget</code> 設置了 <code>key</code>，具有相同 <code>key</code> 的 <code>Widget</code> 就不能放到多個位置了，會發生 Each child must be laid out exactly once. 的錯誤。）</p>
+<p>這代表著，如果你的 <code>Widget</code> 若是 <code>StatefulWidget</code>，當 <code>Widget</code> 被放到 <code>Widget</code> 樹時，就會呼叫 <code>createState</code>，在 <code>StatefulWidget</code> 的 <code>createState</code> 文件說明就寫著：</p>
+<blockquote><p>The framework can call this method multiple times over the lifetime of a StatefulWidget. For example, if the widget is inserted into the tree in multiple locations, the framework will create a separate State object for each location. Similarly, if the widget is removed from the tree and later inserted into the tree again, the framework will call createState again to create a fresh State object, simplifying the lifecycle of State objects.</p>
+</blockquote>
+<p>也就是說，在 <code>StatefulWidget</code> 的生命週期中，<code>createState</code> 有可能被多次呼叫，包括 <code>StatefulWidget</code> 被用於多個位置，或者從 <code>Widget</code> 樹移下又放上等情況，這意謂著，如果 <code>StatefulWidget</code> 從 <code>Widget</code> 樹移下又放上，舊有的狀態就沒了。例如改一下〈<a href="Key2.html">Widget 的 Key（二）</a>〉的範例：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() =&gt; runApp(MyNote());
+
+class MyNote extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Note',
+      home: MyHomePage(title: 'My Note Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({this.title});
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() =&gt; _MyHomePageState();
+}
+
+// Note 現在繼承了 StatefulWidget
+class Note extends StatefulWidget {
+  double width;
+  double height;
+
+  // 設置 key
+  Note({Key key, this.width, this.height}) : super(key: key);
+
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _NoteState(this);
+}
+
+class _NoteState extends State&lt;Note&gt; {
+  Note note;
+  Color color;
+
+  _NoteState(this.note);
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 隨機顏色
+    var rand = new Random();
+    color = Color.fromARGB(255,
+        rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: color,
+      width: note.width,
+      height: note.height,
+    );
+  }
+}
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  final notes = [
+    Note(
+      key: UniqueKey(),
+      width: 200,
+      height: 200,
+    ),
+    Note(
+      key: UniqueKey(),
+      width: 200,
+      height: 200,
+    ),
+  ];
+
+  var idx = 0;
+  void _round_robin() {
+    setState(() {
+      idx = (idx + 1) % notes.length;  // 調整索引
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: notes[idx],  // 更換 Widget
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _round_robin,
+        tooltip: 'round robin',
+        child: Icon(Icons.swap_vert),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>以上的範例是希望透過更換 <code>Widget</code>，來更換最上層的便利貼顯示，雖然 <code>Note</code> 設置了 <code>key</code>，然而執行時試著按下按鈕，顏色會是隨機不斷變化，就我們的範例來說，因為有 <code>Note</code> 會被從 <code>Widget</code> 樹移除，另一個 <code>Note</code> 被放至 <code>Widget</code> 樹，這時就會再呼叫一次 <code>createElement</code> 方法，從而呼叫 <code>createState</code>，舊有的狀態就沒了。</p>
+<p>你也許會想說，那在 <code>Note</code> 中保留對既有 <code>_NoteState</code> 的參考，令 <code>createState</code> 每次都傳回同一 <code>_NoteState</code> 實例如何呢？不能這麼做，正如 <code>createState</code> 名稱說的，也如 API 說的，你得傳回新建的 <code>State</code> 實例，若 <code>createState</code> 傳回舊的 <code>State</code>，Flutter 會噴錯誤給你。</p>
+<p>如果 <code>StatefulWidget</code> 會脫離 <code>Widget</code> 樹，而後重新放上，那麼代表這個 <code>StatefulWidget</code> 的狀態會是新的，在這個情況下，若真的要令新的 <code>State</code> 可以接續先前狀態，就要想辦法令其在初始化時載入先前狀態，也就表示你要想辦法在其他管道儲存狀態。</p>
+<p>如果你不想理會狀態接續問題，也可以換個設計，像是〈<a href="Key2.html">Widget 的 Key（二）</a>〉中使用 <code>Stack</code> 來切換顯示在堆疊頂端的元件，或者是將狀態儲存在父元件，例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() =&gt; runApp(MyNote());
+
+class MyNote extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Note',
+      home: MyHomePage(title: 'My Note Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({this.title});
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() =&gt; _MyHomePageState();
+}
+
+// Note 繼承 StatelessWidget
+class Note extends StatelessWidget {
+  Color color;
+  double width;
+  double height;
+
+  Note({this.color, this.width, this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: color,
+      width: width,
+      height: height,
+    );
+  }
+}
+
+class _MyHomePageState extends State&lt;MyHomePage&gt; {
+  List&lt;Color&gt; colors;
+
+  @override
+  void initState() {
+    super.initState();
+    // 隨機顏色
+    var rand = new Random();
+    colors = [
+      Color.fromARGB(255,
+          rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
+      Color.fromARGB(255,
+          rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))
+    ];
+  }
+
+  var idx = 0;
+  void _round_robin() {
+    setState(() {
+      idx = (idx + 1) % colors.length;  // 調整索引
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Note(
+          color: colors[idx],
+          width: 200,
+          height: 200,
+        ),  // 更換 Widget
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _round_robin,
+        tooltip: 'round robin',
+        child: Icon(Icons.swap_vert),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>在以上的範例中，真正的狀態是顏色，它們儲存於 <code>_MyHomePageState</code>，而現在 <code>Note</code> 是 <code>StatelessWidget</code>。</p>
+<p>你應該留意 <code>createState</code> 是否會被多次呼叫的問題，必要時將狀態儲存下來，並在 <code>State</code> 物件初始狀態時，嘗試載入成為畫面狀態。</p>
+<p>或者是考慮狀態管理由哪個元件來做，子元件？父元件？或是兩者之混合？這些在〈<a href="https://flutter.dev/docs/development/ui/interactive#managing-state">Managing state</a>〉中有些範例可以參考。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

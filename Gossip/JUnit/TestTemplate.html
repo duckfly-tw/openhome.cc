@@ -1,0 +1,447 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="繼
+續 自由組合測試
+的故事，測試人員又在抱怨了，每次要寫測試，就得自己實作一個Test介面，著實有點麻
+煩，你想了一下，也對！要不這樣好了，測試人員只要在某個類別中寫個公開、不傳回值、沒有參數...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="建立測試案例">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/TestTemplate.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="繼
+續 自由組合測試
+的故事，測試人員又在抱怨了，每次要寫測試，就得自己實作一個Test介面，著實有點麻
+煩，你想了一下，也對！要不這樣好了，測試人員只要在某個類別中寫個公開、不傳回值、沒有參數...">
+
+
+    <title>建立測試案例</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TestTemplate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>建立測試案例</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            繼
+續 <a href="TestComposite.html">自由組合測試</a>
+的故事，測試人員又在抱怨了，每次要寫測試，就得自己實作一個<span style="font-family: Courier New,Courier,monospace;">Test</span>介面，著實有點麻
+煩，你想了一下，也對！要不這樣好了，測試人員只要在某個類別中寫個公開、不傳回值、沒有參數的<span style="font-family: Courier New,Courier,monospace;">testXXX()</span>方法，
+你的執行器自動找出當中的方法並執行如何？而且你比他多考慮了一些東西，所以，你先設計了一個<span style="font-family: Courier New,Courier,monospace;">TestCase</span>：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      import
+java.lang.reflect.*;<br>
+      public
+class TestCase extends Assert implements Test {<br>
+      &nbsp;&nbsp;&nbsp;
+private String fName;<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public TestCase() {}<br>
+      &nbsp;&nbsp;&nbsp;
+public TestCase(String name) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; fName = name;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+protected void setUp() {}<br>
+      &nbsp;&nbsp;&nbsp;
+protected void tearDown() {}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+public void run() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; setUp();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; runTest();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; tearDown();<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void runTest() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Method runMethod= null;<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; try {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; runMethod=
+getClass().getMethod(fName, null);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; } catch (Exception e) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException(e);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; if (!Modifier.isPublic(runMethod.getModifiers())) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException("方法
+\"" + fName + "\" 必須是 public");<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; try {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; runMethod.invoke(this, new
+Class[0]);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; } catch (Exception e) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException(e);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public String getName() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; return fName;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void setName(String name) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; fName = name;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+測試人員要撰寫各個測試案例的話，要繼承<span style="font-family: Courier New,Courier,monospace;">TestCase實作子類別，每個測試案
+例實作一個testXXX()方法。例如：<br>
+      </span>
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      import
+cc.openhome.Calculator;<br>
+      public
+class CalculatorPlusMinusTest extends TestCase {<br>
+      &nbsp;&nbsp;&nbsp;
+public CalculatorPlusMinusTest(String name) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; super(name);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testPlus() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Calculator calculator = new Calculator();<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 5;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.plus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testMinus() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Calculator calculator = new Calculator();<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 1;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.minus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public static Test suite() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestSuite suite = new TestSuite();<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+suite.add(new CalculatorPlusMinusTest("testPlus"));<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+suite.add(new CalculatorPlusMinusTest("testMinus"));<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return suite;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public static void main(String[] args) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestRunner.run(suite());<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      <br>
+有好一些嗎？好像是有，至少不用分別建立Test的實作類別了，然而你還可以讓測試人員更方便一些。你想在執行測試時，用每個testXXX()方法名稱
+來建構TestCase的子類別實例</span>，而後運用反射（Reflection）來執行那些<span style="font-family: Courier New,Courier,monospace;">testXXX()</span>方法，
+讓測試人員不用自己去作一些建立物件的動作。為此，你要重構<span style="font-family: Courier New,Courier,monospace;">TestSuite</span>：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">package test.cc.openhome;</span><br>
+      <span style="font-weight: bold;">import java.lang.reflect.*;</span><br>
+      <span style="font-weight: bold;">import java.util.*;</span><br>
+      <span style="font-weight: bold;">public class TestSuite implements Test {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private List&lt;Test&gt;
+tests = new ArrayList&lt;Test&gt;();</span><br>
+      <br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public TestSuite() {</span><span style="font-weight: bold;">}</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public TestSuite(Class
+clz) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 找出每個test開頭的方法<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+Method[] methods = clz.getDeclaredMethods();</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for
+(Method method : methods) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; if (Modifier.isPublic(method.getModifiers())</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &amp;&amp; method.getName().startsWith("test")) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Constructor constructor = null;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; try {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; constructor = clz.getConstructor();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// 建立TestCase實例<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestCase testCase = (TestCase)
+constructor.newInstance();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// 設定要呼叫的testXXX()方法<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; testCase.setName(method.getName());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// 加入測試<br>
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; add(testCase);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } catch (Exception e) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new
+RuntimeException(e);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; @Override</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void run() {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for
+(Test test : tests) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; test.run();</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void add(Test
+test) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+tests.add(test);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; public void add(Class clz) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; tests.add(new TestSuite(clz));<br>
+&nbsp;&nbsp;&nbsp; }<br>
+      </span><span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+你的<span style="font-family: Courier New,Courier,monospace;">TestRunner</span>也
+作了些小小的修改：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      public
+class TestRunner {<br>
+      &nbsp;&nbsp;&nbsp;
+public static void run(Test test) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+test.run();<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public static void run(Class clz) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+run(new TestSuite(clz)); <br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+現在，如果測試人員要寫測試，只需要：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      import
+cc.openhome.Calculator;<br>
+      public
+class CalculatorTest extends TestCase {<br>
+      &nbsp;&nbsp;&nbsp;
+private Calculator calculator;<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+      public
+CalculatorTest() {} &nbsp; <br>
+      &nbsp;&nbsp;&nbsp;
+public CalculatorTest(String name) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; super(name);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+protected void setUp() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; calculator = new Calculator();<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+protected void tearDown() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; calculator = null;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testPlus() {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 5;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.plus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testMinus() {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 1;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.minus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public static void main(String[] args) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestRunner.run(CalculatorTest.class);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">省事多了，而且注
+意到setUp()與tearDown()的使用，由於TestCase中的run()設計為每次都會呼叫setUp()、testXXX()、
+tearDown()，所以</span><span style="font-family: Courier New,Courier,monospace;">setUp()與tearDown()可
+用來作為每個testXXX()</span>方法準備測試裝備（Test fixture），這應該算是 <a href="http://caterpillar.onlyfun.net/Gossip/DesignPattern/TemplateMethod.htm">Template
+Method
+模式</a> 的實現。<br>
+      <br>
+現在測試人員撰寫測試時，彈性也多了許多，可以使用<span style="font-family: Courier New,Courier,monospace;">TestSuite自由地組合測試案例中
+某些testXXX()方法，或者是直接運行所有的testXXX()方法，每個測試案例也都可以再結合起來。例如：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">package test.cc.openhome;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public class CalculatorAll {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static Test
+suite() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+TestSuite suite = new TestSuite();</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //
+隨便你組合</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+suite.add(CalculatorPlusMinusTest.suite());</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+suite.add(CalculatorTest.class);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+suite.add(new CalculatorTest("testPlus"));</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+return suite;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static void
+main(String[] args) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+TestRunner.run(suite());</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      </span><br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

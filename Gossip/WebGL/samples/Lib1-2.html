@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>A simple lib</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 position;
+            attribute vec4 color;
+
+            varying vec4 fColor;
+    
+            void main(void) {
+                gl_Position = vec4(position.x, position.y * aspect, position.z, 1.0);
+                fColor = color;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            varying vec4 fColor;
+
+            void main(void) {
+                gl_FragColor = fColor;
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {GL, shaderSourceById, Renderer, IcosahedronGeometry, BasicMaterial, Mesh} from './js/gl-comm-2.js';
+            
+            function rotateXY(verteices, ax, ay) {
+                const sinax = Math.sin(ax);
+                const cosax = Math.cos(ax);
+                const sinay = Math.sin(ay);
+                const cosay = Math.cos(ay);
+
+                for(let i = 0; i < verteices.length; i += 3) {
+                    const [x, y, z] = [verteices[i], verteices[i + 1], verteices[i + 2]];
+                    const z1 = -x * sinay + z * cosay;
+                    verteices[i] = x * cosay + z * sinay;
+                    verteices[i + 1] = y * cosax - z1 * sinax;
+                    verteices[i + 2] = y * sinax + z1 * cosax;
+                }
+            }
+
+            const canvas = document.getElementById('glCanvas');
+            const renderer = new Renderer(
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader'),
+                canvas);
+            
+            renderer.uniform1f('aspect', canvas.clientWidth / canvas.clientHeight);
+            renderer.setClearColor(0, 0, 0, 1);
+
+            const geometry = new IcosahedronGeometry(0.5);
+
+            const faceColors = [];
+            for(let i = 0; i < 20; i++) {
+                faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+            }
+            const material = new BasicMaterial(3, faceColors);
+            const icosahedron = new Mesh(geometry, material);
+
+            renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+            
+            const colorBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.vertexColors(), GL.DYNAMIC_DRAW);
+            renderer.enableVertexAttribArray(colorBuffer, 'color', 4);
+
+            const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.DYNAMIC_DRAW);
+            renderer.enableVertexAttribArray(vertBuffer, 'position', 3);
+
+            rotateXY(geometry.verteices, Math.PI / 3, 0);
+
+            let animation = false;
+            function drawIcosahedron() {
+                renderer.clear();
+                renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+                renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+                renderer.render(icosahedron);
+
+                rotateXY(geometry.verteices, 0, 0.025);
+
+                if(animation) {
+                    requestAnimationFrame(drawIcosahedron);
+                }
+            }
+
+            canvas.addEventListener('mousedown', () => {
+                animation = !animation;
+                if(animation) {
+                    drawIcosahedron();
+                }
+            });
+
+            drawIcosahedron();
+        </script>
+    </body>
+</html>

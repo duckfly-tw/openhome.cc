@@ -1,0 +1,74 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="對於物件所共用擁有的行為，如果是同一種物件，可以將共同行為抽離設計至父類別，由子類別實作共同行為，對於非同種物件，可以將之抽離出來設計為特徵（Trait），讓不同的類別之間實作該特徵。然而有時候，你就...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="結構型態（Structural typing）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/StructuralTyping.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="對於物件所共用擁有的行為，如果是同一種物件，可以將共同行為抽離設計至父類別，由子類別實作共同行為，對於非同種物件，可以將之抽離出來設計為特徵（Trait），讓不同的類別之間實作該特徵。然而有時候，你就...">
+
+
+    <title>結構型態（Structural typing）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StructuralTyping.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>結構型態（Structural typing）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            對於物件所共用擁有的行為，如果是同一種物件，可以將共同行為抽離設計至父類別，由子類別實作共同行為，對於非同種物件，可以將之抽離出來設計為特徵（Trait），讓不同的類別之間實作該特徵。<br><br>然而有時候，你就是有像這樣的需求：<br><pre class="prettyprint"><code lang="scala">class Duck {<br>    def quack = "呱...呱..."<br>}<br><br>class Man {<br>    def quack = "呱~~呱~~"<br>}</code></pre><br>也許這個人是穿著鴨子吉祥物服裝要呱呱叫也說不一定，你如何設計一個方法，讓鴨子與人都可以呱呱叫？如果你並不想大費周章，設計一個具有quack方法的特徵的話！<br><br>如果是動態語言，如JavaScript、Python、Ruby等，會採用 <a href="http://en.wikipedia.org/wiki/Duck_typing">鴨子型態（Duck typing）</a>，也就是<span style="font-weight: bold;">「如果它走路像個鴨子，游起來像個鴨子，叫聲也像鴨子，那它就是鴨子！」</span>在Scala中，你可以使用結構型態（Structural typing）來達到類似鴨子型態的目的：<br><pre class="prettyprint"><code lang="scala">def doQuack(d: <span style="font-weight: bold;">{def quack: String}</span>) {<br>    println(d.quack)<br>}<br><br>doQuack(new Duck)  // "呱...呱...<br>doQuack(new Man)   // "呱~~~呱~~~</code></pre><br>在
+上例中，doQuack()方法接受任何型態的物件，只要它具有quack的行為，即使Duck與Man彼此沒有關係，但它們確實都具有quack的行
+為，所以可以傳入doQuack()方法之中。正如上例所示，結構型態正是在解決物件間即不是同一種物件，也非實作某個特徵，但又確實擁有共同行為的情
+況。<br><br>你可以在{ } 之間定義任何的方法外觀，例如：<br><pre class="prettyprint"><code lang="scala">class Duck {<br>    def quack = "呱...呱..."<br>    def swim  = "划...划..."<br>}<br><br>class Man {<br>    def quack = "呱~~~呱~~~"<br>    def swim  = "划~~~划~~~"<br>}<br><br>def doQuack(d: <span style="font-weight: bold;">{def quack: String; def swim: String}</span>) {<br>    println(d.quack)<br>    println(d.swim)<br>}<br><br>doQuack(new Duck)  <br>doQuack(new Man)   </code></pre><br>如果要定義的方法較多時，可以使用type為結構型態取個別名：<br><pre class="prettyprint"><code lang="scala">class Duck {<br>    def quack = "呱...呱..."<br>    def swim  = "划...划..."<br>    def walk  = "搖...搖..."<br>}<br><br>class Man {<br>    def quack = "呱~~~呱~~~"<br>    def swim  = "划~~~划~~~"<br>    def walk  = "搖~~~搖~~~"<br>}<br><br><span style="font-weight: bold;">type DuckLike = {</span><br><span style="font-weight: bold;">    def quack: String</span><br><span style="font-weight: bold;">    def swim : String</span><br><span style="font-weight: bold;">    def walk : String</span><br><span style="font-weight: bold;">}</span><br><br>def doQuack(d: <span style="font-weight: bold;">DuckLike</span>) {<br>    println(d.quack)<br>    println(d.swim)<br>    println(d.walk)<br>}<br><br>doQuack(new Duck)  <br>doQuack(new Man)   </code></pre><br>你也可以限制必須是某個類別的子類別，例如：<br><pre class="prettyprint"><code lang="scala">class Animal<br><br>class Man extends Animal {<br>    def quack = "呱~~~呱~~~"<br>}<br><br>class ToyDuck {<br>    def quack = "呱***呱***"<br>}<br><br><span style="font-weight: bold;">type DuckLike = Animal {</span><br><span style="font-weight: bold;">    def quack: String</span><br><span style="font-weight: bold;">}</span><br><br>def doQuack(d: DuckLike) {<br>    println(d.quack)<br>}<br><br>doQuack(new Man)      <br>doQuack(new ToyDuck)   // 編譯錯誤，type mismatch</code></pre><br>在上例中，限制必須是動物才可以丟入doQuack()呱呱叫，玩具鴨不是動物，所以不可以丟入doQuack()中。有趣的是，結構型態也可以進行擴充：<br><pre class="prettyprint"><code lang="scala">type Quacklike = { def quack: String }<br>type Ducklike = Quacklike { def swim: String; def walk: String }</code></pre><br>在上例中，Ducklike將必須是具有quack、swim、walk的型態。如果已給定結構型態別名，則擴充時所使用的語法為使用with：<br><pre class="prettyprint"><code lang="scala">type Quacklike = { def quack: String }<br>type Walklike  = { def walk: String }<br>type Swimlike  = { def swim: String }<br>type Ducklike = Quacklike with Walklike with Swimlike</code></pre><br>結構型態就是一種型態，自然也就可以用來對陣列或群集（Collection）作參數化，例如在下面的ducks陣列中，可以放入任何種類的物件，只要它們具有quack的行為就可以：<br><pre class="prettyprint"><code lang="scala">class Duck {<br>    def quack = "呱...呱..."<br>}<br><br>class Toy {<br>    def quack = "呱...呱..."<br>}<br><br>class Man {<br>    def quack = "呱~~~呱~~~"<br>}<br><br>type DuckLike = {<br>    def quack: String<br>}<br><br>val ducks: Array[DuckLike] = Array[DuckLike](new Duck, new Toy, new Man)<br>ducks.foreach(d =&gt; println(d.quack))</code></pre><br>
+  
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

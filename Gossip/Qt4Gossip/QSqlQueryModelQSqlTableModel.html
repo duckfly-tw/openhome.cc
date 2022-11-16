@@ -1,0 +1,349 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="QSqlQueryModel提供可編輯的資料模型，協助您從單一資料表格中讀取或寫入資料，可搭配 View 類別 簡單的達到以圖形元件顯示表格欄位記錄，下面的程式是個簡單的示範：
+
+      
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="QSqlQueryModel 與 QSqlTableModel">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/QSqlQueryModelQSqlTableModel.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="QSqlQueryModel提供可編輯的資料模型，協助您從單一資料表格中讀取或寫入資料，可搭配 View 類別 簡單的達到以圖形元件顯示表格欄位記錄，下面的程式是個簡單的示範：
+
+      
+...">
+
+
+    <title>QSqlQueryModel 與 QSqlTableModel</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="QSqlQueryModelQSqlTableModel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>QSqlQueryModel 與 QSqlTableModel</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             QSqlQueryModel提供可編輯的資料模型，協助您從單一資料表格中讀取或寫入資料，可搭配 <a href="ViewClass.html">View 類別</a> 簡單的達到以圖形元件顯示表格欄位記錄，下面的程式是個簡單的示範：<br>
+
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QApplication&gt;<br>#include &lt;QtSql&gt;<br>#include &lt;QTableView&gt;<br><br>int main(int argc, char *argv[]) {<br>	QApplication app(argc, argv);<br>	<br>    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");<br>    db.setHostName("localhost");<br>    db.setDatabaseName("demo");<br>    db.setUserName("root");<br>    db.setPassword("123456");<br>    db.open();<br>    <br>    QSqlQueryModel *model = new QSqlQueryModel;<br>    model-&gt;setQuery("SELECT * FROM T_USER");<br>    model-&gt;setHeaderData(0, Qt::Horizontal, "ID");<br>    model-&gt;setHeaderData(1, Qt::Horizontal, "Name");<br>    model-&gt;setHeaderData(2, Qt::Horizontal, "AGE");    <br><br>    QTableView *view = new QTableView;<br>    view-&gt;setWindowTitle("QSqlQueryModel");<br>    view-&gt;setModel(model);<br>    view-&gt;show();    <br>    <br>    db.close();<br><br>    return app.exec();<br>}</code></pre>
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+      QTableView會自動提取QSqlQueryModel的資料，並顯示在表格之中，一個執行的參考畫面如下所示：<br>
+
+      <br>
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/QSqlQueryModelQSqlTableModel-1.jpg" /></div></div><br>
+
+      <br>
+
+如果想要直接使用QSqlQueryModel進行資料查詢，則可以如下：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QSqlQueryModel *model = new QSqlQueryModel;</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setQuery("SELECT * FROM T_USER");</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for (int i = 0; i &lt; model-&gt;rowCount(); ++i) {</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QSqlRecord record = model-&gt;record(i);</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int id = record.value("id").toInt();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QString name = record.value("name").toString();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int age = record.value("age").toInt();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; cout &lt;&lt; id &lt;&lt; " " &lt;&lt; qPrintable(name) &lt;&lt; " " &lt;&lt; age &lt;&lt; endl;</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span></span><br>
+
+      </div>
+
+      <span><br>
+
+      QSqlQueryModel的rowCount()方法傳回所查詢得到的資料筆數，record()方法指定索引表示要查詢
+第幾筆資料，這會傳回一個QSqlRecord物件，您可以使用value()方法指定欄位名稱以取得資料的QVariants物件，並使用toInt
+()、toString()等方法轉換為指定的資料型態，value()方法也可以指定數字索引，索引值從0開始，建議採用數字索引，以降低與資料表格的
+耦合度，例如：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QSqlQueryModel *model = new QSqlQueryModel;</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setQuery("SELECT * FROM T_USER");</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for (int i = 0; i &lt; model-&gt;rowCount(); ++i) {</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QSqlRecord record = model-&gt;record(i);</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int id = record.value(0).toInt();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QString name = record.value(1).toString();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int age = record.value(2).toInt();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; cout &lt;&lt; id &lt;&lt; " " &lt;&lt; qPrintable(name) &lt;&lt; " " &lt;&lt; age &lt;&lt; endl;</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span></span><br>
+
+      </div>
+
+      <span><br>
+
+      </span><span>QSqlQueryModel的setQuery()方法基本上也可以設定INSERT、UPDATE、DELETE等SQL語句，例如以下的程式片段會刪除名稱為"justin"的資料：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setQuery("DELETE FROM T_USER WHERE name = 'justin'");</span><br>
+
+      </div>
+
+      <span><br>
+
+QSqlTableModel是QSqlQueryModel的子類別，提供物件導向的方式來對資料庫表格進行存取，透過QSqlTableModel，您可以不用撰寫SQL語句，就可以進行查詢、更新、新增、刪除等動作，例如：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QSqlTableModel *model = new QSqlTableModel;</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setTable("T_USER");</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setFilter("age &gt;= 30");</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;select();</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for (int i = 0; i &lt; model-&gt;rowCount(); ++i) {</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QSqlRecord record = model-&gt;record(i);</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int id = record.value(0).toInt();</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QString name = record.value(1).toString();</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; int age = record.value(2).toInt();</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; cout &lt;&lt; id &lt;&lt; " " &lt;&lt; qPrintable(name) &lt;&lt; " " &lt;&lt; age &lt;&lt; endl;</span><br>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+      </div>
+
+      <span><br>
+
+您可以使用setTable()方法指定要查詢的表格，使用setFilter()設定查詢條件，使用select()方法進行SELECT查詢，這相當於使用以下的SQL語句：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">SELECT * FROM T_USER WHERE age &gt;= 30</span></span><br>
+
+      </div>
+
+      <span><br>
+
+      如果要更新資料，則可以使用如下，以下取得第一筆資料，並進行更新：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QSqlTableModel *model = new QSqlTableModel;</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;setTable("T_USER");<br>
+
+// 先SELECT資料到Model<br>
+
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;select();<br>
+
+// 取得第一筆記錄<br>
+
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QSqlRecord record = model-&gt;record(0);<br>
+
+// 更新資料記錄<br>
+
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">record.setValue("name", "justin");<br>
+
+// 設定Model的第一筆記錄<br>
+
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;setRecord(0, record);<br>
+
+// 記得要submitAll()才會更新至資料庫<br>
+
+      </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;submitAll();</span><br>
+
+      </div>
+
+      <span><br>
+
+      也可以直接在QSqlTableModel物件上直接使用setValue()進行更新，例如：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">QSqlTableModel *model = new QSqlTableModel;</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setTable("T_USER");</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 先SELECT資料到Model</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;select();</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 指定Model中儲存格索引更新資料</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setData(model-&gt;index(0, 1), "caterpillar");</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;setData(model-&gt;index(0, 2), 34);</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 記得要submitAll()才會更新至資料庫</span></span><br>
+
+      <span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">model-&gt;submitAll();</span></span><br>
+
+      </div>
+
+      <span><br>
+
+      如果要新增資料，則如下進行：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">QSqlTableModel *model = new QSqlTableModel;</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;setTable("T_USER");<br>
+
+      </span></span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">// 先SELECT資料到Model</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;select();<br>
+
+      </span></span><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">// 只要指定為0即可</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">int row = 0;&nbsp;<br>
+
+// 在Model中新增一列<br>
+
+      </span></span><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;insertRows(row, 1);</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;setData(model-&gt;index(row, 1), "ww");</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;setData(model-&gt;index(row, 2), 10);</span></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">model-&gt;submitAll();</span></span><br>
+
+      </div>
+
+      <span><br>
+
+雖然insertRows()是用來在指定的列（Row）後插入指定的列數，但</span><span>實際上在</span><span>QSqlTableModel中，insertRows()被重新定義為只要指定列數為0即可，資料表格的新增資料就一律新增至最後一列。<br>
+
+      <br>
+
+如果要刪除資料，則使用removeRows()方法，例如：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">QSqlTableModel *model = new QSqlTableModel;</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;setTable("T_USER");</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;setFilter("name = 'duke'");</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;"></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">// 先SELECT資料到Model</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">model-&gt;select();</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;"></span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">// 從Model中移除資料</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">if (model-&gt;rowCount() &gt; 0) {</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; model-&gt;removeRows(0, model-&gt;rowCount());</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; // 記得要submitAll()才會更新至資料庫</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; model-&gt;submitAll();</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">}</span><br>
+
+      </div>
+
+      <span><br>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

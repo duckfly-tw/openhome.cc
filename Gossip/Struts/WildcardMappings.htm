@@ -1,0 +1,319 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在Struts中，您所有關於請求轉發等的設定都是在struts-config.xml中定義，很快的，您的 struts-config.xml就會膨漲為好幾百行，甚至好幾千行。
+
+      
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="ActionMappings 通配字元">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Struts/WildcardMappings.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在Struts中，您所有關於請求轉發等的設定都是在struts-config.xml中定義，很快的，您的 struts-config.xml就會膨漲為好幾百行，甚至好幾千行。
+
+      
+...">
+
+
+    <title>ActionMappings 通配字元</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="WildcardMappings.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Struts 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>ActionMappings 通配字元</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+
+
+
+
+
+
+
+
+
+在Struts中，您所有關於請求轉發等的設定都是在struts-config.xml中定義，很快的，您的 struts-config.xml就會膨漲為好幾百行，甚至好幾千行。<br>
+
+      <br>
+
+
+
+您可以使用 <a href="ModuleUnit.htm">模組化程式</a> 的方式，將相關的功能設定加以分類，並撰寫在不同的struts-config-xxx.xml模組設定檔案中。<br>
+
+      <br>
+
+
+
+在Struts 1.2中新增了通配字元（wildcard）設定，您可以在struts-config.xml中使用通配字元，透過事前設計好的命名規範，加上通配字元設定，您可以大量的減少struts-config.xml中的設定行數。<br>
+
+      <br>
+
+
+
+以一個實際的例子來看，如果您本來的struts-config.xml中的設定是這樣的：
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>struts-config.xml</li>
+
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">....<br> &lt;action    <br>    path="/editProfile"<br>    type="onlyfun.caterpillar.EditProfileAction"<br>    name="profileForm"<br>    scope="request"<br>    validate="false"&gt;<br>    &lt;forward <br>        name="failure" <br>        path="/mainMenu.jsp"/&gt;<br>    &lt;forward <br>        name="success" <br>        path="/profile.jsp"/&gt;<br> &lt;/action&gt;<br><br> &lt;action    <br>    path="/editDocument"<br>    type="onlyfun.caterpillar.EditDocumentAction"<br>    name="documentForm"<br>    scope="request"<br>    validate="false"&gt;<br>    &lt;forward <br>        name="failure" <br>        path="/mainMenu.jsp"/&gt;<br>    &lt;forward <br>        name="success" <br>        path="/document.jsp"/&gt;<br> &lt;/action&gt;<br>....</code></pre>
+
+
+
+      <br>
+
+      
+
+則在Struts 1.2中可以這麼撰寫就好了：<br>
+
+
+
+      
+      <ul>
+
+        <li>struts-config.xml</li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">....<br> &lt;action    <br>    path="/edit*"<br>    type="onlyfun.caterpillar.Edit{1}Action"<br>    name="{1}Form"<br>    scope="request"<br>    validate="false"&gt;<br>    &lt;forward <br>        name="failure" <br>        path="/mainMenu.jsp"/&gt;<br>    &lt;forward <br>        name="success" <br>        path="/{1}.jsp"/&gt;<br> &lt;/action&gt;<br>....</code></pre>
+
+
+
+      <br>
+
+      
+
+如上設定，如果是edit開頭的請求，就會與通配字元比對，並將除去前綴部份字串作為查找Action的依據，例如
+/editProfile.do就會查找EditProfileAction的action設定，而/editDocument.do就會查找
+EditDocumentAction的action設定。<br>
+
+      <br>
+
+
+
+通配字元*最多可以設定九個，依序對應至{1}到{9}，例如/edit*Profile*.do與edit{1}Profile{2}Action的關係。<br>
+
+      <br>
+
+
+
+設定{0}的話，表示會包括整個請求，即包括前綴，例如/edit*.do與Admin{0}Action的關係的一個例子是，在請求為 /editProfile.do時，會呼叫AdminEditProfileAction這個action。<br>
+
+      <br>
+
+
+
+通配字元設定主要包括以下：
+
+
+
+
+
+      <br>
+
+
+
+      
+      <table align="left" border="1" width="100%">
+
+
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+      <td align="left" valign="top"> *</td>
+
+
+
+
+      <td align="left" valign="top">比對一個或多個字元，不包括斜線 ('/') 字元 </td>
+
+
+
+
+    </tr>
+
+
+
+
+    <tr>
+
+
+
+
+      <td align="left" valign="top">** </td>
+
+
+
+
+      <td align="left" valign="top">比對一個或多個字元，包括斜線 ('/') 字元 </td>
+
+
+
+
+    </tr>
+
+
+
+
+    <tr>
+
+
+
+
+      <td align="left" valign="top">\character </td>
+
+
+
+
+      <td align="left" valign="top">反斜線字元被用於跳脫字元，所以 \* 會用於比對星號 ('*')，而
+\ 比對反斜線 ('\'). </td>
+
+
+
+
+    </tr>
+
+
+
+
+  
+  
+  
+        
+        </tbody>
+      
+      </table>
+
+
+
+
+      <br clear="all">
+
+
+
+
+      <br>
+
+      
+
+
+目前Struts 1.2中 &lt;action-mappings&gt; 支持通配字元設定的屬性有：<br>
+
+      
+
+      
+      <ul>
+
+        <li>type</li>
+
+        <li>name</li>
+
+        <li>roles</li>
+
+        <li>parameter</li>
+
+        <li>attribute</li>
+
+        <li>forward</li>
+
+        <li>include</li>
+
+        <li>input</li>
+
+      
+      </ul>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

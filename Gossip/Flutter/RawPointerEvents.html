@@ -1,0 +1,297 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在手機、平板上，主要是透過觸控螢幕進行操作，在 Flutter 中，除了一些按鈕等元件，大部份元件本身不能傾聽操作相關事件，然而，實際上也可以為這類元件加上一些事件傾聽。
+Flutter 系統將相關事...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="原始指標事件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/RawPointerEvents.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在手機、平板上，主要是透過觸控螢幕進行操作，在 Flutter 中，除了一些按鈕等元件，大部份元件本身不能傾聽操作相關事件，然而，實際上也可以為這類元件加上一些事件傾聽。
+Flutter 系統將相關事...">
+
+    <title>原始指標事件</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RawPointerEvents.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>原始指標事件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在手機、平板上，主要是透過觸控螢幕進行操作，在 Flutter 中，除了一些按鈕等元件，大部份元件本身不能傾聽操作相關事件，然而，實際上也可以為這類元件加上一些事件傾聽。</p>
+<p>Flutter 系統將相關事件分為兩個層次：原始指標事件（Raw pointer events）與手勢（Gestures）。</p>
+<p>這邊談一下原始指標事件，指標描述的是手指或觸控筆在螢幕上的位置，想傾聽指標的相關事件，可以透過 <a href="https://api.flutter.dev/flutter/widgets/Listener-class.html">Listerner</a> 類別，就撰寫本文的時間點，可以傾聽的事件有：</p>
+<ul>
+<li><code>onPointerCancel</code></li>
+<li><code>onPointerDown</code></li>
+<li><code>onPointerMove</code></li>
+<li><code>onPointerSignal</code></li>
+<li><code>onPointerUp</code></li>
+</ul>
+<p>這就是原始指標事件之所以「原始」的原因，因為不包含一些較高階的手勢操作，像是拖曳、雙連觸（Double tap）等較高級的事件；手機、平板可以接上滑鼠，早期的 <code>Listerner</code> 可以傾聽滑鼠事件，不過現在相關的事件已經被廢棄，職責分給了 <code>MouseRegion</code>。</p>
+<p><code>Listerner</code> 本身是個 <code>Widget</code>，有個 <code>child</code> 可以指定子元件，因此最簡單的傾聽範例就是：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Listener(
+          child: Container(
+            width: 300,
+            height: 200,
+            color: Colors.blue,
+          ),
+          onPointerDown: (event) =&gt; print('Down: ${event.position.dx}, ${event.position.dy}'),
+          onPointerMove: (event) =&gt; print('Move ${event.position.dx}, ${event.position.dy}'),
+          onPointerUp: (event) =&gt; print('Up ${event.position.dx}, ${event.position.dy}'),
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>這個範例很簡單，就不貼操作示範的圖了。看來是包在想傾聽的子元件上，就可以傾聽該元件的原始事件，只不過，實際的 UI 不會這麼單純，來進一步看看，若在 <code>Container</code> 中設個子元件並加上另一個 <code>Listener</code> 會如何？</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Listener(
+          child: Container(
+            width: 300,
+            height: 200,
+            color: Colors.blue,
+
+            child: Center(
+              // 加上個 Listener，傾聽其子元件
+              child: Listener(
+                child: Text('按我'),
+                onPointerDown: (_) =&gt; print('Inner Down'),
+              ),
+            ),
+
+          ),
+          onPointerDown: (_) =&gt; print('Outer Down'),
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>來看一下執行結果，分點在文字與其外圍點點看：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RawPointerEvents-1.gif" alt="原始指標事件"  /></div></div></p>
+<p>在點選文字時，<code>Container</code> 父元件 <code>Listener</code> 也被觸發了，這令人聯想到 DOM 事件浮昇，不過在 Flutter 中正確的說法是，「子元件命中測試（hit test）」通過，因而父裔元件的「<code>Listener</code> 的命中測試」就通過，不過這只是 <code>Listener</code> 預設的命中測試行為，這個行為可以藉由 <code>behavior</code> 來控制，預設是 <code>HitTestBehavior.deferToChild</code>，另外還可以指定為 <code>HitTestBehavior.opaque</code> 或 <code>HitTestBehavior.translucent</code>。</p>
+<p>命中測試的實現，是在 <code>RenderProxyBoxWithHitTestBehavior</code> 的原始碼中：</p>
+<pre class="prettyprint"><code lang="dart">  @override
+  bool hitTest(BoxHitTestResult result, { Offset position }) {
+    bool hitTarget = false;
+    if (size.contains(position)) {
+      hitTarget = hitTestChildren(result, position: position) || hitTestSelf(position);
+      if (hitTarget || behavior == HitTestBehavior.translucent)
+        result.add(BoxHitTestEntry(this, position));
+    }
+    return hitTarget;
+  }
+
+  @override
+  bool hitTestSelf(Offset position) =&gt; behavior == HitTestBehavior.opaque;
+</code></pre>
+<p><code>hitTest</code> 用來進行命中測試，如果指標位置（<code>position</code>）在 <code>Listener</code> 範圍（<code>size</code>）之內（也就是 <code>size.contains(position)</code> 該行），<code>hitTestChildren</code> 測試子元件是否命中，也就是指標是否在子元件繪製範圍內，子元件必須是可見的，透明的子元件不會命中。</p>
+<p>因此上一個範例中，若將 <code>Text('按我')</code> 改為 <code>Container(width: 50, height: 30)</code>，怎麼按中間位置，都不會顯示「Inner Down」的訊息，只會顯示「Outer Down」的訊息。</p>
+<p>從原始碼中可以看到，如果 <code>hitTestChildren</code> 結果是 <code>false</code>，然而 <code>behavior</code> 是 <code>HitTestBehavior.opaque</code> 的話，目前 <code>Listener</code> 命中測試也會通過，什麼時候會想要這種行為呢？來看看以下的情況：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Container(
+          width: 300,
+          height: 200,
+          color: Colors.blue,
+
+          child: Listener(
+            // behavior: HitTestBehavior.opaque,
+            child: Center(
+              child: Text('按我'),
+            ),
+            onPointerDown: (_) =&gt; print('Down'),
+          ),
+
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>在這個範例中，<code>Listener</code> 的範圍與 <code>Container</code> 相同，如果你在 <code>Text</code> 繪製範圍內按下，子元件命中測試通過，因而父裔的 <code>Listener</code> 的命中測試通過，如果不是點在 <code>Text</code> 上，子元件命中測試不通過，就不會顯示「Down」的訊息。</p>
+<p>若是將註解符號去除，若不是點在 <code>Text</code> 上，子元件命中測試不通過，然而因為 <code>behavior</code> 是 <code>HitTestBehavior.opaque</code>，從方才的 <code>hitTest</code> 來看，<code>Listener</code> 可以通過命中測試，這時就會顯示「Down」的訊息。</p>
+<p>簡單來說，opaque 代表著不透明，<code>HitTestBehavior.opaque</code> 也就是將 <code>Listener</code> 當成是個不透明元件，在指標落於 <code>Listener</code> 範圍時，就視為命中測試，因此底下的範例中，<code>Listener</code> 雖然沒有子元件，只要在藍色方塊中按下，都會顯示「Down」的訊息。</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Container(
+          width: 300,
+          height: 200,
+          color: Colors.blue,
+
+          child: Listener(
+            behavior: HitTestBehavior.opaque,
+            onPointerDown: (_) =&gt; print('Down'),
+          ),
+
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>在方才的 <code>hitTest</code> 中可以看到，如果 <code>hitTarget</code> 為 <code>true</code>，<code>result</code> 會收集命中測試的物件，被收集的物件會被發送事件。</p>
+<p>如果 <code>hitTarget</code> 為 <code>false</code>，然而 <code>behavior</code> 是 <code>HitTestBehavior.translucent</code>，也會收集物件，這時意謂著就算 <code>Listener</code> 命中測試失敗，只要 <code>behavior</code> 是 <code>HitTestBehavior.translucent</code>，一樣可以收到事件。</p>
+<p>來看看底下的範例：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Container(
+          width: 300,
+          height: 200,
+          color: Colors.blue,
+
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            child: Center(
+              child: Text('按我'),
+            ),
+            onPointerDown: (_) =&gt; print('Down'),
+          ),
+
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>嗯？跟更之前的範例相同？只不過 <code>HitTestBehavior.opaque</code> 改為 <code>HitTestBehavior.translucent</code>？就執行效果來看，兩者是相同的，然而意義不同，因為 <code>HitTestBehavior.translucent</code> 無論如何都會收到事件通知（就算命中測試失敗），這就像是把 <code>Listener</code> 當成一個透明膜，只要指標在 <code>Listener</code> 範圍中，就可以傾聽事件（無論命中測試成功或失敗）。</p>
+<p>來看另一個堆疊元件的例子：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+        child: Stack(
+          children: [
+            Listener(
+              child: Container(
+                width: 300,
+                height: 200,
+                color: Colors.blue,
+              ),
+              onPointerDown: (event) =&gt; print("堆疊底部"),
+            ),
+            Listener(
+              onPointerDown: (event) =&gt; print("有一層膜"),
+              // behavior: HitTestBehavior.translucent,
+            )
+          ],
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>就這個例子來說，按藍色範圍，只會顯示「堆疊底部」，然而，若去掉註解符號，堆疊頂端罩的膜就能收到事件，按藍色範圍，就會顯示「有一層膜」與「堆疊底部」的訊息。</p>
+<p>有的時候，會想要讓子元件無法參與指標事件，這時可以透過 <code>IgnorePointer</code> 和 <code>AbsorbPointer</code>，兩者的差別在於，前者不能參與命中測試而後者可以，例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Openhome.cc')),
+      body: Center(
+          child: Listener(
+            child: AbsorbPointer(
+              child: Listener(
+                child: Container(
+                  width: 300,
+                  height: 200,
+                  color: Colors.blue,
+                ),
+                onPointerDown: (_) =&gt; print('Container'),
+              )
+            ),
+            onPointerDown: (_) =&gt; print('AbsorbPointer'),
+        )
+      )
+    ),
+  )
+);
+</code></pre>
+<p>上例中，點選藍色範圍，只會出現「AbsorbPointer」訊息，因為 <code>AbsorbPointer</code> 不會有指標事件，如果將 <code>AbsorbPointer</code> 改為 <code>IgnorePointer</code>，就怎麼點都不會有訊息了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

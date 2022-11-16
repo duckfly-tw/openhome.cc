@@ -1,0 +1,359 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈牛頓運動定律〉中使用 p5.Vector 建立加速度向量，然後乘上物體的質量來取得力的向量，然而力有各種類型，為了區別，這邊先基於 F = ma，針對力定義基礎類別：
+class Force {
+...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="力的建模">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/Force.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈牛頓運動定律〉中使用 p5.Vector 建立加速度向量，然後乘上物體的質量來取得力的向量，然而力有各種類型，為了區別，這邊先基於 F = ma，針對力定義基礎類別：
+class Force {
+...">
+
+    <title>力的建模</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Force.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>力的建模</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="LawsMotion.html">牛頓運動定律</a>〉中使用 <code>p5.Vector</code> 建立加速度向量，然後乘上物體的質量來取得力的向量，然而力有各種類型，為了區別，這邊先基於 <code>F = ma</code>，針對力定義基礎類別：</p>
+<pre class="prettyprint"><code lang="javascript">class Force {
+   constructor(mass, acceleration) {
+       this.mass = mass;
+       this.acceleration = acceleration;
+   }
+}
+</code></pre>
+<p><code>Body</code> 的 <code>applyForce</code> 現在接受 <code>Force</code> 實例，取得加速度後來修改速度：</p>
+<pre class="prettyprint"><code lang="javascript">class Body {
+    constructor(coordinate, velocity, mass = 1) {
+        this.coordinate = coordinate;
+        this.velocity = velocity;
+        this.mass = mass;
+    }
+
+    applyForce(force) {
+        this.velocity.add(force.acceleration);
+    }
+
+    update() {
+        this.coordinate.add(this.velocity);
+    }
+}
+</code></pre>
+<p>現在〈<a href="LawsMotion.html">牛頓運動定律</a>〉中的球反彈範例，可以修改如下：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">const r = 10;
+let body;
+function setup() {
+	createCanvas(300, 300);
+	body = new Body(
+			   createVector(width / 2, height / 4), 
+			   createVector(2, 3),
+			   PI * r * r
+		   );
+}
+
+function draw() {
+	background(220);
+	body.update();
+	
+	checkEdges(body);
+	circle(body.coordinate.x, body.coordinate.y, 2 * r);
+}
+
+function checkEdges(body) {
+	const {x, y} = body.coordinate;
+	let shouldUpdate = false;
+	if(x + r >= width || x - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(-2 * body.velocity.x, 0))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(y + r >= height || y - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(0, -2 * body.velocity.y))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(shouldUpdate) {
+		body.update();
+	}
+}
+
+class Force {
+   constructor(mass, acceleration) {
+	   this.mass = mass;
+	   this.acceleration = acceleration;
+   }
+}
+
+class Body {
+	constructor(coordinate, velocity, mass = 1) {
+		this.coordinate = coordinate;
+		this.velocity = velocity;
+		this.mass = mass;
+	}
+  
+	applyForce(force) {
+		this.velocity.add(force.acceleration);
+	}
+  
+	update() {
+		this.coordinate.add(this.velocity);
+	}
+}
+</script>
+<p>在上面的實作中，將邊界的反彈抽取為 <code>checkEdges</code>，邊界的反彈其實屬於物體碰撞的問題，碰撞涉及物體的形狀，這是個複雜的議題，目前暫且忽略，單純使用 <code>checkEdges</code> 搪塞一下，實作中在球超出邊界時，套用了反作用力，並馬上調整球的位置，這樣球就不會畫出邊界外。</p>
+<p>談到力，最基本的就是重力了吧！以地球的重力而言，<code>G = mg</code>，<code>m</code> 為質量，若不在意地球是橢圓的事實，一般都假設 <code>g</code> 為 9.8，可以定義如下：</p>
+<pre class="prettyprint"><code lang="javascript">class Gravity extends Force {
+    constructor(mass, g = createVector(0, 2)) {
+        super(mass, g);
+    }
+}
+</code></pre>
+<p>咦？<code>g</code> 不是 9.8 嗎？那是在地球上，在模擬的世界中，<code>g</code> 要怎麼定義，要看你的世界怎麼定義，就這邊的文件來說，只要運動起來的效果像是在有重力的環境就可以了。</p>
+<p>來為方才的範例套上重力：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">const r = 10;
+let body;
+let gravity;
+function setup() {
+	createCanvas(300, 300);
+	body = new Body(
+			   createVector(width / 2, height / 4), 
+			   createVector(2, 0),
+			   PI * r * r
+		   );
+	gravity = new Gravity(body.mass); 
+}
+
+function draw() {
+	background(220);
+  
+	body.applyForce(gravity);
+	body.update();
+  
+	checkEdges(body);
+  
+	circle(body.coordinate.x, body.coordinate.y, 2 * r);
+}
+
+function checkEdges(body) {
+	const {x, y} = body.coordinate;
+	let shouldUpdate = false;
+	if(x + r >= width || x - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(-2 * body.velocity.x, 0))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(y + r >= height || y - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(0, -2 * body.velocity.y))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(shouldUpdate) {
+		body.update();
+	}
+}
+
+class Body {
+	constructor(coordinate, velocity, mass = 1) {
+		this.coordinate = coordinate;
+		this.velocity = velocity;
+		this.mass = mass;
+	}
+  
+	applyForce(force) {
+		this.velocity.add(force.acceleration);
+	}
+  
+	update() {
+		this.coordinate.add(this.velocity);
+	}
+}
+
+class Force {
+   constructor(mass, acceleration) {
+	   this.mass = mass;
+	   this.acceleration = acceleration;
+   }
+}
+
+class Gravity extends Force {
+	constructor(mass, g = createVector(0, 2)) {
+		super(mass, g);
+	}
+}
+</script>
+<p>咦？為什麼球不會停下來？現實世界中的球下落後，不是會慢慢停下來嗎？當然，這是因為目前模擬的世界中只有重力，現實世界中還會有空氣阻力、摩擦力等，它們的施力方向與物體的速度方向相反，因此球才會慢慢停下來。</p>
+<p>來為模擬的世界加個空氣阻力，空氣是流體的一種，根據維基百科的<a href="https://zh.wikipedia.org/wiki/%E9%98%BB%E5%8A%9B%E6%96%B9%E7%A8%8B">阻力方程</a>，流體的阻力大小是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Force-1.JPG" alt="力的建模"  /></div></div></p>
+<p>其中 v 是速度，A 是參考面積，ρ 為流體密度、C<sub>D</sub> 為阻力係數，如果你只模擬一種流體，例如空氣，這兩個的值基本上就是取個合理的常數就可以了，也就是在簡單的模擬時，可以簡化為 c * v<sup>2</sup> * A。</p>
+<p>那麼要怎麼用來建立 <code>Force</code> 實例呢？A 是參考面積，ρ 為流體密度，兩者的乘積隱含著質量，這邊就簡單地以 A 來表示質量，而因為 <code>F = ma</code>，在計算出阻力大小時，除以 A 就可以當作加速度，方向會與指定的速度相反，因此可以定義出 <code>Drag</code>：</p>
+<pre class="prettyprint"><code lang="javascript">class Drag extends Force {
+    constructor(area, velocity, c = 2) {
+        const acceleration = 
+                   velocity.copy()
+                           .mult(-1)
+                           .normalize()
+                           .mult(pow(velocity.mag() * c, 2) / area);
+        super(area, acceleration);
+    }
+}
+</code></pre>
+<p>到這邊可以看到，對於力的模擬，視你的世界如何定義，多半都會有一定程度的簡化，當然，如果你有多種流體，在公式的部份就可以更講究。</p>
+<p>來試著為方才的範例加上空氣阻力：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">const r = 20;
+let area;
+let body;
+let gravity;
+function setup() {
+	createCanvas(300, 300);
+	area = PI * r * r;
+	body = new Body(
+			   createVector(width / 2, height / 4), 
+			   createVector(2, 0),
+			   area
+		   );
+	gravity = new Gravity(body.mass); 
+}
+
+function draw() {
+	background(220);
+  
+	if(height - (body.coordinate.y + r) > 0.02) {
+		body.applyForce(gravity);
+		body.applyForce(new Drag(area, body.velocity));
+		body.update();
+		checkEdges(body);
+	}
+  
+	circle(body.coordinate.x, body.coordinate.y, 2 * r);
+}
+
+function checkEdges(body) {
+	const {x, y} = body.coordinate;
+	let shouldUpdate = false;
+	if(x + r >= width || x - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(-2 * body.velocity.x, 0))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(y + r >= height || y - r <= 0) {
+		body.applyForce(
+			new Force(body.mass, createVector(0, -2 * body.velocity.y))
+		);
+		shouldUpdate = true;
+	}
+  
+	if(shouldUpdate) {
+		body.update();
+	}
+}
+
+class Body {
+	constructor(coordinate, velocity, mass = 1) {
+		this.coordinate = coordinate;
+		this.velocity = velocity;
+		this.mass = mass;
+	}
+  
+	applyForce(force) {
+		this.velocity.add(force.acceleration);
+	}
+  
+	update() {
+		this.coordinate.add(this.velocity);
+	}
+}
+
+class Force {
+   constructor(mass, acceleration) {
+	   this.mass = mass;
+	   this.acceleration = acceleration;
+   }
+}
+
+class Gravity extends Force {
+	constructor(mass, g = createVector(0, 2)) {
+		super(mass, g);
+	}
+}
+
+class Drag extends Force {
+	constructor(area, velocity, c = 2) {
+		const acceleration = 
+				   velocity.copy()
+						   .mult(-1)
+						   .normalize()
+						   .mult(pow(velocity.mag() * c, 2) / area);
+		super(area, acceleration);
+	}
+}
+</script>
+<p>因為目前沒有地面摩擦力，範例中只有在球離地面有一定高度時套用重力、空氣阻力等動作，以免球在穩定之前震盪過久而看來不自然。</p>
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

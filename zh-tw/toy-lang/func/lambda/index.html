@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在先前的文件中，多少都看過 List 的 filter、map 操作時，會建立一個臨時的函式，語法為 (arg1, arg2) -&gt; expression 的形式，這稱為 lambda 運算式。 Toy 語法 你也可以如下建立">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="打造玩具語言::lambda 運算式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/toy-lang/func/lambda/" />
+    <meta property="og:description" content="在先前的文件中，多少都看過 List 的 filter、map 操作時，會建立一個臨時的函式，語法為 (arg1, arg2) -&gt; expression 的形式，這稱為 lambda 運算式。 Toy 語法 你也可以如下建立" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="打造玩具語言::lambda 運算式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/toy-lang/func/lambda/" />
+    <meta name="twitter:description" content="在先前的文件中，多少都看過 List 的 filter、map 操作時，會建立一個臨時的函式，語法為 (arg1, arg2) -&gt; expression 的形式，這稱為 lambda 運算式。 Toy 語法 你也可以如下建立" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443700" type="image/x-icon">
+    <title> 打造玩具語言  :: lambda 運算式</title>
+    <link href="../../../css/nucleus.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443700.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443700.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443700"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/toy-lang/func/lambda/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/toy-lang/" title="打造玩具語言" class="dd-item parent"><a href="../../index.html">打造玩具語言</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/" title="型態、變數與運算" class="dd-item"><a href="../../fundamental/index.html">| 型態、變數與運算</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/hello/" title="Hello, Toy" class="dd-item"><a href="../../fundamental/hello/index.html">Hello, Toy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/num-bool/" title="數值與布林" class="dd-item"><a href="../../fundamental/num-bool/index.html">數值與布林</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/str-comment/" title="字串與註解" class="dd-item"><a href="../../fundamental/str-comment/index.html">字串與註解</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/op-expr/" title="運算子與運算式" class="dd-item"><a href="../../fundamental/op-expr/index.html">運算子與運算式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/fundamental/var-assign/" title="變數與指定陳述" class="dd-item"><a href="../../fundamental/var-assign/index.html">變數與指定陳述</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/flow-ctrl/" title="流程語法" class="dd-item"><a href="../../flow-ctrl/index.html">| 流程語法</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/flow-ctrl/if/" title="if 陳述" class="dd-item"><a href="../../flow-ctrl/if/index.html">if 陳述</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/flow-ctrl/switch/" title="switch 陳述" class="dd-item"><a href="../../flow-ctrl/switch/index.html">switch 陳述</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/flow-ctrl/while/" title="while 陳述" class="dd-item"><a href="../../flow-ctrl/while/index.html">while 陳述</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/flow-ctrl/list/" title="List 與迭代 API" class="dd-item"><a href="../../flow-ctrl/list/index.html">List 與迭代 API</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/func/" title="函式" class="dd-item parent"><a href="../index.html">| 函式</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/func/def/" title="def 陳述" class="dd-item"><a href="../def/index.html">def 陳述</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/func/closure/" title="Closure" class="dd-item"><a href="../closure/index.html">Closure</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/func/lambda/" title="lambda 運算式" class="dd-item active"><a href="index.html">lambda 運算式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/func/exception/" title="try/catch/throw" class="dd-item"><a href="../exception/index.html">try/catch/throw</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/obj/" title="物件導向" class="dd-item"><a href="../../obj/index.html">| 物件導向</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/obj/class/" title="定義類別" class="dd-item"><a href="../../obj/class/index.html">定義類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/obj/this/" title="this 是啥？" class="dd-item"><a href="../../obj/this/index.html">this 是啥？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/obj/mixin/" title="Mixin" class="dd-item"><a href="../../obj/mixin.html">Mixin</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/obj/inheritance/" title="繼承" class="dd-item"><a href="../../obj/inheritance/index.html">繼承</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/obj/built-in/" title="內建函式與類別" class="dd-item"><a href="../../obj/built-in/index.html">內建函式與類別</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/toy-lang/module/import/" title="import、import as、from import" class="dd-item"><a href="../../module/import/index.html">import、import as、from import</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/toy-lang/module/exports/" title="exports" class="dd-item"><a href="../../module/exports/index.html">exports</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">打造玩具語言</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">函式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">lambda 運算式</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#toy-語法">Toy 語法</a></li>
+    <li><a href="index.html#toy-實作">Toy 實作</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/abstract-syntax-tree/">abstract syntax tree</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/first-class-function/">first-class function</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/lambda-expression/">lambda expression</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/anonymous-function/">anonymous function</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>lambda 運算式</h1>
+
+ <i class="space fa fa-calendar"> December 20, 2021</i> 
+<p>在先前的文件中，多少都看過 <code>List</code> 的 <code>filter</code>、<code>map</code> 操作時，會建立一個臨時的函式，語法為 <code>(arg1, arg2) -&gt; expression</code> 的形式，這稱為 lambda 運算式。</p>
+<h2 id="toy-語法">Toy 語法</h2>
+<p>你也可以如下建立一個 lambda 運算式，並指定給變數：</p>
+<pre><code>max = (m, n) -&gt; m if m &gt; n else n
+println(max(10, 3))  # 顯示 10
+</code></pre>
+<p>Toy Lang 的 lambda 運算式，<code>-&gt;</code> 右邊的運算結果，就是 lambda 運算式的結果；如果有兩個以上的參數，箭號函式的參數列必須使用 <code>()</code> 包含起來，沒有參數的話，就只要寫 <code>()</code> 就可以了：</p>
+<pre><code>foo = () -&gt; println('Foo')
+foo() # 顯示 Foo
+</code></pre>
+<p>如果只有一個參數，那麼括號可以不用：</p>
+<pre><code>plusOne = n -&gt; n + 1
+println(plusOne(10)) # 顯示 11
+</code></pre>
+<p>lambda 運算式在執行時，會產生 <code>Function</code> 的實例，它沒有區塊形式的語法，因而只能用來撰寫簡單的小函式，對於複雜邏輯的演算，仍然必須使用 <code>def</code> 來定義，lambda 演算式也可以形式閉包，例如：</p>
+<pre><code>def foo(x) {
+    return y -&gt; x + y
+} 
+
+println(foo(10)(20)) # 顯示 30
+</code></pre>
+<h2 id="toy-實作">Toy 實作</h2>
+<p>lambda 運算式其實跟 <code>def</code> 定義的函式沒有兩樣，不同的是它不會直接指定給某個變數，本身也沒有名稱，這可以在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/expr_parser.js">expr_parser.js</a> 中看到：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">OPERAND_PARSER</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">TokenableParser</span>.<span style="color:#a6e22e">orRules</span>(
+</span></span><span style="display:flex;"><span>	[<span style="color:#e6db74">&#39;lambda&#39;</span>, {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">burst</span>([<span style="color:#a6e22e">bodyTokenable</span>, ...<span style="color:#a6e22e">paramTokenables</span>]) {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Func</span>(
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">paramTokenables</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">paramTokenable</span> =&gt; <span style="color:#a6e22e">Variable</span>.<span style="color:#66d9ef">of</span>(<span style="color:#a6e22e">paramTokenable</span>.<span style="color:#a6e22e">value</span>)), 
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Return</span>(<span style="color:#a6e22e">EXPR_PARSER</span>.<span style="color:#a6e22e">parse</span>(<span style="color:#a6e22e">bodyTokenable</span>)),
+</span></span><span style="display:flex;"><span>				<span style="color:#e6db74">&#34;&#39;&#39;&#34;</span> <span style="color:#75715e">// anonymous
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			);
+</span></span><span style="display:flex;"><span>		}        
+</span></span><span style="display:flex;"><span>	}], 
+</span></span><span style="display:flex;"><span>	....
+</span></span></code></pre></div><p>那為什麼 <code>def</code> 被當成是個陳述，而 lambda 卻是個運算式呢？嗯！<code>def</code> 某些程度上來說，是一種指定陳述，也就是執行時期時建立 <code>Function</code> 實例後，指定給某個變數，而 lambda 運算式本身僅運算出 <code>Function</code> 實例。</p>
+<p>這就可以回頭來談一個問題了，函式呼叫是運算式還是陳述句？如果函式呼叫是出現在運算式中，例如 <code>1 + add(1, 2)</code>，那 <code>add(1, 2)</code> 當成運算式是沒問題的，而像 <code>println('Hello, World')</code> 因為沒有傳回值，被當成陳述也是沒有問題，那如果這樣呢？</p>
+<pre><code>println('Hello, World')
+add(1, 2) # 陳述句？運算式？
+println('Hello, World')
+</code></pre>
+<p>這是 <code>add(1, 2)</code> 該行，會產生一個陳述節點，內含一個運算式節點，具體來說，就是一個 <code>ExprWrapper</code> 包裹著一個運算式節點，這可以在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/line_parser.js">line_parser.js</a> 中看到：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>[<span style="color:#e6db74">&#39;expression&#39;</span>, {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">burst</span>(<span style="color:#a6e22e">tokenableLines</span>, <span style="color:#a6e22e">infixTokenables</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StmtSequence</span>(
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ExprWrapper</span>(
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">EXPR_PARSER</span>.<span style="color:#a6e22e">exprAst</span>(<span style="color:#a6e22e">infixTokenables</span>)
+</span></span><span style="display:flex;"><span>			),
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">LINE_PARSER</span>.<span style="color:#a6e22e">parse</span>(<span style="color:#a6e22e">tokenableLines</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#ae81ff">1</span>)),
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">tokenableLines</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">lineNumber</span>
+</span></span><span style="display:flex;"><span>		); 
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}]
+</span></span></code></pre></div><p><code>ExprWrapper</code> 因為包裹著一個運算式節點，在執行時對運算式評值完後，直接傳回環境物件就可以了，因而符合陳述句的條件，這可以在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/ast/statement.js">statement.js</a> 中看到：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExprWrapper</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Stmt</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">expr</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">super</span>(<span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">expr</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">expr</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">evaluate</span>(<span style="color:#a6e22e">context</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">maybeContext</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">expr</span>.<span style="color:#a6e22e">evaluate</span>(<span style="color:#a6e22e">context</span>);
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">maybeContext</span>.<span style="color:#a6e22e">notThrown</span>(<span style="color:#a6e22e">_</span> =&gt; <span style="color:#a6e22e">context</span>);
+</span></span><span style="display:flex;"><span>	}    
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>函式呼叫的實作，其實難處是在 Parser 的處理，如方才所述，函式呼叫也是一種運算式，在最簡單的情況下，也許就是 <code>add(1, 2)</code> 這樣，然而引數也可以是運算式，因此 <code>add(1 + x, 3 + y)</code> 也可以，而 <code>add(4 + add(1, 2), 5 + add(3, 4 + add(7, 8)))</code> 當然也要可以。</p>
+<p>也就是說，函式呼叫是個運算式，引數本身也可以是運算式，運算式中又會有函式呼叫，因此語法上會形成巢狀結構，若要能針對這樣的情況進行剖析，光是 Regular expression 是行不通的，必須實作出有限狀態機之類的演算流程。</p>
+<p>不過這流程會有點複雜，另一方面，Toy Lang 為了簡化 Parser 設計，採用了以行為基礎的剖析方式，而且硬是用了 Regular expression 來處理符號的辨識，甚至是&hellip;呃&hellip;判斷語法&hellip;</p>
+<p>稍微套用一下編譯原理相關文件中的術語的話，就是 Toy Lang 將只適用在詞法分析的 Regular expression，也硬是拿來用在語法分析了，例如，<code>1 + add(1, 2)</code>，Regular expression 適合用來將之切割為 <code>1</code>、<code>+</code>、<code>add</code>、<code>(</code>、<code>1</code>、<code>,</code> <code>2</code> 與 <code>)</code> 等符號，接著應該要有語法分析器，判斷將這些符號的哪些組成，會代表著語言中規範的哪些意義，例如，在讀取 <code>add</code>、<code>(</code>、<code>1</code>、<code>,</code> <code>2</code> 與 <code>)</code> 之後，判定這是個函式呼叫的語法。</p>
+<p>然而，Toy Lang 將詞法分析與語法分析混合在一起，也將 Regular expression 用在這兩個部份，因此遇到巢狀的函式呼叫，就面臨了困境。</p>
+<p>也許就簡化 Parser 設計，專心於語法樹與語意設計來說，也不算是困境，畢竟一開始的目的，就只是做個堪用的 Parser，那麼這部份怎麼解決？</p>
+<p>我的方式是，判斷函式呼叫時的引數列，是否有對稱括號，然而，Regular expression 無法比對任意深度的對稱括號，因而只能退而求其次，寫個函式，可以指定巢狀括號的允許深度，自動產生對應的 Regular expression，這是定義在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/interpreter/tokenizer/regex.js">regex.js</a>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">NESTED_PARENTHESES_LEVEL</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>; 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// For simplicity, only allow three nested parentheses.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// You can change NESTED_PARENTHESES_LEVEL to what level you want.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// More nested parentheses are too complex to code, right?
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">nestingParentheses</span>(<span style="color:#a6e22e">level</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">level</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;[^()]*&#39;</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#e6db74">`(?:[^()]|\\(</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">nestingParentheses</span>(<span style="color:#a6e22e">level</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">\\))*`</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">NESTING_PARENTHESES</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">nestingParentheses</span>(<span style="color:#a6e22e">NESTED_PARENTHESES_LEVEL</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">ARGUMENT_LT_REGEX</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RegExp(<span style="color:#e6db74">`\\((</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">NESTING_PARENTHESES</span><span style="color:#e6db74">}</span><span style="color:#e6db74">)\\)`</span>);
+</span></span></code></pre></div><p>預設最多只允許巢狀 3 層，這已經可以寫出很難懂的函式呼叫了，有了這個方式，在剖析函式呼叫上就可以應付大多數的情況，除了運算式中有字串部份，而字串中含有 <code>(</code> 或 <code>)</code> 的情況，像是 <code>println('(')</code>，就可以輕易地破壞掉 Parser 的處理。</p>
+<p>所幸這種情況，對大多數演算來說不常見，使用個變數也可以 workaround 這個情況：</p>
+<pre><code>leftP = '('
+println(leftP)
+</code></pre>
+<p>實際上，在處理 <code>List</code> 的 <code>[]</code> 語法時，也採用了相同的方式，自然地，缺點也是類似。除此之外，這也影響到函式呼叫後若傳回 <code>List</code>，是否可以直接用 <code>[]</code> 指定索引的問題，例如，<code>head(lt)[0]</code>。</p>
+<p>這類問題若還是基於 Toy Lang 的方式，也使用 Regular expression 來硬上，就會落入雞生蛋、蛋生雞問題，JavaScript 的 Regular expression 不支援遞迴，也就沒辦法簡單的解決這類問題。</p>
+<p>正確的做法，還是要分離詞法分析與語法分析，因此，我就沒在這方面繼續 workaround 下去了，畢竟沒有意義，這也是土炮的價值，從問題中學到經驗，而這經驗，就等下一門語言真想實作時再來用上了。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/toy-lang/func/lambda/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/toy-lang/func/lambda/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%89%93%e9%80%a0%e7%8e%a9%e5%85%b7%e8%aa%9e%e8%a8%80%3a%3alambda%20%e9%81%8b%e7%ae%97%e5%bc%8f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2ftoy-lang%2ffunc%2flambda%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../closure/index.html" title="Closure"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../exception/index.html" title="try/catch/throw"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443700"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443700"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443700"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443700"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443700"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443700"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443700"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443700"></script>
+  </body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於要繪製的對象，先平移再將之旋轉，與先旋轉將再之平移，結果是不同的：
+
+因此，為了要能達到想要的轉換結果，就要留意轉換操作的順序，例如，在〈轉換矩陣〉中最後的範例，想要看到方塊逆時針轉動，必須先平移...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="後乘？右乘？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/PostMultiplication.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於要繪製的對象，先平移再將之旋轉，與先旋轉將再之平移，結果是不同的：
+
+因此，為了要能達到想要的轉換結果，就要留意轉換操作的順序，例如，在〈轉換矩陣〉中最後的範例，想要看到方塊逆時針轉動，必須先平移...">
+
+    <title>後乘？右乘？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PostMultiplication.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>後乘？右乘？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>對於要繪製的對象，先平移再將之旋轉，與先旋轉將再之平移，結果是不同的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PostMultiplication-1.JPG" alt="後乘？右乘？"  /></div></div></p>
+<p>因此，為了要能達到想要的轉換結果，就要留意轉換操作的順序，例如，在〈<a href="TransformationMatrix.html">轉換矩陣</a>〉中最後的範例，想要看到方塊逆時針轉動，必須先平移方塊，再將方塊繞著 Z 軸轉動，範例的程式片段是這麼撰寫的：</p>
+<pre class="prettyprint"><code lang="javascript">...
+transformation = mat4.translate(transformation, 0.25, 0, 0); // 先平移
+
+let i = 0;
+function drawCube() {
+    i++;
+    renderer.uniformMatrix4fv('transformation', 
+        mat4.zRotate(transformation, 0.025 * i) // 再旋轉
+    );
+
+    ...
+}
+</code></pre>
+<p>不過，程式碼可以使用這樣的順序來撰寫，是因為 <code>translate</code>、<code>scale</code>、<code>xRotate</code>、<code>yRotate</code>、<code>zRotate</code> 是這麼撰寫的：</p>
+<pre class="prettyprint"><code lang="javascript">translate(m, tx, ty, tz) {
+    return this.multiply(this.translation(tx, ty, tz), m);
+},
+
+scale(m, sx, sy, sz) {
+    return this.multiply(this.scaling(sx, sy, sz), m);
+},
+
+xRotate(m, radians) {
+    return this.multiply(this.xRotation(radians), m);
+},
+
+yRotate(m, radians) {
+    return this.multiply(this.yRotation(radians), m);
+},
+
+zRotate: function(m, radians) {
+    return this.multiply(this.zRotation(radians), m);
+}  
+</code></pre>
+<p>就程式碼的閱讀順序來看相當於，對於一個舊有的轉換矩陣 <code>m</code>，想要進行轉換操作時，是將下一個轉換操作矩陣乘上 <code>m</code>，這種寫法稱為前乘（Pre-Multiplication）或左乘（Left-Multiplication），也就是下個轉換操作矩陣在前，或者說是左邊。</p>
+<p>前乘並不是 OpenGL 的慣例，因為 WebGL 衍生自 OpenGL，WebGL 的矩陣處理程式庫，慣例上不會採取前乘的方式。</p>
+<p>因為以方才的 <code>translate</code>、<code>scale</code> 等實作方式而言，相當於方才的範例直接用 <code>multiply</code>的話會是：</p>
+<pre class="prettyprint"><code lang="javascript">...
+transformation = mat4.multiply(mat4.translation(0.25, 0, 0), transformation);
+
+let i = 0;
+function drawCube() {
+    i++;
+    renderer.uniformMatrix4fv('transformation', 
+        mat4.multiply(mat4.zRotation(0.025 * i), transformation)  // 再旋轉
+    );
+
+    ...
+}        
+</code></pre>
+<p>就程式碼閱讀的順序是，一開始有個單位矩陣，接著乘上移動矩陣 <code>T</code>，再來乘上旋轉矩陣 <code>R</code>，也就是 <code>T * R</code>，然而，這個 OpenGL/WebGL 的設計上認為，這閱讀順序不符合實際上需要的矩陣公式 <code>R * T</code>。</p>
+<p>WebGL 的矩陣處理程式庫，慣例上會依循 OpenGL，也就是採用後乘（Post-Multiplication）或右乘（Right-Multiplication），也就是對於一個舊有的轉換矩陣  <code>m</code>，想要進行轉換操作時，是將下一個轉換操作矩陣會是放在後面，或者說是右邊。</p>
+<p>如果打算採用後乘的慣例，就目前我們完成的程式庫來說，<code>translate</code>、<code>scale</code>、<code>xRotate</code>、<code>yRotate</code>、<code>zRotate</code> 可以改寫為：</p>
+<pre class="prettyprint"><code lang="javascript">translate(m, tx, ty, tz) {
+    return this.multiply(m, this.translation(tx, ty, tz));
+},
+
+scale(m, sx, sy, sz) {
+    return this.multiply(m, this.scaling(sx, sy, sz));
+},
+
+xRotate(m, radians) {
+    return this.multiply(m, this.xRotation(radians));
+},
+
+yRotate(m, radians) {
+    return this.multiply(m, this.yRotation(radians));
+},
+
+zRotate: function(m, radians) {
+    return this.multiply(m, this.zRotation(radians));
+}   
+</code></pre>
+<p>這麼一來，操作頂點的順序與程式碼撰寫上的順序是反過來的，例如想要完成同樣是逆時針轉動的話，就必須寫為：</p>
+<pre class="prettyprint"><code lang="javascript">let zRotation = mat4.create();
+
+function drawCube() {                
+    zRotation = mat4.zRotate(zRotation, 0.025);
+
+    let transformation = mat4.translate(zRotation, 0.25, 0, 0);
+    transformation = mat4.xRotate(transformation, 0.5);
+    transformation = mat4.yRotate(transformation, 0.5);
+    renderer.uniformMatrix4fv('transformation', transformation);
+
+    renderer.clear();
+    renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+    renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+    renderer.render(cube);
+
+    requestAnimationFrame(drawCube);                
+}
+</code></pre>
+<p>可以點選完整的<a href="samples/PostMultiplication-1.html">範例網頁</a>來看看結果，如果你將 <code>translate</code>、<code>scale</code> 等展開為使用 <code>multiply</code>，就程式碼的外觀而言，就像是 <code>Rz * T * Rx * Ry</code>，就像是在寫矩陣公式。</p>
+<p>從另一個角度來看，你也可以將改寫後的 <code>translate</code>、<code>scale</code> 等，看成是改變全域座標系統，以上例來說，你是在原點畫出一個方塊：</p>
+<pre class="prettyprint"><code lang="javascript">renderer.render(cube);
+</code></pre>
+<p>轉動整個座標系統的 y 軸得到每個頂點的新頂點座標：</p>
+<pre class="prettyprint"><code lang="javascript">transformation = mat4.yRotate(transformation, 0.5);
+renderer.uniformMatrix4fv('transformation', transformation);
+
+renderer.render(cube);
+</code></pre>
+<p>轉動整個座標系統的 x 軸得到每個頂點的新頂點座標：</p>
+<pre class="prettyprint"><code lang="javascript">transformation = mat4.xRotate(transformation, 0.5);
+transformation = mat4.yRotate(transformation, 0.5);
+renderer.uniformMatrix4fv('transformation', transformation);
+
+renderer.render(cube);
+</code></pre>
+<p>移動整個座標系統得到每個頂點的新頂點座標：</p>
+<pre class="prettyprint"><code lang="javascript">let transformation = mat4.translate(zRotation, 0.25, 0, 0);
+transformation = mat4.xRotate(transformation, 0.5);
+transformation = mat4.yRotate(transformation, 0.5);
+renderer.uniformMatrix4fv('transformation', transformation);
+
+renderer.render(cube);
+</code></pre>
+<p>接著再轉動整個座標系統的 z 軸得到每個頂點的新頂點座標：</p>
+<pre class="prettyprint"><code lang="javascript">zRotation = mat4.zRotate(zRotation, 0.025);
+let transformation = mat4.translate(zRotation, 0.25, 0, 0);
+transformation = mat4.xRotate(transformation, 0.5);
+transformation = mat4.yRotate(transformation, 0.5);
+renderer.uniformMatrix4fv('transformation', transformation);
+
+renderer.render(cube);
+</code></pre>
+<p>當然，若你堅持前乘而不是後乘，也不能說錯，純綷就是思考方向的問題，只不過 OpenGL/WebGL 的慣例是後乘，在必須與其他工具或程式庫結合時，而它們採用的不是後乘的慣例，會遇上些困擾就是了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

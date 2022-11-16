@@ -1,0 +1,429 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈類別模版〉中的 LinkedList 範例，每個元素都由內部類別 Node 實例保存，而 Node 是以 new 動態配置，若不再使用 LinkedList 實例，應該清除這些 new 出來的 N...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="解構式、複製與移動">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/DestructorCopyMove.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈類別模版〉中的 LinkedList 範例，每個元素都由內部類別 Node 實例保存，而 Node 是以 new 動態配置，若不再使用 LinkedList 實例，應該清除這些 new 出來的 N...">
+
+    <title>解構式、複製與移動</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DestructorCopyMove.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>解構式、複製與移動</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ClassTemplate.html">類別模版</a>〉中的 <code>LinkedList</code> 範例，每個元素都由內部類別 <code>Node</code> 實例保存，而 <code>Node</code> 是以 <code>new</code> 動態配置，若不再使用 <code>LinkedList</code> 實例，應該清除這些 <code>new</code> 出來的 <code>Node</code> 實例，這可以藉由定義解析式（destructor）來實作，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+class LinkedList {
+    class Node {
+    public:
+        Node(T value, Node *next) : value(value), next(next) {}
+        T value;
+        Node *next;
+    };
+
+    Node *first = nullptr;
+
+public:
+    ~LinkedList(); // 解構式
+    ...略
+};
+
+...略
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::~LinkedList() {
+    if(this-&gt;first == nullptr) {
+        return;
+    }
+
+    Node *last = this-&gt;first;
+    do {
+        Node *next = last-&gt;next;
+        delete last;
+        last = next;
+    } while(last != nullptr);
+}
+
+...略
+</code></pre>
+<p>解析式是由 <code>~</code> 開頭，不用指定傳回型態，與類別名稱空間的成員函式，當實例被清除時，就會執行解構式，可以在解構式中實作清除資源的動作，在這邊用來 <code>delete</code> 每個 <code>new</code> 出來的 <code>Node</code> 實例。</p>
+<p>如果沒有定義解構式，那麼編譯器會自行建立一個本體為空的解構式。</p>
+<p>如果 <code>LinkedList</code> 實例被建構出來之後，不會被用來建構另一個 <code>LinkedList</code> 實例，那麼以上的實作是不會有什麼問題，然而若是如下就會出問題：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+int main() {
+    LinkedList&lt;int&gt; *lt1 = new LinkedList&lt;int&gt;();
+    (*lt1).append(1).append(2).append(3);
+
+    LinkedList&lt;int&gt; lt2 = *lt1;   // 複製初始化
+
+    delete lt1;
+
+    cout &lt;&lt; lt2.get(2) &lt;&lt; endl;   // 不可預期的結果
+
+    return 0;
+}
+</code></pre>
+<p>若使用一個類別實例來建構另一類別實例，預設會發生值域的複製，複製的行為視型態而定，以指標類型來說，會是複製位址，也就是淺複製（shallow copy），就上例來說，<code>*lt1</code> 實例的 <code>first</code> 位址值會複製給 <code>lt2</code> 的 <code>first</code>，在 <code>delete lt1</code> 後，<code>*lt1</code> 實例的 <code>first</code> 位址處之物件被 <code>delete</code>，因此透過 <code>lt2</code> 的 <code>first</code> 存取的位址值就無效了。</p>
+<p>若使用一個類別實例來建構另一類別實例，可以定義複製建構式（copy constructor）來實現自定義的複製行為。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+class LinkedList {
+    class Node {
+    public:
+        Node(T value, Node *next) : value(value), next(next) {}
+        T value;
+        Node *next;
+    };
+
+    Node *first = nullptr;
+
+public:
+    LinkedList() = default;               // 預設建構式
+    LinkedList(const LinkedList&lt;T&gt; &amp;lt);  // 複製建構式
+    ~LinkedList();
+    ...略
+};
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::LinkedList(const LinkedList&lt;T&gt; &amp;lt) {
+    // 逐一複製 Node 實例（而不是複製位址值）
+    if(lt.first != nullptr) {
+        this-&gt;first = new Node(lt.first-&gt;value, nullptr);
+    }
+
+    Node *thisLast = this-&gt;first;
+    Node *srcNext = lt.first-&gt;next;
+    while(srcNext != nullptr) {
+        thisLast-&gt;next = new Node(srcNext-&gt;value, nullptr);
+        thisLast = thisLast-&gt;next;
+        srcNext = srcNext-&gt;next;
+    }
+}
+
+...
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::~LinkedList() {
+    if(this-&gt;first == nullptr) {
+        return;
+    }
+
+    Node *last = this-&gt;first;
+    do {
+        Node *next = last-&gt;next;
+        delete last;
+        last = next;
+    } while(last != nullptr);
+}
+
+...
+</code></pre>
+<p>跟預設建構式不同的是，無論有沒有定義其他建構式，若沒有定義複製建構式，那編譯器一定會生成一個複製建構式，預設會發生值域的複製，複製的行為視型態而定，基本型態的話就是複製值，指標的話是複製位址值，陣列的話，會逐一複製每個元素，類別型態的話，視各類別定義的複製建構式而定。</p>
+<p>也就是說，在沒有自定義 <code>LinkedList</code> 的複製建構式前，編譯器產生的預設建構式，相當於有以下的內容：</p>
+<pre class="prettyprint"><code lang="c++">template &lt;typename T&gt;
+LinkedList&lt;T&gt;::LinkedList(const LinkedList&lt;T&gt; &amp;lt) : first(lt.first) {}
+</code></pre>
+<p>在定義了複製建構式，方才的 <code>main</code> 執行上沒問題了，然而以下還是會有問題：</p>
+<pre class="prettyprint"><code lang="c++">...略
+
+int main() {
+    LinkedList&lt;int&gt; *lt1 = new LinkedList&lt;int&gt;();
+    LinkedList&lt;int&gt; lt2;
+    (*lt1).append(1).append(2).append(3);
+
+    lt2 = *lt1;                 // 指定時會發生複製
+
+    delete lt1;
+
+    cout &lt;&lt; lt2.get(2) &lt;&lt; endl; // 不可預期的結果
+
+    return 0;
+}
+</code></pre>
+<p>在指定時預設也是會發生複製行為，指定時預設的行為類似預設的複製建構式，若要避免問題發生，得自定義複製指定運算子（copy assignment operator）：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+class LinkedList {
+    class Node {
+    public:
+        Node(T value, Node *next) : value(value), next(next) {}
+        T value;
+        Node *next;
+    };
+
+    Node *first = nullptr;
+
+    void copy(const LinkedList&lt;T&gt; &amp;lt);
+
+public:
+    LinkedList() = default;
+    LinkedList(const LinkedList&lt;T&gt; &amp;lt);
+    ~LinkedList();
+    LinkedList&lt;T&gt;&amp; operator=(const LinkedList&lt;T&gt; &amp;lt);  // 定義複製指定運算子
+    ...略
+};
+
+template &lt;typename T&gt;
+void LinkedList&lt;T&gt;::copy(const LinkedList&lt;T&gt; &amp;lt) {
+    // 逐一複製 Node 實例（而不是複製位址值）
+    if(lt.first != nullptr) {
+        this-&gt;first = new Node(lt.first-&gt;value, nullptr);
+    }
+
+    Node *thisLast = this-&gt;first;
+    Node *srcNext = lt.first-&gt;next;
+    while(srcNext != nullptr) {
+        thisLast-&gt;next = new Node(srcNext-&gt;value, nullptr);
+        thisLast = thisLast-&gt;next;
+        srcNext = srcNext-&gt;next;
+    }
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::LinkedList(const LinkedList&lt;T&gt; &amp;lt) {
+    this-&gt;copy(lt);
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;&amp; LinkedList&lt;T&gt;::operator=(const LinkedList&lt;T&gt; &amp;lt) {
+    this-&gt;copy(lt);
+    return *this;
+}
+
+...略
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::~LinkedList() {
+    if(this-&gt;first == nullptr) {
+        return;
+    }
+
+    Node *last = this-&gt;first;
+    do {
+        Node *next = last-&gt;next;
+        delete last;
+        last = next;
+    } while(last != nullptr);
+}
+
+...略
+</code></pre>
+<p>如果定義類別時，需要考慮到要不要自定義解構式、複製建構式、複製指定運算子其中之一，幾乎就是三個都要定義了，這就是 Rule of three。</p>
+<p>如果某個類別不希望被複製、指定等，C++ 11 以後可以如下：</p>
+<pre class="prettyprint"><code lang="c++">struct Foo {
+    Foo() = default;                     // 採用預設建構式行為
+    Foo(const Foo&amp;) = delete;            // 刪除此函式（不定義此函式）
+    ~Foo() = default;                    // 採用預設解構式行為
+    Foo&amp; operator=(const Foo&amp;) = delete; // 刪除此函式（不定義此函式）
+};
+</code></pre>
+<p>在過去的話，會將複製建構式、複製指定運算子設為 <code>private</code>：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+    Foo(const Foo&amp;);
+    Foo&amp; operator=(const Foo&amp;);
+public:
+    Foo() = default;                  
+    ~Foo();           
+};
+</code></pre>
+<p>另外，在〈<a href="RvalueReference.html">rvalue 參考</a>〉中看過 <code>std::move</code> 用來實現移動語義，而建構式、指定運算子也可以實現移動語義，也就是移動建構式（move constructor）、移動指定運算子（move assignment operator），如果考慮要在類別上實現移動語義，解構式、複製／移動建構式、複製／移動指定運算子幾乎就都要全部出現，這就是　Rule of Five。</p>
+<p>例如，可以為 <code>LinkedList</code> 加上移動建構式、移動指定運算子：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;utility&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+class LinkedList {
+    class Node {
+    public:
+        Node(T value, Node *next) : value(value), next(next) {}
+        T value;
+        Node *next;
+    };
+
+    Node *first = nullptr;
+
+    void copy(const LinkedList&lt;T&gt; &amp;lt);
+    void move(LinkedList&lt;T&gt; &amp;lt);
+
+public:
+    LinkedList() = default;
+    LinkedList(const LinkedList&lt;T&gt; &amp;lt);                // 複製建構式
+    LinkedList(LinkedList&lt;T&gt; &amp;&amp;lt);                     // 移動建構式
+    ~LinkedList();                                      // 解構式
+
+    LinkedList&lt;T&gt;&amp; operator=(const LinkedList&lt;T&gt; &amp;lt);  // 複製指定運算子
+    LinkedList&lt;T&gt;&amp; operator=(LinkedList&lt;T&gt; &amp;&amp;lt);       // 移動指定運算子
+
+    LinkedList&lt;T&gt;&amp; append(T value);
+    T get(int i);
+};
+
+template &lt;typename T&gt;
+void LinkedList&lt;T&gt;::copy(const LinkedList&lt;T&gt; &amp;lt) {
+    // 逐一複製 Node 實例（而不是複製位址值）
+    if(lt.first != nullptr) {
+        this-&gt;first = new Node(lt.first-&gt;value, nullptr);
+    }
+
+    Node *thisLast = this-&gt;first;
+    Node *srcNext = lt.first-&gt;next;
+    while(srcNext != nullptr) {
+        thisLast-&gt;next = new Node(srcNext-&gt;value, nullptr);
+        thisLast = thisLast-&gt;next;
+        srcNext = srcNext-&gt;next;
+    }
+}
+
+template &lt;typename T&gt;
+void LinkedList&lt;T&gt;::move(LinkedList&lt;T&gt; &amp;lt) {
+    if(lt.first != nullptr) {
+        this-&gt;first = lt.first;
+        lt.first = nullptr;
+    }
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::LinkedList(const LinkedList&lt;T&gt; &amp;lt) {
+    this-&gt;copy(lt);
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::LinkedList(LinkedList&lt;T&gt; &amp;&amp;lt) {
+    this-&gt;move(lt);
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;&amp; LinkedList&lt;T&gt;::operator=(const LinkedList&lt;T&gt; &amp;lt) {
+    this-&gt;copy(lt);
+    return *this;
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;&amp; LinkedList&lt;T&gt;::operator=(LinkedList&lt;T&gt; &amp;&amp;lt) {
+    this-&gt;move(lt);
+    return *this;
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;&amp; LinkedList&lt;T&gt;::append(T value) {
+    Node *node = new Node(value, nullptr);
+    if(first == nullptr) {
+        this-&gt;first = node; 
+    }
+    else {
+        Node *last = this-&gt;first;
+        while(last-&gt;next != nullptr) {
+            last = last-&gt;next;
+        }
+        last-&gt;next = node;
+    }
+    return *this;
+}
+
+template &lt;typename T&gt;
+T LinkedList&lt;T&gt;::get(int i) {
+    Node *last = this-&gt;first;
+    int count = 0;
+    while(true) {
+        if(count == i) {
+            return last-&gt;value;
+        }
+        last = last-&gt;next;
+        count++;
+    }
+}
+
+template &lt;typename T&gt;
+LinkedList&lt;T&gt;::~LinkedList() {
+    if(this-&gt;first == nullptr) {
+        return;
+    }
+
+    Node *last = this-&gt;first;
+    do {
+        Node *next = last-&gt;next;
+        delete last;
+        last = next;
+    } while(last != nullptr);
+}
+
+int main() {
+    LinkedList&lt;int&gt; lt1;
+    lt1.append(1).append(2).append(3);
+
+    LinkedList&lt;int&gt; lt2 = std::move(lt1); // 將 lt1 的資料移動給 lt2
+    cout &lt;&lt; lt2.get(2) &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>記得移動之後，因為資料轉移出去了，對目前 <code>lt1</code> 的狀態不能有任何的假設，只能銷毀 <code>lt1</code>，或者重新指定實例給 <code>lt1</code>。</p>
+<p>具有解構式、複製／移動建構式、複製／移動指定運算子的類別，要全權負責管理自身資源；至於其他類別，就完全不需要其中之一，這就是 Rule of zero。</p>
+<p>有關 Rule of three、Rule of Five、Rule of zero，可進一步參考〈<a href="https://en.cppreference.com/w/cpp/language/rule_of_three">The rule of three/five/zero</a>〉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

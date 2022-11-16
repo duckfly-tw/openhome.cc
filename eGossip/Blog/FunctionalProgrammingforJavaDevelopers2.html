@@ -1,0 +1,194 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Many of us come from object-oriented programming. We are familiar with abstract data types. An abstr...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Functional Programming for Java Developers, Part 2 - Algebraic Data Types">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/FunctionalProgrammingforJavaDevelopers2.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Many of us come from object-oriented programming. We are familiar with abstract data types. An abstr...">
+
+
+    <title>Functional Programming for Java Developers, Part 2 - Algebraic Data Types</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionalProgrammingforJavaDevelopers2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Functional Programming for Java Developers, Part 2 - Algebraic Data Types</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      <br>
+      Many of us come from object-oriented programming. We are familiar with abstract data types. An abstract data type (ADT) is a mathematical model which encapsulates the data structure and implementation, and only exposes the public interface for interaction. An algebraic data type, however, <span
+
+        style="font-weight: bold;">exposes the data structure and regularity</span>. It can be easily used in a divide-and-conquer context. They are basic elements in the field of functional programming.<br>
+      <br>
+      (ADT is widely used as the abbreviation of "abstract data type", so it's not used in functional programming. We just use the full name "algebraic data type" directly .)<br>
+      <br>
+      Java is an object-oriented language, and doesn't support algebraic data types directly. We have two ways to simulate the type. Because an algebraic data type exposes the data structure, we may use a class with <span
+
+        class="courier">public</span> fields to simulate an algebraic data type. However, <span
+
+        class="courier">public</span> fields seem conflicting with many object-oriented principles, so we'll look for the other way. Because an algebraic data type exposes the regularity, the regularity sounds like a behavior. When considering a behavior in Java, an <span
+
+        class="courier">interface</span> is good for defining that.<br>
+      <br>
+      Take a list type for example. We know there's a <span class="courier">java.util.List</span> defined in Java SE API, and the List is an abstract data type. If we want to use the algebraic data type model to define a list, how can we do that? In functional programming, a list has a head element and a tail list. If we use an <span
+
+        class="courier">interface</span> to define (or simulate) the list, it will be...<br>
+      <div class="courier" style="margin-left: 40px;"><span><br>
+          public interface List&lt;T&gt; {<br>
+          &nbsp;&nbsp;&nbsp; T head();<br>
+          &nbsp;&nbsp;&nbsp; List&lt;T&gt; tail();<br>
+          }</span></div>
+      <br>
+      One instance of the list is an empty list. Using this <span class="courier">interface</span>, we can implement an empty list as..<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">public class AlgebraicType {<br>
+        &nbsp;&nbsp;&nbsp; private static List&lt;? extends Object&gt; Nil = new List&lt;Object&gt;() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Object head() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public List&lt;Object&gt; tail() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String toString() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return "[]";<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; };<br>
+        <br>
+        &nbsp;&nbsp;&nbsp; @SuppressWarnings("unchecked")<br>
+        &nbsp;&nbsp;&nbsp; public static &lt;T&gt; List&lt;T&gt; nil() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (List&lt;T&gt;) Nil;<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      That is, an empty list has no head and tail. For convenience, we also define a static <span
+
+        class="courier">nil</span> method to return the empty list. After defining an empty list, a list with one element will use the element as the head and <span
+
+        class="courier">Nil</span> as the tail. <br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Algebraic Data Type" src="images/FunctionalProgrammingForJavaDevelopers2-1.PNG" /></div></div><br>
+      <br>
+      If you have a list <span class="courier">xs</span> and want to prepend an element <span
+
+        class="courier">x</span>, the new list can be obtained by using <span
+
+        class="courier">x</span> as the head and <span class="courier">xs</span> as the tail.<br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="Algebraic Data Type" src="images/FunctionalProgrammingForJavaDevelopers2-2.PNG" /></div></div><br>
+      <br>
+      For convenience, let's define a static <span class="courier">con</span> method to create the new list.<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">public class AlgebraicType {<br>
+        &nbsp;&nbsp;&nbsp; ...<br>
+        &nbsp;&nbsp;&nbsp; public static &lt;T&gt; List&lt;T&gt; cons(final T <strong>x</strong>, final List&lt;T&gt; <strong>xs</strong>) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new List&lt;T&gt;() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private T head;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private List&lt;T&gt; tail;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { <strong>this.head = x</strong>; <strong>this.tail = xs</strong>; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public T head(){ return this.head; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public List&lt;T&gt; tail() { return this.tail; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String toString() { return head() + ":" + tail(); }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      Once we have the <span class="courier">nil</span> and <span class="courier">con</span> methods, a list containing only element 1 can be got from the following code:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">cons(1, nil()); // 1:[]</div>
+      <br>
+      A list containing elements 2 and 1 can be got from the following code:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">cons(2, cons(1, nil())); // 2:1:[]</div>
+      <br>
+      A list containing elements 3, 2 and 1 can be got from the following code:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">cons(3, cons(2, cons(1, nil()))); // 3:2:1:[]</div>
+      <br>
+      For convenience, we define a <span class="courier">list</span> method who’s returned list will contains variable arguments.<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">public class AlgebraicType {<br>
+        &nbsp;&nbsp;&nbsp; …<br>
+        <br>
+        &nbsp;&nbsp;&nbsp; @SafeVarargs<br>
+        &nbsp;&nbsp;&nbsp; public static &lt;T&gt; List&lt;T&gt; list(T... elems) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(elems.length == 0) return nil();<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T[] remain = Arrays.copyOfRange(elems, 1,&nbsp; elems.length);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>cons(elems[0], list(remain))</strong>;<br>
+        &nbsp;&nbsp;&nbsp; }<br>
+        }</div>
+      <br>
+      Getting a list with elements 1, 2, 3, and 4 can be as follow:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;">list(1, 2, 3, 4); // 1:2:3:4:[]</div>
+      <br>
+      The list defined above is an algebraic data type. It can be divided easily. That is, any list value can only be constructed by two ways. One possible list value is the empty list <span
+
+        class="courier">Nil</span>. Other list values can only be constructed by the head element and the tail list. That's what we said in the beginning, an algebraic data type exposes the data structure and regularity.<br>
+      <br>
+      Then, why can an algebraic data type be easily used in a divide-and-conquer context? Take the list method for example. It divides the problem into two sub problems. <br>
+      <br>
+      One sub problem is that you don't provide the <span class="courier">list</span> method with any argument. In this situation, the <span
+
+        class="courier">list</span> method just returns the empty list. The other sub problem is that you give the <span
+
+        class="courier">list</span> method one or more arguments. The solution is that, if we can use the first argument as the head element and the remaining arguments as the elements of the tail list, the <span
+
+        class="courier">con</span> method can construct the list which contains all arguments we give. <br>
+      <br>
+      This leaves us another question: how to get a list which contains the remaining arguments? The <span
+
+        class="courier">list</span> method can call itself recursively with arguments except the first one to get that. As we've mentioned in <a
+
+        href="FunctionalProgrammingforJavaDevelopers1.html">Functional Programming for Java Developers, Part 1</a>, recursion is just and often a natural form after dividing a problem. While recursion is combined with algebraic data types, it'll become a powerful way to divide problems.<br>
+      <div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

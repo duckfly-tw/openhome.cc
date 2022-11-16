@@ -1,0 +1,287 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Toy/'https://openhome.cc/zh-tw/toy-lang/obj/mixin/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ToyLang 支援物件個體化（Object individuation），也就是類別的實例建立之後，還可以動態地增減其特性，那麼類別呢？
+類別在定義之後，若需要，也可以動態地增加方法的定義，例如：
+...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Mixin">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Toy/Mixin.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="ToyLang 支援物件個體化（Object individuation），也就是類別的實例建立之後，還可以動態地增減其特性，那麼類別呢？
+類別在定義之後，若需要，也可以動態地增加方法的定義，例如：
+...">
+
+    <title>Mixin</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Mixin.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Toy/index.html"><< Toy</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Mixin</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>ToyLang 支援物件個體化（Object individuation），也就是類別的實例建立之後，還可以動態地增減其特性，那麼類別呢？</p>
+<p>類別在定義之後，若需要，也可以動態地增加方法的定義，例如：</p>
+<pre class="prettyprint"><code lang="toy">class Foo {
+    def doFoo1() {
+        println('{0} foo1'.format(this))
+    }
+}
+
+def doFoo2() {
+    println('{0} foo2'.format(this))
+}
+
+println(Foo.ownMethods())
+
+foo = new Foo()
+foo.doFoo1()
+
+Foo.addOwnMethod('doFoo2', doFoo2)
+println(Foo.ownMethods())
+foo.doFoo2()
+
+Foo.deleteOwnMethod('doFoo2')
+println(Foo.ownMethods())
+</code></pre>
+<p>在 ToyLang 中，類別是 <code>Class</code> 的實例，<code>Class</code> 定義了 <code>ownMethods</code> 可取得類別上定義之方法，可以藉由 <code>addOwnMethod</code> 來動態加入方法，由於實例查找方法時，會到類別上尋找，因此建立的實例馬上也能使用被增加的方法，若要刪除方法，可以使用 <code>deleteOwnMethod</code>。執行的結果如下：</p>
+<pre class="prettyprint"><code lang="toy">[&lt;Function doFoo1&gt;]
+&lt;Foo object&gt; foo1
+[&lt;Function doFoo1&gt;,&lt;Function doFoo2&gt;]
+&lt;Foo object&gt; foo2
+[&lt;Function doFoo1&gt;]
+</code></pre>
+<p>這跟在實例上新增方法不同，實例上新增的方法屬於實例本身擁有，而類別上增加的方法並不屬於實例，而是屬於類別。</p>
+<p>如果想要直接從另一個類別上頭「借用」方法，可以使用 <code>Class</code> 的 <code>mixin</code> 方法，例如：</p>
+<pre class="prettyprint"><code lang="toy">class Foo1 {
+    def doFoo1() {
+        println('{0} foo1'.format(this))
+    }
+}
+
+class Foo2 {
+    def doFoo2() {
+        println('{0} foo2'.format(this))
+    }
+}
+
+Foo1.mixin(Foo2)
+
+foo1 = new Foo1()
+foo1.doFoo2()
+</code></pre>
+<p><code>mixin</code> 方法會找出被 Mixin 的類別上定義之方法，讓呼叫 <code>mixin</code> 的類別內部，也能參考那些方法。執行結果如下：</p>
+<pre class="prettyprint"><code lang="toy">class Foo1 {
+    def doFoo1() {
+        println('{0} foo1'.format(this))
+    }
+}
+
+class Foo2 {
+    def doFoo2() {
+        println('{0} foo2'.format(this))
+    }
+}
+
+Foo1.mixin(Foo2)
+
+foo1 = new Foo1()
+foo1.doFoo2()
+</code></pre>
+<p>這就形成了有趣的應用，可以將一組可共用的方法，定義在某個類別之上，例如：</p>
+<pre class="prettyprint"><code lang="toy">class Ordered {
+    def lessThan(that) {
+        return this.compare(that) &lt; 0
+    }
+
+    def lessEqualsThan(that) {
+        return this.lessThan(that) or this.equals(that)
+    }
+
+    def greaterThan(that) {
+        return not this.lessEqualsThan(that)
+    }
+
+    def greaterEqualsThan(that) {
+        return not this.lessThan(that)
+    }
+}
+
+class Circle {
+    def init(radius) {
+        this.radius = radius
+    }
+
+    def compare(that) {
+        return this.radius - that.radius
+    }
+
+    def equals(that) {
+        return this.radius == that.radius
+    }
+}
+
+Circle.mixin(Ordered)
+
+c1 = new Circle(10)
+c2 = new Circle(20)
+
+println(c1.lessThan(c2))          # true
+println(c1.lessEqualsThan(c2))    # true
+println(c1.greaterThan(c2))       # false
+println(c1.greaterEqualsThan(c2)) # false
+</code></pre>
+<p>在這個例子中，<code>Ordered</code> 定義了一組可共用的方法，這些方法依賴在一個未實作的 <code>compare</code> 方法，如果需要比較操作的物件，在定義類別時可定義 <code>compare</code> 方法，並 <code>mixin</code> 這個 <code>Ordered</code>，就可以自動擁有已實作的比較操作。</p>
+<p>在 ToyLang 中，Mixin 並不是繼承，後面會看到，繼承時子類別並不擁有 Parent 類別的方法，而是透過繼承鏈查找，而 Mixin 時，類別會與被 Mixin 的類別共用方法。</p>
+<hr />
+<p>在 ToyLang 中，每個物件都使用 <code>Instance</code> 節點來表示，而每個 <code>Instance</code> 必須有個內部節點表示：</p>
+<pre class="prettyprint"><code lang="toy">class Instance extends Value {
+    constructor(clzOfLang, properties, internalNode) {
+        super();
+        this.clzOfLang = clzOfLang; 
+        this.properties = properties;
+        this.internalNode = internalNode || this;
+        this.value = this;
+    }
+
+    ...
+}
+</code></pre>
+<p>對於類別，<code>Instance</code> 的 <code>internalNode</code> 參考的是 <code>Class</code> 節點（這不是 ToyLang 語言中的 <code>Class</code>）：</p>
+<pre class="prettyprint"><code lang="toy">class Class extends Func {
+    constructor({notMethodStmt, methods, name, parentClzNames, parentContext}) {
+        super([], notMethodStmt, name, parentContext || null);
+        this.parentClzNames = parentClzNames || ['Object'];
+        this.methods = methods;
+    }
+
+    methodArray() {
+        return this.methods.values();
+    }
+
+    addOwnMethod(name, fInstance) {
+        this.methods.set(name, fInstance.internalNode);
+    }
+
+    deleteOwnMethod(name) {
+        this.methods.delete(name);
+    }
+
+    hasOwnMethod(name) {
+        return this.methods.has(name);
+    }    
+
+    hasMethod(context, name) {
+        if(this.name === 'Object') {
+            return this.hasOwnMethod(name);
+        }
+
+        return this.hasOwnMethod(name) || 
+               this.parentClzNames.some(clzName =&gt; clzNode(context, clzName).hasOwnMethod(name)) ||
+               grandParentClzNames(context, this.parentClzNames).some(
+                    clzName =&gt; clzNode(context, clzName).hasMethod(context, name)
+               );
+    }
+
+    getOwnMethod(name) {
+        return this.methods.get(name);
+    }
+
+    getMethod(context, name) {
+        const ownMethod = this.getOwnMethod(name);
+        if(this.name === 'Object') {
+            context.RUNTIME_CHECKER.refErrIfNoValue(ownMethod, name);
+        }
+
+        return ownMethod ? ownMethod : lookupParentClzes(context, this, name);
+    }
+
+    ...
+}
+</code></pre>
+<p>每個 <code>Class</code> 節點，都有 <code>methods</code> 特性，包含了類別上定義之方法，類別的實例查找方法時，就是查找 <code>methods</code> 中是否有需要之方法，若沒有，才會到 Parent 類別尋找。</p>
+<p>因此，只要操作 <code>methods</code>，就可以改變類別上擁有之方法，這也就是 <code>Class</code> 中看到的：</p>
+<pre class="prettyprint"><code lang="toy">...
+    addOwnMethod(name, fInstance) {
+        this.methods.set(name, fInstance.internalNode);
+    }
+
+    deleteOwnMethod(name) {
+        this.methods.delete(name);
+    }
+...
+</code></pre>
+<p>至於 <code>mixin</code> 方法，當然就是查找被 Mixin 類別之 <code>Class</code> 節點中之 <code>methods</code>，將其中的方法一次性地，增添到呼叫 <code>mixin</code> 的類別中，這可以在 <a href="https://github.com/JustinSDK/toy_lang/blob/master/toy_lang/js/builtin/classes/clz.js">clz.js</a> 看到：</p>
+<pre class="prettyprint"><code lang="toy">['mixin', func1('mixin', {
+    evaluate(context) {
+        Array.from(PARAM1.evaluate(context).internalNode.methodArray())
+             .forEach(f =&gt; selfInternalNode(context).addOwnMethod(f.name, f.evaluate(context)));
+        return context.returned(self(context));
+    }    
+})],
+</code></pre>
+<p>因此在實作上，Mixin 比繼承來得簡單多了，因為後面會看到，ToyLang 支援多重繼承，在繼承鏈的查找上，會有多個來源，這點麻煩許多，Mixin 嘛！直接共用就對了！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'G-QVQQYFSC8J', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</div>

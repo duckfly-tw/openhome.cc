@@ -1,0 +1,224 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Joda-Time 是由 Stephen Colebourne 於 2002 年開始建立，版本 1.0 於 2005 年釋出，而 2007 年釋出版本 2.0，撰寫此文件的時候，最新版本為 2.3。
+...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="【Joda-Time 與 JSR310 】（3）使用 Joda-Time">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JSR310-3.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Joda-Time 是由 Stephen Colebourne 於 2002 年開始建立，版本 1.0 於 2005 年釋出，而 2007 年釋出版本 2.0，撰寫此文件的時候，最新版本為 2.3。
+...">
+
+    <title>【Joda-Time 與 JSR310 】（3）使用 Joda-Time</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JSR310-3.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 CodeData</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Joda-Time 與 JSR310 】（3）使用 Joda-Time</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p><a href="http://www.joda.org/joda-time/">Joda-Time</a> 是由 <a href="http://blog.joda.org/">Stephen Colebourne</a> 於 2002 年開始建立，版本 1.0 於 2005 年釋出，而 2007 年釋出版本 2.0，撰寫此文件的時候，最新版本為 2.3。</p>
+<p>有鑑於 <code>Date</code> 與 <code>Calendar</code> 的問題，Joda-Time 抽取了時間處理時幾個重要觀念，作為實作與使用 API 時的重要考量 …</p>
+<h1>Instant</h1>
+<p>連續時間軸上的某個瞬間，採用 UTC 1970 年 1 月 1 日 00:00:00 至該瞬間歷經的毫秒數（與 Unix 時間相同）…</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-1.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>在實作上，使用 <code>ReadableInstant</code> 介面來定義 <code>Instant</code> 的行為，其實作類別包括有：</p>
+<ul>
+<li><code>Instant</code>：簡單的實作類別，常用作時區、日歷轉換時的中性資料。</li>
+<li><code>DateTime</code>：最常用的類別，常搭配時區、日歷資訊來建立或取得日期、時間等欄位資訊。</li>
+<li><code>MutableDateTime</code>：前三個類別的實例都是不可變（Immutable），<code>MutableDateTime</code> 的實例為可變。</li>
+</ul>
+<p>Joda-Time 記取了 <code>Date</code> 與 <code>Calendar</code> 實例為可變時可能發生的問題，因而 <code>Instant</code>、<code>DateTime</code> 都設計為不可變。<code>ReadableInstant</code> 介面的實例，行為上可基於毫秒數來進行時間運算，若要取得年、月、日、時、分、秒等欄位資訊，必須提供時區與年曆資訊。例如，若要取得目前時間，並使用預設年曆與時區（稍後說明）來取得月份資訊，以下是個簡單範例：</p>
+<pre class="prettyprint"><code lang="code">DateTime dt = new DateTime(); // 使用預設年曆與時區
+int month = dt.getMonthOfYear();   // 取得目前月份，1 就是一月
+month = dt.monthOfYear().get();          // 取得目前月份的另一方式
+String monthDesc = dt.monthOfYear().getAsText();  // 取得月份的文字描述
+</code></pre>
+<h1>Partial</h1>
+<p>人類在日常生活上使用時間，通常不需要完整的時間概念，只需要片段的時間資訊。例如，我們會說某人的生日是「5 月 26 日」，現在的時間是「下午 1 點 6 分」… 實際上，「5 月 26 日」這樣的片段時間資訊，可以指任何一年的「5 月 26 日」，而「下午 1 點 6 分」這樣的片段時間資訊，也可以用於任何一天的「下午 1 點 6 分」…</p>
+<p>片段時間資訊的概念，在 Joda-Time 中定義為 <code>Partial</code>，實作上由 <code>ReadablePartial</code> 定義出 <code>Partial</code> 的行為，其實作包括有以下類別，實例皆為不可變，從名稱上應可一目瞭然各自的作用：</p>
+<ul>
+<li><code>LocalDate</code>、<code>LocalTime</code>、<code>LocalDateTime</code></li>
+<li><code>YearMonth</code>、<code>MonthDay</code></li>
+<li><code>Partial</code></li>
+<li><code>YearMonthDay</code></li>
+<li><code>TimeOfDay</code></li>
+</ul>
+<p>既然是片段的時間資訊，那麼只要補齊不全的部份，就可以轉為時間軸上確切的某個瞬間…</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-2.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>具體來說，也就是 <code>ReadablePartial</code> 的實例可以組合以產生 <code>ReadableInstant</code> 的實例。例如：</p>
+<pre class="prettyprint"><code lang="code">LocalDate date = new LocalDate(2004, 12, 25); // 年、月、日的日期片段資訊
+LocalTime time = new LocalTime(12, 20); // 時、分的時間片段資訊
+DateTime dt = date.toDateTime(time); // 使用預設時區
+</code></pre>
+<p>反過來說，如果你有個 <code>ReadableInstant</code> 實例，像是 <code>DateTime</code>，也可以取得其中的時間片段。例如：</p>
+<pre class="prettyprint"><code lang="code">DateTime dt = new DateTime();
+LocalDate date = new LocalDate(dt);  // 只取出日期片段資訊
+</code></pre>
+<h1>Interval</h1>
+<p>有時你會想要表達時間上某個區段，像是西元 1975 年 5 月 26 日到 西元 1978 年 7 月 23 日，像這類包括開始瞬間與結束瞬間的區段，Joda-Time 定義為 <code>Interval</code> …1</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-3.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>實作上由 <code>ReadableInterval</code> 介面定義行為，實作類別有：</p>
+<ul>
+<li><code>Interval</code></li>
+<li><code>MutableInterval</code></li>
+</ul>
+<p>建立 <code>Interval</code> 實例的程式片段之一如下：</p>
+<pre class="prettyprint"><code lang="code">DateTime start = new DateTime(1975, 5, 26, 0, 0, 0);
+DateTime end = new DateTime(1978, 7, 23, 0, 0, 0);
+Interval interval = new Interval(start, end);
+</code></pre>
+<h1>Duration</h1>
+<p>現在的時間「再 1000 毫秒」後會是多？這類再持續多久的期間概念，就是 Joda-Time 中定義的 <code>Interval</code>，不過持續的時間單位是毫秒。實作上使用 <code>ReadableDuration</code> 介面定義，實作類別有 <code>Duration</code>。</p>
+<p>自然地，如果在某個瞬間加上 <code>Duration</code>，就會得到另一個瞬間：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-4.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>具體來說，可以給予 <code>ReadableInstant</code> 的實例某個 <code>ReadableDuration</code> 實例，從而得到另一個 <code>ReadableInstant</code>，例如 …</p>
+<pre class="prettyprint"><code lang="code">DateTime start = new DateTime(1975, 5, 26, 0, 0, 0);
+Duration oneThousandMillis = new Duration(1000);
+DateTime end = start.plus(oneThousandMillis);
+</code></pre>
+<h1>Period</h1>
+<p>使用毫秒？那要表示「再三分鐘」、「再兩天」的概念不是很麻煩嗎？是的！沒有錯！人類通常很少使用毫秒，因此，Joda-Time 把人類慣用的時間持續定義為 <code>Period</code>，實作上使用 <code>ReadablePeriod</code> 介面定義行為，實作的類別有以下幾個：</p>
+<ul>
+<li><code>Period</code></li>
+<li><code>MutablePeriod</code></li>
+<li><code>Years</code>、<code>Months</code>、<code>Weeks</code>、<code>Days</code></li>
+<li><code>Hours</code>、<code>Minutes</code>、<code>Seconds</code></li>
+</ul>
+<p>自然地，如果在某個瞬間加上 <code>Period</code>，也會得到另一個瞬間：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-5.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>只不過這次是人類常用的時間概念，例如，想知道兩個時間軸上的瞬間到底是多少天嗎？可以這麼撰寫程式來得知：</p>
+<pre class="prettyprint"><code lang="code">DateTime start = new DateTime(1975, 5, 26, 0, 0, 0);
+DateTime end = new DateTime(1978, 7, 23, 0, 0, 0);
+Days days = Days.daysBetween(start, end);
+</code></pre>
+<p>以上是有關於使用 Joda-Time 時，應該知道的幾個重要觀念，其中我們看到了年曆與時區 …</p>
+<p>在 Joda-Time 的 API 設計上，年曆系統是可以抽換的，用以從某個瞬間計算日期時間的各個欄位，<code>Chronology</code> 是年曆實作類別的抽象父類別，許多情況下若沒有指定，會使用 <code>ISOChronology</code> 作為預設，這是依 ISO8601 的實作類別。</p>
+<p>在 <a href="JSR310-2.html">【Joda-Time 與 JSR310 】（2）時間的 ABC</a> 中談過，JDK 中 <code>Calendar</code> 的實作類別 <code>GregorianCalendar</code>，其實是個儒略曆與格里高利曆的混合年曆，在 Joda-Time 中對應的實作類別是 <code>GJChronology</code>，如果你要純綷的儒略曆，在 Joda-Time 中是 <code>JulianChronology</code>，如果你要純綷的格里高利曆，在 Joda-Time 中是 <code>GregorianChronology</code>。除此之外，Joda-Time 中還有…</p>
+<ul>
+<li>Buddhist – <code>BuddhistChronology</code></li>
+<li>Coptic – <code>CopticChronology</code></li>
+<li>Ethiopic – <code>EthiopicChronology</code></li>
+<li>Islamic – <code>IslamicChronology</code></li>
+</ul>
+<p>要使用科普特曆（Coptic calendar）來表示倫敦的日期時間，以下是個示範：</p>
+<pre class="prettyprint"><code lang="code">DateTimeZone zone = DateTimeZone.forID("Europe/London");
+Chronology coptic = CopticChronology.getInstance(zone);
+DateTime dt = new DateTime(coptic);
+int year = dt.getYear();
+int month = dt.getMonthOfYear();
+</code></pre>
+<p>Joda-Time 會將時區資料編譯包裝為單一 JAR 檔案，你可以按照 <a href="http://joda-time.sourceforge.net/cal_coptic.html">Time zone update</a> 資訊，隨時更新與重新編譯 JAR 檔案，<a href="http://joda-time.sourceforge.net/timezones.html">Available Time Zones</a> 中則列出了 Joda-Time 中所有的時區資訊。</p>
+<p>談了這麼多觀念，該來端出些牛肉，看看使用 Joda-Time 與使用 JDK 的日期時間 API，到底有什麼不同，先來看看問題的這個片段：</p>
+<pre class="prettyprint"><code lang="code">DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+Date birthDate = dateFormat.parse(args[0]);
+Date nowDate = new Date();
+long lifeMillis = nowDate.getTime() - birthDate.getTime();
+System.out.printf("你今年的歲數為：%d%n", 
+             lifeMillis / (365 * 24 * 60 * 60 * 1000));
+</code></pre>
+<p>不但囉嗦而且出錯了，改用 Joda-Time 之後是這樣的：</p>
+<pre class="prettyprint"><code lang="code">Years years = Years.yearsBetween(
+DateTime.parse("1975-05-26"), DateTime.now());
+System.out.printf("你今年的歲數為：%d%n", years.getYears());
+</code></pre>
+<p>接下來這個片段要表示的日期不正確：</p>
+<pre class="prettyprint"><code lang="code">Date date = new Date(13, 8, 2);
+DateFormat dateFormat = DateFormat.getDateInstance();
+System.out.printf("Taiwan Java Developer Day is %s.%n", 
+    dateFormat.format(date));
+</code></pre>
+<p>這個也不對：</p>
+<pre class="prettyprint"><code lang="code">Calendar calendar = Calendar.getInstance();
+calendar.set(2013, 8, 2);
+DateFormat dateFormat = DateFormat.getDateInstance();
+System.out.printf("Taiwan Java Developer Day is %s.%n", 
+    dateFormat.format(calendar.getTime()));
+</code></pre>
+<p>其實，這兩個程式碼想要的結果，並不需要完整的時間概念，它沒有要時、分、秒的資訊，因而只需要使用 Joda-Time 中的 <code>Partial</code> 概念，也就是 <code>ReadablePartial</code> 的實例之一 <code>LocalDate</code>：</p>
+<pre class="prettyprint"><code lang="code">LocalDate javaTwoDate = new LocalDate(2013, 8, 2);
+System.out.printf("Taiwan Java Developer Day is %s.%n", javaTwoDate);
+</code></pre>
+<p>那這個方法呢？</p>
+<pre class="prettyprint"><code lang="code">public static long daysBetween(Calendar begin, Calendar end) {
+    long daysBetween = 0;
+    while(begin.before(end)) {
+        begin.add(Calendar.DAY_OF_MONTH, 1);
+        daysBetween++;
+    }
+    return daysBetween;
+}
+</code></pre>
+<p>其實你需要的只是 Joda-Time 中 <code>Days.daysBetween</code> 之類的方法：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/JSR310-3-6.png" alt="【Joda-Time 與 JSR310 】（3）使用 Joda-Time"  /></div></div></p>
+<p>再來看個需求好了，如果要知道某個日期起加上 5 天、6 個月、3 週後會的日期時間是什麼，並使用指定的格式輸出。使用 JDK 的話，會需要如下的計算：</p>
+<pre class="prettyprint"><code lang="code">Calendar calendar = Calendar.getInstance();
+calendar.set(1975, Calendar.MAY, 26, 0, 0, 0);
+calendar.add(Calendar.DAY_OF_MONTH, 5);
+calendar.add(Calendar.MONTH, 6);
+calendar.add(Calendar.WEEK_OF_MONTH, 3);
+SimpleDateFormat df = new SimpleDateFormat("E MM/dd/yyyy");
+System.out.println(df.format(calendar.getTime()));
+</code></pre>
+<p>Joda-Time 實現了 流暢 API 的概念，寫來會輕鬆且流暢易讀：</p>
+<pre class="prettyprint"><code lang="code">LocalDate birthDate = new LocalDate(1975, 5, 26);
+System.out.println(birthDate
+                    .plusDays(5)
+                    .plusMonths(6)
+                    .plusWeeks(3).toString("E MM/dd/yyyy"));
+</code></pre>
+<p>那麼，既然 Joda-Time 這麼好，為什麼還要有 JSR310，幹嘛不把 Joda-Time 納入 JDK 就好了呢？JSR310 的設計上又有什麼不同呢？這會是下篇文章要探討的主題！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,279 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="After starting my tour on 3D designs with code, I decided to use OpenSCAD, and one thing I wanted to...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Manual maze">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/OpenSCAD/ManualMaze.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="After starting my tour on 3D designs with code, I decided to use OpenSCAD, and one thing I wanted to...">
+
+    <title>Manual maze</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ManualMaze.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/OpenSCAD/index.html">&lt;&lt; OpenSCAD TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Manual maze</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>After starting my tour on 3D designs with code, I decided to use OpenSCAD, and one thing I wanted to challenge is generating a maze. For reference, I tried to look for the code written in OpenSCAD but cannot find one. After attempting for a period, I eventually come up with <a href="https://www.thingiverse.com/thing:1185425">my first maze</a>.</p>
+
+<p>Strictly speaking, maze algorithms are not hard. You can find different maze algorithms on the internet. Thingiverse has several maze generators; however, none of them is written in pure OpenSCAD. Several solutions use other languages to generating the maze data, and then translate them into OpenSCAD code. They are not what I want.</p>
+<p>I think one of the reasons is, OpenSCAD is Functional programming. When I tried to implement a maze at the first time, I didn't notice the paradigm and suffered for it.</p>
+<p>In short, you have to be skilled at Functional programming to avoid running into snags everywhere when implementing a maze. That's why I put the maze topic last. I suppose that you've been familar with Functional programming though the previous documents.</p>
+<h1>The walls</h1>
+<p>Before designing a maze, think about a question. How to create the pattern below?</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-1.JPG" alt="Manual maze"  /></div></div></p>
+<p>It looks easy. We can arrange several square frames, right?</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-2.JPG" alt="Manual maze"  /></div></div></p>
+<p>In fact, you don't need square frames. Just use the following model.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-3.JPG" alt="Manual maze"  /></div></div></p>
+<p>Of course, it will have no left side and down side.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-4.JPG" alt="Manual maze"  /></div></div></p>
+<p>It's not a big problem. Just draw two lines at the left side and the lower side. The point here is, we can treat every block of a maze as being made of a upper wall and a right wall. If you can go right to the next block, the current block has no right wall. Being able to go up means no upper wall. If the left block is walkable, the left block has no right wall. The lower block has no upper wall if you can go down.</p>
+<p>Therefore, if a maze has blocks such as:</p>
+<pre class="prettyprint"><code lang="openscad">// upper: the block has a upper wall
+// right: the block has a right wall
+// no   : the block has no wall
+
+upper, upper          , upper, upper
+right, upper and right, upper, right
+no   , right          , right, right
+upper, upper          , right, right
+</code></pre>
+<p>You can draw the following model according to it.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-5.JPG" alt="Manual maze"  /></div></div></p>
+<p>Here, we use the lower-left block as a starting point and the upper-right block as an exiting point. After adding two lines at the left side and the lower side, we have a easy maze.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-6.JPG" alt="Manual maze"  /></div></div></p>
+<h1>Block data</h1>
+<p>Once we know how to construct maze walls, we can define the data structure of a block. We use the xy plane, and the lower-left corner of a maze is located at the origin of the coordinate system of OpenSCAD. We index the lower-left block as (1, 1). Its right blocks are indexed as (2, 1), (3, 1) and (4, 1). The blocks of the upper row are indexed as (1, 2), (2, 2), (3, 2) and (4, 2). The remaining rows follow the same rule.</p>
+<p>Besides the block index, we have to record the wall type. For clearness, we define some constant variables first.</p>
+<pre class="prettyprint"><code lang="openscad">NO_WALL = 0;       
+UP_WALL = 1;       
+RIGHT_WALL = 2;    
+UP_RIGHT_WALL = 3; 
+</code></pre>
+<p>Thus, we use (x, y, wall_type) as the data structure of a block. In OpenSCAD, we can use a vector to define it. For example, for a 4x4 maze, we can use the code below to represent the block data.</p>
+<pre class="prettyprint"><code lang="openscad">// [x, y, wall_type]
+maze_blocks =  [
+    [1, 4, 1], [2, 4, 1], [3, 4, 1], [4, 4, 1], 
+    [1, 3, 2], [2, 3, 3], [3, 3, 1], [4, 3, 2], 
+    [1, 2, 0], [2, 2, 2], [3, 2, 2], [4, 2, 2], 
+    [1, 1, 1], [2, 1, 1], [3, 1, 2], [4, 1, 2]
+];
+</code></pre>
+<p>You might think that why don't we use the following data?</p>
+<pre class="prettyprint"><code lang="openscad">maze_blocks =  [
+    [1, 1, 1, 1], 
+    [2, 3, 1, 2], 
+    [0, 2, 2, 2], 
+    [1, 1, 2, 2]
+];
+</code></pre>
+<p>In this case, the wall type of <code>maze_blocks[0][0]</code> is <code>1</code>, that is <code>UP_WALL</code>. Isn't it shorter than the previous?</p>
+<p>In fact, you can use it if you want. I decide to use (x, y, wall_type) because I want to coincide with the directions of the x-axis and the y-axis. If I take the above solution, <code>maze_blocks[0]</code> is the uppermost row and <code>maze_blocks[3]</code> is the lowest row. It will differ from the directions I want.</p>
+<p>You might prefer the coordinate system used by output devices such as a screen, window, or a printer. That is, the x coordinate increases to the right, the y coordinate increases downward, and the top-left block is (0, 0). If it's your choice, the above data structure is ok.</p>
+<p>In fact, my first <a href="https://www.thingiverse.com/thing:1185425">Maze generator</a> uses it, too. However, the coordinate system of OpenSCAD is different from output devices such as a screen. Changing between two systems sometimes confuses me. That's why I don't take the above data structure here.</p>
+<p>There are other benefits, too. As you will see in the later document, we don't have to change much code when we expand the maze to a random maze. I'll add one field to record whether we've visited a block. That is <code>[x, y, wall_type, visited]</code>.</p>
+<p>In short, the data structure I use here is flexible and consistent with the coordinate system of OpenSCAD. For convenience, we define some helper functions for constructing the block data.</p>
+<pre class="prettyprint"><code lang="openscad">function block_data(x, y, wall_type) = [x, y, wall_type];
+function get_x(block_data) = block_data[0];
+function get_y(block_data) = block_data[1];
+function get_wall_type(block_data) = block_data[2];
+</code></pre>
+<h1>Drawing a maze</h1>
+<p>The wall is a line. We can use the <code>polyline</code> module developed in <a href="http://openhome.cc/eGossip/OpenSCAD/Polyline.html">Line</a> to draw a line. The first thing is defining a module to create only a block.</p>
+<pre class="prettyprint"><code lang="openscad">module draw_block(wall_type, block_width, wall_thickness) {
+    if(wall_type == UP_WALL || wall_type == UP_RIGHT_WALL) {
+        // the upper wall
+        polyline(
+            [[0, block_width], [block_width, block_width]], wall_thickness
+        ); 
+    }
+
+    if(wall_type == RIGHT_WALL || wall_type == UP_RIGHT_WALL) {
+        // the right wall
+        polyline(
+            [[block_width, block_width], [block_width, 0]], wall_thickness
+        ); 
+    }
+}
+</code></pre>
+<p>Then, draw the maze according to the block data.</p>
+<pre class="prettyprint"><code lang="openscad">module draw_maze(rows, columns, blocks, block_width, wall_thickness) {
+    for(block = blocks) {
+        // move the block to its correspond position
+        translate([get_x(block) - 1, get_y(block) - 1] * block_width) 
+            draw_block(
+                get_wall_type(block), 
+                block_width, 
+                wall_thickness
+            );
+    }
+
+    // the lower wall
+    polyline(
+        [[0, 0], [block_width * columns, 0]], 
+        wall_thickness);
+    // the left wall
+    polyline(
+        [[0, block_width], [0, block_width * rows]], 
+        wall_thickness);
+}
+</code></pre>
+<p>Why do I subtract one from the (x, y) of a block respectively? I want the lower-left corner of the maze is the origin of the xy plane.</p>
+<p>The following is all code used to draw a 4x4 maze according to the block data listed above.</p>
+<pre class="prettyprint"><code lang="openscad">module line(point1, point2, width = 1, cap_round = true) {
+    angle = 90 - atan((point2[1] - point1[1]) / (point2[0] - point1[0]));
+    offset_x = 0.5 * width * cos(angle);
+    offset_y = 0.5 * width * sin(angle);
+
+    offset1 = [-offset_x, offset_y];
+    offset2 = [offset_x, -offset_y];
+
+    if(cap_round) {
+        translate(point1) circle(d = width, $fn = 24);
+        translate(point2) circle(d = width, $fn = 24);
+    }
+
+    polygon(points=[
+        point1 + offset1, point2 + offset1,  
+        point2 + offset2, point1 + offset2
+    ]);
+}
+
+module polyline(points, width = 1) {
+    module polyline_inner(points, index) {
+        if(index &lt; len(points)) {
+            line(points[index - 1], points[index], width);
+            polyline_inner(points, index + 1);
+        }
+    }
+
+    polyline_inner(points, 1);
+}
+
+// Wall constants
+
+NO_WALL = 0;      
+UP_WALL = 1;      
+RIGHT_WALL = 2;  
+UP_RIGHT_WALL = 3;
+
+function block_data(x, y, wall_type) = [x, y, wall_type];
+function get_x(block_data) = block_data[0];
+function get_y(block_data) = block_data[1];
+function get_wall_type(block_data) = block_data[2];
+
+module draw_block(wall_type, block_width, wall_thickness) {
+    if(wall_type == UP_WALL || wall_type == UP_RIGHT_WALL) {
+        // the upper wall
+        polyline(
+            [[0, block_width], [block_width, block_width]], wall_thickness
+        ); 
+    }
+
+    if(wall_type == RIGHT_WALL || wall_type == UP_RIGHT_WALL) {
+        // the right wall
+        polyline(
+            [[block_width, block_width], [block_width, 0]], wall_thickness
+        ); 
+    }
+}
+
+module draw_maze(rows, columns, blocks, block_width, wall_thickness) {
+    for(block = blocks) {
+        // move the block to its correspond position
+        translate([get_x(block) - 1, get_y(block) - 1] * block_width) 
+            draw_block(
+                get_wall_type(block), 
+                block_width, 
+                wall_thickness
+            );
+    }
+
+    // the lowermost wall
+    polyline(
+        [[0, 0], [block_width * columns, 0]], 
+        wall_thickness);
+    // the leftmost wall
+    polyline(
+        [[0, block_width], [0, block_width * rows]], 
+        wall_thickness);
+}
+
+block_width = 3;
+wall_thickness = 1;
+maze_rows = 4;
+maze_columns = 4;
+
+// [x, y, wall_type]
+maze_blocks =  [
+    [1, 4, 1], [2, 4, 1], [3, 4, 1], [4, 4, 1], 
+    [1, 3, 2], [2, 3, 3], [3, 3, 1], [4, 3, 2], 
+    [1, 2, 0], [2, 2, 2], [3, 2, 2], [4, 2, 2], 
+    [1, 1, 1], [2, 1, 1], [3, 1, 2], [4, 1, 2]
+];
+
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre>
+<p>Of course, we create the block data manually here. However, do you notice that? We separate the data from the representation. That is, if you can generate the block data randomly, you'll have a random maze. It's what I'll talk lately.</p>
+<p>Because we separate the data from the representation, you can change the implementation of the <code>draw_maze</code> module and then you'll have a different maze. That's why I have <a href="https://www.thingiverse.com/JustinSDK/collections/maze-generator">so many mazes on Thingiverse</a>.</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

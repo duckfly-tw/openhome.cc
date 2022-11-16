@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於基於相同類別產生的實例而言，會擁有各自的值域資料，不過有些資料不用實例各自擁有一份，而可以屬於類別，例如可以定義 Math 類別，它提供了 PI 成員，因為 PI 是個常數，不需要個別實例擁有各自...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="static 成員">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/staticMember.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於基於相同類別產生的實例而言，會擁有各自的值域資料，不過有些資料不用實例各自擁有一份，而可以屬於類別，例如可以定義 Math 類別，它提供了 PI 成員，因為 PI 是個常數，不需要個別實例擁有各自...">
+
+    <title>static 成員</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="staticMember.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>static 成員</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>對於基於相同類別產生的實例而言，會擁有各自的值域資料，不過有些資料不用實例各自擁有一份，而可以屬於類別，例如可以定義 <code>Math</code> 類別，它提供了 <code>PI</code> 成員，因為 <code>PI</code> 是個常數，不需要個別實例擁有各自的 <code>PI</code>。</p>
+<pre class="prettyprint"><code lang="c++">class Math {
+public:
+    constexpr static double PI = 3.14159;
+};
+</code></pre>
+<p><code>static</code> 資料成員屬於類別，而非個別實例，想在類別內初始 <code>static</code> 資料成員的話，必須是個 <code>constexpr</code>，也就是必須是編譯時期常數，若否，必須在類別外指定，例如：</p>
+<pre class="prettyprint"><code lang="c++">class Math {
+public:
+    static double PI;
+};
+
+double Math::PI = 3.14159;
+</code></pre>
+<p><code>static</code> 成員屬於類別，可以使用類別名稱加上 <code>::</code> 解析運算子來存取：</p>
+<pre class="prettyprint"><code lang="c++">cout &lt;&lt; Math::PI &lt;&lt; endl;
+</code></pre>
+<p>也可以宣告 <code>static</code> 函式成員，同樣地，會是屬於類別擁有，而不是類別的實例，例如來定義一個角度轉徑度的 <code>toRadian</code>：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+class Math {
+public:
+    constexpr static double PI = 3.14159;
+    static double toRadian(double);
+};
+
+double Math::toRadian(double angle) {
+    return PI / 180 * angle;
+}
+
+int main() {
+    cout &lt;&lt; Math::PI &lt;&lt; endl;
+    cout &lt;&lt; Math::toRadian(30) &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p><code>static</code> 成員屬於類別，同樣地，可以使用類別名稱加上 <code>::</code> 解析運算子來呼叫 <code>static</code> 函式成員。</p>
+<p>由於 <code>static</code> 成員是屬於類別而不是實例，呼叫靜態函式時，並不會傳入實例位址，也就是 <code>static</code> 函式中不會有 <code>this</code> 指標，因此 <code>static</code> 函式中不允許使用非 <code>static</code> 成員，因為沒有 <code>this</code> 可以使用。</p>
+<p><code>static</code> 成員屬於類別，某些程度上，就是將類別當成是一種名稱空間，用來組織一組相關的值或函式，像這邊的 <code>Math</code>，可以用來組織 <code>PI</code>、<code>toRadian</code> 等數學相關的常數或函式，若想使用數學上的這類東西，透過 <code>Math</code> 這名稱來取用，就會比較方便。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

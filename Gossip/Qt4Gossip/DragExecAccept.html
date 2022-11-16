@@ -1,0 +1,923 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="您可以決定何時執行拖放，並設定拖放時要於元件或視窗之間溝通的資訊，要執行拖放的幾個基本動作為：
+
+
+
+
+
+      
+      
+      
+      
+      
+ ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="拖放的執行與接受">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/DragExecAccept.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="您可以決定何時執行拖放，並設定拖放時要於元件或視窗之間溝通的資訊，要執行拖放的幾個基本動作為：
+
+
+
+
+
+      
+      
+      
+      
+      
+ ...">
+
+
+    <title>拖放的執行與接受</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DragExecAccept.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>拖放的執行與接受</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             您可以決定何時執行拖放，並設定拖放時要於元件或視窗之間溝通的資訊，要執行拖放的幾個基本動作為：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ol>
+
+
+
+
+
+        <li>執行setAcceptDrops()設定為true</li>
+
+
+
+
+
+        <li>建立QMimeData，設定拖放時要攜帶的資訊，例如文字、影像等</li>
+
+
+
+
+
+        <li>建立QDrag，將QMimeData設定給QDrag，並設定拖放時所要顯示的圖示等資訊</li>
+
+
+
+
+
+        <li>執行QDrag的exec()方法，設定使用者可選擇的放置動作</li>
+
+
+
+
+
+        <li>使用exec()的傳回值判斷使用者所接受的放置動作，以進行後續處理</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ol>
+
+
+
+
+
+      <br>
+
+
+
+
+      <span>
+
+
+當拖放行為開始執行時，執行拖放行為的一方會需要知道接受放置的另一方接受何種操作，例如拖放檔案時，當拖放完成時，原檔案是被複製或移動。</span><span>執行拖放行為的一方會設定可被接受的動作，而接受放置的一方可選擇接受何種動作，並傳回相關資訊給執行方</span><span>，</span><span>exec()方法完成後所傳回的資訊作用即是如此</span><span>。<br>
+
+
+
+
+      <br>
+
+
+
+
+      </span>
+以下製作一個簡單的清單程式示範拖放的執行與接受，您可以將清單中的項目拖放至另一個清單之中。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      <span>通常會重新定義mousePressEvent()，記錄滑鼠按下時的位置，而後再重新定義mouseMoveEvent()，判斷滑鼠按下後移動的距離，是否達到所建議的拖放執行距離：<br>
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">void ListWidget::mousePressEvent(QMouseEvent *event) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if (event-&gt;button() == Qt::LeftButton) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; startPoint = event-&gt;pos();</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QListWidget::mousePressEvent(event);</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">void ListWidget::mouseMoveEvent(QMouseEvent *event) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if (event-&gt;buttons() &amp; Qt::LeftButton) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((event-&gt;pos() - startPoint).manhattanLength()</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&gt;= QApplication::startDragDistance()) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; execDrag();</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; QListWidget::mouseMoveEvent(event);</span><br>
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      execDrag()中示範了，如何建立QMimeData及QDrag，並使用exec()執行拖放：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">void ListWidget::execDrag() {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; QListWidgetItem *item = currentItem();</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if (item) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QMimeData *mimeData = new QMimeData;<br>
+
+
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; // 設定所要攜帶的文字資訊<br>
+
+
+
+
+
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mimeData-&gt;setText(item-&gt;text());<br>
+
+
+
+
+
+      </span><span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; // 設定所要攜帶的影像資料</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mimeData-&gt;setImageData(item-&gt;icon());</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QDrag *drag = new QDrag(this);<br>
+
+
+
+
+
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; drag-&gt;setMimeData(mimeData);<br>
+
+
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; // 設定拖放時所顯示的圖示<br>
+
+
+
+
+
+      </span><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; drag-&gt;setPixmap(item-&gt;icon().pixmap(QSize(22, 22)));</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (drag-&gt;exec(Qt::MoveAction) == Qt::MoveAction) {</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delete item;</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+
+
+
+      <span style="font-weight: bold;">}</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+      exec()方法執行時，設定接受拖放的一端可以採用的動作，接受拖放的一方所打算採用的動作，可使用事件的
+setDropAction()來設定，並使用accept()方法接受事件。上面的程式片段中，若接受拖放的一方接受Qt::MoveAction，則
+原清單中的項目會被刪除。<br>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      </span><span>若QDragEnterEvent的setDropAction()所設定的動作，不在exec()方法所設定的允許動作中，則會出現禁止符號，表示拖放無法完成：<br>
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">void ListWidget::dragEnterEvent(QDragEnterEvent *event) {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ListWidget *source =</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qobject_cast&lt;ListWidget *&gt;(event-&gt;source());</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if (source &amp;&amp; source != this) {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;setDropAction(Qt::MoveAction);</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;accept();</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+QDropEvent的setDropAction()設定放置時所採取的動作，將成為exec()的傳回值，以下例而言，在接受拖放的清單從
+QMimeData中取得文字與圖示並新增項目，QDropEvent使用setDropAction()設定為Qt::MoveAction並accept()之後，exec()將傳回Qt::MoveAction：<br>
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">void ListWidget::dropEvent(QDropEvent *event) {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; ListWidget *source =</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qobject_cast&lt;ListWidget *&gt;(event-&gt;source());</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; if (source &amp;&amp; source != this) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QIcon icon = event-&gt;mimeData()-&gt;imageData().value&lt;QIcon&gt;();</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QString text = event-&gt;mimeData()-&gt;text(); </span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; addItem(new QListWidgetItem(icon, text));</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;setDropAction(Qt::MoveAction);</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;accept();</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      <span><br>
+
+
+
+
+      dragMoveEvent()在這個例子中，直接覆寫保持空白，這是為了要覆寫父類別的dragMoveEvent()定義<br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">void ListWidget::dragMoveEvent(QDragMoveEvent *event) {}</span></span><br>
+
+
+
+
+      </div>
+
+
+
+
+      <span><br>
+
+
+
+
+      以下是完整的程式範例參考：<br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>ListWidget.h</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#ifndef LISTWIDGET_H<br>#define LISTWIDGET_H<br><br>#include &lt;QListWidget&gt;<br><br>class QMouseEvent;<br>class QDragEnterEvent;<br>class QDragMoveEvent;<br>class QDropEvent;<br>class QPoint;<br><br>class ListWidget : public QListWidget {<br>    Q_OBJECT<br>    <br>public:<br>    ListWidget(QWidget *parent = 0);<br><br>protected:<br>    void mousePressEvent(QMouseEvent *event);<br>    void mouseMoveEvent(QMouseEvent *event);<br>    void dragEnterEvent(QDragEnterEvent *event);<br>    void dragMoveEvent(QDragMoveEvent *event);<br>    void dropEvent(QDropEvent *event);<br>    <br>private:<br>    void execDrag();<br>    QPoint startPoint;<br>};<br><br>#endif</code></pre>
+
+
+
+
+      <span><br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>ListWidget.cpp</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include "ListWidget.h"<br><br>#include &lt;QApplication&gt;<br>#include &lt;QPoint&gt;<br>#include &lt;QMouseEvent&gt;<br>#include &lt;QMimeData&gt;<br>#include &lt;QDrag&gt;<br>#include &lt;QListWidgetItem&gt;<br>#include &lt;QIcon&gt;<br><br>ListWidget::ListWidget(QWidget *parent) : QListWidget(parent) {<br>    setAcceptDrops(true);<br>}<br><br>void ListWidget::mousePressEvent(QMouseEvent *event) {<br>    if (event-&gt;button() == Qt::LeftButton) {<br>        startPoint = event-&gt;pos();<br>    }<br>    QListWidget::mousePressEvent(event);<br>}<br><br>void ListWidget::mouseMoveEvent(QMouseEvent *event) {<br>    if (event-&gt;buttons() &amp; Qt::LeftButton) {<br>        if ((event-&gt;pos() - startPoint).manhattanLength()<br>                &gt;= QApplication::startDragDistance()) {<br>            execDrag();<br>        }<br>    }<br>    QListWidget::mouseMoveEvent(event);<br>}<br><br>void ListWidget::execDrag() {<br>    QListWidgetItem *item = currentItem();<br>    if (item) {<br>        QMimeData *mimeData = new QMimeData;<br>        mimeData-&gt;setText(item-&gt;text());<br>        mimeData-&gt;setImageData(item-&gt;icon());<br>        QDrag *drag = new QDrag(this);<br>        drag-&gt;setMimeData(mimeData);<br>        drag-&gt;setPixmap(item-&gt;icon().pixmap(QSize(22, 22)));<br>        if (drag-&gt;exec(Qt::MoveAction) == Qt::MoveAction) {<br>            delete item;<br>        }<br>    }<br>}<br><br>void ListWidget::dragEnterEvent(QDragEnterEvent *event) {<br>    ListWidget *source =<br>            qobject_cast&lt;ListWidget *&gt;(event-&gt;source());<br>    if (source &amp;&amp; source != this) {<br>        event-&gt;setDropAction(Qt::MoveAction);<br>        event-&gt;accept();<br>    }<br>}<br><br>void ListWidget::dragMoveEvent(QDragMoveEvent *event) {}<br><br>void ListWidget::dropEvent(QDropEvent *event) {<br>    ListWidget *source =<br>            qobject_cast&lt;ListWidget *&gt;(event-&gt;source());<br>    if (source &amp;&amp; source != this) {        <br>        QIcon icon = event-&gt;mimeData()-&gt;imageData().value&lt;QIcon&gt;();<br>        QString text = event-&gt;mimeData()-&gt;text(); <br>        addItem(new QListWidgetItem(icon, text));<br>        <br>        event-&gt;setDropAction(Qt::MoveAction);<br>        event-&gt;accept();<br>    }<br>}</code></pre>
+
+
+
+
+      <br>
+
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>main.cpp</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QApplication&gt;<br>#include "ListWidget.h"<br><br>int main(int argc, char *argv[]) {<br>    QApplication app(argc, argv);<br>    <br>    ListWidget *listWidget1 = new ListWidget;<br>    listWidget1-&gt;setWindowTitle("Head store");<br>    listWidget1-&gt;insertItem(0, new QListWidgetItem(<br>                   QIcon("caterpillar_head.jpg"), "caterpillar"));<br>    listWidget1-&gt;insertItem(1, new QListWidgetItem(<br>                   QIcon("momor_head.jpg"), "momor"));<br>    listWidget1-&gt;insertItem(2, new QListWidgetItem(<br>                   QIcon("bush_head.jpg"), "bush"));<br>    listWidget1-&gt;insertItem(3, new QListWidgetItem(<br>                   QIcon("bee_head.jpg"), "bee"));<br>    listWidget1-&gt;insertItem(4, new QListWidgetItem(<br>                   QIcon("cat_head.jpg"), "cat"));<br>    <br>    ListWidget *listWidget2 = new ListWidget;<br>    listWidget2-&gt;setWindowTitle("Buy head");<br>    <br>    <br>    listWidget1-&gt;show();<br>    listWidget2-&gt;show();<br>    <br>    return app.exec();<br>}</code></pre>
+
+
+
+
+      <span><br>
+
+
+
+
+      程式的執行畫面如下所示：<br>
+
+
+
+
+      <br>
+
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/DragExecAccept-1.jpg" /></div></div><br>
+
+
+
+
+      <br>
+
+
+
+
+      dragMoveEvent()可以用於將拖放的區域限制在某個範圍中，在Qt的 <a href="http://doc.trolltech.com/4.3.3/dnd.html">Drag and Drop</a> 文件中有個例子：<br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">void Window::dragMoveEvent(QDragMoveEvent *event) {</span></span><br>
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp; if (event-&gt;mimeData()-&gt;hasFormat("text/plain")&nbsp;</span></span><br>
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;&amp; event-&gt;answerRect().intersects(dropFrame-&gt;geometry())) {</span></span><br>
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; event-&gt;acceptProposedAction();</span></span><br>
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp; &nbsp; }</span></span><br>
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+
+
+
+
+      </div>
+
+
+
+
+      <span><br>
+
+
+
+
+
+      </span><span>接受拖放的一方可以直接執行拖放事件的acceptProposedAction()接受所建議的動作，或者是使用proposedAction()來判斷不同的動作該採取的行為：<br>
+
+
+
+
+
+      </span>
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">if (event-&gt;proposedAction() == Qt::MoveAction) {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;event-&gt;acceptProposedAction();</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp; // 處理事件 ....</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">} else if (event-&gt;proposedAction() == Qt::CopyAction) {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;event-&gt;acceptProposedAction();</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;// 處理事件 ....</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">} else {</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; // 處理事件 ....</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; return;</span></span><br>
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span></div>
+
+
+
+
+
+      <br>
+
+      您不僅可以在拖放時攜帶文字或圖片，符合  <a href="http://www.rfc-editor.org/rfc/rfc1341.txt">MIME 類型</a> 的資料都可以於拖放時攜帶，或者您也可以將資料轉換為QByteArray，使用QMimeData的setData()方法設定以進行拖放時資料的攜帶。<br>
+
+
+
+
+
+      <span><br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,143 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="getOutputStream()
+你可以會從 HttpServletResponse 取得 PrintWriter 實例，使用 println() 對瀏覽器進行字元輸出。若需要直接對瀏覽器進行位元組...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="getOutputStream()">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/GetOutputStream.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="getOutputStream()
+你可以會從 HttpServletResponse 取得 PrintWriter 實例，使用 println() 對瀏覽器進行字元輸出。若需要直接對瀏覽器進行位元組...">
+
+    <title>getOutputStream()</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GetOutputStream.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>getOutputStream()</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>
+<br  />你可以會從 <code>HttpServletResponse</code> 取得 <code>PrintWriter</code> 實例，使用 <code>println()</code> 對瀏覽器進行字元輸出。若需要直接對瀏覽器進行位元組輸出，可以使用 <code>HttpServletResponse</code> 的 <code>getOutputStream()</code> 方法取得 <code>ServletOutputStream</code> 實例，它是 <code>OutputStream</code> 的子類別。</p>
+<p>舉個例子來說，以下是個隨機產生數字圖片的 Servlet：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import javax.imageio.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/password")
+public class Password extends HttpServlet {
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("image/jpeg");
+
+        String passwd = new Random().ints(0, 10)
+                                    .limit(4)
+                                    .mapToObj(String::valueOf)
+                                    .collect(Collectors.joining());
+
+        // 實際場合必須將產生的驗證碼存在某個地方，以供之後比對
+
+        ImageIO.write(
+            passwordImage(passwd), 
+            "JPG", 
+            response.getOutputStream()
+        );
+    }
+
+    // 一些 Java 2D 的東西，作用為依傳入的數字產生圖片
+    private BufferedImage passwordImage(String password) throws IOException {
+        BufferedImage bufferedImage =
+                 new BufferedImage(60, 20, BufferedImage.TYPE_INT_RGB);
+        Graphics g = bufferedImage.getGraphics();
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("標楷體", Font.BOLD, 16));
+        g.drawString(password, 10, 15);
+        return bufferedImage;
+    }
+}
+</code></pre>
+<p><code>ImageIO</code> 類別的 <code>write()</code> 接受一個 <code>OutputStream</code> 物件，可以將你指定的 <code>BufferedImage</code> 寫入至指定的 <code>OutputStream</code> ，這邊使用 <code>HttpServletResponse</code> 的 <code>getOutputStream()</code> 取得的 <code>ServletOutputStream</code>，將圖片寫至客戶端。</p>
+<p>瀏覽器必須知道所接收到的資料內容型態為何，這可以使用 <code>HttpServletResponse</code> 的 <code>setContentType()</code> 方法來設定，<code>setContentType()</code> 方法會自動幫你設定 <code>content-type</code> 回應標頭，你只要指定 MIME（Multipurpose Internet Mail Extensions）類型就可以了，要注意的是，<code>setContentType()</code> 方法必須在任何回應確認前執行，在回應確認後再執行 <code>setContentType()</code> 方法並沒有作用。。</p>
+<p>常見的設定有 <code>text/html</code>、<code>application/pdf</code>、<code>application/jar</code>、<code>application/x-zip</code>、<code>image/jpeg</code> 等。你不用強記 MIME 形式，新的 MIME 形式也不斷地在增加，必要時再使用搜尋了解一下即可。</p>
+<p>只要引用上面 Servlet 網址就可以顯示圖片。例如寫一個表單：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form action="pet" method="post"&gt;
+            姓　名：&lt;input type="text" name="user"&gt;&lt;br&gt;
+            密　碼：&lt;input type="password" name="passwd"&gt;&lt;br&gt;
+            驗證碼：&lt;input type="text" name="check"&gt; &lt;img src="password"/&gt;&lt;br&gt;
+         &lt;input type="submit" value="送出"/&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>要注意的是，同一個請求週期中，<code>HttpServletResponse</code> 的 <code>getWriter()</code> 與 <code>getOutputStream()</code> 只能擇一使用，否則會丟出 <code>IllegalStateException</code>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

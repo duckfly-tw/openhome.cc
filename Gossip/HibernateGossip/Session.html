@@ -1,0 +1,1104 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Hibernate在對資料庫進行操作之前，必須先取得Session實例，相當於JDBC在對資料庫操作之前，必須先取得Connection實例，
+Session是Hibernate操作的基礎，它不是設...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Session">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/Session.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Hibernate在對資料庫進行操作之前，必須先取得Session實例，相當於JDBC在對資料庫操作之前，必須先取得Connection實例，
+Session是Hibernate操作的基礎，它不是設...">
+
+
+    <title>Session</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Session.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Session</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+Hibernate在對資料庫進行操作之前，必須先取得Session實例，相當於JDBC在對資料庫操作之前，必須先取得Connection實例，
+Session是Hibernate操作的基礎，它不是設計為執行緒安全（Thread-safe），一個Session由一個執行緒來使用。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>開啟Session</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">
+
+
+Session實例由SessionFactory開啟獲得，例如：<br>
+
+
+
+      
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Configuration
+config = new Configuration().configure();</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">SessionFactory
+sessionFactory = config.buildSessionFactory();</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();<br>
+
+
+
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">....<br>
+
+
+
+
+tx.commit();<br>
+
+
+
+
+      </span>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.close();</span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <br>
+
+
+
+      
+      開啟Session不會馬上取得Connection，而是在最後真正需要連接資料庫進行更新或查詢時才會取
+得Connection，如果有設定Connection pool，則從Connection
+pool中取得Connection，而關閉Session時，如果有設定Connection
+pool，則是將Connection歸還給Connection pool，而不是直接關閉Connection。<br>
+
+
+
+      
+      <br>
+
+
+
+      
+在Hibernate中，開啟一個Session會建立一個<a href="PersistenceContext.html">Persistence context</a>，它可以進行快取管理、dirty check等，而所有的讀取、更新、插入等動作，則是在Transaction中完成。<br>
+
+
+
+      </div>
+
+
+
+      
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>儲存資料</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">透過Session，可以對資料庫進行新增、刪除、更新，例如使用save()新增一筆資料：<br>
+
+
+
+      
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user = new User(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user.setName("momor");
+      </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user.setAge(new
+Integer(26));<br>
+
+
+
+
+      <br>
+
+
+
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();<br>
+
+
+
+
+      </span>
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.save(user);
+      <br>
+
+
+
+
+tx.commit();<br>
+
+
+
+
+session.close();<br>
+
+
+
+
+      </span>
+
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <br>
+
+
+
+      
+save()之後，不會馬上對資料庫進行更新，而是在Transaction的commit()之後才會對資料庫進行更新，在Transaction之間
+的操作要就全部成功，要就全部失敗，如果更新失敗，則在資料庫層面會撤消所有更新操作，然而記憶體中的持久物件是不會回復原有狀態的，事實上，當
+Transaction失敗，這一次的Session就要馬上跟著失效，放棄所有記憶體中的物件，而不是嘗試以原物件再進行更新的動作。<br>
+
+
+
+      </div>
+
+
+
+      
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>取得資料</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">
+您使用get()或load()方法取得id為1的資料：<br>
+
+
+
+      
+      </div>
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user = (User) session.get(User.class, new Integer(1));<br>
+
+
+
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">tx.commit();<br>
+
+
+
+
+session.close();<br>
+
+
+
+
+      </span></div>
+
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <br>
+
+
+
+      
+
+
+      <span id="LblContent">如果未能發現相符合的資料，則get()方法會返回null，而load()方
+法會丟出ObjectNotFoundException，在進階的應用中，load()方法可以返回代理（proxy）物件，在必要時才真正查詢資料庫取得對應資料，並可充分利用快取機制。</span><br>
+
+
+
+      
+
+
+      <br>
+
+
+
+      
+
+
+在Hibernate 3中，取消了find()方法，您必須透過Query或Criteria來進行資料查詢。<br>
+
+
+
+      </div>
+
+
+
+      
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>刪除資料</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">
+
+
+接下來看看使用Session刪除資料，可使用delete()刪除資料：<br>
+
+
+
+      
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user = (User) session.get(User.class, new Integer(1));</span><br>
+
+
+
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.delete(user);</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+tx.commit();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+session.close();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+      </span></div>
+
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      
+
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>更新資料</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">當您在同一個Session中取出資料並封裝為Persistence Object，接著更新物件狀態，而後將Transaction commit，則物件上的狀態更新將反應至資料庫中，您無需額外進行任何的更新操作。<br>
+
+
+
+      <br>
+
+
+
+如果您開啟了一個Session，從資料表中取出資料顯示到使用者介面上，之後關閉Session，當使用者在介面上操作完畢並按下儲存時，這時您要重新
+開啟一個Session，使用update()方法將物件中的資料更新至對應的資料表中：<br>
+
+
+
+      
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();<br>
+
+
+
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user = (User) session.get(User.class, new Integer(2));<br>
+
+
+
+
+tx.commit();<br>
+
+
+
+
+
+
+session.close();<br>
+
+
+
+
+
+
+....<br>
+
+
+
+
+
+
+user.setAge(new Integer(27));<br>
+
+
+
+
+
+
+session = sessionFactory.openSession();&nbsp;&nbsp;&nbsp; <br>
+
+
+
+
+tx= session.beginTransaction(); <br>
+
+
+
+
+
+
+session.update(user);<br>
+
+
+
+
+
+
+tx.commit();<br>
+
+
+
+
+
+
+session.close();</span><span style="font-style: italic; font-weight: bold;"><br>
+
+
+
+
+
+
+      </span>
+      </div>
+
+
+
+
+
+      
+      <br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+
+
+Session提供了一個saveOrUpdate()方法，為資料的儲存或更新提供了一個統一的操作介面，藉由定義映射文件時，設定&lt;
+id&gt;標籤的unsaved-value來決定什麼是新的值必需，什麼是已有的值必須更新： <br>
+
+
+
+      
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&lt;id
+name="id" column="id"
+type="java.lang.Integer"&nbsp;unsaved-value="null"&gt;</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&lt;generator class="native"/&gt; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&lt;/id&gt;
+      </span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <br>
+
+
+
+      
+
+
+unsaved-value可以設定的值包括： <br>
+
+
+
+      
+
+
+      </div>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul style="margin-left: 40px;">
+
+
+
+
+
+        <li>any：總是儲存 </li>
+
+
+
+
+
+        <li>none：總是更新 </li>
+
+
+
+
+
+        <li>null：id為null時儲存（預設） </li>
+
+
+
+
+
+        <li>valid：id為null或是指定值時儲存 </li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <br>
+
+
+
+      
+
+
+這樣設定之後，您可以使用Session的saveOrUpdate()方法來取代update()方法。<br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <ul>
+
+
+
+        <li>合併狀態</li>
+
+
+
+      
+      
+      
+      </ul>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">以這邊的例子來說：<br>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user1 = (User) session.get(User.class, new Integer(2));</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+tx.commit();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session.close();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">....</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+user1.setAge(new Integer(27));</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session = sessionFactory.openSession();&nbsp;&nbsp;&nbsp; </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+tx= session.beginTransaction(); </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User user2 = </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">(User) session.get(User.class, new Integer(2)); // 同一個id<br>
+
+
+
+// user1 == user2 為 false<br>
+
+
+
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session.update(user1); // 丟出NonUniqueObjectException</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+tx.commit();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session.close();</span></div>
+
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">在進行update()之前，您就先從資料庫中取得另一筆
+資料，之後再嘗試更新user1，由於目前的Persistence context已載入一筆資料，並有同一個id的User
+實例了，同一個Persistence context不會有兩個相同id的物件實例，因此丟出NonUniqueObjectException。<br>
+
+
+
+      <br>
+
+
+
+      就這邊的例子來說，您應該使用merge()而不是update()：<br>
+
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessionFactory.openSession();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx = session.beginTransaction();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user1 = (User) session.get(User.class, new Integer(2));</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+tx.commit();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session.close();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">....</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+user1.setAge(new Integer(27));</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session = sessionFactory.openSession();&nbsp;&nbsp;&nbsp; </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+tx= session.beginTransaction(); </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User user2 = </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">(User) session.get(User.class, new Integer(2)); // 同一個id</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User user3 = (User) session.merge(user1);</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// user1 == user2 為 false</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// user2 == user3 為 true</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+tx.commit();</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+
+
+session.close();</span><br>
+
+
+
+      </div>
+
+
+
+      </div>
+
+
+
+
+      <br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">merge()會將user1與user2的狀態合併，傳回的物件實例就是user2原先所參考的實例。<br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,209 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/dom/traversing/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="只要你取得了文件中某個節點（Node），你就可以取得它的父節點、子節點、鄰接節點等，相關的特性有：
+
+取得父節點：parentNode
+前鄰接節點：previousSibling
+後鄰接節點：next...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="走訪文件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/VisitNodes.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="只要你取得了文件中某個節點（Node），你就可以取得它的父節點、子節點、鄰接節點等，相關的特性有：
+
+取得父節點：parentNode
+前鄰接節點：previousSibling
+後鄰接節點：next...">
+
+    <title>走訪文件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="VisitNodes.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>走訪文件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>只要你取得了文件中某個節點（<code>Node</code>），你就可以取得它的父節點、子節點、鄰接節點等，相關的特性有：</p>
+<ul>
+<li>取得父節點：<code>parentNode</code></li>
+<li>前鄰接節點：<code>previousSibling</code></li>
+<li>後鄰接節點：<code>nextSibling</code></li>
+<li>首個子節點：<code>firstChild</code></li>
+<li>最後一個子節點：<code>lastChild</code></li>
+<li>所有直接子節點：<code>childNodes</code></li>
+</ul>
+<p>以〈<a href="W3CDOM.html">W3C DOM 簡介</a>〉中的文件為例：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;首頁&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Hello!World!&lt;/h1&gt;
+        &lt;a href="Gossip/index.html"&gt;學習筆記&lt;/a&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>這份 HTML 文件，假設你使用 <code>document.body</code> 取得 <code>body</code> 節點，假設就是被 <code>body</code> 變數參考，從 <code>body</code> 開始，各特性可以取得的節點標示如下（為了簡化，不考慮換行與縮排的文字節點）：</p>
+<pre class="prettyprint"><code lang="javascript">document                             
+       |-html（body.parentNode）                       
+            |-head（body.previousSibling）
+            |    |-title             
+            |          |-首頁        
+            |body
+                 |-h1（body.firstNode）
+                 |  |-Hello!World!   
+                 |-a（body.lastNode）
+                   |-學習筆記        
+</code></pre>
+<p>如果是 <code>body.childNodes</code>，則取得 <code>NodeList</code> 物件，這是一個類陣列具有索引存取的特性，索引從 0 開始就是第一個子節點，所以 <code>body.childNodes[0]</code> 就是 <code>h1</code> 節點，<code>body.childNodes[1]</code> 就是 <code>a</code> 節點。</p>
+<p>（<code>NodeList</code> 規範的是使用 <code>item()</code> 搭配索引來取得元素，不過在 JavaScript 中，可以直接使用 <code>[]</code> 搭配索引來取得元素。）</p>
+<p>實際上不建議透過以上特性來存取元素，因為這會強烈依賴文件結構，一旦調整了文件內容，程式可能就無法運作了。</p>
+<p>常見的作法是，如果節點是元素（<code>Element</code>），透過元素的 <code>getElementsByTagName</code>、<code>getElementById</code>、<code>getElementsByClassName</code> 方法來取得節點。例如若想取得文件中所有的 <code>&lt;p&gt;</code> 標籤代表的元素，則可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">let ps = document.getElementsByTagName('p');
+</code></pre>
+<p>由於文件中可能不只有一個 <code>&lt;p&gt;</code> 標籤，取得的節點也可能不只一個，<code>getElementsByTagName</code> 取得的是 <code>HTMLCollection</code>，可依標籤在文件中的順序使用索引取得對應節點。例如，<code>document.getElementsByTagName('p')[0]</code> 取得的就是文件中第一個出現的 <code>&lt;p&gt;</code> 標籤對應的節點。</p>
+<p>如果標籤上定義有 <code>id</code> 屬性，則可以使用 <code>getElementById</code> 來取得元素。例如文件中有個 <code>&lt;div&gt;</code>：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;div id="console"&gt;Console here&lt;/div&gt;
+</code></pre>
+<p>則可以透過以下取得：</p>
+<pre class="prettyprint"><code lang="javascript">let console = document.getElementById('console');
+</code></pre>
+<p><code>id</code> 在文件中基本上應該是獨一無二的，如果文件中出現重複的 <code>id</code>，那 <code>getElementById</code> 取得的會是文件中第一個符合的元素。</p>
+<p>如果元素上定義有 <code>class</code>，可以透過 <code>getElementsByClassName</code> 來查找，例如若有個 HTML 片段：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;div class="article newest"&gt;
+    &lt;div class="sport"&gt;OOOOO&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="article"&gt;
+    &lt;div class="music"&gt;XXXXX&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>那麼可以使用底下片段取得 <code>HTMLCollection</code>，包含全部 <code>class</code> 屬性上設定有 <code>article</code> 的元素：</p>
+<pre class="prettyprint"><code lang="javascript">let articles = document.getElementsByClassName('article');
+</code></pre>
+<p>透過 <code>getElementsByTagName</code>、<code>getElementById</code>、<code>getElementsByClassName</code> 方法取得的元素，是以該元素為根的 DOM 樹，因而可以進一步取得子元素。例如文件有以下的內容：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;div id="test"&gt;
+    &lt;div&gt;Test 1 Here&lt;/div&gt;
+    &lt;div&gt;Test 2 Here&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>以下可以取得 Test 1 Here 的內容：</p>
+<pre class="prettyprint"><code lang="javascript">let testDiv = document.getElementById('test');
+let test1DivHtml = testDiv.getElementsByTagName('div')[0].innerHTML;
+</code></pre>
+<p><code>innerHTML</code> 可以取得標籤內含之 HTML，以字串形態傳回，過去 <code>innerHTML</code> 不是標準特性，不過幾乎所有瀏覽器都支援它，而 HTML 5 正式將 <code>innerHTML</code> 納入標準。</p>
+<p>如果是 <code>HTMLDocument</code>，會有個 <code>getElementsByName</code> 方法，只要標籤上有設定 <code>name</code> 屬性，就可以使用這個方法來取得對應元素。HTML 文件中 <code>document</code> 就是 <code>HTMLDocument</code>，所以就可以使用這個方法。標籤的 <code>name</code> 屬性值可以重複，所以 <code>getElementsByName</code> 取得的不只一個元素，會以 <code>HTMLCollection</code> 收集符合的元素。</p>
+<p>取得某個節點或元素，自然會想要知道有關這個節點或元素的一些資訊。例如方才使用 <code>innerHTML</code> 取得元素內含的 HTML 就是一個例子。另外，經常地，會想要得知元素的屬性為何，例如取得最上面列出的 HTML 文件中， <code>&lt;a&gt;</code> 的 <code>href</code> 屬性：</p>
+<pre class="prettyprint"><code lang="javascript">let href = document.getElementsByTagName('a')[0].href;
+</code></pre>
+<p>如果要以標準方式，可以透過 <code>getAttribute</code> 方法來取得標籤的屬性值。例如：</p>
+<pre class="prettyprint"><code lang="javascript">let href = document.getElementsByTagName('a')[0].getAttribute('href');
+</code></pre>
+<p>使用標準的作法，好處是處理像 <code>class</code> 屬性這樣的東西比較方便。例如有個標籤：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;div id="console" class="demo"&gt;DEMO&lt;/div&gt;
+</code></pre>
+<p>如果要用特性的方式取得，由於 <code>class</code> 是保留字（在 ES6 中也被用來定義類別了），必須改用 <code>className</code>：</p>
+<pre class="prettyprint"><code lang="javascript">let clzName = document.getElementById('console').className;
+</code></pre>
+<p>但使用標準作法，可以這麼寫：</p>
+<pre class="prettyprint"><code lang="javascript">var clzName = document.getElementById('console').getAttribute('class');
+</code></pre>
+<p><code>&lt;label&gt;</code> 的 <code>for</code> 屬性也是類似，由於 <code>for</code> 是 JavaScript 的關鍵字，使用特性取得時，必須改用 <code>htmlFor</code>：</p>
+<pre class="prettyprint"><code lang="javascript">let htmlFor = document.getElementById('someLabel').htmlFor;
+</code></pre>
+<p>但使用標準方法的話，可以這麼寫：</p>
+<pre class="prettyprint"><code lang="javascript">let htmlFor = document.getElementById('someLabel').getAttribute('for');
+</code></pre>
+<p>要以特性方式要取得標籤設置的屬性，特性名稱要注意大小寫的問題，通常會是駝峰式命名。例如要取得 HTML 中設置的屬性如 <code>cellspacing</code>、<code>colspan</code>、<code>frameborder</code>、<code>maxlength</code>、<code>readonly</code>、<code>rowspan</code>、<code>tabindex</code>、<code>usemap</code> 等，要透過 DOM 的特性取得則必須是 <code>cellSpacing</code>、<code>colSpan</code>、<code>frameBorder</code>、<code>maxLength</code>、<code>readOnly</code>、<code>rowSpan</code>、<code>tabIndex</code>、<code>useMap</code> 等。</p>
+<p>若使用 <code>getAttribute</code> 則通常不用注意大小寫。例如若要取得某個 <code>&lt;input&gt;</code> 元素的 <code>readonly</code> 屬性，則使用 <code>getAttribute('readonly')</code>、<code>getAttribute('readOnly')</code>、<code>getAttribute('Readonly')</code> 等任意大小寫組合都是可以的。</p>
+<p><code>float</code> 特性是 JavaScript 的保留字（雖然目前沒有使用），標準使用了 <code>cssFloat</code> 名稱。</p>
+<p>或許存取屬性最常見的，就是取得表單中某個 <code>&lt;input&gt;</code> 標籤中的 <code>value</code> 屬性。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;input id="username" name="user" value="caterpillar"&gt;
+</code></pre>
+<p>可以透過以下來取得欄位值：</p>
+<pre class="prettyprint"><code lang="javascript">let username = document.getElementById('username').value;
+</code></pre>
+<p>有個初學者常犯的錯誤，例如，想取得 HTML 文件中 <code>&lt;a&gt;</code> 標籤間的文字，卻撰寫如下：</p>
+<pre class="prettyprint"><code lang="javascript">let text = document.getElementsByTagName('a')[0].value;
+</code></pre>
+<p>這是錯的！<code>&lt;a&gt;</code> 上面並沒有 <code>value</code> 屬性，對應的物件上也沒有 <code>value</code> 特性，而且要記得，文字也是一個節點，所以要先取得文字節點，也就是 <code>&lt;a&gt;</code> 的子節點，再使用 <code>data</code>（定義在 <code>Text</code>）或 <code>nodeValue</code>（定義在 <code>Node</code>）取得文字本身：</p>
+<pre class="prettyprint"><code lang="javascript">let a = document.getElementsByTagName('a')[0];
+let text = a.firstChild.data;
+</code></pre>
+<p>你也可以透過 <code>querySelector</code>、<code>querySelectorAll</code> 方法，搭配〈<a href="https://www.w3schools.com/cssref/css_selectors.asp">CSS 選擇器語法</a>〉來選取元素，底下舉幾個簡單的例子，像是…</p>
+<pre class="prettyprint"><code lang="javascript">let testDiv = document.getElementById('test');
+</code></pre>
+<p>可以使用底下程式達到相同效果：</p>
+<pre class="prettyprint"><code lang="javascript">let testDiv = document.querySelector('#test');
+</code></pre>
+<p><code>querySelector</code> 始終傳回第一個匹配的元素，因此像是標籤選擇器：</p>
+<pre class="prettyprint"><code lang="javascript">let div = document.querySelector('div');
+</code></pre>
+<p>只會傳回第一個遇到的 <code>&lt;div&gt;</code> 標籤，如果想要取得全部的標籤，可以使用 <code>querySelectorAll</code>，也就是底下這個片段：</p>
+<pre class="prettyprint"><code lang="javascript">let ps = document.getElementsByTagName('p');
+</code></pre>
+<p>可以改成：</p>
+<pre class="prettyprint"><code lang="javascript">let ps = document.querySelectorAll('p');
+</code></pre>
+<p><code>querySelectorAll</code> 會傳回 <code>NodeList</code>，可透過 <code>[]</code> 來指定索引取得個別元素。</p>
+<p>先前看過的：</p>
+<pre class="prettyprint"><code lang="javascript">let articles = document.getElementsByClassName('article');
+</code></pre>
+<p>改用 <code>querySelectorAll</code> 的話，可以寫成：</p>
+<pre class="prettyprint"><code lang="javascript">let articles = document.querySelectorAll('.article');
+</code></pre>
+<p>基本上，<code>getElementsByTagName</code>、<code>getElementById</code>、<code>getElementsByClassName</code> 方法能夠取得的元素，就使用相對應的方法，因為效率會比 <code>querySelector</code>、<code>querySelectorAll</code> 高一些，而由於 <code>querySelector</code>、<code>querySelectorAll</code> 是原生 API，如果過去你使用其他程式庫以程式流程實現的選擇器，可以改成 <code>querySelector</code>、<code>querySelectorAll</code>，以獲得更高的效率。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

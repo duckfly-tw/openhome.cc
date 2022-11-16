@@ -1,0 +1,331 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Goroutine〉中提到，想要通知主流程 Goroutine 已經結束，使用 Channel 是一種方式，實際上，Channel 是 Groutine 間的溝通管道。
+使用 Channel
+Ch...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Channel">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/Channel.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Goroutine〉中提到，想要通知主流程 Goroutine 已經結束，使用 Channel 是一種方式，實際上，Channel 是 Groutine 間的溝通管道。
+使用 Channel
+Ch...">
+
+    <title>Channel</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Channel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Channel</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="http://openhome.cc/Gossip/Go/Goroutine.html">Goroutine</a>〉中提到，想要通知主流程 Goroutine 已經結束，使用 Channel 是一種方式，實際上，Channel 是 Groutine 間的溝通管道。</p>
+<h1>使用 Channel</h1>
+<p>Channel 就像是個佇列，可以對它發送值，也可以從它上頭取得值，想要建立一個 Channel，要在型態之前加上個 <code>chan</code>，每個 <code>chan</code> 都要宣告可容納的型態。</p>
+<p>舉例來說，使用 Channel 來修改之前的龜兔賽跑程式：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+func random(min, max int) int {
+    rand.Seed(time.Now().Unix())
+    return rand.Intn(max-min) + min
+}
+
+func tortoise(totalStep int, goal chan string) {
+    for step := 1; step &lt;= totalStep; step++ {
+        fmt.Printf("烏龜跑了 %d 步...\n", step)
+    }
+    goal &lt;- "烏龜"
+}
+
+func hare(totalStep int, goal chan string) {
+    flags := [...]bool{true, false}
+    step := 0
+    for step &lt; totalStep {
+        isHareSleep := flags[random(1, 10)%2]
+        if isHareSleep {
+            fmt.Println("兔子睡著了zzzz")
+        } else {
+            step += 2
+            fmt.Printf("兔子跑了 %d 步...\n", step)
+        }
+    }
+    goal &lt;- "兔子"
+}
+
+func main() {
+    goal := make(chan string)
+
+    totalStep := 10
+
+    go tortoise(totalStep, goal)
+    go hare(totalStep, goal)
+
+    fmt.Printf("%s 抵達終點\n", &lt;-goal)
+    fmt.Printf("%s 抵達終點\n", &lt;-goal)
+}
+</code></pre>
+<p>在這個範例中，使用 <code>make</code> 建立了一個 Channel，當烏龜或兔子抵達終點時，使用 <code>goal &lt;-</code> 發送一個字串至 Channel 中，而在主流程中，使用 <code>&lt;- goal</code> 從 Channel 取得字串，若 Channel 中無法取得資料，這時會發生阻斷，直到可從 Channel 中取得字串為止。實際上，使用 <code>goal &lt;-</code> 發送資料至 Channel 時，若 Channel 中已有資料，也會發生阻斷，直到該資料被取走為止。</p>
+<h1>Buffered Channel</h1>
+<p>上頭的範例建立 Channel 時並沒有指定 Channel 中可以容納多少資料，Channel 中預設只能容納一個資料，你可以在建立 Channel 時指定當中可以容納的資料數量。例如，建立一個生產者、消費者的程式：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func producer(clerk chan int) {
+    fmt.Println("生產者開始生產整數......")
+    for product := 1; product &lt;= 10; product++ {
+        clerk &lt;- product
+        fmt.Printf("生產了 (%d)\n", product)
+    }
+}
+
+func consumer(clerk chan int) {
+    fmt.Println("消費者開始消耗整數......")
+    for i := 1; i &lt;= 10; i++ {
+        fmt.Printf("消費了 (%d)\n", &lt;-clerk)
+    }
+}
+
+func main() {
+    clerk := make(chan int, 2)
+
+    go producer(clerk)
+    consumer(clerk)
+}                                                                                                       
+</code></pre>
+<p>在這個程式中，建立的 Channel 的容量為 2，因此在 Channel 的容量未滿前，發送數據至 Channel 並不會發生阻斷。</p>
+<h1>close 與 range</h1>
+<p>在這篇文件的第一個範例中，由於預期只會從 Channel 中收到兩個字串，因此主流程中使用了兩次 <code>&lt;- goal</code>，然而有時，我們無法事先知道，能從 Channel 得到幾筆資料。</p>
+<p>舉例來說，你也許想寫個猜數字遊戲，在隨機猜測數字的情況下，你無法事先知道要猜幾次才會猜中，而你想將先前猜測的數字透過 Channel 傳送：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+func random(min, max int) int {
+    rand.Seed(time.Now().Unix())
+    return rand.Intn(max-min) + min
+}
+
+func guess(n int, ch chan int) {
+    for {
+        number := random(1, 10)
+        ch &lt;- number
+        if number == n {
+            close(ch)
+        }
+        time.Sleep(time.Second)
+    }
+}
+
+func main() {
+    ch := make(chan int)
+
+    go guess(5, ch)
+
+    for i := range ch {
+        fmt.Println(i)
+    }
+
+    fmt.Println("I hit 5....Orz")
+}
+</code></pre>
+<p>在這個範例中，每次猜測的數字，都會使用 <code>ch &lt;- number</code> 傳至 Channel 中，而最後猜中數字時，使用 <code>close()</code> 關閉 Channel，Go 的 <code>range</code> 可以搭配 Channel 使用，在 Channel 尚未關閉前，搭配 <code>for</code> 就可以持續從 Channel 中取出資料。</p>
+<h1>select</h1>
+<p>如果有多個 Channel 需要協調，可以使用 <code>select</code>，直接來看個多個生產者與一個消費者的例子：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func producer(clerk chan int) {
+    fmt.Println("生產者開始生產整數......")
+    for product := 1; product &lt;= 10; product++ {
+        clerk &lt;- product
+        fmt.Printf("生產了 (%d)\n", product)
+    }
+}
+
+func consumer(clerk1 chan int, clerk2 chan int) {
+    fmt.Println("消費者開始消耗整數......")
+    for i := 1; i &lt;= 20; i++ {
+        select {
+        case p1 := &lt;-clerk1:
+            fmt.Printf("消費了生產者一的 (%d)\n", p1)
+        case p2 := &lt;-clerk2:
+            fmt.Printf("消費了生產者二的 (%d)\n", p2)
+        }
+
+    }
+}
+
+func main() {
+    clerk1 := make(chan int)
+    clerk2 := make(chan int)
+
+    go producer(clerk1)
+    go producer(clerk2)
+
+    consumer(clerk1, clerk2)
+}
+</code></pre>
+<p>在 <code>select</code> 的 <code>case</code> 中，會監看哪個 Channel 可以取得資料（或發送資料至 Channel），如果都有資料的話，就會隨機選取，如果都無法取得資料（或發送資料至 Channel）就會發生 panic，這可以設置 <code>default</code> 來解決，也就是監看的 Channel 中都沒有資料的話就會執行，或者利用 <code>select</code> 來做些超時設定。例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+func random(min, max int) int {
+    rand.Seed(time.Now().Unix())
+    return rand.Intn(max-min) + min
+}
+
+func producer(clerk chan int) {
+    fmt.Println("生產者開始生產整數......")
+    for product := 1; product &lt;= 10; product++ {
+        time.After(time.Duration(random(1, 5)) * time.Second)
+        clerk &lt;- product
+        fmt.Printf("生產了 (%d)\n", product)
+    }
+}
+
+func consumer(clerk1 chan int, clerk2 chan int) {
+    fmt.Println("消費者開始消耗整數......")
+    for i := 1; i &lt;= 20; i++ {
+        select {
+        case p1 := &lt;-clerk1:
+            fmt.Printf("消費了生產者一的 (%d)\n", p1)
+        case p2 := &lt;-clerk2:
+            fmt.Printf("消費了生產者二的 (%d)\n", p2)
+        case &lt;-time.After(3 * time.Second):
+            fmt.Printf("消費者抱怨中…XD")
+        }
+
+    }
+}
+
+func main() {
+    clerk1 := make(chan int)
+    clerk2 := make(chan int)
+
+    go producer(clerk1)
+    go producer(clerk2)
+
+    consumer(clerk1, clerk2)
+}
+</code></pre>
+<p>如果過了 3 秒鐘，另兩個 Channel 都還是阻斷，<code>case &lt;- time.After(3 * time.Second)</code> 該行就會成立，因此就可以看到消費者的抱怨了…XD</p>
+<p>在 <code>select</code> 中若有相同的 Channel，會隨機選取。例如底下會顯示哪個結果是不一定的：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func main() {
+    ch := make(chan int, 1)
+
+    ch &lt;- 1
+    select {
+    case &lt;-ch:
+        fmt.Println("隨機任務 1")
+    case &lt;-ch:
+        fmt.Println("隨機任務 2")
+    case &lt;-ch:
+        fmt.Println("隨機任務 3")        
+    }
+}
+</code></pre>
+<h1>單向 Channel</h1>
+<p>可以將 Channel 轉為只可發送或只可取值的 Channel，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func producer(clerk chan&lt;- int) {
+    fmt.Println("生產者開始生產整數......")
+    for product := 1; product &lt;= 10; product++ {
+        clerk &lt;- product
+        fmt.Printf("生產了 (%d)\n", product)
+    }
+}
+
+func consumer(clerk &lt;-chan int) {
+    fmt.Println("消費者開始消耗整數......")
+    for i := 1; i &lt;= 10; i++ {
+        fmt.Printf("消費了 (%d)\n", &lt;-clerk)
+    }
+}
+
+func main() {
+    clerk := make(chan int, 2)
+
+    go producer(clerk)
+    consumer(clerk)
+}   
+</code></pre>
+<p><code>clerk chan&lt;- int</code> 是只能發送的 Channel，而 <code>clerk &lt;-chan int</code> 是只能接收的 Channel，從一個只能發送的 Channel 接收資料，或者是對一個只能接收的 Channel 發送資料，都會引發 invalid operation 的錯誤。</p>
+<p>透過 Channel 來作為 Goroutine 間的溝通機制，是 Go 中比較建議的方式，如果你真的不想要透過 Channel，而想要直接共用某些資料結構，就必須注意有無 Race condition的問題，若必要，可透過鎖定資源的方式來避免相關問題，有關鎖定的方式，可以參考 <a href="https://tour.golang.org/concurrency/9">sync.Mutex</a> 的使用。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

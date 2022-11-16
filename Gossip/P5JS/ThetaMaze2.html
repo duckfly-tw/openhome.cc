@@ -1,0 +1,962 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Theta 迷宮（一）〉中看到，直接將〈遞迴回溯迷宮〉的 Maze 作為 Theta 迷宮繪製的基礎，顯然會有問題，因為圓周越來越大，在細胞每環切分的格數不變下，越外環的細胞佔的面積會越來越大。
+...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Theta 迷宮（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/ThetaMaze2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Theta 迷宮（一）〉中看到，直接將〈遞迴回溯迷宮〉的 Maze 作為 Theta 迷宮繪製的基礎，顯然會有問題，因為圓周越來越大，在細胞每環切分的格數不變下，越外環的細胞佔的面積會越來越大。
+...">
+
+    <title>Theta 迷宮（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ThetaMaze2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Theta 迷宮（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ThetaMaze.html">Theta 迷宮（一）</a>〉中看到，直接將〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉的 <code>Maze</code> 作為 Theta 迷宮繪製的基礎，顯然會有問題，因為圓周越來越大，在細胞每環切分的格數不變下，越外環的細胞佔的面積會越來越大。</p>
+<p>雖然可以試著繪製較小的開口、增加最內環的半徑等方式來彌補，構成另一種風格的迷宮，不過，心中總會想，有沒有辦法直接面對越外環的細胞佔的面積會越來越大這個問題呢？</p>
+<h1>切分細胞</h1>
+<p>基本上是可以的，例如，每兩環就對細胞的張角進行切分：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-1.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>每兩環就對細胞的張角進行切分是最簡單的作法，不過外環會有細胞迅速變小的問題，這個稍後再來看。</p>
+<p>每兩環就對細胞的張角進行切分，這意謂著〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉不能用了嗎？畢竟會一分二、二分四&hellip;不會是個 m x n 迷宮了！</p>
+<p>確實地，這不會是個 m x n 的迷宮，然而，並不表示不能基於〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉的成果來修改，一分二、二分四&hellip;代表著未打通的迷宮會是如下圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-2.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>若以上圖為例，y 為 0 該列，第一個細胞的左上角座標是 (0, 0)，第二個細胞會是 (4, 0)，第三個是 (8, 0)，第四個是 (12, 0)，y 為 2 該列，第一個細胞的左上角座標是 (0, 0)，第二個細胞會是 (2, 0)，第三個是 (4, 0) &hellip; 依此類推。</p>
+<p>最後一列的細胞數（行數），取決於第一列的細胞數（行數）與總列數，若起始列、行數為 <code>rows</code>、<code>columns</code>，就可以使用 <code>columns * pow(2, floor(rows / 2))</code> 算出來。</p>
+<p>若是如此劃分，接下來就是要想辦法產生以下的迷宮：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-3.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>怎麼走訪呢？x 的步進值不再是單純的 1，不過無論是在哪列，同一列的 <code>x</code> 步進值會相同，也就是只要有 x 的步進值 <code>step</code>，往左或往右就只是 <code>-step</code> 或 <code>step</code>。</p>
+<p>往下呢？在 y 為偶數時沒問題，因為只能選正下方的細胞，也就是 x 是不變的，然而 y 為奇數時，下方會有兩個細胞可以選擇，就稱為左下與右下好了，選擇左下時，x 不變，選擇右下時，x 的步進會是 <code>step / 2</code>。</p>
+<p>往上呢？在 y 為奇數時沒問題，因為只能選正上方的細胞，也就是 x 是不變的，然而 y 為偶數時，就要看自己是上方細胞的左下或右下，若是前者，x 不變，若是後者，x 的步進會是 <code>-step</code>。</p>
+<p>只是，如何得知自己是上方細胞的左下或右下呢？這似乎牽涉到總行數與 x 的奇偶判斷？你要從這個角度去算也是可以，只不過會複雜一些，仔細觀察方才未打通的迷宮，自己是上方細胞的左下時，自身一定是該列的偶數細胞，右下時，自身一定是該列的奇數細胞，也就是說，自身的 x 除以 <code>step</code>，若為偶數就是左下，若為奇數就是右下。</p>
+<p>綜合以上，剩下的就是 x 步進值如何計算的問題，這很簡單，只要有第一列的 x 步進值，這會是總行數除以初始行數，接著每兩列後就切一次。</p>
+<h1>修改迷宮演算</h1>
+<p>以上的說明感覺是要對〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉做很大的修改？其實不用，來一個一個看，首先是計算最後總行數與第一列的 x 步進值：</p>
+<pre class="prettyprint"><code lang="javascript">class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        // 最後總行數
+        this.outMostcolumns = columns * pow(2, floor(rows / 2));
+        // 第一列的 x 步進值
+        this.initialXStep = this.outMostcolumns / columns;
+
+    }
+
+    backtracker(x = 0, y = 0) {
+        this.cells = [];
+        this.cells.push(cell(x, y, Maze.TOP_RIGHT_WALL));
+        backtracker(this);
+    }
+}
+</code></pre>
+<p>基於 y 可能得到不同的步進值，如方才說明的，這會是依第一列的 x 步進值，每兩列後就切一次的結果：</p>
+<pre class="prettyprint"><code lang="javascript">function xStep(maze, y) {
+    return maze.initialXStep / pow(2, floor(y / 2));
+}
+</code></pre>
+<p>因為 <code>columns</code> 現在是指初始行數，在計算迷宮邊界時，不再是依 <code>columns</code>，而是總行數，因此 <code>isVisitable</code> 的改一下：</p>
+<pre class="prettyprint"><code lang="javascript">function isVisitable(maze, x, y) {
+    return y &gt;= 0 &amp;&amp; y &lt; maze.rows &amp;&amp;    
+           x &gt;= 0 &amp;&amp; x &lt; maze.outMostcolumns &amp;&amp;  // 這邊改用 outMostcolumns
+           notVisited(maze, x, y); 
+} 
+</code></pre>
+<p>從上往下探訪細胞時，可能會有左下、右下兩種選擇，因此增加 <code>BL</code> 與 <code>BR</code> 兩種選擇，<code>nextX</code> 與 <code>nextY</code> 因應 <code>dir</code> 會有六個可能，也做了修改：</p>
+<pre class="prettyprint"><code lang="javascript">const R = 0; 
+const T = 1; 
+const L = 2; 
+const B = 3; 
+const BL = 4;  // 左下
+const BR = 5;  // 右下
+
+function nextX(cell, dir, step) {
+    const isYEven = cell.y % 2 == 0;
+    const isStepOdd = (cell.x / step) % 2 == 1;
+    return cell.x + [
+                  step, 
+                  isYEven &amp;&amp; isStepOdd ? -step : 0, 
+                  -step, 
+                  0,
+                  0,
+                  step / 2
+               ][dir];
+}
+
+function nextY(y, dir) {
+    return y + [0, -1, 0, 1, 1, 1][dir];
+}
+</code></pre>
+<p>因為對 y 來說，正下方、左下、右下，都是增加 1 罷了，<code>nextY</code> 只是增加了兩個元素 1 罷了，<code>nextX</code> 則必須根據目前的 x 步進值、y 等來判斷選擇哪個步進值，這方才已經討論過了，這邊只是使用程式碼實作出來罷了。</p>
+<p><code>visitRight</code>、<code>visitLeft</code> 等，現在不是單純地對 x 加或減 1，改呼叫 <code>nextX</code>、<code>nextY</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function visitRight(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.TOP_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(currentCell, R, step), nextY(currentCell.y, R), Maze.TOP_RIGHT_WALL));
+}
+
+function visitTop(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.RIGHT_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(currentCell, T, step), nextY(currentCell.y, T), Maze.TOP_RIGHT_WALL));
+}
+
+function visitLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, L, step), nextY(currentCell.y, L), Maze.TOP_WALL));
+}
+
+function visitBottom(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, B, step), nextY(currentCell.y, B), Maze.RIGHT_WALL));
+}
+</code></pre>
+<p>為了方便，增加了 <code>visitBottomLeft</code>、<code>visitBottomRight</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function visitBottomLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, BL, step), nextY(currentCell.y, BL), Maze.RIGHT_WALL));
+}
+
+function visitBottomRight(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, BR, step), nextY(currentCell.y, BR), Maze.RIGHT_WALL));
+}
+</code></pre>
+<p><code>visit</code> 增加 <code>BL</code>、<code>BR</code> 兩個 <code>case</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function visit(maze, currentCell, dir, step) {
+    switch(dir) {
+        case R:  
+            visitRight(maze, currentCell, step); break;
+        case T:
+            visitTop(maze, currentCell, step); break;
+        case L:
+            visitLeft(maze, currentCell, step); break;
+        case B:
+            visitBottom(maze, currentCell, step); break;
+        case BL:
+            visitBottomLeft(maze, currentCell, step); break;
+        case BR:
+            visitBottomRight(maze, currentCell, step); break;
+    }
+}
+</code></pre>
+<p>接著就是遞迴回溯走訪了，重點在於 x 步進值的計算，以及 <code>rdirs</code>，在 y 為奇數時，往下可能會有 <code>BL</code>、<code>BR</code> 兩種，而不單只是 <code>B</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function backtracker(maze) {
+    const currentCell = maze.cells[maze.cells.length - 1];
+
+    // 計算 x 步進值
+    const step = xStep(maze, currentCell.y);
+    // 隨機選擇時要看 y 為偶數或奇數
+    const rdirs = shuffle(currentCell.y % 2 == 0 ? [R, T, L, B] : [R, T, L, BL, BR]);
+
+    const vdirs = rdirs.filter(dir =&gt; {
+        const nx = nextX(currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        return isVisitable(maze, nx, ny);
+    });
+
+    if(vdirs.length === 0) {
+        return;
+    }
+
+    vdirs.forEach(dir =&gt; {
+        const nx = nextX(currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+
+        if(isVisitable(maze, nx, ny)) {
+            visit(maze, currentCell, dir, step);
+            backtracker(maze);
+        }
+    });
+}
+</code></pre>
+<p>其實不用增加 <code>BL</code>、<code>BR</code>不判斷，直接給 <code>[R, T, L, B]</code> 來打亂也是可以，也就是有左下、右下可選時，每次都選左下也行的，這會產生某種程度的偏差，不過繪製為 Theta 迷宮的話就看不太出來。</p>
+<p>〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉的實作，沒有很大的修改，說穿了只是在修改界線方面的判斷，遞迴回溯演算的主流程是沒有什麼變動的。</p>
+<p>最後就是繪圖了，因為迷宮細胞大小不會相同，顯然地是依照 x 步進值決定細胞大小：</p>
+<pre class="prettyprint"><code lang="javascript">function drawCell(wallType, cellWidth, step) {
+    if(wallType === Maze.TOP_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(0, 0, cellWidth * step, 0);
+    }
+
+    if(wallType === Maze.RIGHT_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(cellWidth * step, 0, cellWidth * step, cellWidth);
+    }    
+}
+
+function drawMaze(maze, cellWidth) {
+    maze.cells.forEach(cell =&gt; {
+        push();
+        // 依 x 步進決定細胞大小
+        const step = xStep(maze, cell.y);
+
+        translate(cell.x * cellWidth, cell.y * cellWidth);
+        drawCell(cell.wallType, cellWidth, step);
+
+        pop();
+    });
+
+    const totalWidth = cellWidth * maze.outMostcolumns;
+    const totalHeight = cellWidth * maze.rows;
+
+    line(0, 0, 0, totalHeight);  
+    line(0, totalHeight, totalWidth, totalHeight);
+}
+</code></pre>
+<p>底下是修改後的完整範例（因為 p5.js-widget 不能放太長的程式碼，就直接列出來了）：</p>
+<pre class="prettyprint"><code lang="javascript">function setup() {
+    createCanvas(300, 300);
+    noLoop();
+}
+
+function draw() {
+    background(220);
+
+    const rows = 5;
+    const columns = 4; 
+
+    const cellWidth = (width - 60) / (rows * 3);
+    const maze = new Maze(rows, columns);
+    maze.backtracker();
+
+    strokeWeight(5);
+    translate(cellWidth, height / 2 - cellWidth * rows / 2);
+    drawMaze(maze, cellWidth);
+}
+
+function cell(x, y, wallType) {
+    return {x, y, wallType};
+}
+
+class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        this.outMostcolumns = columns * pow(2, floor(rows / 2));
+        this.initialXStep = this.outMostcolumns / columns;
+
+    }
+
+    backtracker(x = 0, y = 0) {
+        this.cells = [];
+        this.cells.push(cell(x, y, Maze.TOP_RIGHT_WALL));
+        backtracker(this);
+    }
+}
+
+function xStep(maze, y) {
+    return maze.initialXStep / pow(2, floor(y / 2));
+}
+
+Maze.NO_WALL = 'no_wall';
+Maze.TOP_WALL = 'top_wall';
+Maze.RIGHT_WALL = 'right_wall';
+Maze.TOP_RIGHT_WALL = 'top_right_wall';
+
+function notVisited(maze, x, y) {
+    return maze.cells.find(cell =&gt; cell.x === x &amp;&amp; cell.y === y) === undefined;
+}
+
+function isVisitable(maze, x, y) {
+    return y &gt;= 0 &amp;&amp; y &lt; maze.rows &amp;&amp;    
+           x &gt;= 0 &amp;&amp; x &lt; maze.outMostcolumns &amp;&amp; 
+           notVisited(maze, x, y); 
+} 
+
+const R = 0; 
+const T = 1; 
+const L = 2; 
+const B = 3; 
+const BL = 4;
+const BR = 5;
+
+function nextX(cell, dir, step) {
+    const isYEven = cell.y % 2 == 0;
+    const isStepOdd = (cell.x / step) % 2 == 1;
+    return cell.x + [
+                  step, 
+                  isYEven &amp;&amp; isStepOdd ? -step : 0, 
+                  -step, 
+                  0,
+                  0,
+                  step / 2
+               ][dir];
+}
+
+function nextY(y, dir) {
+    return y + [0, -1, 0, 1, 1, 1][dir];
+}
+
+function visitRight(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.TOP_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(currentCell, R, step), nextY(currentCell.y, R), Maze.TOP_RIGHT_WALL));
+}
+
+function visitTop(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.RIGHT_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(currentCell, T, step), nextY(currentCell.y, T), Maze.TOP_RIGHT_WALL));
+}
+
+function visitLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, L, step), nextY(currentCell.y, L), Maze.TOP_WALL));
+}
+
+function visitBottom(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, B, step), nextY(currentCell.y, B), Maze.RIGHT_WALL));
+}
+
+function visitBottomLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, BL, step), nextY(currentCell.y, BL), Maze.RIGHT_WALL));
+}
+
+function visitBottomRight(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(currentCell, BR, step), nextY(currentCell.y, BR), Maze.RIGHT_WALL));
+}
+
+function visit(maze, currentCell, dir, step) {
+    switch(dir) {
+        case R:  
+            visitRight(maze, currentCell, step); break;
+        case T:
+            visitTop(maze, currentCell, step); break;
+        case L:
+            visitLeft(maze, currentCell, step); break;
+        case B:
+            visitBottom(maze, currentCell, step); break;
+        case BL:
+            visitBottomLeft(maze, currentCell, step); break;
+        case BR:
+            visitBottomRight(maze, currentCell, step); break;
+    }
+}
+
+function backtracker(maze) {
+    const currentCell = maze.cells[maze.cells.length - 1];
+    const step = xStep(maze, currentCell.y);
+    const rdirs = shuffle(currentCell.y % 2 == 0 ? [R, T, L, B] : [R, T, L, BL, BR]);
+
+    const vdirs = rdirs.filter(dir =&gt; {
+        const nx = nextX(currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        return isVisitable(maze, nx, ny);
+    });
+
+    if(vdirs.length === 0) {
+        return;
+    }
+
+    vdirs.forEach(dir =&gt; {
+        const nx = nextX(currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+
+        if(isVisitable(maze, nx, ny)) {
+            visit(maze, currentCell, dir, step);
+            backtracker(maze);
+        }
+    });
+}
+
+function drawCell(wallType, cellWidth, step) {
+    if(wallType === Maze.TOP_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(0, 0, cellWidth * step, 0);
+    }
+
+    if(wallType === Maze.RIGHT_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(cellWidth * step, 0, cellWidth * step, cellWidth);
+    }    
+}
+
+function drawMaze(maze, cellWidth) {
+    maze.cells.forEach(cell =&gt; {
+        push();
+
+        const step = xStep(maze, cell.y);
+
+        translate(cell.x * cellWidth, cell.y * cellWidth);
+        drawCell(cell.wallType, cellWidth, step);
+
+        pop();
+    });
+
+    const totalWidth = cellWidth * maze.outMostcolumns;
+    const totalHeight = cellWidth * maze.rows;
+
+    line(0, 0, 0, totalHeight);  
+    line(0, totalHeight, totalWidth, totalHeight);
+}
+</code></pre>
+<h1>繪製為 Theta 迷宮</h1>
+<p>能夠繪製出以上的迷宮後，接著就是將之繪製與 Theta 迷宮了，主要的繪製方式在〈<a href="ThetaMaze.html">Theta 迷宮（一）</a>〉都說明過了，最重要的是，在〈<a href="ThetaMaze.html">Theta 迷宮（一）</a>〉最後的範例裡，x 的步進值固定是 1，然而在這邊，x 的步進值是必須根據 y 來計算：</p>
+<pre class="prettyprint"><code lang="javascript">function drawMaze(maze, cellWidth) {
+    const thetaStep = TWO_PI / maze.outMostcolumns;
+
+    maze.cells.forEach(cell =&gt; {
+        if(cell.x === 0 &amp;&amp; cell.y === 0) {
+            return;
+        }
+
+        // 最內環的半徑是 1
+        const innerR = (cell.y + 1) * cellWidth;
+        const outerR = (cell.y + 2) * cellWidth;   
+        const theta1 = -thetaStep * cell.x;
+        // 根據 y 計算步進值
+        const theta2 = -thetaStep * (cell.x + xStep(maze, cell.y));
+
+        const innerVt1 = p5.Vector.fromAngle(theta1, innerR);
+        const innerVt2 = p5.Vector.fromAngle(theta2, innerR);
+        const outerVt2 = p5.Vector.fromAngle(theta2, outerR);
+
+        if(cell.wallType === Maze.TOP_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt1.x, innerVt1.y, innerVt2.x, innerVt2.y);
+        }
+
+
+        if(cell.wallType === Maze.RIGHT_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt2.x, innerVt2.y, outerVt2.x, outerVt2.y);
+        }
+    });
+
+    const r = cellWidth * (maze.rows + 1);
+    for(let theta = 0; theta &lt; TWO_PI; theta = theta + thetaStep) {
+        const vt1 = p5.Vector.fromAngle(theta, r);
+        const vt2 = p5.Vector.fromAngle(theta + thetaStep, r);
+        line(vt1.x, vt1.y, vt2.x, vt2.y);
+    }
+}
+</code></pre>
+<p>然而為了順時針、逆時針都能打通迷宮，<code>nextX</code> 修改了一下：</p>
+<pre class="prettyprint"><code lang="javascript">function nextX(maze, cell, dir, step) {
+    const isYEven = cell.y % 2 == 0;
+    const isStepOdd = (cell.x / step) % 2 == 1;
+    const nx = (cell.x + [
+                  step, 
+                  isYEven &amp;&amp; isStepOdd ? -step : 0, 
+                  -step, 
+                  0,
+                  0,
+                  step / 2
+               ][dir]);
+
+    //  順時針、逆時針都要能打通迷宮
+    return nx &gt;= 0 ? (nx % maze.outMostcolumns) : (nx + maze.outMostcolumns);
+}
+</code></pre>
+<p>底下是完整的範例實作：</p>
+<pre class="prettyprint"><code lang="javascript">function setup() {
+    createCanvas(300, 300);
+    noLoop();
+}
+
+function draw() {
+    background(220);
+
+    const rows = 8;
+    const columns = 8; 
+
+    const cellWidth = (width - 60) / (rows * 2);
+    const maze = new Maze(rows, columns);
+    maze.backtracker();
+
+    strokeWeight(2);
+    translate(width / 2 , height / 2);
+    drawMaze(maze, cellWidth);
+
+}
+
+function cell(x, y, wallType) {
+    return {x, y, wallType};
+}
+
+class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        this.outMostcolumns = columns * pow(2, floor(rows / 2));
+        this.initialXStep = this.outMostcolumns / columns;
+
+    }
+
+    backtracker(x = 0, y = 0) {
+        this.cells = [];
+        this.cells.push(cell(x, y, Maze.TOP_RIGHT_WALL));
+        backtracker(this);
+    }
+}
+
+function xStep(maze, y) {
+    return maze.initialXStep / pow(2, floor(y / 2));
+}
+
+Maze.NO_WALL = 'no_wall';
+Maze.TOP_WALL = 'top_wall';
+Maze.RIGHT_WALL = 'right_wall';
+Maze.TOP_RIGHT_WALL = 'top_right_wall';
+
+function notVisited(maze, x, y) {
+    return maze.cells.find(cell =&gt; cell.x === x &amp;&amp; cell.y === y) === undefined;
+}
+
+function isVisitable(maze, x, y) {
+    return y &gt;= 0 &amp;&amp; y &lt; maze.rows &amp;&amp;    
+           x &gt;= 0 &amp;&amp; x &lt; maze.outMostcolumns &amp;&amp; 
+           notVisited(maze, x, y); 
+} 
+
+const R = 0; 
+const T = 1; 
+const L = 2; 
+const B = 3; 
+const BL = 4;
+const BR = 5;
+
+function nextX(maze, cell, dir, step) {
+    const isYEven = cell.y % 2 == 0;
+    const isStepOdd = (cell.x / step) % 2 == 1;
+    const nx = (cell.x + [
+                  step, 
+                  isYEven &amp;&amp; isStepOdd ? -step : 0, 
+                  -step, 
+                  0,
+                  0,
+                  step / 2
+               ][dir]);
+
+    return nx &gt;= 0 ? (nx % maze.outMostcolumns) : (nx + maze.outMostcolumns);
+}
+
+function nextY(y, dir) {
+    return y + [0, -1, 0, 1, 1, 1][dir];
+}
+
+function visitRight(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.TOP_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(maze, currentCell, R, step), nextY(currentCell.y, R), Maze.TOP_RIGHT_WALL));
+}
+
+function visitTop(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.RIGHT_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(maze, currentCell, T, step), nextY(currentCell.y, T), Maze.TOP_RIGHT_WALL));
+}
+
+function visitLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, L, step), nextY(currentCell.y, L), Maze.TOP_WALL));
+}
+
+function visitBottom(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, B, step), nextY(currentCell.y, B), Maze.RIGHT_WALL));
+}
+
+function visitBottomLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, BL, step), nextY(currentCell.y, BL), Maze.RIGHT_WALL));
+}
+
+function visitBottomRight(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, BR, step), nextY(currentCell.y, BR), Maze.RIGHT_WALL));
+}
+
+function visit(maze, currentCell, dir, step) {
+    switch(dir) {
+        case R:  
+            visitRight(maze, currentCell, step); break;
+        case T:
+            visitTop(maze, currentCell, step); break;
+        case L:
+            visitLeft(maze, currentCell, step); break;
+        case B:
+            visitBottom(maze, currentCell, step); break;
+        case BL:
+            visitBottomLeft(maze, currentCell, step); break;
+        case BR:
+            visitBottomRight(maze, currentCell, step); break;
+    }
+}
+
+function backtracker(maze) {
+
+    const currentCell = maze.cells[maze.cells.length - 1];
+    const step = xStep(maze, currentCell.y);
+    const rdirs = shuffle(currentCell.y % 2 == 0 ? [R, T, L, B] : [R, T, L, BL, BR]);
+
+    const vdirs = rdirs.filter(dir =&gt; {
+        const nx = nextX(maze, currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        return isVisitable(maze, nx, ny);
+    });
+
+    if(vdirs.length === 0) {
+        return;
+    }
+
+    vdirs.forEach(dir =&gt; {
+        const nx = nextX(maze, currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        if(isVisitable(maze, nx, ny)) {
+            visit(maze, currentCell, dir, step);
+            backtracker(maze);
+        }
+    });
+}
+
+
+function drawMaze(maze, cellWidth) {
+    const thetaStep = TWO_PI / maze.outMostcolumns;
+
+    maze.cells.forEach(cell =&gt; {
+        if(cell.x === 0 &amp;&amp; cell.y === 0) {
+            return;
+        }
+        const innerR = (cell.y + 1) * cellWidth;
+        const outerR = (cell.y + 2) * cellWidth;   
+        const theta1 = -thetaStep * cell.x;
+        const theta2 = -thetaStep * (cell.x + xStep(maze, cell.y));
+
+        const innerVt1 = p5.Vector.fromAngle(theta1, innerR);
+        const innerVt2 = p5.Vector.fromAngle(theta2, innerR);
+        const outerVt2 = p5.Vector.fromAngle(theta2, outerR);
+
+        if(cell.wallType === Maze.TOP_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt1.x, innerVt1.y, innerVt2.x, innerVt2.y);
+        }
+
+
+        if(cell.wallType === Maze.RIGHT_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt2.x, innerVt2.y, outerVt2.x, outerVt2.y);
+        }
+    });
+
+    const r = cellWidth * (maze.rows + 1);
+    for(let theta = 0; theta &lt; TWO_PI; theta = theta + thetaStep) {
+        const vt1 = p5.Vector.fromAngle(theta, r);
+        const vt2 = p5.Vector.fromAngle(theta + thetaStep, r);
+        line(vt1.x, vt1.y, vt2.x, vt2.y);
+    }
+}
+</code></pre>
+<h1>調整切分方式</h1>
+<p>以上的範例執行結果會如下，乍看是還可以：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-7.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>這篇文件一開始有談到，每兩環就對細胞的張角進行切分是最簡單的作法，不過外環會有細胞迅速變小的問題，例如，將以上範例的 <code>rows</code>、<code>columns</code> 修改為 15、10，繪製出來的圖會變成：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-4.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>每兩環就切一次，就等於是 2 的次方在切分，會有以上的圖是必然的結果，每兩環就切一次只是計算方便，也能應付較少環數的 Theta 迷宮，如果想要環數多一些，就必須改用較複雜一些的切分方式。</p>
+<p>例如，兩環後切一次，接著三環後切一次，再來四環後切一次，就可以讓切分的速度緩下來，同樣是 <code>rows</code>、<code>columns</code> 為 15、10，畫出來就不會那麼快變得稠密：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-5.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>然而相對來說，這在計算上就麻煩許多了，有興趣的話，可以試著修改以上範例，我就不再說明了，你可以試著當成挑戰，底下直接提供我修改後的成果作為參考：</p>
+<pre class="prettyprint"><code lang="javascript">function setup() {
+    createCanvas(300, 300);
+    noLoop();
+}
+
+function draw() {
+    background(220);
+
+    const rows = 15;
+    const columns = 10; 
+
+    const cellWidth = (width - 60) / (rows * 2);
+    const maze = new Maze(rows, columns);
+    maze.backtracker();
+
+    strokeWeight(2);
+    translate(width / 2 , height / 2);
+    drawMaze(maze, cellWidth);
+}
+
+function cell(x, y, wallType) {
+    return {x, y, wallType};
+}
+
+class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        this.outMostcolumns = outMostColumns(this);
+        this.initialXStep = this.outMostcolumns / columns;
+    }
+
+    backtracker(x = 0, y = 0) {
+        this.cells = [];
+        this.cells.push(cell(x, y, Maze.TOP_RIGHT_WALL));
+        backtracker(this);
+    }
+}
+
+function outMostColumns(maze) {
+    let rowCount = maze.rows;
+    let diff = 2;
+    while((rowCount = rowCount - diff) &gt; 0) {
+        diff++;
+    }  
+    return pow(2, diff - 2) * maze.columns;
+}
+
+function nthSection(y) {
+    let yi = 1, i = 0, diff = 3;
+    while(y &gt; yi) {
+        yi += diff;
+        diff++;
+        i++;
+    }
+    return i;
+}
+
+function sectionLine(y) {
+    let yi = 0, diff = 2;
+    while(y &gt; yi) {
+        yi += diff;
+        diff++;
+    }
+    return yi === y;
+}
+
+function xStep(maze, y) {
+    return maze.initialXStep / pow(2, nthSection(y));
+}
+
+Maze.NO_WALL = 'no_wall';
+Maze.TOP_WALL = 'top_wall';
+Maze.RIGHT_WALL = 'right_wall';
+Maze.TOP_RIGHT_WALL = 'top_right_wall';
+
+function notVisited(maze, x, y) {
+    return maze.cells.find(cell =&gt; cell.x === x &amp;&amp; cell.y === y) === undefined;
+}
+
+function isVisitable(maze, x, y) {
+    return y &gt;= 0 &amp;&amp; y &lt; maze.rows &amp;&amp;    
+           x &gt;= 0 &amp;&amp; x &lt; maze.outMostcolumns &amp;&amp; 
+           notVisited(maze, x, y); 
+} 
+
+const R = 0; 
+const T = 1; 
+const L = 2; 
+const B = 3; 
+const BL = 4;
+const BR = 5;
+
+function nextX(maze, cell, dir, step) {
+    const isYOdd = cell.y % 2 == 1;
+    const isStepOdd = (cell.x / step) % 2 == 1;
+    const nx = cell.x + [
+                  step, 
+                  sectionLine(cell.y) &amp;&amp; isStepOdd ? -step : 0, 
+                  -step, 
+                  0,
+                  0,
+                  step / 2
+               ][dir];
+    return nx &gt;= 0 ? (nx % maze.outMostcolumns) : (nx + maze.outMostcolumns);
+}
+
+function nextY(y, dir) {
+    return y + [0, -1, 0, 1][dir];
+}
+
+function visitRight(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.TOP_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(maze, currentCell, R, step), nextY(currentCell.y, R), Maze.TOP_RIGHT_WALL));
+}
+
+function visitTop(maze, currentCell, step) {
+    if(currentCell.wallType === Maze.TOP_RIGHT_WALL) {
+        currentCell.wallType = Maze.RIGHT_WALL;
+    }
+    else {
+        currentCell.wallType = Maze.NO_WALL;
+    }
+
+    maze.cells.push(cell(nextX(maze, currentCell, T, step), nextY(currentCell.y, T), Maze.TOP_RIGHT_WALL));
+}
+
+function visitLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, L, step), nextY(currentCell.y, L), Maze.TOP_WALL));
+}
+
+function visitBottom(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, B, step), nextY(currentCell.y, B), Maze.RIGHT_WALL));
+}
+
+function visitBottomLeft(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, BL, step), nextY(currentCell.y, BL), Maze.RIGHT_WALL));
+}
+
+function visitBottomRight(maze, currentCell, step) {
+    maze.cells.push(cell(nextX(maze, currentCell, BR, step), nextY(currentCell.y, BR), Maze.RIGHT_WALL));
+}
+
+function visit(maze, currentCell, dir, step) {
+    switch(dir) {
+        case R:  
+            visitRight(maze, currentCell, step); break;
+        case T:
+            visitTop(maze, currentCell, step); break;
+        case L:
+            visitLeft(maze, currentCell, step); break;
+        case B:
+            visitBottom(maze, currentCell, step); break;
+        case BL:
+            visitBottomLeft(maze, currentCell, step); break;
+        case BR:
+            visitBottomRight(maze, currentCell, step); break;
+    }
+}
+
+function backtracker(maze) {
+
+    const currentCell = maze.cells[maze.cells.length - 1];
+    const step = xStep(maze, currentCell.y);
+    const rdirs = shuffle(sectionLine(cell.y) ? [R, T, L, B, BL, BR] : [R, T, L, B]);
+
+    const vdirs = rdirs.filter(dir =&gt; {
+        const nx = nextX(maze, currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        return isVisitable(maze, nx, ny);
+    });
+
+    if(vdirs.length === 0) {
+        return;
+    }
+
+    vdirs.forEach(dir =&gt; {
+        const nx = nextX(maze, currentCell, dir, step);
+        const ny = nextY(currentCell.y, dir);
+        if(isVisitable(maze, nx, ny)) {
+            visit(maze, currentCell, dir, step);
+            backtracker(maze);
+        }
+    });
+}
+
+function drawMaze(maze, cellWidth) {
+    const thetaStep = TWO_PI / maze.outMostcolumns;
+
+    maze.cells.forEach(cell =&gt; {
+        if(cell.x === 0 &amp;&amp; cell.y === 0) {
+            return;
+        }
+        const innerR = (cell.y + 1) * cellWidth;
+        const outerR = (cell.y + 2) * cellWidth;   
+        const theta1 = -thetaStep * cell.x;
+        const theta2 = -thetaStep * (cell.x + xStep(maze, cell.y));
+
+        const innerVt1 = p5.Vector.fromAngle(theta1, innerR);
+        const innerVt2 = p5.Vector.fromAngle(theta2, innerR);
+        const outerVt2 = p5.Vector.fromAngle(theta2, outerR);
+
+        if(cell.wallType === Maze.TOP_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt1.x, innerVt1.y, innerVt2.x, innerVt2.y);
+        }
+
+
+        if(cell.wallType === Maze.RIGHT_WALL || cell.wallType === Maze.TOP_RIGHT_WALL) {
+            line(innerVt2.x, innerVt2.y, outerVt2.x, outerVt2.y);
+        }
+    });
+
+    const r = cellWidth * (maze.rows + 1);
+    for(let theta = 0; theta &lt; TWO_PI; theta = theta + thetaStep) {
+        const vt1 = p5.Vector.fromAngle(theta, r);
+        const vt2 = p5.Vector.fromAngle(theta + thetaStep, r);
+        line(vt1.x, vt1.y, vt2.x, vt2.y);
+    }
+}
+</code></pre>
+<p>這個切分法可以應付更多環數，不過，指定到某個環數之後，還是會有過於稠密的問題，例如 <code>rows</code>、<code>columns</code> 為 24、8 時會如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ThetaMaze2-6.JPG" alt="Theta 迷宮（二）"  /></div></div></p>
+<p>可以看到已經開始變得稠密，只是沒有一開始每兩環就切分那麼快，以上的切分法只是對 Theta 迷宮的實作，在理解上比較容易，不用對〈<a href="RecursiveBacktrackerMaze.html">遞迴回溯迷宮</a>〉做太多修改罷了，如果你應付的環數不多，這會是比較簡單的方式。</p>
+<p>想要更進一步解決這個問題，可以依圓周長決定選擇將細胞一切為二的時機，只不過以目前的 <code>Maze</code> 實作來做這件事，會有許多計算上的困難。</p>
+<p>遞迴回溯演算本身還是可以使用，不過更改一下細胞的資料結構，程式實作依圓周長切分細胞時，就會有較簡單的做法，這就留待之後的文件再探討了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

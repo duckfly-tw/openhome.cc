@@ -1,0 +1,436 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈結構與繼承〉的最後討論到了多型，倘若現在需要有個函式，可以接受 Account 與 CheckingAccount 實例，或者是有個陣列或 slice，可以收集 Account 與 Checkin...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="介面入門">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/Interface.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈結構與繼承〉的最後討論到了多型，倘若現在需要有個函式，可以接受 Account 與 CheckingAccount 實例，或者是有個陣列或 slice，可以收集 Account 與 Checkin...">
+
+    <title>介面入門</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Interface.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>介面入門</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="StructComposition.html">結構組合</a>〉的最後討論到了多型，倘若現在需要有個函式，可以接受 <code>Account</code> 與 <code>CheckingAccount</code> 實例，或者是有個陣列或 slice，可以收集 <code>Account</code> 與 <code>CheckingAccount</code>實例，那該怎麼辦呢？</p>
+<h1>介面定義行為</h1>
+<p>在 Go 語言中，可以使用 <code>interface</code> 定義行為，舉例來說，若現在想要定義儲蓄的行為，可以如下：</p>
+<pre class="prettyprint"><code lang="golang">type Savings interface {
+    Deposit(amount float64)
+    Withdraw(amount float64) error
+}
+</code></pre>
+<p>注意，不必使用 <code>func</code> 關鍵字，也不用宣告接受者型態，只需要定義行為的名稱、參數與傳回值。接著該怎麼實現這個介面呢？實際上，就〈<a href="StructComposition.html">結構組合</a>〉，已經實現了這個介面，也就是說，結構上不用任何關鍵字，只要有函式實現這兩個行為就可以了。</p>
+<p>因此，現在可以寫個函式，同時接受 <code>Account</code> 與 <code>CheckingAccount</code> 實例，在提款後顯示餘額：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+type Savings interface {
+    Deposit(amount float64)
+    Withdraw(amount float64) error
+}
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac *Account) Deposit(amount float64) {
+    if amount &lt;= 0 {
+        panic("必須存入正數")
+    }
+    ac.balance += amount
+}
+
+func (ac *Account) Withdraw(amount float64) error {
+    if amount &gt; ac.balance {
+        return errors.New("餘額不足")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func (ac *CheckingAccount) Withdraw(amount float64) error {
+    if amount &gt; ac.balance+ac.overdraftlimit {
+        return errors.New("超出信用額度")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+func Withdraw(savings Savings) {
+    if err := savings.Withdraw(500); err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(savings)
+    }
+}
+
+func main() {
+    account1 := Account{"1234-5678", "Justin Lin", 1000}
+    account2 := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+    Withdraw(&amp;account1) // 顯示 &amp;{1234-5678 Justin Lin 500}
+    Withdraw(&amp;account2) // 顯示 &amp;{{1234-5678 Justin Lin 500} 30000}
+}
+</code></pre>
+<p>雖然沒有定義接收者為 <code>*CheckingAccount</code> 的 <code>Deposit</code> 方法，然而，作為內部型態的 <code>Account</code> 有定義 <code>Deposit</code>（並且沒有使用到 <code>CheckingAccount</code> 定義的值域），這個實現被提昇至外部型態，也就滿足了 <code>Savings</code> 要求的行為規範。</p>
+<p>注意！由於在實作 <code>Withdraw</code> 與 <code>Deposit</code> 方法時，都是用指標 <code>(ac *Account)</code> 或 <code>(ac *CheckingAccount)</code> 宣告了接受者型態，因此傳遞實例給 <code>func Withdraw(savings Savings)</code> 時，也就必須傳遞指標。</p>
+<p>如果在實作<code>Withdraw</code> 與 <code>Deposit</code> 方法時，是使用 <code>(ac Account)</code> 或 <code>(ac CheckingAccount)</code> 宣告了接受者型態，那麼傳遞實例給接受 <code>Savings</code> 的函式時，就可以不用取指標，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+type Savings interface {
+    Deposit(amount float64)
+    Withdraw(amount float64) error
+}
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac Account) Deposit(amount float64) {
+    if amount &lt;= 0 {
+        panic("必須存入正數")
+    }
+    ac.balance += amount
+}
+
+func (ac Account) Withdraw(amount float64) error {
+    if amount &gt; ac.balance {
+        return errors.New("餘額不足")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func (ac CheckingAccount) Withdraw(amount float64) error {
+    if amount &gt; ac.balance+ac.overdraftlimit {
+        return errors.New("超出信用額度")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+func Withdraw(savings Savings) {
+    if err := savings.Withdraw(500); err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(savings)
+    }
+}
+
+func main() {
+    account1 := Account{"1234-5678", "Justin Lin", 1000}
+    account2 := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+    Withdraw(account1) // 顯示 {1234-5678 Justin Lin 1000}
+    Withdraw(account2) // 顯示 {{1234-5678 Justin Lin 1000} 30000}
+}
+</code></pre>
+<p>當然，就這個例子來說，結果並不是正確的，就算改成 <code>Withdraw(&amp;account1)</code> 與 <code>&amp;Withdraw(account2)</code>，也不會是正確的結果，因為就 <code>Withdraw</code> 與 <code>Deposit</code> 的接收者來說，會是複製結構的值域，而不是修改原結構實例的值域，這純綷只是示範。</p>
+<h1>介面實例的型態與值</h1>
+<p>如果你定義了一個變數：</p>
+<pre class="prettyprint"><code lang="golang">var savings Savings
+</code></pre>
+<p>那麼 <code>savings</code> 變數儲存了什麼？技術上來說，<code>savings</code> 變數儲存兩個資訊：型態與值。就方才的<code>savings</code> 被指定為 <code>nil</code> 來說，代表著 <code>savings</code> 在底層儲存的型態為 <code>nil</code>，而值沒有指定，這樣的介面實例稱為 nil interface，因為沒有型態資訊，也就不能透過 nil interface 呼叫方法。</p>
+<p>如果接收者是定義為 <code>(ac *Account)</code>，而且有底下的程式，那麼 <code>savings</code> 底層儲存的型態會 <code>*Account</code>，而值是 <code>Account</code> 結構實例的位址值：</p>
+<pre class="prettyprint"><code lang="golang">var savings Savings = &amp;Account{"1234-5678", "Justin Lin", 1000}
+</code></pre>
+<p>當接收者是指標時，透過介面比對是否為 <code>nil</code> 時要留意，例如以下會是 <code>true</code>，這是因為 <code>savings</code> 在底層儲存的型態為 <code>nil</code>，而值沒有指定，介面宣告的變數只有在這個情況下，跟 <code>nil</code> 直接相等比較才會是 <code>true</code>：</p>
+<pre class="prettyprint"><code lang="golang">var savings Savings = nil
+fmt.Println(savings == nil)
+</code></pre>
+<p>然而以下會是 <code>false</code>，這是因為 <code>savings</code> 在底層儲存的型態為 <code>*Account</code>，而值是 <code>nil</code>（
+<br  />這時透過 <code>savings</code> 是可以呼叫方法的，接收者會是 <code>nil</code>，就看你要不要在方法中處理 <code>nil</code> 了）：</p>
+<pre class="prettyprint"><code lang="golang">var acct *Account = nil
+var savings Savings = acct
+fmt.Println(savings == nil)
+</code></pre>
+<p>這是個 FAQ 了，在〈<a href="https://golang.org/doc/faq#nil_error">Why is my nil error value not equal to nil?</a>〉就提到了個例子：</p>
+<pre class="prettyprint"><code lang="golang">func returnsError() error {
+    var p *MyError = nil
+    if bad() {
+        p = ErrBad
+    }
+    return p
+}
+</code></pre>
+<p>如果對 <code>returnsError</code> 傳回值進行 <code>nil</code> 比較，結果會是 <code>false</code>：</p>
+<pre class="prettyprint"><code lang="golang">fmt.Println(returnsError() == nil) // false
+</code></pre>
+<p>因此如果傳回型態是個介面，值會是 <code>nil</code>，請記得直接傳 <code>nil</code>：</p>
+<pre class="prettyprint"><code lang="golang">func returnsError() error {
+    if bad() {
+        return ErrBad
+    }
+    return nil // 直接傳 nil
+}
+</code></pre>
+<p>如果接收者是定義為 <code>(ac Account)</code>，而你有底下的程式：</p>
+<pre class="prettyprint"><code lang="golang">var savings Savings = Account{"1234-5678", "Justin Lin", 1000}
+</code></pre>
+<p>這時 <code>savings</code> 在底層會儲存型態 <code>Account</code>，而值為結構實例，這時透過 <code>Savings</code> 來進行實例的指定時，底層也會是結構實例的指定，因此會發生複製：</p>
+<pre class="prettyprint"><code lang="golang">var savings1 Savings = Account{"1234-5678", "Justin Lin", 1000}
+var savings2 Savings = savings1
+
+savings2.name = "Monica Huang"
+fmt.Println(savings.name) // Justin Lin
+</code></pre>
+<h1>異質陣列或 slice</h1>
+<p>Go 語言會檢查類型的實例，是否實現了介面中規範的行為，若是的話，就可以使用介面型態來接受不同型態實例的指定，因此，若要建立一個異質陣列或 slice，也是可以的：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+type Savings interface {
+    Deposit(amount float64)
+    Withdraw(amount float64) error
+}
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac *Account) Deposit(amount float64) {
+    if amount &lt;= 0 {
+        panic("必須存入正數")
+    }
+    ac.balance += amount
+}
+
+func (ac *Account) Withdraw(amount float64) error {
+    if amount &gt; ac.balance {
+        return errors.New("餘額不足")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func (ac *CheckingAccount) Withdraw(amount float64) error {
+    if amount &gt; ac.balance+ac.overdraftlimit {
+        return errors.New("超出信用額度")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+func main() {
+    savingsArray := [...]Savings{
+        &amp;Account{"1234-5678", "Justin Lin", 1000},
+        &amp;CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000},
+    }
+
+    for _, savings := range savingsArray {
+        fmt.Println(savings)
+    }
+
+    savingsSlice := []Savings{
+        &amp;Account{"1234-5678", "Justin Lin", 1000},
+        &amp;CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000},
+    }
+
+    for _, savings := range savingsSlice {
+        fmt.Println(savings)
+    }
+}
+</code></pre>
+<p>在這邊雖然是以 <code>Account</code> 及 <code>CheckingAccount</code> 為例，不過，只要實現了 <code>Savings</code> 的行為，就算是一隻鴨子，也是可以的：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Savings interface {
+    Deposit(amount float64)
+    Withdraw(amount float64) error
+}
+
+type Duck struct{}
+
+func (d *Duck) Deposit(amount float64) {
+    fmt.Println("我是一隻鴨子，我沒帳戶")
+}
+
+func (d *Duck) Withdraw(amount float64) error {
+    fmt.Println("我是一隻鴨子，我沒錢")
+    return nil
+}
+
+func main() {
+    duckArray := [...]Savings{
+        &amp;Duck{},
+        &amp;Duck{},
+    }
+
+    for _, duck := range duckArray {
+        duck.Deposit(1000)
+    }
+
+    duckSlice := []Savings{
+        &amp;Duck{},
+        &amp;Duck{},
+    }
+
+    for _, duck := range duckSlice {
+        duck.Withdraw(500)
+    }
+}
+</code></pre>
+<h1>空介面</h1>
+<p>那麼，如果想要建立一個實例容器，可以收集各種類型的實例，要怎麼做呢？答案就是透過空介面，也就是沒有定義任何行為的 <code>interface {}</code>。</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Duck struct{}
+
+func main() {
+    instances := [](interface{}){
+        &amp;Duck{},
+        [...]int{1, 2, 3, 4, 5},
+        map[string]int{"caterpillar": 123456, "monica": 54321},
+    }
+
+    for _, instance := range instances {
+        fmt.Println(instance)
+    }
+}
+</code></pre>
+<p>如果你查看 <code>fmt.Println</code> 的文件說明，可以發現，它的參數類型就是 <code>interface {}</code>：</p>
+<pre class="prettyprint"><code lang="golang">func Print(a ...interface{}) (n int, err error)
+func Printf(format string, a ...interface{}) (n int, err error)
+func Println(a ...interface{}) (n int, err error)
+</code></pre>
+<p>順便一提的是，就目前來說，在使用 <code>fmt.Println</code> 顯示結構時，都是使用預設的字串格式，如果想自訂字串格式，必須實現 <code>Stringer</code> 這個介面，這定義在 <code>fmt</code> 的 print.go 之中：</p>
+<pre class="prettyprint"><code lang="golang">type Stringer interface {
+        String() string
+}
+</code></pre>
+<p>在需要字串的場合中，會呼叫 <code>String()</code> 方法。例如，若你想要帳號顯示時，可以出現 Account 或 CheckingAccount 字樣的話，可以如下實作：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac *Account) String() string {
+    return fmt.Sprintf("Account(id = %s, name = %s, balance = %.2f)",
+        ac.id, ac.name, ac.balance)
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func (ac *CheckingAccount) String() string {
+    return fmt.Sprintf("CheckingAccount(id = %s, name = %s, balance = %.2f, overdraftlimit = %.2f)",
+        ac.id, ac.name, ac.balance, ac.overdraftlimit)
+}
+
+func main() {
+    account1 := Account{"1234-5678", "Justin Lin", 1000}
+    account2 := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+
+    // 顯示 Account(id = 1234-5678, name = Justin Lin, balance = 1000.00)
+    fmt.Println(&amp;account1)
+
+    // 顯示 CheckingAccount(id = 1234-5678, name = Justin Lin, balance = 1000.00, overdraftlimit = 30000.00)
+    fmt.Println(&amp;account2)
+}
+</code></pre>
+<h1>實作某介面的型態有哪些？</h1>
+<p>來自 Java 之類語言的開發者，在認識 Go 的 <code>interface</code> 後可能會有些疑問，像是「如何知道某個介面的實現型態有哪些？」、「這個型態實現了哪些介面？」…並且會想在文件上尋找這類資訊，因為 Java 的文件中，會記錄某介面的實現類別有哪些。</p>
+<p>這是因為 Java 中，介面型態與行為是結合在一起的。</p>
+<p>在 Go 中不需要記錄這些，當開發者看到某 API 上定義可以接收某介面型態的值時，應該看看該介面定義了哪些行為，接著看看要傳入的值是否有實作這些行為，這樣就可以了，因為 Go 的介面重點是「行為」，不管 API 上定義的介面型態是什麼，只要行為符合都可以傳入。</p>
+<p>也就是說 Go 中，介面型態與行為是分開的，應該重視的只有行為本身，本質上與動態定型語言中只重行為而非型態相同，因此「如何知道某個介面的實現型態有哪些？」、「這個型態實現了哪些介面？」這類問題也就不重要了！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

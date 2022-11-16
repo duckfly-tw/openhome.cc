@@ -1,0 +1,230 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 Servle t中，是透過 HttpServletResponse 物件來對瀏覽器進行回應，如果你想要對回應的內容進行壓縮處理，就要想辦法讓 HttpServletResponse 物件具有壓縮處...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="回應包裹器">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/ResponseWrapper.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 Servle t中，是透過 HttpServletResponse 物件來對瀏覽器進行回應，如果你想要對回應的內容進行壓縮處理，就要想辦法讓 HttpServletResponse 物件具有壓縮處...">
+
+    <title>回應包裹器</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ResponseWrapper.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>回應包裹器</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 Servle t中，是透過 <code>HttpServletResponse</code> 物件來對瀏覽器進行回應，如果你想要對回應的內容進行壓縮處理，就要想辦法讓 <code>HttpServletResponse</code> 物件具有壓縮處理的功能。先前介紹過請求包裹器的實作，而在回應包裹器的部份，你可以繼承 <code>HttpServletResponseWrapper</code> 類別（父類別 <code>ServletResponseWrapper</code>）來對 <code>HttpServletResponse</code> 物件進行包裹。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ResponseWrapper-1.JPG" alt="回應包裹器"  /></div></div></p>
+<p>若要對瀏覽器進行輸出回應必須透過 <code>getWriter()</code> 取得 <code>PrintWriter</code>，或是透過 <code>getOutputStream()</code> 取得 <code>ServletOutputStream</code>。所以針對壓縮輸出的需求，主要就是繼承 <code>HttpServletResponseWrapper</code> 之後，透過重新定義這兩個方法來達成。</p>
+<p>在這邊壓縮的功能將採 GZIP 格式，這是瀏覽器可以接受的壓縮格式，可以使用 <code>GZIPOutputStream</code> 類別來實作。由於 <code>getWriter()</code> 的 <code>PrintWriter</code> 在建立時，也是必須使用到 <code>ServletOutputStream</code>，所以在這邊先擴充 <code>ServletOutputStream</code> 類別，讓它具有壓縮的功能。</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
+
+public class GZipServletOutputStream extends ServletOutputStream {
+    private ServletOutputStream servletOutputStream;
+    private GZIPOutputStream gzipOutputStream;
+
+    public GZipServletOutputStream(
+            ServletOutputStream servletOutputStream) throws IOException {
+        this.servletOutputStream = servletOutputStream;
+        this.gzipOutputStream = new GZIPOutputStream(servletOutputStream);
+    }
+
+    public void write(int b) throws IOException {
+        this.gzipOutputStream.write(b);
+    }
+
+    public GZIPOutputStream getGzipOutputStream() {
+        return this.gzipOutputStream;
+    }
+
+    @Override
+    public boolean isReady() {
+        return this.servletOutputStream.isReady();
+    }
+
+    @Override
+    public void setWriteListener(WriteListener writeListener) {
+        this.servletOutputStream.setWriteListener(writeListener);
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.gzipOutputStream.close();
+    }
+
+    @Override
+    public void flush() throws IOException {
+        this.gzipOutputStream.flush();
+    }
+
+    public void finish() throws IOException {
+        this.gzipOutputStream.finish();
+    }
+}
+</code></pre>
+<p><code>GzipServletOutputStream</code> 繼承 <code>ServletOutputStream</code> 類別，使用時必須傳入 <code>ServletOutputStream</code> 類別，由 <code>GZIPOutputStream</code> 來增加壓縮輸出串流的功能。範例中重新定義 <code>write()</code> 方法，並透過 <code>GZIPOutputStream</code> 的 <code>write()</code> 方法來作串流輸出，<code>GZIPOutputStream</code> 的 <code>write()</code> 方法 實作了壓縮的功能。</p>
+<p>在 <code>HttpServletResponse</code> 物件傳入 Servlet 的 <code>service()</code> 方法前，必須包裹它，使得呼叫 <code>getOutputStream()</code> 時，可以使用取得這邊所實作的 <code>GzipServletOutputStream</code> 物件，而呼叫 <code>getWriter()</code> 時，也可以利用 <code>GzipServletOutputStream</code> 物件 來建構 <code>PrintWriter</code> 物件。</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class CompressionResponseWrapper extends HttpServletResponseWrapper {
+    private GZipServletOutputStream gzServletOutputStream;
+    private PrintWriter printWriter;
+
+    public CompressionResponseWrapper(HttpServletResponse response) {
+        super(response);
+    }
+
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        if(printWriter != null) {
+            throw new IllegalStateException();
+        }
+        if (gzServletOutputStream == null) {
+            gzServletOutputStream = 
+                    new GZipServletOutputStream(getResponse().getOutputStream());
+        }
+        return gzServletOutputStream;
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        if(gzServletOutputStream != null) {
+            throw new IllegalStateException();
+        }
+        if (printWriter == null) {
+            gzServletOutputStream = 
+                    new GZipServletOutputStream(getResponse().getOutputStream());
+            OutputStreamWriter osw = 
+                    new OutputStreamWriter(
+                        gzServletOutputStream, getResponse().getCharacterEncoding());
+            printWriter = new PrintWriter(osw);
+        }
+        return printWriter;
+    }
+
+    @Override
+    public void flushBuffer() throws IOException {
+        if(this.printWriter != null) {
+            this.printWriter.flush();
+        }
+        else if(this.gzServletOutputStream != null) {
+            this.gzServletOutputStream.flush();
+        }
+        super.flushBuffer();
+    }    
+
+    public void finish() throws IOException {
+        if(this.printWriter != null) {
+            this.printWriter.close();
+        }
+        else if(this.gzServletOutputStream != null) {
+            this.gzServletOutputStream.finish();
+        }
+    }
+
+    @Override
+    public void setContentLength(int len) {}
+
+    @Override
+    public void setContentLengthLong(long length) {}
+}
+</code></pre>
+<p>在上例中要注意，由於 Servlet 規格書中規定，在同一個請求期間，<code>getWriter()</code> 與 <code>getOutputStream()</code> 只能擇一呼叫，否則必須丟出 <code>IllegalStateException</code>，因此建議在實作回應包裹器時，也遵循這個規範，因此在重新定義 <code>getOutputStream()</code> 與 <code>getWriter()</code> 方法時，分別要檢查是否已存在 <code>PrintWriter</code> 與 <code>ServletOutputStream</code> 實例。</p>
+<p>在 <code>getOutputStream()</code> 中建立 <code>GZipServletOutputStream</code> 實例並傳回。在 <code>getWriter()</code> 中呼叫  <code>getOutputStream()</code> 取得 <code>GZipServletOutputStream</code> 物件，作為建構 <code>PrintWriter</code> 實例時使用，如此所建立的 <code>PrintWriter</code> 物件也就具有壓縮功能。由於真正的輸出會被壓縮，忽略原來的內容長度設定。</p>
+<p>接下來可以實作一個壓縮過濾器，使用上面所開發的 <code>CompressionResponseWrapper</code> 來包裹原 <code>HttpServletResponse</code>。</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.servlet.annotation.WebFilter;
+
+@WebFilter("/*")
+public class CompressionFilter extends HttpFilter {
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response,
+           FilterChain chain) throws IOException, ServletException {
+
+        String encodings = request.getHeader("Accept-Encoding");
+        if (encodings != null &amp;&amp; encodings.contains("gzip")) {
+            CompressionResponseWrapper responseWrapper = 
+                  new CompressionResponseWrapper(response); 
+            responseWrapper.setHeader("Content-Encoding", "gzip");
+
+            chain.doFilter(request, responseWrapper);
+
+            responseWrapper.finish();
+        }
+        else {
+            chain.doFilter(request, response);
+        }
+    }
+}
+</code></pre>
+<p>瀏覽器是否接受 GZIP 壓縮格式，可以透過檢查 <code>Accept-Encoding</code> 請求標頭中是否包括 <code>"gzip"</code> 字串來判斷。如果可以接受 GZIP 壓縮，建立 <code>CompressionResponseWrapper</code> 包裹原回應物件，並設定 <code>Content-Encoding</code> 回應標頭為 <code>"gzip"</code>，如此瀏覽器就會知道回應內容是 GZIP 壓縮格式。</p>
+<p>接著呼叫 <code>FilterChain</code> 的 <code>doFilter()</code> 時，傳入的回應物件為 <code>CompressionResponseWrapper</code> 物件。當 <code>FilterChain</code> 的 <code>doFilter()</code> 結束時，必須呼叫 <code>GZIPOutputStream</code> 的 <code>finish()</code> 方法，這才會將 GZIP 後的資料從緩衝區中全部移出並進行回應，這實作在 <code>CompressionResponseWrapper</code> 的 <code>finish()</code> 方法中。</p>
+<p>如果客戶端不接受 GZIP 壓縮格式，則直接呼叫 <code>FilterChain</code> 的 <code>doFilter()</code>，這樣就可以讓不接受 GZIP 壓縮格式的客戶端也可以收到原有的回應內容。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

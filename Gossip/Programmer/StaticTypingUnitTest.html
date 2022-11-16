@@ -1,0 +1,122 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：靜態定型與單元測試之爭
+      
+      動態定型語言的支持者認為，靜態定型語言的型態檢查無法抓出所有錯誤，只要有完整的測試，編譯器的型態檢查就是多餘。Joshua...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="靜態定型與單元測試之爭">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/StaticTypingUnitTest.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：靜態定型與單元測試之爭
+      
+      動態定型語言的支持者認為，靜態定型語言的型態檢查無法抓出所有錯誤，只要有完整的測試，編譯器的型態檢查就是多餘。Joshua...">
+
+
+    <title>靜態定型與單元測試之爭</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StaticTypingUnitTest.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>靜態定型與單元測試之爭</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/voice/87403">靜態定型與單元測試之爭</a><br>
+      <br>
+      動態定型語言的支持者認為，靜態定型語言的型態檢查無法抓出所有錯誤，只要有完整的測試，編譯器的型態檢查就是多餘。Joshua Bloch說：「既然寫正確的程式那麼難，我們就應該盡力取得幫助。所以，能減少bug的所有東西都是好的。這就是我是靜態型別語言和靜態分析的信徒的原因。」<br>
+      <br>
+      <dl>
+        <dt>誰來保證型態的正確性？</dt>
+      </dl>
+      <br>
+      動態定型與靜態定型語言從古至今持續存在爭戰，雙方支持者所持理由各不相同，爭論可從語言的簡潔、彈性、文件化、執行速度、靜態分析、重構工具等各方面切入，無論是站在哪一方，最終無論支持動態定型或靜態定型，都得回到程式撰寫的最基本要求：「程式碼本身必須正確」。程式碼中用來進行運算的各種值，它們各自應當是何種型態，也是程式碼本身的意圖之一，程式碼本身必須正確，自然也包括了型態必須正確這件事，那麼誰來保證型態的正確性？<br>
+      <br>
+      靜態定型的支持者認為，既然程式中有許多型態上的錯誤，會讓程式碼在執行時發生錯誤，為何不在編譯時期就找出這類型態錯誤，讓維護工作變得輕鬆，畢竟開發者總是以為他們知道自己在操作什麼型態，實際上並不是如此，更多時候是漫不經心、未仔細思考正在操作的值其型態為何，Java中如影隨形的<code>ClassNotFoundException</code>錯誤，經常就是這麼來的，某些程度上<code>NullPointerException</code>也是型態錯誤，因為null可以做為任何型態的值，若能使用JDK8中<code>Optional</code>這類Typesafe Null型態，編譯時期就有機會找出這類錯誤。<br>
+      <br>
+      動態語言的支持者不以為然，他們認為靜態定型語言沒有辦法抓出所有的型態錯誤，甚至開發者也有辦法編譯器忽略型態錯誤，像是使用轉型（CAST）語法或自行加註了錯的型態，而且就算編譯器能抓出所有型態錯誤，也不代表程式的邏輯正確，既然最後無論是型態或是程式邏輯，都得執行單元測試來確保正確性，就沒有依賴靜態定型進行型態檢查的必要性。<br>
+      <br>
+      靜態定型無法抓出所有型態錯誤是事實，型態正確不代表程式邏輯正確也是事實，只是在為此而擁抱動態語言之前，開發者是否思考過要操作的值實際型態是什麼？單元測試如何確保程式中操作的值具有正確型態？開發者在型態上的單元測試有足夠的覆蓋率嗎？對於型態的正確性，你是依賴自己，還是依賴工具？<br>
+      <br>
+      <dl>
+        <dt>重新思考型態是什麼？</dt>
+      </dl>
+      <br>
+      任何數值都是記憶體中的一組位元，型態賦予這組位元意義，這樣開發者就能得知如何對待這組位元，因此型態也部份解釋了開發者想要程式做哪些事情。多數開發者很少認真思考型態是什麼，多半存在「2是個整數」、「<code>"Hello World"</code>是個字串」、「<code>[1, 2, 3]</code>是個List」這類模糊的認知，實際上型態代表值具有彼此相關的特性，這些值因為具有同一組操作與行為，而被歸在同一個型態集合。<br>
+      <br>
+      在Haskell語言中，一開始就要開發者思考型態是什麼，在使用<code>data</code>定義一個型態時，得指定值建構式（Value Constructor），也就是得思考型態可能包括的值以及如何建構，或者是如何以型態作為參數產生新的型態（例如<code>Maybe</code>型態），如果你要對定義的型態進行運算，還得進一步思考型態應衍生自哪個或自行定義Typeclasses，這樣要運算的值才能有對應的操作與行為。<br>
+      <br>
+      函式本身也有型態，以Haskell為例，取List首項元素的head函式，其型態是<code>[a] -&gt; a</code>，也就是給一個包括<code>a</code>型態的<code>List</code>，<code>head</code>函式要傳回<code>a</code>型態，雖然在Haskell中可藉由型態推斷（Type inference），使得定義函式時不用宣告函式型態，不過明確地宣告型態是個好習慣，這可以讓你多思考一次（日後也容易閱讀與瞭解）函式的意圖。在不存在一級（First class）函式的語言之中，函式本身也可視為有隱含的型態，也就是函式的參數與傳回型態。<br>
+      <br>
+      在Haskell這極度重視型態正確性的靜態定型語言中，經常會發現的事情就是，即使開發者本身自認為程式碼中已經沒有型態錯誤的問題，在編譯器回報的錯誤訊息中總有辦法發現，自己正試圖在某些地方犯下型態不正確的蠢事，問題往往不是呼叫函式時傳入或傳回型態正確與否這麼簡單，而往往是發生在函式中試圖進行某操作時，該值的型態並沒有對應的行為（而你以為有），這說明了開發者對型態的思考總是不足的。<br>
+      <br>
+      <dl>
+        <dt>單元測試要對型態做哪些測試？</dt>
+      </dl>
+      <br>
+      在開始認真思考型態是什麼，以及靜態定型語言中編譯器作了哪些型態檢查之後，再從測試的角度來看就可發現，靜態定型本質上是對型態進行大量且廣泛的斷言測試，也就是函式要能接受特定型態的輸入，在函式中進行型態定義的操作，且最後要有特定型態的傳回值，如果違反了其中任何一項，就相當於斷言測試失敗，只是這（大多數的）斷言測試是在程式執行之前，由編譯器來執行，因而開發者在執行時期，可以只對函式實施特定輸入應有的輸出之單元測試，或者較少量的型態測試。<br>
+      <br>
+      在使用動態定型語言之時，由於沒有編譯器來對型態執行大量且廣泛的斷言測試，擔子就落到了開發者身上，不過也給了開發者在型態檢查上的彈性。舉例來說，如果設計一個<code>add_two</code>函式，靜態定型語言要求定義參數與傳回型態，如果參數是<code>int</code>，那麼開發者就不能直接用<code>float</code>來呼叫<code>add_two</code>函式，還得另外設計一個接受<code>float</code>的<code>add_two</code>函式，而實際需求可能只是要對參數加2後傳回而已，這就是有些動態定型支持者覺得，靜態定型語言對型態檢查的堅持是沒有必要的；動態定型語言中，可以只設計一個<code>add_two</code>函式，如果程式中真的在乎傳回型態，那只要針對傳回型態做斷言就可以了，如果程式中真的在乎參數型態，那麼測試就是要確定傳入型態不符時，函式會拋出型態不符的例外。<br>
+      <br>
+      單元測試在動態語言中，可以分為兩個部份來看：一個是對特定輸入應有特定輸出之測試，一個是對於特定型態輸入應有特定型態輸出之測試。只是對於後者，在靜態定型語言中，可以輕鬆擁有（然而犧牲了彈性）。「只要有全面的單元測試就不需要型態檢查」也是個迷思，問題在於很難有全面的單元測試，無論理由是來自於開發者本身的觀念、能力，或者是專案政治性因素，如果開發者使用動態定型語言，卻發現到需要許多單元測試來執行型態檢查，卻又無法做得全面時，藉助靜態分析工具，透過其規範的型態加註方式，執行類似編譯器的型態檢查工作就是必要的。<br>
+      <br>
+      <dl>
+        <dt>你瞭解型態檢查的需求嗎？</dt>
+      </dl>
+      <br>
+      靜態定型無法抓出所有型態錯誤是既定的事實，單元測試是必要的，只是在持有這個理由投入動態定型語言之餘，也得多想一下，你有撰寫測試的習慣嗎？在投入動態定型語言之後，是否願意多寫些測試，以彌補沒有編譯器協助型態斷言測試的這個事實嗎？或者是，你有能力撰寫出夠完整的單元測試來檢測出大多數的型態錯誤嗎？<br>
+      <br>
+      現實開發在型態檢查這部份，靜態定型檢查無法取代單元測試，單元測試其實也無法取代靜態定型檢查，無論選擇動態或靜態定型語言，或許都得更進一步地問，你瞭解程式語言中的型態系統嗎？你是否瞭解開發上對型態檢查的需求嗎？如此才能瞭解如何善用選定語言在型態檢查上的優勢、彈性、或在必要時選擇其他方案以補其不足。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

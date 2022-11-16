@@ -1,0 +1,235 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="UserDetailsService 在實作時，主要是依使用者名稱來取得 UserDetails，然而，在更複雜的驗證、授權情境下，不見得只會依使用者名稱來處理，如果你有自己的驗證實作方式，可以自行定...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="AuthenticationProvider">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/AuthenticationProvider.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="UserDetailsService 在實作時，主要是依使用者名稱來取得 UserDetails，然而，在更複雜的驗證、授權情境下，不見得只會依使用者名稱來處理，如果你有自己的驗證實作方式，可以自行定...">
+
+    <title>AuthenticationProvider</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="AuthenticationProvider.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>AuthenticationProvider</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p><code>UserDetailsService</code> 在實作時，主要是依使用者名稱來取得 <code>UserDetails</code>，然而，在更複雜的驗證、授權情境下，不見得只會依使用者名稱來處理，如果你有自己的驗證實作方式，可以自行定義 <code>AuthenticationProvider</code>。</p>
+<p>實際上，運用 <code>UserDetailsService</code> 是 <code>DaoAuthenticationProvider</code>，它繼承自 <code>AbstractUserDetailsAuthenticationProvider</code>，這個父類的實作介面之一就是 <code>AuthenticationProvider</code>，在 <code>AbstractUserDetailsAuthenticationProvider</code> 的實作中，<code>authenticate</code> 會呼叫抽象方法 <code>retrieveUser</code> 取得 <code>UserDetails</code>，然後呼叫抽象方法 <code>additionalAuthenticationChecks</code> 來進行驗證：</p>
+<pre class="prettyprint"><code lang="java">public Authentication authenticate(Authentication authentication)
+        throws AuthenticationException {
+    Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+            () -&gt; messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.onlySupports",
+                    "Only UsernamePasswordAuthenticationToken is supported"));
+
+    // Determine username
+    String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED"
+            : authentication.getName();
+
+    boolean cacheWasUsed = true;
+    UserDetails user = this.userCache.getUserFromCache(username);
+
+    if (user == null) {
+        cacheWasUsed = false;
+
+        try {
+            user = retrieveUser(username,
+                    (UsernamePasswordAuthenticationToken) authentication);
+        }
+        catch (UsernameNotFoundException notFound) {
+            logger.debug("User '" + username + "' not found");
+
+            if (hideUserNotFoundExceptions) {
+                throw new BadCredentialsException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "Bad credentials"));
+            }
+            else {
+                throw notFound;
+            }
+        }
+
+        Assert.notNull(user,
+                "retrieveUser returned null - a violation of the interface contract");
+    }
+
+    try {
+        preAuthenticationChecks.check(user);
+        additionalAuthenticationChecks(user,
+                (UsernamePasswordAuthenticationToken) authentication);
+    }
+    catch (AuthenticationException exception) {
+        if (cacheWasUsed) {
+            // There was a problem, so try again after checking
+            // we're using latest data (i.e. not from the cache)
+            cacheWasUsed = false;
+            user = retrieveUser(username,
+                    (UsernamePasswordAuthenticationToken) authentication);
+            preAuthenticationChecks.check(user);
+            additionalAuthenticationChecks(user,
+                    (UsernamePasswordAuthenticationToken) authentication);
+        }
+        else {
+            throw exception;
+        }
+    }
+    ...略
+}
+</code></pre>
+<p><code>DaoAuthenticationProvider</code> 在實作 <code>retrieveUser</code> 時，會透過 <code>UserDetailsService</code> 取得 <code>UserDetails</code>，而在 <code>additionalAuthenticationChecks</code> 運用 <code>PasswordEncoder</code> 比對密碼：</p>
+<pre class="prettyprint"><code lang="java">protected void additionalAuthenticationChecks(UserDetails userDetails,
+        UsernamePasswordAuthenticationToken authentication)
+        throws AuthenticationException {
+    if (authentication.getCredentials() == null) {
+        logger.debug("Authentication failed: no credentials provided");
+
+        throw new BadCredentialsException(messages.getMessage(
+                "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                "Bad credentials"));
+    }
+
+    String presentedPassword = authentication.getCredentials().toString();
+
+    if (!passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+        logger.debug("Authentication failed: password does not match stored value");
+
+        throw new BadCredentialsException(messages.getMessage(
+                "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                "Bad credentials"));
+    }
+}
+
+... 略
+
+protected final UserDetails retrieveUser(String username,
+        UsernamePasswordAuthenticationToken authentication)
+        throws AuthenticationException {
+    prepareTimingAttackProtection();
+    try {
+        UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+        if (loadedUser == null) {
+            throw new InternalAuthenticationServiceException(
+                    "UserDetailsService returned null, which is an interface contract violation");
+        }
+        return loadedUser;
+    }
+    catch (UsernameNotFoundException ex) {
+        mitigateAgainstTimingAttack(authentication);
+        throw ex;
+    }
+    catch (InternalAuthenticationServiceException ex) {
+        throw ex;
+    }
+    catch (Exception ex) {
+        throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
+    }
+}
+</code></pre>
+<p>這就是〈<a href="UserDetailsService.html">UserDetailsService</a>〉中程式得以運作的原理了。</p>
+<p>實際上，我們也可以實作 <code>AuthenticationProvider</code>，運用 gossip 既有的基礎來套用 Spring Security，在〈<a href="UserDetailsService.html">UserDetailsService</a>〉的 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Security/UserDetailsService/gossip">gossip</a> 專案基礎上，只需要修改 <code>SecurityConfig</code> 內容如下：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+... 略
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter  {
+    @Autowired
+    private AccountDAO accountDAO;
+
+    @Autowired
+    private UserService userService;
+
+    ... 略
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(new GossipAuthenticationProvider());
+    }
+
+    private class GossipAuthenticationProvider implements AuthenticationProvider {
+
+        @Override
+        public Authentication authenticate(Authentication authentication) 
+          throws AuthenticationException {
+            String name = authentication.getName();
+            String password = authentication.getCredentials().toString();
+
+            Optional&lt;Account&gt; acct = accountDAO.accountByUsername(name);
+
+            if(acct.isPresent() &amp;&amp; userService.login(name, password)) {
+                return new UsernamePasswordAuthenticationToken(
+                    name, 
+                    password, 
+                    AuthorityUtils.createAuthorityList("ROLE_MEMBER")
+                );
+            }
+
+            return null;
+        }
+
+        @Override
+        public boolean supports(Class&lt;?&gt; authentication) {
+            return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        }
+    }
+}
+</code></pre>
+<p>可以看到，<code>AuthenticationManagerBuilder</code> 可以呼叫 <code>authenticationProvider</code> 設定自定義的 <code>AuthenticationProvider</code>，由於是自定義的驗證提供者，當中不會運用 <code>PasswordEncoder</code>，也就不會需要〈<a href="UserDetailsService.html">UserDetailsService</a>〉中處理密碼編碼的 workaround 作法了。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Security/AuthenticationProvider/gossip">gossip</a> 中找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

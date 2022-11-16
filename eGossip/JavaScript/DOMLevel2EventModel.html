@@ -1,0 +1,249 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="One of the drawbacks of Basic Event Model is, you can register only one handler. If you want to regi...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="DOM Level 2 Event Model">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/DOMLevel2EventModel.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="One of the drawbacks of Basic Event Model is, you can register only one handler. If you want to regi...">
+
+
+    <title>DOM Level 2 Event Model</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DOMLevel2EventModel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; JavaScript TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>DOM Level 2 Event Model</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      One of the drawbacks of Basic Event Model is, you can register only one handler. If you want to register multiple event handlers, it doesn't work to do the following: <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>window.onload = function() {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; // handler1</strong></span><span><strong><br>
+          </strong></span><span><strong>};</strong></span><span><strong><br>
+          </strong></span><span><strong>window.onload = function() {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; // handler2</strong></span><span><strong><br>
+          </strong></span><span><strong>};</strong></span></div>
+      <br>
+      In the above example, <span class="courier">window.onload</span> will refer to the second function and the first one will be discarded. When an event happens, calling two or more functions in the <a
+
+        href="BasicEventModel.html">Basic Event Model</a> can only be done indirectly. The easiest way is ... <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>function handler1() {</strong></span><span><strong><br>
+          </strong></span><span><strong>}</strong></span><span><strong><br>
+          </strong></span><span><strong>function handler2() {</strong></span><span><strong><br>
+          </strong></span><span><strong>}</strong></span><span><strong><br>
+          </strong></span><span><strong>window.onload = function() {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; handler1();</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; handler2();</strong></span><span><strong><br>
+          </strong></span><span><strong>};</strong></span></div>
+      <br>
+      But, ways such as this are usually hard to manage. DOM Level 2 standardizes the event model so it's called the Standard Event Model. DOM Level 2 Event Model allows us to register two or more event handlers. Internet Explorer, however, doesn't support DOM Level 2, so the following examples only work in standard-compliant browsers. (After Internet Explorer 9, DOM Level 2 Event Model finally gets better support.) <br>
+      <br>
+      DOM Level 2 Event Model uses the <span class="courier">addEventListener</span> function to add multiple event handlers. For instance, the first example in <a
+
+        href="BasicEventModel.html">Basic Event Model</a> can be re-implemented as follows: <br>
+      <ul>
+        <li><a href="samples/DOML2EventModel-1.html">DOML2EventModel-1.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.addEventListener('load', function() {
+                function handler() {
+                    document.getElementById('console').innerHTML 
+                         = 'Who\'s clicked: ' + this.id;
+                }
+                document.getElementById('btn1')
+                    .addEventListener('click', handler, false);
+                document.getElementById('btn2')
+                    .addEventListener('click', handler, false);
+            }, false);
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;button id="btn1"&gt;Button 1&lt;/button&gt;&lt;br&gt;
+        &lt;button id="btn2"&gt;Button 2&lt;/button&gt;&lt;br&gt;
+        &lt;div id="console"&gt;&lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      The first parameter of <span class="courier">addEventListener</span> accepts the event name without an <span
+
+        class="courier">'on'</span> prefix. The second parameter accepts an event handler. If the third one is <span
+
+        class="courier">false</span>, the specified event handler will be used in the bubbling phase, which will be explained soon. <br>
+      <br>
+      In the above example, I use <span class="courier">this</span> to retrieve the element which triggers the event currently. Though most DOM Level 2 compliant browsers support this way, it's not in the standard of that. The specification uses the <span
+
+        class="courier">currentTarget</span> property of an <span class="courier">Event</span> instance to return the element which triggers the event currently. <br>
+      <br>
+      In DOM Level 2 Event Model, the first parameter of an event handler accepts an <span
+
+        class="courier">Event</span> instance. Some events have a default action. Calling the <span
+
+        class="courier">preventDefault </span>function of the <span class="courier">Event</span> instance can prevent the default action. For Example, we can use the function to rewrite the third sample in <a
+
+        href="BasicEventModel.html">Basic Event Model</a>: <br>
+      <ul>
+        <li><a href="samples/DOML2EventModel-2.html">DOML2EventModel-2.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.addEventListener('load', function() {
+                document.form1.addEventListener('submit', function(event) {
+                    if(event.currentTarget.data.value.length === 0) {
+                        event.preventDefault();
+                    }
+                }, false);
+            }, false);
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form name="form1" action="fake.do"&gt;
+            Input data: &lt;input name="data"&gt;&lt;br&gt;
+            &lt;button type="submit"&gt;Submit&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      There're two phases in DOM Level 2 Event Model. When an event happens, it'll propagate from document to the target element where you are operating on. This is called "Capturing Phase". Then, the event will propagate from the target element to document. This is called "Bubbling Phase". If the third parameter of the <span
+
+        class="courier">addEventListener</span> function is <span class="courier">true</span>, the event handler is a capturing event handler. Otherwise, it's a bubbling event handler.<br>
+      <br>
+      For example, we can rewrite the first sample in <a href="Event.html">Event</a>; set up handlers to observe two phase events. <br>
+      <ul>
+        <li><a href="samples/DOML2EventModel-3.html">DOML2EventModel-3.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.addEventListener('load', function() {
+                function handler(event) {
+                    document.getElementById('console').innerHTML += 
+                      '&lt;br&gt;&lt;b&gt;currentTarget.id:&lt;/b&gt; '
+                          + event.currentTarget.id + 
+                      ', &lt;b&gt;target.id:&lt;/b&gt; ' + event.target.id;
+                }
+                document.getElementById('bodyId')
+                    .addEventListener('click', handler, true);
+                document.getElementById('bodyId')
+                    .addEventListener('click', handler, false);
+                document.getElementById('divId')
+                    .addEventListener('click', handler, true);
+                document.getElementById('divId')
+                    .addEventListener('click', handler, false);
+                document.getElementById('btnId')
+                    .addEventListener('click', handler, true);
+                document.getElementById('btnId')
+                    .addEventListener('click', handler, false);
+            }, false);
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body id="bodyId"&gt;
+        &lt;div id="divId"&gt;&lt;button id="btnId"&gt;Click me&lt;/button&gt;&lt;/div&gt;
+        &lt;span id="console"&gt;&lt;/span&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      The target element can be got from the <span class="courier">target</span> property of the <span
+
+        class="courier">Event</span> instance. Clicking the button will cause the following result. It can be observed that the event propagate from outside to inside, and then from inside to outside. <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>currentTarget.id: bodyId, target.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>currentTarget.id: divId, target.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>currentTarget.id: btnId, target.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>currentTarget.id: btnId, target.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>currentTarget.id: divId, target.id: btnId</strong></span><span><strong><br>
+          </strong></span><span><strong>currentTarget.id: bodyId, target.id: btnId</strong></span><strong><br>
+        </strong></div>
+      <br>
+      The <span class="courier">stopPropagation</span> function of an <span
+
+        class="courier">Event</span> instance can stop the event propagation. For example, if the above sample only registers event bubbling handlers, stopping the event propagation can be done as follows: <br>
+      <ul>
+        <li><a href="samples/DOML2EventModel-4.html">DOML2EventModel-4.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code lang="javascript">&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta content="text/html; charset=UTF-8" http-equiv="content-type"&gt;
+        &lt;script type="text/javascript"&gt;
+            window.addEventListener('load', function() {
+                function handler(event) {
+                    document.getElementById('console').innerHTML += 
+                        '&lt;br&gt;&lt;b&gt;currentTarget.id:&lt;/b&gt; ' 
+                            + event.currentTarget.id + 
+                        ', &lt;b&gt;target.id:&lt;/b&gt; ' + event.target.id;
+                    event.stopPropagation();
+                }
+
+                document.getElementById('bodyId')
+                    .addEventListener('click', handler, false);
+                document.getElementById('divId')
+                    .addEventListener('click', handler, false);
+                document.getElementById('btnId')
+                    .addEventListener('click', handler, false);
+            }, false);
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body id="bodyId"&gt;
+        &lt;div id="divId"&gt;&lt;button id="btnId"&gt;Click me&lt;/button&gt;&lt;/div&gt;
+        &lt;span id="console"&gt;&lt;/span&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <br>
+      The <span class="courier">removeEventListener</span> function can remove an event handler. The first parameter accepts an event type; the second one accepts the event handler; the third one point out the handler is for the capturing phase (<span
+
+        class="courier">true</span>) or bubbling phase (<span class="courier">false</span>).<br>
+      <br>
+   <div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

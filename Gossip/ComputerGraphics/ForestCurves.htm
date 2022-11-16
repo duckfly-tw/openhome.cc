@@ -1,0 +1,186 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="這是要介紹的最後一個遞迴繪圖，看起來很複雜，但其實只是程式碼長了一點，實際上並不會比雪花來得複雜，只要弄清楚繪圖順序就可以了。
+
+      
+
+
+在這邊只解釋單一樹木的基本繪圖方式，主要分...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="樹林與倒影">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/ComputerGraphics/ForestCurves.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="這是要介紹的最後一個遞迴繪圖，看起來很複雜，但其實只是程式碼長了一點，實際上並不會比雪花來得複雜，只要弄清楚繪圖順序就可以了。
+
+      
+
+
+在這邊只解釋單一樹木的基本繪圖方式，主要分...">
+
+
+    <title>樹林與倒影</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ForestCurves.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回電腦圖學</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>樹林與倒影</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+
+
+
+這是要介紹的最後一個遞迴繪圖，看起來很複雜，但其實只是程式碼長了一點，實際上並不會比雪花來得複雜，只要弄清楚繪圖順序就可以了。<br>
+
+      <br>
+
+
+在這邊只解釋單一樹木的基本繪圖方式，主要分為主幹與支幹的繪製，如下圖所示，其中標號表示頂點的前進順序： <br>
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/forestCurves-1.jpg" /></div></div><br>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+接下來只要在主幹與支幹上不斷的繪製一定比例的相同圖形，就可以完成一顆樹，將這些樹排列起來就成為樹林，詳細的原始碼請看以下的程式，其中註解部份先不
+用理會： 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+      
+      <ul>
+
+        <li> Forest.java
+  </li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code>package cc.openhome;<br><br>import java.awt.*;<br>import javax.swing.JApplet;<br><br>import static java.lang.Math.*;<br><br>public class Forest extends JApplet {<br>    private static final double ANGLE = 86.0, K1 = 1.5, K2 = 1.0, LENG = 2.0;<br>    private static final double K;<br>    static {<br>        K = 1.0 / (K1 + 2 *  K2 + 2 * (K1 +  K2) * cos(toRadians(ANGLE)));<br>    }<br>    private Turtle t = new Turtle();<br>    public void init() {<br>        setSize(420, 400);<br>        setBackground(Color.black);<br>    }<br><br>    public void woods(double leng) {<br>        if (leng &gt; LENG) {<br>            t.move(leng);<br>            t.warp(-leng);<br>            // fillForest(leng); // 實心倒影<br>            woods(K * K1 * leng);<br>            t.turn(ANGLE);<br>            woods(K * K1 * leng);<br>            t.turn(-2 * ANGLE);<br>            woods(K * K1 * leng);<br>            t.turn(ANGLE);<br>            woods(K * leng);<br>            t.turn(ANGLE);<br>            woods(K *  K2 * leng);<br>            t.turn(-2 * ANGLE);<br>            woods(K *  K2 * leng);<br>            t.turn(ANGLE);<br>            woods(K *  K2 * leng);<br>        } else {<br>            t.warp(leng);<br>        }<br>    }<br><br>    public void paint(Graphics g) {<br>        g.setColor(Color.yellow);<br><br>        t.setGraphics(g);<br>        t.window(0, 0, getWidth(), getHeight());<br>        t.view(0, 0, getWidth(), getHeight());<br>        t.setPoint(10, getHeight() / 2);<br>        t.setAngle(0);<br><br>        woods(400);<br>    }<br><br>    // 實心倒影<br>    private void fillForest(double leng) {<br>        Point[] p = new Point[3];<br>        // 畫主幹<br>        t.warp(K * K1 * leng);<br>        p[0] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.turn(ANGLE);<br>        t.warp(K * K1 * leng);<br>        p[1] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.turn(-2 * ANGLE);<br>        t.warp(K * K1 * leng);<br>        p[2] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.polygon(p);<br>        // 畫右支幹<br>        t.turn(ANGLE);<br>        t.warp(K * leng);<br>        p[0] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.turn(ANGLE);<br>        t.warp(K * K2 * leng);<br>        p[1] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.turn(-2 * ANGLE);<br>        t.warp(K * K2 * leng);<br>        p[2] = new Point((int) t.getCurrentX(), (int) t.getCurrentY());<br>        t.polygon(p);<br>        // 支幹退回<br>        t.warp(-K * K2 * leng);<br>        t.turn(2 * ANGLE);<br>        t.warp(-K * K2 * leng);<br>        t.turn(-ANGLE);<br>        t.warp(-K * leng);<br>        t.turn(-ANGLE);<br>        // 主幹退回<br>        t.warp(-K * K1 * leng);<br>        t.turn(2 * ANGLE);<br>        t.warp(-K * K1 * leng);<br>        t.turn(-ANGLE);<br>        t.warp(-K * K1 * leng);<br>    }<br>}<br></code></pre>
+
+
+      <br>
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/forestCurves-2.jpg" /></div></div><br>
+
+
+      <br>
+
+      
+如果將上例程式的註解符號去除，可以繪製樹林的倒影，繪製方法是大同小異，這邊是使用實心圖形來表示倒影，為了繪製實心圖形，在海龜繪圖法中加入繪製實心多邊形的方法polygon，如下所示：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// Java<br>
+public void polygon(Point tri[]) {<br>&nbsp;&nbsp;&nbsp; int[] xPoints = new int[tri.length];<br>&nbsp;&nbsp;&nbsp; int[] yPoints = new int[tri.length];<br><br>&nbsp;&nbsp;&nbsp; for(int i = 0; i &lt; tri.length; i++) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; xPoints[i] = tri[i].x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yPoints[i] = tri[i].y;<br>&nbsp;&nbsp;&nbsp; }<br><br>&nbsp;&nbsp;&nbsp; g.fillPolygon(xPoints, yPoints, tri.length);<br>}<br>
+      <br>
+// JavaScript<br>
+</span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">this.polygon = function(tri) {</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; this.context.beginPath();</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; this.context.moveTo(tri[0].x, tri[0].y);</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; for(var i = 1; i &lt; tri.length; i++) {</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.context.lineTo(tri[i].x, tri[i].y);</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; this.context.closePath();</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp; this.context.fill();</span><br>
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">};</span><br>
+
+
+      </div><br>
+      以下是使用HTML5 Canvas的方式（如果瀏覽器支援HTML5 Canvas，例如最新版的Firexfox、Chrome、IE9等，可以直接將下面的內容存為HTML或按下檔名連結，直接載入瀏覽器執行觀看結果：<span class="Apple-style-span" style="border-collapse: separate; color: rgb(0, 0, 0); font-family: Arial; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span class="Apple-style-span" style="font-family: serif; font-size: 13px; text-align: left;">
+</span></span>
+      <ul>
+        <li><span class="Apple-style-span" style="border-collapse: separate; color: rgb(0, 0, 0); font-family: Arial; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span class="Apple-style-span" style="font-family: serif; font-size: 13px; text-align: left;"><a href="https://openhome.cc/Gossip/ComputerGraphics/html/ForestCurves-1.html">ForestCurves-1.html</a></span></span></li>
+      </ul>
+      <pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>    &lt;head&gt;<br>        &lt;meta content="text/html; charset=Big5" http-equiv="content-type"&gt;<br>        &lt;script type="text/javascript" src="js/turtle.js"&gt;&lt;/script&gt;<br>        &lt;script type="text/javascript"&gt;<br>            window.onload = function() {<br>                function toRadians(angle) {<br>                    return angle * Math.PI / 180;<br>                }<br>                <br>                var ANGLE = 86.0, K1 = 1.5, K2 = 1.0, LENG = 2.0;<br>                var K = 1.0 / (K1 + 2 *  K2 + <br>                    2 * (K1 +  K2) * Math.cos(toRadians(ANGLE)));<br>                <br>                function woods(leng) {<br>                    if (leng &gt; LENG) {<br>                        turtle.move(leng);<br>                        turtle.warp(-leng);<br>                        <br>                        // 實心倒影<br>                        fillForest(leng); <br>                        <br>                        woods(K * K1 * leng);<br>                        turtle.turn(ANGLE);<br>                        woods(K * K1 * leng);<br>                        turtle.turn(-2 * ANGLE);<br>                        woods(K * K1 * leng);<br>                        turtle.turn(ANGLE);<br>                        woods(K * leng);<br>                        turtle.turn(ANGLE);<br>                        woods(K *  K2 * leng);<br>                        turtle.turn(-2 * ANGLE);<br>                        woods(K *  K2 * leng);<br>                        turtle.turn(ANGLE);<br>                        woods(K *  K2 * leng);<br>                    } else {<br>                        turtle.warp(leng);<br>                    }<br>                } <br>                <br>                function Point(x, y) {<br>                    this.x = x;<br>                    this.y = y;<br>                }<br>                <br>                // 實心倒影<br>                function fillForest(leng) {<br>                    var p = [];<br>                    // 畫主幹<br>                    turtle.warp(K * K1 * leng);<br>                    p[0] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.turn(ANGLE);<br>                    turtle.warp(K * K1 * leng);<br>                    p[1] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.turn(-2 * ANGLE);<br>                    turtle.warp(K * K1 * leng);<br>                    p[2] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.polygon(p);<br>                    <br>                    // 畫右支幹<br>                    turtle.turn(ANGLE);<br>                    turtle.warp(K * leng);<br>                    p[0] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.turn(ANGLE);<br>                    turtle.warp(K * K2 * leng);<br>                    p[1] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.turn(-2 * ANGLE);<br>                    turtle.warp(K * K2 * leng);<br>                    p[2] = new Point(turtle.currentX, turtle.currentY);<br>                    turtle.polygon(p);<br>                    <br>                    // 支幹退回<br>                    turtle.warp(-K * K2 * leng);<br>                    turtle.turn(2 * ANGLE);<br>                    turtle.warp(-K * K2 * leng);<br>                    turtle.turn(-ANGLE);<br>                    turtle.warp(-K * leng);<br>                    turtle.turn(-ANGLE);<br>                    // 主幹退回<br>                    turtle.warp(-K * K1 * leng);<br>                    turtle.turn(2 * ANGLE);<br>                    turtle.warp(-K * K1 * leng);<br>                    turtle.turn(-ANGLE);<br>                    turtle.warp(-K * K1 * leng);<br>                }                <br>                <br>                var canvas1 = document.getElementById('canvas1');<br>                var context = canvas1.getContext('2d');<br><br>                var turtle = new Turtle(context);<br>                <br>                turtle.window(0, 0, canvas1.width, canvas1.height);<br>                <br>                turtle.view(0, 0, canvas1.width, canvas1.height);<br>                turtle.setPoint(10, canvas1.height / 2);<br>                turtle.setAngle(0);<br>                <br>                woods(400);<br>            };<br>        &lt;/script&gt;<br>    &lt;/head&gt;<br>    &lt;body&gt;       <br>        &lt;canvas id="canvas1" width="420" height="400"&gt;&lt;/canvas&gt;<br>    &lt;/body&gt;<br>&lt;/html&gt;<br></code></pre>
+      <span class="Apple-style-span" style="border-collapse: separate; color: rgb(0, 0, 0); font-family: Arial; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span class="Apple-style-span" style="font-family: serif; font-size: 13px; text-align: left;"><br>
+      </span></span>
+
+      下圖為Firefox中的繪圖成果：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/ForestCurves-4.png" /></div></div><br>
+
+      <br>
+
+
+到目前為止所介紹的遞迴繪圖都是在2D平面上，實際上遞迴繪圖在3D空間中也有相當的應用，不過複雜性也因維度的增加而複雜許多，如果有興趣，建議您研究一下 <a href="http://www.drmaster.com.tw/info.asp?no=PG20135">JAVA 2D/3D繪圖程式設計實例應用</a> 書中的3D遞迴繪圖原始碼。<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

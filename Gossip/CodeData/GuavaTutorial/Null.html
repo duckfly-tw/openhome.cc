@@ -1,0 +1,105 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="大多數開發者對 Guava 的認識，是從其中對Java 標準 API 中 Java Collections 框架功能的增強或補充開始，那是 guava-libraries 中的一部份，也就是 Guav...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【Guava 教學】（1）從避免使用 null 開始">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/GuavaTutorial/Null.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="大多數開發者對 Guava 的認識，是從其中對Java 標準 API 中 Java Collections 框架功能的增強或補充開始，那是 guava-libraries 中的一部份，也就是 Guav...">
+
+
+    <title>【Guava 教學】（1）從避免使用 null 開始</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Null.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/GuavaTutorial/">回 Guava Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Guava 教學】（1）從避免使用 null 開始</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            大多數開發者對 <a href="https://code.google.com/p/guava-libraries/">Guava</a> 的認識，是從其中對Java 標準 API 中 Java Collections 框架功能的增強或補充開始，那是 guava-libraries 中的一部份，也就是 Guava Collections，在這部份，Java Collections 框架參與者之一 Joshua Bloch 也曾對其提出相關建議。然而 guava-libraries 不僅僅是 Collections 的功能加強版，它還包括了許多進階特性，甚至有不少設計是借鏡了函數式程式設計的概念，像是不可變動結構、避免 <code>null</code> 等，對不少 Java 傳統開發者而言，這些概念都是新穎而陌生的，也因此無法對其作更進一步的善用。<br>
+      在 guava-libraries 的 <a href="https://code.google.com/p/guava-libraries/wiki/GuavaExplained?tm=6">Wiki</a> 上，一開始就談到了&nbsp;<a
+
+        href="https://code.google.com/p/guava-libraries/wiki/UsingAndAvoidingNullExplained">Using/avoiding null</a>，上頭一開始引用了 Java Collections 群集框架及 JSR166&nbsp;參與者之一&nbsp;Doug Lea 的話：
+      <p style="padding-left: 30px;"><em><strong>"Null sucks."&nbsp;</strong></em></p>
+      接著又引用了圖靈獎得主、快速排序發明者 Tony Hoare，在 <a href="http://qconlondon.com/london-2009/">QCon London 2009</a> 主講<a
+
+        href="http://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare">《Null References: The Billion Dollar Mistake》</a>場次時的一段話：
+      <p style="padding-left: 30px;"><em><strong>"I call it my billion-dollar mistake."</strong></em></p>
+      <code>null</code> 的問題在於含糊而不明確，引發的各種問題從Java 開發者經常在與 <code>NullPointerException</code> 奮戰可見一般，我在&nbsp;<a
+
+        href="http://www.ithome.com.tw/itadm/article.php?c=79039">補救 null 的策略</a> 中談過：
+      <p style="padding-left: 30px;"><strong><code>null</code> 的最根本問題在於語意含糊不清，雖然就字面來說，<code>null</code> 可以是「不存在」、「沒有」、「無」或「空」的概念，因此在應用時，總是令人感到模稜兩可，也就讓開發者有了各自解釋的空間，當開發者想到「嘿！這邊可以沒有東西...」就直接放個 <code>null</code>，或者是想到「嗯！沒什麼東西可以傳回...」，就不假思索地傳回個 <code>null</code>，然後使用者就總是忘了檢查 <code>null</code>，引發各種可能的錯誤。</strong></p>
+      由於 <code>null</code> 的根本問題在於含糊而不明確，要避免使用 <code>null</code> 的方式，就是確認過去使用 <code>null</code> 的時機與目的，並使用明確的語義。在過去使用 <code>null</code> 的情況中，開發者於方法中傳回 <code>null</code>，通常代表著客戶端必須檢查是否為 <code>null</code>，並在 <code>null</code> 的情況下使用預設值，以便後續程式繼續執行。舉個例子來說，如果原先有個 <code>getNickName</code> 方法可傳回 <code>String</code>，而客戶端有以下的執行流程：
+      <pre class="prettyprint"><code lang="java">String nickName = getNickName("Duke");
+if(nickName == null) {
+    nickName = "CodeData User";
+}
+out.println(nickName);</code></pre>
+      如果客戶端忘了檢查 <code>null</code>，那麼就會直接顯示 null，在這個簡單的例子中並不會怎樣，只是顯示結果令人困惑罷了，但如果後續的執行流程牽涉到至關重要的結果，程式快樂地繼續執行下去，錯誤可能到最後才會呈現發生。<br>
+      那麼可將 <code>getNickName</code> 修改使一定會傳回 <code>Optional&lt;String&gt;</code>（在&nbsp;<code>com.google.common.base</code> 套件）實例，但絕不要傳回 <code>null</code>。<code>Optional</code> 的語義是它可能包含也可能不包括值，如果你呼叫直接呼叫它的 <code>get</code> 方法：
+      <pre class="prettyprint"><code lang="java">String nickName = getNickName("Duke").get();
+out.println(nickName);</code></pre>
+      在 <code>Optional</code> 沒有包含值的情況下，就會直接拋出&nbsp;<code>IllegalStateException</code>，這實現了速錯（Fail fast）的概念，這讓開發者可以立即發現錯誤，並瞭解到必須作些檢查，可能的方式之一像是：
+      <pre class="prettyprint"><code lang="java">Optional&lt;String&gt; nick = getNickName("Duke");
+String nickName = nick.isPresent() ? nick.get() : "CodeData User";
+out.println(nickName);</code></pre>
+      不過這看來有點囉嗦，一個比較好的方式可以是：
+      <pre class="prettyprint"><code lang="java">String nickName = getNickName("Duke").or("CodeData User");
+out.println(nickName);</code></pre>
+      在 <code>getNickName</code> 方法內部，原先如果是這樣傳回值：
+      <pre class="prettyprint"><code lang="java">return rs.next() ? rs.getString("nickname") : null;</code></pre>
+      則可以使用 <code>Optional</code> 改為：
+      <pre class="prettyprint"><code lang="java">return rs.next() ? Optional.of(rs.getString("nickname")) : Optional.absent();</code></pre>
+      <code>Optional.of</code> 方法用來建立 <code>Optional</code> 物件包裏 <code>of</code> 的傳入值，而 <code>Optional.absent</code> 建立的 <code>Optional</code> 實例不會包裹任何值，也就是如果你直接呼叫後者建立的 <code>Optional</code> 物件上 <code>get</code> 方法，就會拋出例外。在有值的情況下使用 <code>Optional.of</code>，在原本會傳回 <code>null</code> 的情況下使用 <code>Optional.absent<code>。</code></code><br>
+      當然，過去許多程式庫中使用了不少 <code>null</code>，這些程式庫無法說改就改，Guava 提供了一些銜接程式庫中 <code>null</code> 的方法。例如，如果原先的 <code>getNickName</code> 是你無法修改的，那麼可以這麼修改客戶端：
+      <pre class="prettyprint"><code lang="java">String nickName = Optional.fromNullable(getNickName("Duke")).or("CoDeData User");
+out.println(nickName);</code></pre>
+      <code>Optional.fromNullable</code> 在傳入值為 <code>null</code> 的情況下，傳回的 <code>Optional</code> 實例呼叫其 <code>get</code> 方法，就會拋出錯誤。
+      在 Guava 上還有一些方法，是針對字串而設定，最主要就是讓語義清楚。因為過去對於字串沒有值，各開發者會有各自的表示，因而造成同一個程式中，有可能某些開發者認為字串沒有值時，應該傳回 <code>null</code>，有的開發者則認為空字串才是表示字串沒有值。無論如何，在需要統一的場合中，可以使用 <code>Strings.emptyToNull</code>（<code>Strings</code> 是在 <code>com.google.common.base</code> 套件）、<code>Strings.nullToEmpty</code> 方法。如果程式中想統一字串沒有值時，必須是 <code>null</code>，那麼可在原本採用空字串的地方呼叫&nbsp;<code>Strings.emptyToNull("")</code>，反之，若想統一字串沒有值時一律以空字串表示，那麼就使用 <code>Strings.nullToEmpty(null)</code>。<br>
+      現在，你可以進一步看看 Guava 的 Wiki 上&nbsp;<a href="https://code.google.com/p/guava-libraries/wiki/UsingAndAvoidingNullExplained">Using/avoiding null</a>&nbsp;說的是怎麼一回事了。所以你知道嗎？JDK8 中也會有個 <code>Optional</code>！<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

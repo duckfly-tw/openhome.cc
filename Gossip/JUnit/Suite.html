@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在 使用 TestSuite 中介紹過，JUnit 3.x中，你可以使用TestSuite
+來組織測試，如果你的測試案例類別中有個suite()方法，那TestRunner會使用它所傳回的TestS...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="使用 Suite">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/Suite.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在 使用 TestSuite 中介紹過，JUnit 3.x中，你可以使用TestSuite
+來組織測試，如果你的測試案例類別中有個suite()方法，那TestRunner會使用它所傳回的TestS...">
+
+
+    <title>使用 Suite</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Suite.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 Suite</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在 <a href="TestSuite.html">使用 TestSuite</a> 中介紹過，JUnit 3.x中，你可以使用<span style="font-family: Courier New,Courier,monospace;">TestSuite
+來組織測試，如果你的測試案例類別中有個suite()方法，那TestRunner會使用它所傳回的TestSuite實例來運行測試，如果你的測試案
+例類別中沒有suite()方法，那麼TestRunner會為你建立TestSuite實例，尋找你的測試案例類別中所有testXXX()方法進行測
+試。</span><br>
+      <br>
+在JUnit 4.x中，會使用Suite來組織測試，但並非透過<span style="font-family: Courier New,Courier,monospace;">suite()</span>方法的定義，預設上，JUnit 4的<span style="font-family: Courier New,Courier,monospace;">Runner</span>會自動建立預設的<span style="font-family: Courier New,Courier,monospace;">Suite</span>，運用反射尋找所有具<span style="font-family: Courier New,Courier,monospace;">@Test</span>標註的方法，為每個方法建立測試類別實例並執行。<br>
+      <br>
+如果你想要一次運行某個套件中所有的測試類別，在IDE中有個簡便的方式，例如在Eclipse中，就是在套件上按右鍵，執行「Run As/JUnit Test」，IDE中的JUnit 4 runner，會自動尋找所有類別中是否有相關標註並執行測試。<br>
+      <br>
+你也許想要自行組織某幾個測試類別一同測試，這時可以使用<span style="font-family: Courier New,Courier,monospace;">Suite</span>來組織。例如：<br>
+
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">package cc.openhome;</span><br>
+      <span style="font-weight: bold;">import org.junit.runner.RunWith;</span><br>
+      <span style="font-weight: bold;">import org.junit.runners.Suite;</span><br>
+      <span style="font-weight: bold;">import org.junit.runners.Suite.SuiteClasses;</span><br>
+      <span style="font-weight: bold;">@RunWith(value = Suite.class)</span><br>
+      <span style="font-weight: bold;">@SuiteClasses(value={CalculatorTest.class,</span><span style="font-weight: bold;"> ComputerTest.class})</span><br>
+      <span style="font-weight: bold;">public class CalculatorComputerSuite {</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+      這會將兩個測試類別組織在一起測試。例如在Eclipse中，若於原始碼上按右鍵，執行「Run As/JUnit Test」，則結果如下：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/Suite-1.png" /></div></div><br>
+      <br>
+如果某些類別是作為組織其它測試類別的Suite類別，則也可以再將這些Suite類別再組織在一起。例如：<br>
+
+      <div style="margin-left: 40px;">package cc.openhome;<br>
+      import org.junit.runner.RunWith;<br>
+      import org.junit.runners.Suite;<br>
+      import org.junit.runners.Suite.SuiteClasses;<br>
+      @RunWith(value = Suite.class)<br>
+      @SuiteClasses(value={CalculatorComputerSuite.class, OtherSuite.class})<br>
+      public class AllSuite {<br>
+      }<br>
+      </div>
+      <br>
+      在Eclipse中運行的畫面如下：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/Suite-2.png" /></div></div><br>
+      
+      <br>
+Suite也可以結合JUnit 3的測試案例一同測試，如果JUnit 3的測試案例沒有定義suite()，則會自動建立TestSuite實例並找出所有testXXX()方法，如果JUnit 3的測試案例定義有suite()，就會使用傳回的TestSuite進行測試。例如若你有個JUnit 3測試案例：<br>
+      
+      <div style="margin-left: 40px;">package cc.openhome;<br>
+      import junit.framework.Test;<br>
+      import junit.framework.TestCase;<br>
+      import junit.framework.TestSuite;<br>
+      public class SomeTest extends TestCase {<br>
+      &nbsp;&nbsp;&nbsp; public void testSome() {<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // 作一些測試<br>
+      &nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp; public static Test suite() {<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; TestSuite suite = new TestSuite("JUnit 3 - SomeTest");<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; suite.addTestSuite(SomeTest.class);<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return suite;<br>
+      &nbsp;&nbsp;&nbsp; }<br>
+      }<br>
+      </div>
+      <br>
+      
+      若寫了以下的JUnit 4，組織先前的<span style="font-family: Courier New,Courier,monospace;">CalculatorComputerSuite與上面的SomeTest也是可行的：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">package cc.openhome;</span><br>
+      <span style="font-weight: bold;">import org.junit.runner.RunWith;</span><br>
+      <span style="font-weight: bold;">import org.junit.runners.Suite;</span><br>
+      <span style="font-weight: bold;">import org.junit.runners.Suite.SuiteClasses;</span><br>
+      <span style="font-weight: bold;">@RunWith(value = Suite.class)</span><br>
+      <span style="font-weight: bold;">@SuiteClasses(value={CalculatorComputerSuite.class, SomeTest.class})</span><br>
+      <span style="font-weight: bold;">public class AllSuite {</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      </span>
+      在Eclipse中的畫面如下：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/Suite-3.png" /></div></div><br>
+      <br>
+      <br>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

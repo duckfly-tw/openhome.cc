@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="我喜歡用程式碼來從事 3D 建模，由於程式碼本身易於描述規律，具有規律性的迷宮建造，自然就是創作的靈感來源之一，我搭建過多種不同類型的迷宮。 文字模">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Builder（Gof）" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/creational/builder-gof/" />
+    <meta property="og:description" content="我喜歡用程式碼來從事 3D 建模，由於程式碼本身易於描述規律，具有規律性的迷宮建造，自然就是創作的靈感來源之一，我搭建過多種不同類型的迷宮。 文字模" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Builder（Gof）" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/creational/builder-gof/" />
+    <meta name="twitter:description" content="我喜歡用程式碼來從事 3D 建模，由於程式碼本身易於描述規律，具有規律性的迷宮建造，自然就是創作的靈感來源之一，我搭建過多種不同類型的迷宮。 文字模" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443693" type="image/x-icon">
+    <title> 漫談模式  :: Builder（Gof）</title>
+    <link href="../../../css/nucleus.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443693.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443693"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/creational/builder-gof/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item parent"><a href="../index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item active"><a href="index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item"><a href="../../behavioral/index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../../behavioral/template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../../behavioral/chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../../behavioral/command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../../behavioral/iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../../behavioral/strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../../behavioral/observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../../behavioral/state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../../behavioral/visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../../behavioral/interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../../behavioral/memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../../behavioral/mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item"><a href="../../functional/index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../../functional/immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../../functional/pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="../../functional/map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../../functional/filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../../functional/reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../../functional/flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">創建式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Builder（Gof）</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#文字模式迷宮">文字模式迷宮</a></li>
+    <li><a href="index.html#分離流程表現">分離流程／表現</a></li>
+    <li><a href="index.html#stringbuilder">StringBuilder？</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/builder/">builder</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/separation-of-concerns/">separation of concerns</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/immutable/">immutable</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/gof/">Gof</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/design-pattern/">design pattern</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Builder（Gof）</h1>
+
+ <i class="space fa fa-calendar"> December 23, 2021</i> 
+<p>我喜歡用程式碼來從事 3D 建模，由於程式碼本身易於描述規律，具有規律性的迷宮建造，自然就是創作的靈感來源之一，我搭建過<a href="https://www.thingiverse.com/justinsdk/collections/maze-generator">多種不同類型的迷宮</a>。</p>
+<h2 id="文字模式迷宮">文字模式迷宮</h2>
+<p>如果你對迷宮的規律有興趣，可以參考〈<a href="../../../../Gossip/P5JS/index.html">玩轉 p5.js</a>〉中有關迷宮的介紹，這邊呢&hellip;就用迷宮來作為案例好了，如果你想建個簡單的文字模式迷宮：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> R <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> <span style="color:#75715e">// 通道
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> O <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span> <span style="color:#75715e">// 障礙
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> T <span style="color:#f92672">=</span> 2<span style="color:#f92672">;</span> <span style="color:#75715e">// 寶物
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">...</span> 一些迷宮演算法<span style="color:#960050;background-color:#1e0010">，</span>產生 cells 資料
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        var cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var row <span style="color:#f92672">:</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var cell <span style="color:#f92672">:</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> R<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> O<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;x&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> T<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>               		System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;$&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>上面的範例中，用了 x 等符號來表示迷宮中每個區塊，如果今天你想改用其他符號呢？修改 <code>Main</code>？如果你想建立更多不同外觀的迷宮呢？繼續修改 <code>Main</code>？</p>
+<h2 id="分離流程表現">分離流程／表現</h2>
+<p>我能有許多迷宮作品的原因在於，迷宮的建構流程往往是類似的，只是外觀表現上不同，若想要分離流程與表現，首先得辨識最後想要取得的表現是什麼，因此先來重構一下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> R <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> <span style="color:#75715e">// 通道
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> O <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span> <span style="color:#75715e">// 障礙
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> T <span style="color:#f92672">=</span> 2<span style="color:#f92672">;</span> <span style="color:#75715e">// 寶物
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">...</span> 一些迷宮演算法<span style="color:#960050;background-color:#1e0010">，</span>產生 cells 資料
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        var cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        var buffer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuffer<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var row <span style="color:#f92672">:</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var cell <span style="color:#f92672">:</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> R<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> O<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;x&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> T<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;$&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>因為這是文字模式迷宮，最後的迷宮表現是要送到標準輸出，也就是說，字串就是最後的迷宮表現，接著，為了能替換建立表現的物件，來進一步重構：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">MazeBuilder</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">road</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">obstacle</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">treasure</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextRow</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	String <span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleMazeBuilder</span> <span style="color:#66d9ef">implements</span> MazeBuilder <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	StringBuffer buffer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuffer<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">road</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">obstacle</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;x&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">treasure</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;$&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextRow</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> buffer<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Maze</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> R <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> <span style="color:#75715e">// 通道
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> O <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span> <span style="color:#75715e">// 障礙
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> T <span style="color:#f92672">=</span> 2<span style="color:#f92672">;</span> <span style="color:#75715e">// 寶物
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> cells<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	Maze <span style="color:#a6e22e">generate</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">...</span> 一些迷宮演算法<span style="color:#960050;background-color:#1e0010">，</span>產生 cells 資料
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> T<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> R<span style="color:#f92672">,</span> O<span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">{</span>O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">,</span> O<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">render</span><span style="color:#f92672">(</span>MazeBuilder builder<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var row <span style="color:#f92672">:</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var cell <span style="color:#f92672">:</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> R<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		builder<span style="color:#f92672">.</span><span style="color:#a6e22e">road</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> O<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            	    builder<span style="color:#f92672">.</span><span style="color:#a6e22e">obstacle</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#66d9ef">case</span> T<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            		builder<span style="color:#f92672">.</span><span style="color:#a6e22e">treasure</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            		<span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            builder<span style="color:#f92672">.</span><span style="color:#a6e22e">nextRow</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>builder<span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var maze <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Maze<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        maze<span style="color:#f92672">.</span><span style="color:#a6e22e">generate</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">render</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> SimpleMazeBuilder<span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><code>MazeBuilder</code> 規範了迷宮建造各區塊時可用的方法，<code>Maze</code> 的 <code>render</code> 規範了建造迷宮的流程，過程中使用 <code>MazeBuilder</code> 實例建造各區塊，在最後透過 <code>build</code> 取得迷宮的表現，送至標準輸出；如果想要其他的迷宮表現，例如用全形字元來表示各區塊，就實作 <code>MazeBuilder</code> 並指定給 <code>render</code> 方法。</p>
+<p>就模式名稱而言，這是 Gof 書中的 Builder 模式，歸類在創建模式之中，因為指示 builder 打造各部位後，最後才創建了表現物件，通常最後的表現物件會是不可變動（immutable），畢竟建造過程你已經指示了表現物件，最終應該處於哪個狀態。</p>
+<h2 id="stringbuilder">StringBuilder？</h2>
+<p>方才的範例中，我特別使用了 <code>StringBuffer</code>，如果你熟悉 Java，可能會想為什麼不使用 <code>StringBuilder</code>？嗯？為什麼 <code>StringBuilder</code> 名稱會有 builder 字樣？</p>
+<p>這就是我一開始特別不使用 <code>StringBuilder</code> 的原因，<code>StringBuilder</code> 本身就是 Builder 模式中的 builder 角色，可以依你的指示建立最後的字串，實際上 <code>StringBuffer</code> 也實現了 builder 角色，畢竟 <code>StringBuilder</code>、<code>StringBuffer</code> 在 API 上是一致的，<code>append</code> 等方法就是建立字串各部位的方法，<code>toString</code> 就是最後取得字串表現的方法。</p>
+<p>一開始特別不使用 <code>StringBuilder</code> 是避免混淆想封裝的對象，對文字模式迷宮而言，最後的表現雖然使用了字串，實際上想封裝的對象是使用哪個符號代表哪個類型的區塊。</p>
+<p>那麼就原則而言，這個模式實現了哪個呢？喔！這沒有標準答案，原則是用來思考的，也是必須依需求來判定的，例如，這邊談到了分離流程／表現，流程與表現都是關心的對象，要將之分離，是因為什麼呢？今天與明天你實作的東西不同？朋友或同事跟你合作，而你們各自實作流程、表現？你現在關心什麼？一個月後關心什麼？你在意什麼？合作夥伴又負責什麼呢？</p>
+<p>這一連串問句，是從關注分離的原則來看，之前的文件中還談過其他原則，該怎麼思考？是否符合原則？那是你自己要依情境判定的！</p>
+<p>話說，為什麼這邊要特別在標題上強調 Gof 呢？雖說模式的名稱是用來溝通的，不過程式設計領域，名詞往往是沒有標準定義的，很容易有重疊，很容易模擬兩可，你可能也看過 API 中一些以 Builder 為名，然而跟這邊看的角度不同，因而會有「你的 Builder 不是我的 Builder」 的狐疑。</p>
+<p>這很正常啊！Gof 談過 Builder，《Effective Java》也談過 Builder，兩者都叫 Builder，概念上有一些重疊，然而關注的點卻又不一樣！這就在〈<a href="../builder-effective-java/index.html">Builder（Effective Java）</a>〉中再聊了&hellip;</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/creational/builder-gof/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/creational/builder-gof/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aBuilder%ef%bc%88Gof%ef%bc%89&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2fcreational%2fbuilder-gof%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../abstract-factory/index.html" title="Abstract Factory"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../builder-effective-java/index.html" title="Builder（Effective Java）"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443693"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443693"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443693"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443693"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443693"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443693"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443693"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443693"></script>
+  </body>
+</html>

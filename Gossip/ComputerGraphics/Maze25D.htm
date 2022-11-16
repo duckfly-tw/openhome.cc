@@ -1,0 +1,127 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="這個程式就不多作解釋了，所有的觀念前面都講過了，繪圖時使用迴圈走訪陣列，所以深度問題也自然獲得解決，連結 看看效果。 
+
+
+
+
+
+
+
+
+
+      
+      
+
+   ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="迷宮（斜角地圖實例）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/ComputerGraphics/Maze25D.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="這個程式就不多作解釋了，所有的觀念前面都講過了，繪圖時使用迴圈走訪陣列，所以深度問題也自然獲得解決，連結 看看效果。 
+
+
+
+
+
+
+
+
+
+      
+      
+
+   ...">
+
+
+    <title>迷宮（斜角地圖實例）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Maze25D.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回電腦圖學</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>迷宮（斜角地圖實例）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+
+
+
+這個程式就不多作解釋了，所有的觀念前面都講過了，繪圖時使用迴圈走訪陣列，所以深度問題也自然獲得解決，<a href="https://openhome.cc/Gossip/ComputerGraphics/applet/Maze25D.html">連結</a> 看看效果。 <br>
+
+
+
+
+
+
+
+
+
+      
+      <ul>
+
+        <li> Maze25D.java </li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code>package cc.openhome;<br><br>import java.awt.*;<br>import java.awt.event.KeyEvent;<br>import java.awt.event.KeyListener;<br>import javax.swing.JApplet;<br><br>public class Maze25D extends JApplet implements KeyListener {<br>    // 1: Wall 2: Penguin<br>    private int[][] maze = {<br>        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},<br>        {0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1},<br>        {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1},<br>        {1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1},<br>        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},<br>        {1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1},<br>        {1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1},<br>        {1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1},<br>        {1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1},<br>        {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1},<br>        {1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1},<br>        {1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1},<br>        {1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},<br>        {1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},<br>        {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},<br>        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};<br>    <br>    private Image offScreen, lawnImage;<br>    private Image block, floor, character2;<br>    private Sprite25D sprite;<br>    private int halfWidth, halfHeight;<br>    private int startX, startY;<br>    private int characterImageX;<br>    private Graphics gOffScreen;<br><br>    public void init() {<br>        addKeyListener(this);<br><br>        setBackground(Color.white);<br><br>        //取得影像<br>        MediaTracker mediaTracker = new MediaTracker(this);<br>        floor = getImage(getDocumentBase(), "floor.gif");<br>        block = getImage(getDocumentBase(), "block3.gif");<br>        character2 = getImage(getDocumentBase(), "character2.gif");<br>        mediaTracker.addImage(floor, 0);<br>        mediaTracker.addImage(block, 0);<br>        mediaTracker.addImage(character2, 0);<br><br>        try {<br>            showStatus("影像載入中(Loading Images)...");<br>            mediaTracker.waitForAll();<br>        } catch (InterruptedException e) {<br>            e.printStackTrace();<br>        }<br><br>        //建立次畫面<br>        lawnImage = createImage(getWidth(), getHeight());<br>        Graphics lawnGraphics = lawnImage.getGraphics();<br><br>        offScreen = createImage(getWidth(), getHeight());<br>        gOffScreen = offScreen.getGraphics();<br><br>        halfWidth = floor.getWidth(this) / 2;<br>        halfHeight = floor.getHeight(this) / 2;<br><br>        startX = getWidth() / 2;<br>        startY = getHeight() / 8;<br><br>        // 繪製地板<br>        for (int j = 0; j &lt; maze.length; j++) {<br>            for (int i = 0; i &lt; maze[0].length; i++) {<br>                int x = startX - i * halfWidth + j * halfWidth;<br>                int y = startY + i * halfHeight + j * halfHeight;<br>                lawnGraphics.drawImage(floor, x, y, this);<br>            }<br>        }<br><br>        sprite = new Sprite25D(0, 1, maze);<br><br>        new Thread() {<br>            public void run() {<br>                while (true) {<br>                    repaint();<br>                    // 人物走動動畫<br>                    characterImageX += 50;<br>                    if (characterImageX &gt;= 300) {<br>                        characterImageX = 0;<br>                    }<br>                    try {<br>                        Thread.sleep(250);<br>                    } catch (InterruptedException e) {<br>                        e.printStackTrace();<br>                    }<br>                }<br>            }<br>        }.start();<br>    }<br><br>    public void update(Graphics g) {<br>        paint(g);<br>    }<br><br>    public void paint(Graphics g) {<br>        gOffScreen.drawImage(lawnImage, 0, 0, this);<br><br>        // 繪製牆與人物<br>        for (int j = 0; j &lt; maze.length; j++) {<br>            for (int i = 0; i &lt; maze[0].length; i++) {<br>                int x = startX - i * halfWidth + j * halfWidth;<br>                int y = startY - 10 + i * halfHeight + j * halfHeight;<br><br>                if (maze[i][j] == 1) {<br>                    gOffScreen.drawImage(block, x, y, this);<br>                }<br><br>                if (sprite.getX() == j &amp;&amp;<br>                        sprite.getY() == i) {<br>                    gOffScreen.drawImage(character2,<br>                            x, y, x + 25, y + 25,<br>                            characterImageX, 0,<br>                            characterImageX + 50, 50, this);<br>                }<br>            }<br>        }<br>        //將次畫面貼到主畫面中<br>        g.drawImage(offScreen, 0, 0, this);<br>    }<br><br>    //=====實作KeyListener介面 =====<br>    public void keyPressed(KeyEvent e) {<br>        switch (e.getKeyCode()) {<br>            case KeyEvent.VK_RIGHT:<br>                sprite.moveUp();<br>                break;<br>            case KeyEvent.VK_LEFT:<br>                sprite.moveDown();<br>                break;<br>            case KeyEvent.VK_UP:<br>                sprite.moveLeft();<br>                break;<br>            case KeyEvent.VK_DOWN:<br>                sprite.moveRight();<br>                break;<br>        }<br><br>        repaint();<br>    }<br><br>    public void keyReleased(KeyEvent e) {}<br>    public void keyTyped(KeyEvent e) {}<br>}<br><br>class Sprite25D {<br>    private int i, j;<br>    private int maze[][];<br><br>    Sprite25D(int x, int y, int[][] maze) {<br>        this.i = y;<br>        this.j = x;<br>        this.maze = maze;<br>    }<br><br>    void moveUp() {<br>        if (isMovable(i - 1, j)) {<br>            i--;<br>        }<br>    }<br><br>    void moveDown() {<br>        if (isMovable(i + 1, j)) {<br>            i++;<br>        }<br>    }<br><br>    void moveRight() {<br>        if (isMovable(i, j + 1)) {<br>            j++;<br>        }<br>    }<br><br>    void moveLeft() {<br>        if (isMovable(i, j - 1)) {<br>            j--;<br>        }<br>    }<br><br>    private boolean isMovable(int i, int j) {<br>        if (i &lt; 0 || j &lt; 0 || j &gt;= maze[0].length ||<br>                i &gt;= maze.length) {<br>            return false;<br>        }<br><br>        if (maze[i][j] == 0) {<br>            return true;<br>        } else {<br>            return false;<br>        }<br>    }<br><br>    public int getX() {<br>        return j;<br>    }<br><br>    public int getY() {<br>        return i;<br>    }<br>}<br></code></pre><br>以下是使用HTML5 Canvas的方式（如果瀏覽器支援HTML5 Canvas，例如最新版的Firexfox、Chrome、IE9等，可以直接將下面的內容存為HTML或按下檔名連結，直接載入瀏覽器執行觀看結果：<br>
+      
+      <ul>
+        <li><a href="https://openhome.cc/Gossip/ComputerGraphics/html/Map25D-1.html">Maze25D-1.html</a></li>
+      </ul>
+      <pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>    &lt;head&gt;<br>        &lt;meta content="text/html; charset=Big5" http-equiv="content-type"&gt;<br>        &lt;script type="text/javascript"&gt;<br>            window.onload = function() {<br>                var maze = [<br>        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],<br>        [0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1],<br>        [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1],<br>        [1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1],<br>        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],<br>        [1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1],<br>        [1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1],<br>        [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1],<br>        [1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],<br>        [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1],<br>        [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1],<br>        [1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],<br>        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],<br>        [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],<br>        [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],<br>        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];<br>            <br>                function Sprite(x, y, maze) {<br>                    var i = y;<br>                    var j = x;<br>    <br>                    function isMovable(i, j) {<br>                        if (i &lt; 0 || j &lt; 0 || j &gt;= maze[0].length ||<br>                                i &gt;= maze.length) {<br>                            return false;<br>                        }<br><br>                        if (maze[i][j] == 0) {<br>                            return true;<br>                        }<br>                        return false;<br>                    }<br>    <br>                    this.moveUp = function() {<br>                        if (isMovable(i - 1, j)) {<br>                            i--;<br>                        }<br>                    };<br><br>                    this.moveDown = function() {<br>                        if (isMovable(i + 1, j)) {<br>                            i++;<br>                        }<br>                    };<br><br>                    this.moveRight = function() {<br>                        if (isMovable(i, j + 1)) {<br>                            j++;<br>                        }<br>                    };<br><br>                    this.moveLeft = function() {<br>                        if (isMovable(i, j - 1)) {<br>                            j--;<br>                        }<br>                    };<br>    <br>                    this.getX = function() {<br>                        return j;<br>                    };<br><br>                    this.getY = function() {<br>                        return i;<br>                    };<br>                }            <br>            <br>                var sprite = new Sprite(0, 1, maze);<br>                <br>                var character = document.getElementById('character');<br>                var floor = document.getElementById('floor');<br>                var block = document.getElementById('block');<br>                document.body.removeChild(character);<br>                document.body.removeChild(floor);<br>                document.body.removeChild(block);<br>                <br>                var canvas1 = document.getElementById('canvas1');<br>                var canvas2 = document.getElementById('canvas2');<br>                var context1 = canvas1.getContext('2d');<br>                var context2 = canvas2.getContext('2d');<br>                <br>                document.body.removeChild(canvas2);<br>                <br>                var halfWidth = 32 / 2;    // 地板圖片寬 32<br>                var halfHeight = 16 / 2;   // 地板圖片高 16<br><br>                var startX = canvas1.width / 2;<br>                var startY = canvas2.width / 8;<br>                <br>                var characterImageX = 0;<br>                <br>                var context = context2;<br>                <br>                // 繪製地板                <br>                function drawFloor() {<br>                    for(var j = 0; j &lt; maze.length; j++) {<br>                        for (var i = 0; i &lt; maze[0].length; i++) {<br>                            var x = startX - i * halfWidth + j * halfWidth;<br>                            var y = startY + i * halfHeight + j * halfHeight;<br>                            context.drawImage(floor, x, y);<br>                        }<br>                    }                <br>                }<br>                <br>                // 繪製牆與人物<br>                function drawBlockAndCharacter() {<br>                    for(var j = 0; j &lt; maze.length; j++) {<br>                        for (var i = 0; i &lt; maze[0].length; i++) {<br>                            var x = startX - i * halfWidth + j * halfWidth;<br>                            var y = startY - 10 + <br>                                   i * halfHeight + j * halfHeight;<br><br>                            if(maze[i][j] == 1) {<br>                                context.drawImage(block, x, y);<br>                            }<br><br>                            if (sprite.getX() == j &amp;&amp;<br>                                sprite.getY() == i) {<br>                                context.drawImage(character,<br>                                            characterImageX, 0, 50, 50,<br>                                            x, y, 25, 25);<br>                            }<br>                        }                <br>                    }<br>                }<br><br>               document.onkeydown = function(event) {<br>                    switch (event.which) {<br>                        case 39: // 右<br>                            sprite.moveUp();<br>                            break;<br>                        case 37: // 左    <br>                            sprite.moveDown();<br>                            break;<br>                       case 38: // 上<br>                            sprite.moveLeft();<br>                            break;<br>                       case 40: // 下<br>                            sprite.moveRight();<br>                            break;<br>                    }<br>                };<br>                <br>                setTimeout(function() {<br>                    drawFloor();<br>                    drawBlockAndCharacter();<br><br>                    if(context === context2) {<br>                        document.body.replaceChild(canvas2, canvas1);<br>                        context = context1;<br>                    }<br>                    else {<br>                        document.body.replaceChild(canvas1, canvas2);<br>                        context = context2;<br>                    }<br>                    <br>                    context.clearRect(0, 0, canvas1.width, canvas1.height);<br>                    <br>                    characterImageX += 50;<br>                    if (characterImageX &gt;= 300) {<br>                        characterImageX = 0;<br>                    }<br>                    <br>                    setTimeout(arguments.callee, 250);<br>                }, 250);<br>            };<br>        &lt;/script&gt;<br>    &lt;/head&gt;<br>    &lt;body&gt;       <br>        &lt;canvas id="canvas1" width="600" height="400"&gt;&lt;/canvas&gt;<br>        &lt;canvas id="canvas2" width="600" height="400"&gt;&lt;/canvas&gt;<br>        &lt;img id="character" src="images/character2.gif" <br>                            style="visibility: hidden"/&gt;<br>        &lt;img id="floor" src="images/floor.gif" <br>                            style="visibility: hidden"/&gt;<br>        &lt;img id="block" src="images/block3.gif" <br>                            style="visibility: hidden"/&gt;<br>    &lt;/body&gt;<br>&lt;/html&gt;<br></code></pre>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

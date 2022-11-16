@@ -1,0 +1,216 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="【Guava 教學】（3）高階排序概念的實現&nbsp;&lt;&lt; 前情
+      如果你建立了一個 Point 類別：
+      public class Point {
+    p...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【Guava 教學】（4）實作 toString、equals 與 hashCode 的幫手">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/GuavaTutorial/ToStringEqualsHashCode.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="【Guava 教學】（3）高階排序概念的實現&nbsp;&lt;&lt; 前情
+      如果你建立了一個 Point 類別：
+      public class Point {
+    p...">
+
+
+    <title>【Guava 教學】（4）實作 toString、equals 與 hashCode 的幫手</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ToStringEqualsHashCode.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/GuavaTutorial/">回 Guava Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Guava 教學】（4）實作 toString、equals 與 hashCode 的幫手</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             <br>
+      如果你建立了一個 <code>Point</code> 類別：
+      <pre class="prettyprint"><code lang="java">public class Point {
+    public Integer x;
+    public Integer y;
+    public Point(Integer x, Integer y) {
+        this.x = x;
+        this.y = y;
+    }
+}</code></pre>
+      並且用它來產生了一些 <code>Point</code> 實例並收集起來，然後在某個時候，打算顯示一下目前收集了哪個點：
+      <pre class="prettyprint"><code lang="java">List&lt;Point&gt; points = Arrays.asList(new Point(1, 1), new Point(2, 2));
+out.println(points);</code></pre>
+      執行結果只會顯示[guavademo.Point@139a55, guavademo.Point@1db9742]這種資訊，真的是沒什麼用，這就是為什麼你要定義 <code>toString</code> 方法。現代 IDE 有些會支援直接產生 <code>toString</code>，例如可以用 NetBeans 的 Insert Code 來產生如下的 <code>toString</code>：
+      <pre class="prettyprint"><code lang="java">public class Point {
+    ...
+    @Override
+    public String toString() {
+        return "Point{" + "x=" + x + ", y=" + y + '}';
+    }
+}</code></pre>
+      IDE 幫你產生是不錯，不過要自己寫這些就不怎麼高興了，而且讀來也不怎麼好讀，改用 <code>String.format</code> 會好一些些：
+      <pre class="prettyprint"><code lang="java">public class Point {
+    ...
+    @Override
+    public String toString() {
+        return String.format("Point{x=%d, y=%d}", x, y);
+    }
+}</code></pre>
+      不過自己做字串格式化終究還是蠻麻煩的，你可以改用 Guava 的 <code>Objects.toStringHelper</code> 試試：
+      <pre class="prettyprint"><code lang="java">import com.google.common.base.Objects;
+public class Point {
+    ...
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                      .add("x", x)
+                      .add("y", y)
+                      .toString();
+    }
+}</code></pre>
+      除了產生 <code>toString</code> 的幫手之外，Guava 在比較物件時也提供了 <code>Objects.equal</code>，這東西與 JDK7 的 <code>Objects.equals</code> 是相同作用的，如果你使用 JDK6 或之前的版本，則可以試試 Guava 的。怎麼用呢？因為 <code>Objects.equal</code> 蠻簡單的，單純解釋它沒意思，重點還是在於怎麼寫出正確的 <code>equals</code> 比較重要，那藉這個機會重新闡述一下 <a
+
+        href="http://www.codedata.com.tw/java/object-equality-1/">物件相等性（上）</a> 這篇文章裏頭的一些東西好了，將裏頭第二個 <code>Point</code> 類別的定義改寫如下：
+      <pre class="prettyprint"><code lang="java">import com.google.common.base.Objects;
+
+public class Point {
+    public Integer x;
+    public Integer y;
+    public Point(Integer x, Integer y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                      .add("x", x)
+                      .add("y", y)
+                      .toString();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if(that instanceof Point) {
+            Point p = (Point) that;
+            return x.equals(p.x) &amp;&amp; y.equals(p.y);
+        }
+        return false;
+    }
+}</code></pre>
+      不過，這個 <code>equals</code> 並不安全，如果 <code>x</code> 或 <code>y</code> 是 <code>null</code> 的話，那麼就會噴出 <code>NullPointerException</code> 了，自行加些 <code>x</code> 與 <code>y</code> 是否為 <code>null</code> 的檢查是可以，不過我知道有 <code>Objects.equal</code> 可以協助，為什麼不拿來用？
+      <pre class="prettyprint"><code lang="java">...
+public class Point {
+    ...
+    @Override
+    public boolean equals(Object that) {
+        if(that instanceof Point) {
+            Point p = (Point) that;
+            return Objects.equal(x, p.x) &amp;&amp; Objects.equal(y, p.y);
+        }
+        return false;
+    }
+}</code></pre>
+      <code>Object.equal</code> 的原始碼很簡單，會幫你判斷參考與 <code>null</code>：
+      <pre class="prettyprint"><code lang="java">...
+  public static boolean equal(@Nullable Object a, @Nullable Object b) {
+    return a == b || (a != null &amp;&amp; a.equals(b));
+  }
+...</code></pre>
+      你可以使用目前的 <code>Point</code> 做相等性測試看看，像是 <code>new Point(1, 1).equals(new Point(1, 1))</code>，結果應該會是 <code>true</code>，那如果是以下的程式碼呢？
+      <pre class="prettyprint"><code lang="java">Point p1 = new Point(1, 1);
+Point p2 = new Point(1, 1);
+Set&lt;Point&gt; pSet = new HashSet&lt;&gt;();
+pSet.add(p1);
+out.println(pSet.contains(p2));    // 可能顯示 false</code></pre>
+      如果上例結果顯示 <code>false</code>，並不用訝異，因為你在重新定義 <code>equals</code> 時，並沒有重新定義 <code>hashCode</code>。在許多場合，例如將物件加入群集 （Collection）時，會同時利用 <code>equals</code> 與 <code>hashCode</code> 來判斷是否加入的是（實質上）相同的物件。在 <a
+
+        href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#hashCode%28%29">Object 的 hashCode() 說明</a> 指出：
+      <ul>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">在同一個應用程式執行期間，對同一物件呼叫 <code>hashCode</code> 方法，必須回傳相同的整數結果。</span></li>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">如果兩個物件使用 <code>equals(Object)</code> 測試結果為相等, 則這兩個物件呼叫 <code>hashCode</code> 時，必須獲得相同的整數結果。</span></li>
+        <li><span style="line-height: 1.714285714; font-size: 1rem;">如果兩個物件使用 <code>equals(Object)</code> 測試結果為不相等, 則這兩個物件呼叫 <code>hashCode</code> 時，可以獲得不同的整數結果。</span></li>
+      </ul>
+      以 <code>HashSet</code> 為例，會先使用 <code>hashCode</code> 得出該將物件放至哪個雜湊桶（Hash buckets）中，如果雜湊桶有物件，再進一步使用 <code>equals</code> 確定實質相等性，從而確定 <code>Set</code> 中不會有重複的物件。上例中說可能會顯示<code>false</code> ，是因為若湊巧物件 <code>hashCode</code> 算出在同一個雜湊桶，再進一步用 <code>equals</code> 就有可能出現 <code>true</code>。<br>
+      在重新定義 <code>equals</code> 時，最好重新一併重新定義 <code>hashCode</code>。只是 <code>hashCode</code> 該怎麼算呢？算出來的雜湊碼最好是儘量別重複，以免引起雜湊碰撞（Hash collision），過多的雜湊碰撞可能會有效能問題，甚至增加&nbsp;<a
+
+        href="https://www.google.com/search?q=hash+collision+dos&amp;oq=hash+collision+dos&amp;aqs=chrome.0.57j59l2j0j62l2.5746j0&amp;sourceid=chrome&amp;ie=UTF-8">hash collision dos</a> 的可能性。<br>
+      IDE 產生的 <code>hashCode</code> 通常比較簡單，例如&nbsp;<a href="http://www.codedata.com.tw/java/object-equality-1/">物件相等性（上）</a> 中的 <code>hashCode</code> 實作，是舊版 NetBeans IDE 自動產生的程式碼：
+      <pre class="prettyprint"><code lang="java">...
+    @Override
+    public int hashCode() {
+        return 41 * (41 + x) + y;
+    }
+...</code></pre>
+      <span style="line-height: 1.714285714; font-size: 1rem;">如果使用 JDK7，那麼可以用 </span><code
+
+        style="line-height: 1.714285714;">Objects.hash</code><span style="line-height: 1.714285714; font-size: 1rem;"> 來協助產生，如果是 JDK6 或先前版本，則可以使用 Guava 的 </span><code
+
+        style="line-height: 1.714285714;">Objects.hashCode</code><span style="line-height: 1.714285714; font-size: 1rem;">：</span>
+      <pre class="prettyprint"><code lang="java">...
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(x, y);
+    }
+...</code></pre>
+      實際上目前版本的 Guava 只是用了 JDK5 就有的&nbsp;<code>Arrays</code> 上 <code>hashCode</code> 方法而已：
+      <pre class="prettyprint"><code lang="java">...
+  public static int hashCode(@Nullable Object... objects) {
+    return Arrays.hashCode(objects);
+  }
+...</code></pre>
+      所以實際上，你應該看看 <code>Arrays</code> 的 <code>hashCode</code> 上各個重載方法，瞭解它產生的 <code>hashCode</code> 是不是符合你的需求，就算你不使用 Guava，也不是在 JDK7 以上的版本，也知道可否使用 <code>Arrays</code> 的 <code>hashCode</code>&nbsp;為你產生適當的雜湊碼。
+      再次做剛剛的測試就會得到 <code>true</code> 了：
+      <pre class="prettyprint"><code lang="java">Point p1 = new Point(1, 1);
+Point p2 = new Point(1, 1);
+Set&lt;Point&gt; pSet = new HashSet&lt;&gt;();
+pSet.add(p1);
+out.println(pSet.contains(p2));    // true</code></pre>
+      如果你沒瞭解過 <code>equals</code> 與 <code>hashCode</code> 撰寫時，需要注意哪些事項，建議你繼續看看 <a
+
+        href="http://www.codedata.com.tw/java/object-equality-1/">物件相等性（上） </a>這篇文章，你也可以試著用 Guava 來簡化該篇文章的範例。<br>
+      當然，你也可以讓 IDE 結合 Guava 來產生 <code>equals</code>、<code>hashCode</code> 與 <code>toString</code>，如果你使用 IntelliJ IDEA，可以參考一下 <a
+
+        href="http://www.javacodegeeks.com/2013/01/intellij-idea-generate-equals-hashcode-and-tostring-with-google-guava.html">IntelliJ IDEA: Generate equals, hashCode and toString with Google Guava</a>。
+      新版的 NetBeans 本身如果在 JDK7 平台上，產生的 <code>equals</code> 與 <code>hashCode</code> 已經運用了 JDK7 的 <code>Objects.equals</code> 與 <code>Objects.hashCode</code>，你可以看看是不是你想要的。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,238 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="作為一門現代語言，Go 的特色之一是函式為一級函式（First-class function），可以作為值來進行傳遞。
+函式作為值
+例如你定義一個取最大值的函式 max，你可以將此函式作為值傳遞給 m...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="一級函式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/FirstClassFunction.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="作為一門現代語言，Go 的特色之一是函式為一級函式（First-class function），可以作為值來進行傳遞。
+函式作為值
+例如你定義一個取最大值的函式 max，你可以將此函式作為值傳遞給 m...">
+
+    <title>一級函式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FirstClassFunction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>一級函式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>作為一門現代語言，Go 的特色之一是函式為一級函式（First-class function），可以作為值來進行傳遞。</p>
+<h1>函式作為值</h1>
+<p>例如你定義一個取最大值的函式 <code>max</code>，你可以將此函式作為值傳遞給 <code>maximum</code>：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    maximum := max
+    fmt.Println(max(10, 5))     // 10
+    fmt.Println(maximum(10, 5)) // 10
+}
+</code></pre>
+<p>可以看到，被 <code>max</code> 參考的函式，也被 <code>maximum</code> 參考著，因而，現在透過 <code>max</code> 或者 <code>maximum</code>，都可以呼叫函式。</p>
+<p>因為 Go 型態推斷能力的關係，上頭的 <code>maximum</code> 並不用宣告型態，而可以直接參考 <code>max</code> 函式的型態，那麼，<code>max</code> 或者是 <code>maximum</code> 的型態是什麼呢？</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+import "reflect"
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    maximum := max
+    fmt.Println(reflect.TypeOf(max))     // func(int, int) int
+    fmt.Println(reflect.TypeOf(maximum)) // func(int, int) int
+}
+</code></pre>
+<p>可以看到，函式的型態包括了 <code>func</code>、參數型態與傳回值型態，但不用宣告函式、參數與傳回值的名稱。</p>
+<h1>宣告函式變數</h1>
+<p>你可以僅宣告一個變數可用來參考特定型態的函式，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    var maximum func(int, int) int
+    fmt.Println(maximum) // nil
+
+    maximum = max
+    fmt.Println(maximum(10, 5)) // 10
+}
+</code></pre>
+<p>若想先宣告一個 <code>maximum</code> 變數，可以在之後參考 <code>max</code> 函式，可以使用型態 <code>func(int, int) int</code> 來宣告，通常，宣告函式變數時，若想免於冗長的函式型態宣告，可以使用 <code>type</code> 來定義一個新的型態名稱：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type BiFunc func(int, int) int // 定義了新型態
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    var maximum BiFunc
+    fmt.Println(maximum) // nil
+
+    maximum = max
+    fmt.Println(maximum(10, 5)) // 10
+}
+</code></pre>
+<p>在上例中，<code>BiFunc</code> 是個新的定義型態（defined type），底層型態（underlying type）為 <code>func(int, int) int</code>，Go 會認定兩者屬於不同型態，因為新的型態會擁有新的名稱，在 Go 1.9 前，這是避免冗長函式型態宣告的唯一方式。</p>
+<p>不過，就這邊來說，實際上只是想要 <code>func(int, int) int</code> 能有個簡短一點的名稱，從 Go 1.9 開始，可以為型態取別名，別名就只是同一型態的另一個名稱，：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type BiFunc = func(int, int) int // 型態別名宣告
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    var maximum BiFunc
+    fmt.Println(maximum) // nil
+
+    maximum = max
+    fmt.Println(maximum(10, 5)) // 10
+}
+</code></pre>
+<p>在這邊，<code>BiFunc</code> 只是 <code>func(int, int) int</code> 的另一個名稱，而不是新的型態。</p>
+<p>函式變數既然是個變數，也就可以對它取指標，例如：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type BiFunc = func(int, int) int
+
+func max(a, b int) int {
+    if a &gt; b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    var maximum BiFunc
+    fmt.Println(&amp;maximum) // 0x1040a130
+    // fmt.Println(&amp;max)
+}
+</code></pre>
+<p>如上，你可以對 <code>maximum</code> 取指標，得到變數位址，不過，你不能對宣告的 <code>max</code> 取指標，去除程式中最後一個註解的話，會發生 cannot take the address of max 的錯誤。</p>
+<h1>回呼應用</h1>
+<p>因為函式可以當作值傳遞，因此，對於函式中流程幾乎相同，只有少數操作不同的情況，就可以將操作不同的部份以回呼（Callback）函式取代。例如，可以設計一個 <code>filter</code> 函式，用來過濾出符合特定條件的值：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Predicate = func(int) bool
+
+func filter(origin []int, predicate Predicate) []int {
+    filtered := []int{}
+    for _, elem := range origin {
+        if predicate(elem) {
+            filtered = append(filtered, elem)
+        }
+    }
+    return filtered
+}
+
+func greaterThan7(n int) bool {
+    return n &gt; 7
+}
+
+func lessThan5(n int) bool {
+    return n &lt; 5
+}
+
+func main() {
+    data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    fmt.Println(filter(data, greaterThan7))
+    fmt.Println(filter(data, lessThan5))    
+}
+</code></pre>
+<p>在這個例子中，<code>filter</code> 函式重用了 <code>for range</code> 與 <code>if</code> 等流程，只要傳入過濾用的函式，就可以讓 <code>filter</code> 具有各種的過濾用途。</p>
+<p>除了作為值傳遞之外，Go 的函式還可以是匿名函式，且具有閉包（Closure）的特性，這將在下一篇文件加以說明。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

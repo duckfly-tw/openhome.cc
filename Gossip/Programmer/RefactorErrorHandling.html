@@ -1,0 +1,129 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：重構錯誤處理程式
+      
+      有人研究過，程式中可能會有高達90%的比率在管理與處理錯誤，Bob大叔在《Clean Code》中談到「許多程式碼完全由錯誤處理...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="重構錯誤處理程式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/RefactorErrorHandling.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：重構錯誤處理程式
+      
+      有人研究過，程式中可能會有高達90%的比率在管理與處理錯誤，Bob大叔在《Clean Code》中談到「許多程式碼完全由錯誤處理...">
+
+
+    <title>重構錯誤處理程式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RefactorErrorHandling.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>重構錯誤處理程式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/voice/87208">重構錯誤處理程式</a><br>
+      <br>
+      有人研究過，程式中可能會有高達90%的比率在管理與處理錯誤，Bob大叔在《Clean Code》中談到「許多程式碼完全由錯誤處理所主宰」，90%的比率是真的在管理與處理錯誤的邏輯嗎？還是只是如Bob大叔說的，根本就是散亂的錯誤處理程式碼？商務邏輯相關的程式碼需要重構，對於錯誤處理程式碼的重構，我們也有許多需要學習的地方。<br>
+      <br>
+      <dl>
+        <dt>錯誤處理就是一件事</dt>
+      </dl>
+      <br>
+      在重構或程式碼可讀性的概念中有個共同特性，就是函式（方法）應該只做一件事，避免函式中的程式碼陷入邏輯泥塊（Logical clump）。在沒有例外處理的語言中，透過回傳錯誤碼，讓函式客戶端可以檢查執行結果，確認後續是要進行正常或錯誤處理流程，如果客戶端必須呼叫多個函式來完成一項任務，檢查錯誤碼、正常與多個錯誤處理流程夾雜的情況下，容易使得客戶端程式碼變得混亂。<br>
+      <br>
+      例外處理機制可以在錯誤發生的時候拋出例外，讓錯誤處理能推到想要的邊界進行處理。以Java來說，客戶端可以在try區塊中處理正常流程，在catch區塊處理呼叫各函式時可能拋出的例外，讓原先糾纏在錯誤處理流程中的正常流程清楚地呈現出來，<code>try</code>區塊中的流程亦可抽取為函式獨立地做一件事，那麼目前的<code>try-catch</code>就能專心地做錯誤處理這件事，如同Bob大叔說的「函式應該只做一件事，而錯誤處理就是一件事」。<br>
+      <br>
+      有時例外處理流程會形成一種模式，例如涉及資源建立、使用與關閉的操作若會拋出例外，為了有限資源在各種錯誤發生時都能確實釋放，不免要撰寫類似的<code>try-catch-finally</code>流程，在具有受檢例外的Java中更是難以避免這類情況，像是JDBC的處理流程就是如此，此時可以採用樣版回呼（Template callback）模式，適當地讓資源相關操作從錯誤處理流程中獨立出來，Spring的<code>JdbcTemplate</code>就是這類實現，因為這類資源建立、關閉的操作模式太頻繁出現，JDK7就提出了try-with-resources語法來解決這類需求，確實地讓資源建立、使用與關閉的操作與錯誤處理分離，若進一步地結合JDK8的Lambda語法，還可讓資源的使用從建立與關閉中分離。例如設計一個<code>open</code>方法，就可以專心在<code>FileInputStream</code>的使用，讓開啟檔案的意圖顯而易見：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>open(fileName, fileInputStream -&gt; {<br>
+          &nbsp;&nbsp;&nbsp; // 操作FileInputStream實例<br>
+          });<br>
+        </code></div>
+      <br>
+      <dl>
+        <dt>多個捕捉做相同處理時的重構</dt>
+      </dl>
+      <br>
+      如果多種例外捕捉後，做的都是相同的錯誤處理，像是日誌，或者是將程式庫的例外封裝為自定義例外等，錯誤處理的程式碼必然就出現重複，自然就會呈現需要重構的訊號。因為多種例外做的都是相同的事，可將有繼承關係的例外處理程式碼，合併在父類別的捕捉區塊中，但不建議使用catch-all的方式，例如使用<code>Exception</code>或<code>Throwable</code>來捕捉所有例外，因為對於其他不相關的例外，這是一種隱藏錯誤的做法。<br>
+      <br>
+      然而在合併有繼承關係的例外處理程式碼之後，仍會發現沒有繼承關係的例外處理程式碼出現重複，Bob大叔在《Clean Code》中提出的作法是包裹呼叫的API，確保它在捕捉各種例外後，能轉換為（自定義的）共同例外型態，如此客戶端就只需要捕捉一種例外，因而可讓客戶端程式碼大幅簡化，如果使用的是第三方API，也可以同時降低了對它的依賴。<br>
+      <br>
+      如果多種例外在捕捉之後，做完相同處理就將原例外重新拋出，可以參考guava-libraries的作法，你可以使用catch-all的方式捕捉各種型態的例外，做完相同錯誤處理之後，使用<code>Throwables.propagateIfInstanceOf</code>以指定的例外型態重新拋出（通常是受檢例外），或者是使用<code>Throwables.propagate</code>，將原例外以<code>RuntimeException</code>包裹後重新拋出，既消除了重複的錯誤處理程式碼，又避免了隱藏錯誤。<br>
+      <br>
+      雖然實際上，<code>Throwables.propagateIfInstanceOf</code>只是將型態判斷與轉型的邏輯封裝並予以重用，但對客戶端程式碼的簡化確實有所幫助，不過，這種方式對於錯誤處理時進行例外型態轉換，或者是不重新拋出的情況並不適用，guava-libraries的〈ThrowablesExplained〉文中也解釋了其他一些不適用的場合。JDK7中，對於多個捕捉做同一件事的情況，提出了Multi-catch語法，算是為這問題提出了較好的解決方案。<br>
+      <br>
+      <dl>
+        <dt>多個捕捉做不同處理時的重構</dt>
+      </dl>
+      <br>
+      如果多種例外捕捉後，分別進行不同的錯誤處理，此時得檢視多種例外是由單一方法拋出，或多個方法操作而分別拋出不同例外，最常見的情況是一個<code>try</code>區塊進行了數個會拋出例外的操作，然後底下連續多個<code>catch</code>區塊逐一針對不同例外作處理。實際上每個會拋出例外的方法發生錯誤時，理由應該是各不相同的，應試著讓這些方法各有一個<code>try-catch</code>區塊，讓每個方法的錯誤處理流程各自顯露出來。<br>
+      <br>
+      一旦你根據不同方法引發的例外，將一個<code>try</code>搭配多個<code>catch</code>的程式碼，分解為數個<code>try-catch</code>區塊之後，應當立即想到「錯誤處理就是一件事」，而兩個以上的<code>try-catch</code>時，無論那些<code>try-catch</code>是形成巢狀或者是瀑布式流程，都意謂著你的程式碼做了兩件以上的事，重構的方式之一，就是每個try-catch重構至獨立的方法之中，讓每個方法都只會出一個<code>try</code>陳述。<br>
+      <br>
+      當發現一個方法中會出現多個<code>try-catch</code>時，而每個<code>try-catch</code>都做類似模式（但細節不同）的轉換或錯誤處理時，如果你接觸過函數式的錯誤處理風格，例如我先前專欄〈函數式風格錯誤處理〉中談過的<code>Option</code>、<code>Either</code>、<code>Try</code>等概念，就有可能進行Monad風格的錯誤處理，我在專欄〈神秘的Monad不神秘〉中談到<code>Optional</code>的<code>flatMap</code>可連續處理<code>null</code>與物件值轉換的問題，實際上，Mario Fusco在〈Monadic Java〉中就以類似風格，設計了<code>Validation</code>等類別，可以用Monad風格對使用者進行如下的程式碼驗證與驗證失敗訊息之收集，而又不會迷失在瀑布式的<code>ValidationException</code>捕捉程式碼之中：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>Validation&lt;List&lt;String&gt;, Person&gt; validation = success(person).failList()</code><br>
+        <code>&nbsp;&nbsp;&nbsp; .flatMap(Validator::validAge)</code><br>
+        <code>&nbsp;&nbsp;&nbsp; .flatMap(Validator::validName);</code><br>
+        <code></code></div>
+      <br>
+      <dl>
+        <dt>重構是看待錯誤處理的一個角度</dt>
+      </dl>
+      <br>
+      既然程式中可能會有高達90%的比率在管理與處理錯誤，我們真的該認真且從不同角度去看待，像是受檢或非受檢例外的運用、例外應捕捉或拋出、避免隱藏錯誤、換個典範風格思考錯誤處理的可能性等，都該有所思考，我的專欄〈Shit Happens！該抓還是該丟？〉、〈避免隱藏錯誤的防禦性設計〉與〈函數式風格錯誤處理〉都曾做過一些探討。<br>
+      <br>
+      從重構角度出發來看待錯誤處理程式碼，你會發現Martin Fowler的《Refactoring》中揭露的重構原則，對待錯誤處理程式碼也是適用的，錯誤處理之所以重要，就在於它是處理不對的事情，本身必須正確，然而就如Bob大叔說的「如果它糢糊了原本程式碼的邏輯，那就不對了」。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

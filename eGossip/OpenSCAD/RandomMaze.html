@@ -1,0 +1,548 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="In Binary tree algorithm, I introduced the basic ideas about generating maze automatically. If you a...">
+
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Random maze">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/OpenSCAD/RandomMaze.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="In Binary tree algorithm, I introduced the basic ideas about generating maze automatically. If you a...">
+
+    <title>Random maze</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RandomMaze.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/eGossip/OpenSCAD/index.html">&lt;&lt; OpenSCAD TOC</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Random maze</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>In <a href="SimpleGeneratedMaze.html">Binary tree algorithm</a>, I introduced the basic ideas about generating maze automatically. If you are not familiar with Functional programming, binary tree algorithm has another benefit. Because it doesn't care about the visiting sequence, you can just use list comprehensions to step the maze blocks.</p>
+<p>But, once you want to improve the bias, you'll face problems such as tracking and changing the visited blocks.</p>
+<p>If you want to walk randomly, you have to carve walls such as the way mentioned in <a href="ManualMaze.html">Manual maze</a>. That is, if you can go right to the next block, the current block has no right wall. Being able to go up means no upper wall. If the left block is walkable, the left block has no right wall. The lower block has no upper wall if you can go down.</p>
+<p>Then, you have to trace and change the wall block for every block.</p>
+<p>Thus, you have to change you block data under the paradigm of Functional programming even you cannot re-assign a value to a variable or modify the element of a vector in OpenSCAD. It sounds impossible; however, it's just because you think from the aspect of imperative programming languages.</p>
+<h1>Defining fundamental functions</h1>
+<p>Let's do it in action. We challenge random mazes directly. It might be hard for you. Even if I am familiar with OpenSCAD, I still have to think and implement step by step. It took me about 3 hours to come up all the code below. I'll explain each part of them for you. But you still have to think by yourself and get your hand dirty. Knowing and doing are two different things, right?</p>
+<p>As mentioned before, we have to track whether we've visited a block. That is because repeated visiting might carve a necessary wall and cause loops in a maze, not a perfect maze anymore. It's not what we want.</p>
+<p>Therefore, we add a <code>visited</code> field to our block data.</p>
+<pre class="prettyprint"><code lang="openscad">function block_data(x, y, wall_type, visited) = [x, y, wall_type, visited];
+</code></pre>
+<p>The initial status of a block data has <code>UP_RIGHT_WALL</code> and the <code>false</code> value for the <code>visited</code> field. We define a <code>starting_maze</code> function to do initialization of a maze. For simplification, the exit of the maze is always the upper-right block.</p>
+<pre class="prettyprint"><code lang="openscad">// initialize the status of a maze   
+function starting_maze(rows, columns) =  [
+    for(y = [1:rows]) 
+        for(x = [1:columns]) 
+            block_data(
+                x, y, 
+                // all blocks have UP_RIGHT_WALL except the exit
+                y == rows &amp;&amp; x == columns ? UP_WALL : UP_RIGHT_WALL, 
+                // false is unvisited
+                false 
+            )
+];
+</code></pre>
+<p>We'll store all our block data in a vector. To check whether we've visited a block (x, y), we need to know the index of the block data in the vector.</p>
+<pre class="prettyprint"><code lang="openscad">// find the index of block (x, y)
+function indexOf(x, y, maze, i = 0) =
+    i &gt; len(maze) ? -1 : (
+        [get_x(maze[i]), get_y(maze[i])] == [x, y] ? i : 
+            indexOf(x, y, maze, i + 1)
+    );
+</code></pre>
+<p>Yes, it uses recursion; however, not difficult. If the index is out of bound, we return -1 for not found. While indexing, we check whether the values of the parameter <code>x</code> and <code>y</code> are the same as (x, y) of the block data. If they are the same, we return the <code>i</code> value, otherwise, invoke <code>indexOf</code> again.</p>
+<p>Recursion is not the main point. The point is that you have to divide and conquer. The paradigm of Functional programming is just a way to force you to divide and conquer. It's harder to write a lump of code, which is common in imperative languages. (Of course, it's still possible to do that if you want. No one can stop you! )</p>
+<p>Once we have the <code>indexOf</code> function, it's easy to check whether we've visited a block.</p>
+<pre class="prettyprint"><code lang="openscad">// check whether we've visited the block (x, y)
+function visited(x, y, maze) = maze[indexOf(x, y, maze)][3];
+</code></pre>
+<p>We have to check whether a block is visitable.</p>
+<pre class="prettyprint"><code lang="openscad">// is (x, y) visitable?
+function visitable(x, y, maze, rows, columns) = 
+    y &gt; 0 &amp;&amp; y &lt;= rows &amp;&amp;     // y is not out of bound
+    x &gt; 0 &amp;&amp; x &lt;= columns &amp;&amp;  // x is not out of bound
+    !visited(x, y, maze);     // visited or not
+</code></pre>
+<p>Using the <code>set_visited</code> function to set the block (x, y) as being visited. It returns a new block data.</p>
+<pre class="prettyprint"><code lang="openscad">// we've visited (x, y)
+function set_visited(x, y, maze) = [
+    for(b = maze) 
+        [x, y] == [get_x(b), get_y(b)] ? 
+            [x, y, get_wall_type(b), true] : b
+];
+</code></pre>
+<p>Now, we have to decide which direction we should walk through. Even though you can use <code>rands</code> to generate numbers 0 to 3 randomly, the <code>rands</code> function might produce a number sequence such as  0, 1, 1, 1, 2, 3, etc. That is, you migh try one direction more than two times. For efficiency, I hard code all permutations for 0 to 3.</p>
+<p>If we hard code these numbers, is it still random? Yes, I randomly chose one vector from them.</p>
+<pre class="prettyprint"><code lang="openscad">// 0（right）、1（up）、2（left）、3（down）
+function rand_dirs() =
+    [
+        [0, 1, 2, 3],
+        [0, 1, 3, 2],
+        [0, 2, 1, 3],
+        [0, 2, 3, 1],
+        [0, 3, 1, 2],
+        [0, 3, 2, 1],
+        [1, 0, 2, 3],
+        [1, 0, 3, 2],
+        [1, 2, 0, 3],
+        [1, 2, 3, 0],
+        [1, 3, 0, 2],
+        [1, 3, 2, 0],
+        [2, 0, 1, 3],
+        [2, 0, 3, 1],
+        [2, 1, 0, 3],
+        [2, 1, 3, 0],
+        [2, 3, 0, 1],
+        [2, 3, 1, 0],
+        [3, 0, 1, 2],
+        [3, 0, 2, 1],
+        [3, 1, 0, 2],
+        [3, 1, 2, 0],
+        [3, 2, 0, 1],
+        [3, 2, 1, 0]
+    ][round(rands(0, 24, 1)[0])];
+</code></pre>
+<p>We can read the element of the returned vector sequentially. Thus, we'll visit each direction only once.</p>
+<p>The <code>next_x</code> and <code>next_y</code> are helper functions used to get the next <code>x</code> and <code>y</code> respectively.</p>
+<pre class="prettyprint"><code lang="openscad">// given the `x` value and a direction, return the `x` value of the next block
+function next_x(x, dir) = x + [1, 0, -1, 0][dir];
+
+// given the `x` value and a direction, return the `x` value of the next block
+function next_y(y, dir) = y + [0, 1, 0, -1][dir];
+</code></pre>
+<p>After defining these essential functions, we can move on to the next stage: creating the block data of the maze.</p>
+<h1>Carving walls</h1>
+<p>Suppose we are at the (x, y) block, its right block is visitable and we go right, then we have to carve the right wall of (x, y) if it the current block has a right wall. Because the current block has one of the four wall types, there were four conditions we have to check, right?</p>
+<p>For example, the current block has <code>UP_WALL</code> so we don't have to do anything. If it has <code>RIGHT_WALL</code>, we change the wall type to <code>NO_WALL</code>. The next status is <code>UP_WALL</code> if the original wall type is <code>UP_RIGHT_WALL</code>.</p>
+<p>Though it's right, we don't have to. It's also inefficiency. Think about it. The initial status of all blocks is <code>UP_RIGHT_WALL</code>. If a block doesn't have a right wall, we must remove it before. That is, we ever went from the left to right block, so the right block must not be visitable. In this situation, we don't have to check <code>UP_WALL</code> and <code>NO_WALL</code>; only have to check whether it's <code>UP_RIGHT_WALL</code>. If it is, the next status is <code>UP_WALL</code>. If not, the current type is <code>RIGHT</code>, so the next status is <code>NO_WALL</code>.</p>
+<pre class="prettyprint"><code lang="openscad">// go right, remove the right wall
+function go_right_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, UP_WALL, visited(x, y, maze)] : 
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+</code></pre>
+<p>Similarly, suppose the upper block is visitable, and we go up, we only have to check whether the current type is <code>UP_RIGHT_WALL</code>.</p>
+<pre class="prettyprint"><code lang="openscad">// go up, remove the upper wall    
+function go_up_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, RIGHT_WALL, visited(x, y, maze)] :  
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+</code></pre>
+<p>When going left or down, remember, we don't remove the wall of the current block; we remove the wall of the next block.</p>
+<pre class="prettyprint"><code lang="openscad">// go left, remove the right wall of the left block
+function go_left_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x - 1, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x - 1, y, UP_WALL, visited(x - 1, y, maze)] : 
+            [x - 1, y, NO_WALL, visited(x - 1, y, maze)]
+    ) : b
+]; 
+
+// go down, remove the upper wall of the lower block
+function go_down_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y - 1] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y - 1, RIGHT_WALL, visited(x, y - 1, maze)] : 
+            [x, y - 1, NO_WALL, visited(x, y - 1, maze)]
+    ) : b
+]; 
+</code></pre>
+<p>Because OpenSCAD doesn't allow <code>if...else</code> in functions, we use the ternary operator <code>?:</code> instead. Some programming languages view <code>if...else</code> as an expression. It'll be helpful to readability if OpenSCAD can suppose it.</p>
+<p>From another viewpoint, it might be intentional for OpenSCAD to suppose only the <code>?:</code> operator. It's diffcult to write a nested structure so force you to divide the task into smaller functions. Of course, it's still possible to write a nested and ugly structure, it's up to you.</p>
+<p>Now, we can try our neighbors.</p>
+<pre class="prettyprint"><code lang="openscad">// 0（right）、1（up）、2（left）、3（down）
+function try_block(dir, x, y, maze, rows, columns) =
+    dir == 0 ? go_right_from(x, y, maze) : (
+        dir == 1 ? go_up_from(x, y, maze) : (
+            dir == 2 ? go_left_from(x, y, maze) : 
+                 go_down_from(x, y, maze)   // dir must be 3
+
+        )
+    );
+</code></pre>
+<h1>Random walking</h1>
+<p>Here comes the climax of our maze; however, it's the most complex. First, we have to know how many visitable directions we can try.</p>
+<pre class="prettyprint"><code lang="openscad">// return visitable directions we can try
+function visitable_dirs_from(x, y, maze, rows, columns) = [
+    for(dir = [0, 1, 2, 3]) 
+        if(visitable(next_x(x, dir), next_y(y, dir), maze, maze_rows, columns)) 
+            dir
+];  
+</code></pre>
+<p>After visiting the (x, y) block, we use <code>rand_dirs</code> to get a list of random directions if the number of the visitable directions is not 0.</p>
+<pre class="prettyprint"><code lang="openscad">// walk from (x, y) 
+function go_maze(x, y, maze, rows, columns) = 
+    // have visitable directions?
+    len(visitable_dirs_from(x, y, maze, rows, columns)) == 0 ? 
+        set_visited(x, y, maze)      // we visited here and cannot go further.
+        : walk_around_from(          // walk randomly from (x, y) 
+            x, y, 
+            rand_dirs(),             // random directions
+            set_visited(x, y, maze), // we visited here 
+            rows, columns
+        );
+</code></pre>
+<p>We use an incremental <code>i</code> to try four directions.</p>
+<pre class="prettyprint"><code lang="openscad">// walk randomly from (x, y) 
+function walk_around_from(x, y, dirs, maze, rows, columns, i = 4) =
+    i &gt; 0 ? 
+        walk_around_from(x, y, dirs, 
+            try_routes_from(x, y, dirs[4 - i], maze, rows, columns),  
+            rows, columns, 
+            i - 1) // try next direction
+        : maze;
+</code></pre>
+<p>The <code>try_routes_from</code> function checks whether the next block is visitable according to the given direction. If it's walkable, invoke the <code>try_block</code> function listed before. It will return a new status of the maze. After that, invoke <code>go_maze</code> again.</p>
+<pre class="prettyprint"><code lang="openscad">function try_routes_from(x, y, dir, maze, rows, columns) = 
+    // is the next block visitable?
+    visitable(next_x(x, dir), next_y(y, dir), maze, rows, columns) ?     
+        go_maze(
+            next_x(x, dir), next_y(y, dir), 
+            try_block(dir, x, y, maze, rows, columns),
+            rows, columns
+        ) 
+        : maze;  
+</code></pre>
+<p>That is, it's a sub-task from here. We start from (x, y) to try the next block (x', y') and get a new status of the maze. Then, We start from (x', y') to try the next block and get a new status of the maze again. This process will continue until we visited all blocks.</p>
+<p>What's the initial status of the maze? Remember it? We've defined a <code>starting_maze</code> function to do initialization of a maze before, and the first (x, y) is (1, 1), the starting point.</p>
+<p>Once all the above are ready, we can generate a 10x10 maze now.</p>
+<pre class="prettyprint"><code lang="openscad">block_width = 3;
+wall_thickness = 1;
+maze_rows = 10;
+maze_columns = 10;  
+
+maze_blocks = go_maze(
+    1, 1,   // the starting point
+    starting_maze(maze_rows, maze_columns),  
+    maze_rows, maze_columns
+);
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre>
+<p>Look at all the code above. Do we re-assign a value to a variable? No! Do we modify any element of a vector? No! We just pass a new value to a parameter of a function. We return a new vector including a new status of the maze.</p>
+<p>In fact, it's why you have to divide and conquer again and again. As I said, maze algorithms are not diffcult. The hard part is turning your thinking into Functional programming.</p>
+<p>There are many benefits of Functional programming. I don't want to repeat them here. If you are interested, just search them on the internet. Love Functional programming or not, it's up to you.</p>
+<p>Let's create a 30x30 maze!</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RandomMaze-1.JPG" alt="Random maze"  /></div></div></p>
+<p>For completeness, I list all the code of the maze below.</p>
+<pre class="prettyprint"><code lang="openscad">module line(point1, point2, width = 1, cap_round = true) {
+    angle = 90 - atan((point2[1] - point1[1]) / (point2[0] - point1[0]));
+    offset_x = 0.5 * width * cos(angle);
+    offset_y = 0.5 * width * sin(angle);
+
+    offset1 = [-offset_x, offset_y];
+    offset2 = [offset_x, -offset_y];
+
+    if(cap_round) {
+        translate(point1) circle(d = width, $fn = 24);
+        translate(point2) circle(d = width, $fn = 24);
+    }
+
+    polygon(points=[
+        point1 + offset1, point2 + offset1,  
+        point2 + offset2, point1 + offset2
+    ]);
+}
+
+module polyline(points, width = 1) {
+    module polyline_inner(points, index) {
+        if(index &lt; len(points)) {
+            line(points[index - 1], points[index], width);
+            polyline_inner(points, index + 1);
+        }
+    }
+
+    polyline_inner(points, 1);
+}
+
+// wall constants
+
+NO_WALL = 0;     
+UP_WALL = 1;      
+RIGHT_WALL = 2;    
+UP_RIGHT_WALL = 3;
+
+function block_data(x, y, wall_type, visited) = [x, y, wall_type, visited];
+function get_x(block_data) = block_data[0];
+function get_y(block_data) = block_data[1];
+function get_wall_type(block_data) = block_data[2];
+
+module draw_block(wall_type, block_width, wall_thickness) {
+    if(wall_type == UP_WALL || wall_type == UP_RIGHT_WALL) {
+        // the upper wall
+        polyline(
+            [[0, block_width], [block_width, block_width]], wall_thickness
+        ); 
+    }
+
+    if(wall_type == RIGHT_WALL || wall_type == UP_RIGHT_WALL) {
+        // the right wall
+        polyline(
+            [[block_width, block_width], [block_width, 0]], wall_thickness
+        ); 
+    }
+}
+
+module draw_maze(rows, columns, blocks, block_width, wall_thickness) {
+    for(block = blocks) {
+        // move the block to its correspond position
+        translate([get_x(block) - 1, get_y(block) - 1] * block_width) 
+            draw_block(
+                get_wall_type(block), 
+                block_width, 
+                wall_thickness
+            );
+    }
+
+    // the lowermost wall
+    polyline(
+        [[0, 0], [block_width * columns, 0]], 
+        wall_thickness);
+    // the leftmost wall
+    polyline(
+        [[0, block_width], [0, block_width * rows]], 
+        wall_thickness);
+} 
+
+// initialize the status of a maze   
+function starting_maze(rows, columns) =  [
+    for(y = [1:rows]) 
+        for(x = [1:columns]) 
+            block_data(
+                x, y, 
+                // all blocks have UP_RIGHT_WALL except the exit
+                y == rows &amp;&amp; x == columns ? UP_WALL : UP_RIGHT_WALL, 
+                // false is unvisited
+                false 
+            )
+];
+
+// find the index of block (x, y)
+function indexOf(x, y, maze, i = 0) =
+    i &gt; len(maze) ? -1 : (
+        [get_x(maze[i]), get_y(maze[i])] == [x, y] ? i : 
+            indexOf(x, y, maze, i + 1)
+    );
+
+// check whether we've visited the block (x, y)
+function visited(x, y, maze) = maze[indexOf(x, y, maze)][3];
+
+// is (x, y) visitable?
+function visitable(x, y, maze, rows, columns) = 
+    y &gt; 0 &amp;&amp; y &lt;= rows &amp;&amp;     // y is not out of bound
+    x &gt; 0 &amp;&amp; x &lt;= columns &amp;&amp;  // x is not out of bound
+    !visited(x, y, maze);     // visited or not
+
+// we've visited (x, y)
+function set_visited(x, y, maze) = [
+    for(b = maze) 
+        [x, y] == [get_x(b), get_y(b)] ? 
+            [x, y, get_wall_type(b), true] : b
+];
+
+// 0（right）、1（up）、2（left）、3（down）
+function rand_dirs() =
+    [
+        [0, 1, 2, 3],
+        [0, 1, 3, 2],
+        [0, 2, 1, 3],
+        [0, 2, 3, 1],
+        [0, 3, 1, 2],
+        [0, 3, 2, 1],
+        [1, 0, 2, 3],
+        [1, 0, 3, 2],
+        [1, 2, 0, 3],
+        [1, 2, 3, 0],
+        [1, 3, 0, 2],
+        [1, 3, 2, 0],
+        [2, 0, 1, 3],
+        [2, 0, 3, 1],
+        [2, 1, 0, 3],
+        [2, 1, 3, 0],
+        [2, 3, 0, 1],
+        [2, 3, 1, 0],
+        [3, 0, 1, 2],
+        [3, 0, 2, 1],
+        [3, 1, 0, 2],
+        [3, 1, 2, 0],
+        [3, 2, 0, 1],
+        [3, 2, 1, 0]
+    ][round(rands(0, 24, 1)[0])];
+
+// given the `x` value and a direction, return the `x` value of the next block
+function next_x(x, dir) = x + [1, 0, -1, 0][dir];
+
+// given the `x` value and a direction, return the `x` value of the next block
+function next_y(y, dir) = y + [0, 1, 0, -1][dir];
+
+// go right, remove the right wall
+function go_right_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, UP_WALL, visited(x, y, maze)] : 
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+
+
+// go up, remove the upper wall    
+function go_up_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y, RIGHT_WALL, visited(x, y, maze)] :  
+            [x, y, NO_WALL, visited(x, y, maze)]
+
+    ) : b
+]; 
+
+// go left, remove the right wall of the left block
+function go_left_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x - 1, y] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x - 1, y, UP_WALL, visited(x - 1, y, maze)] : 
+            [x - 1, y, NO_WALL, visited(x - 1, y, maze)]
+    ) : b
+]; 
+
+// go down, remove the upper wall of the lower block
+function go_down_from(x, y, maze) = [
+    for(b = maze) [get_x(b), get_y(b)] == [x, y - 1] ? (
+        get_wall_type(b) == UP_RIGHT_WALL ? 
+            [x, y - 1, RIGHT_WALL, visited(x, y - 1, maze)] : 
+            [x, y - 1, NO_WALL, visited(x, y - 1, maze)]
+    ) : b
+]; 
+
+// 0（right）、1（up）、2（left）、3（down）
+function try_block(dir, x, y, maze, rows, columns) =
+    dir == 0 ? go_right_from(x, y, maze) : (
+        dir == 1 ? go_up_from(x, y, maze) : (
+            dir == 2 ? go_left_from(x, y, maze) : 
+                 go_down_from(x, y, maze)   // dir must be 3
+
+        )
+    );
+
+
+// return visitable directions we can try
+function visitable_dirs_from(x, y, maze, rows, columns) = [
+    for(dir = [0, 1, 2, 3]) 
+        if(visitable(next_x(x, dir), next_y(y, dir), maze, maze_rows, columns)) 
+            dir
+];  
+
+// walk from (x, y) 
+function go_maze(x, y, maze, rows, columns) = 
+    // have visitable directions?
+    len(visitable_dirs_from(x, y, maze, rows, columns)) == 0 ? 
+        set_visited(x, y, maze)      // we visited here and cannot go further.
+        : walk_around_from(          // walk randomly from (x, y) 
+            x, y, 
+            rand_dirs(),             // random directions
+            set_visited(x, y, maze), // we visited here 
+            rows, columns
+        );
+
+// walk randomly from (x, y) 
+function walk_around_from(x, y, dirs, maze, rows, columns, i = 4) =
+    i &gt; 0 ? 
+        walk_around_from(x, y, dirs, 
+            try_routes_from(x, y, dirs[4 - i], maze, rows, columns),  
+            rows, columns, 
+            i - 1) // try next direction
+        : maze;
+
+function try_routes_from(x, y, dir, maze, rows, columns) = 
+    // is the next block visitable?
+    visitable(next_x(x, dir), next_y(y, dir), maze, rows, columns) ?     
+        go_maze(
+            next_x(x, dir), next_y(y, dir), 
+            try_block(dir, x, y, maze, rows, columns),
+            rows, columns
+        ) 
+        : maze;  
+
+block_width = 3;
+wall_thickness = 1;
+maze_rows = 30;
+maze_columns = 30;  
+
+maze_blocks = go_maze(
+    1, 1,   // the starting point
+    starting_maze(maze_rows, maze_columns),  
+    maze_rows, maze_columns
+);
+
+draw_maze(
+    maze_rows, 
+    maze_columns, 
+    maze_blocks, 
+    block_width, 
+    wall_thickness
+);
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

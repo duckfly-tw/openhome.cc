@@ -1,0 +1,263 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果您要定時讓程式去作某件事，則可以使用g_timeout_add()或g_timeout_add_full()，g_timeout_add()的定義如下：
+
+
+      
+      
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Timeout 與 Idle">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/GTKGossip/TimeoutIdle.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果您要定時讓程式去作某件事，則可以使用g_timeout_add()或g_timeout_add_full()，g_timeout_add()的定義如下：
+
+
+      
+      
+...">
+
+
+    <title>Timeout 與 Idle</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TimeoutIdle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/GTKGossip/">回 GTK 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <div class="header">
+            <h1>Timeout 與 Idle</h1>
+        </div>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             如果您要定時讓程式去作某件事，則可以使用g_timeout_add()或g_timeout_add_full()，g_timeout_add()的定義如下：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">guint g_timeout_add(guint interval,</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSourceFunc
+function,</span><br>
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gpointer
+data);</span><br>
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+      第一個參數是時間間隔，以毫秒為單位，第二個參數是時間到的回呼函式，第三個參數是傳給回呼函式的資料，以 </span><a href="SignalEmitStop.html">內
+建 Signal 的發射與停止</a><span> 中的範例來說，可以使用g_timeout_add()改寫如下而執行結果相同：<br>
+
+
+      </span>
+      
+      
+      <ul>
+
+
+        <li><span>g_timeout_demo.c</span></li>
+
+
+      
+      
+      </ul>
+
+
+      
+      
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br><span style="font-weight: bold;">gboolean timeout_callback(GtkButton *button) {</span><br><span style="font-weight: bold;">    static gint count = 0;</span><br><span style="font-weight: bold;">    if(count &lt; 5) {</span><br><span style="font-weight: bold;">        g_signal_emit_by_name(button, "clicked");</span><br><span style="font-weight: bold;">        count++;</span><br><span style="font-weight: bold;">        return TRUE;</span><br><span style="font-weight: bold;">    }</span><br><span style="font-weight: bold;">    else {</span><br><span style="font-weight: bold;">        return FALSE;</span><br><span style="font-weight: bold;">    }</span><br><span style="font-weight: bold;">}</span><br><br>// 自訂Callback函式<br>void button_clicked(GtkWidget *button, gpointer data) {<br>    g_print("按鈕按下：%s\n", (char *) data);<br>}<br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br>    GtkWidget *button;<br><br>    gtk_init(&amp;argc, &amp;argv);<br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "哈囉！GTK+！");<br><br>    button = gtk_button_new_with_label("按我");<br>    gtk_container_add(GTK_CONTAINER(window), button);<br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br>    g_signal_connect(GTK_OBJECT(button), "clicked",<br>                     G_CALLBACK(button_clicked), "哈囉！按鈕！");<br><br><span style="font-weight: bold;">    g_timeout_add(1000, (GSourceFunc) timeout_callback, button);</span><br><br>    gtk_widget_show(window);<br>    gtk_widget_show(button);<br><br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+
+      <span><br>
+
+
+      在回呼函式中，若傳回TRUE則繼續下一次計時，</span><span>計時器的下一次計時，會是在回呼函式執行完畢後開始，</span><span>傳回FALSE則計時器結束並自動銷毀，若您使用</span>g_timeout_add_full()：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;">guint g_timeout_add_full(gint priority,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+guint interval,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GSourceFunc function,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+gpointer data,<br>
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GDestroyNotify notify);<br>
+
+
+      </div>
+
+
+      <span><br>
+
+
+      第一個參數為時間到時的執行優先權，可以設定的優先權如下：<br>
+
+      </span>
+      
+      <ul>
+
+        <li><span>G_PRIORITY_HIGH</span></li>
+
+        <li><span>G_PRIORITY_DEFAULT（預設）</span></li>
+
+        <li><span>G_PRIORITY_HIGH_IDLE</span></li>
+
+        <li><span>
+      G_PRIORITY_DEFAULT_IDLE</span></li>
+
+        <li><span>G_PRIORITY_LOW</span></li>
+
+      
+      </ul>
+
+      <span><br>
+
+      最後一個參數則是計時器被移除時要執行的函式。<br>
+
+      <br>
+
+      相對於計時重複執行某個動作，您可以使用g_idle_add()或g_idle_add_full()函式，讓程式在沒有什麼事情作的時候（例如沒有任何使用者操作，沒有任何需要運算的程式碼時），也可以作一些事情，若使用g_idle_add()：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">guint g_idle_add(GSourceFunc function,</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;gpointer data);</span><br>
+
+      </div>
+
+      <span><br>
+
+第一個參數是回呼函式，第二個參數是傳遞給回呼函式的資料，例如下面這個範例，在使用者不作任何事時，就會執行指定的idle函式，而按下按鈕時就執行按鈕的回呼函式：<br>
+
+      </span>
+      
+      <ul>
+
+        <li><span>g_idle_demo.c</span></li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c">#include &lt;gtk/gtk.h&gt;<br><br><span style="font-weight: bold;">gboolean idle_callback(gpointer data) {</span><br><span style="font-weight: bold;">    g_print("%s。。XD\n", data);</span><br><span style="font-weight: bold;">    return TRUE;</span><br><span style="font-weight: bold;">}</span><br><br>void button_pressed(GtkButton *button, gpointer data) {<br>    int i;<br>    for(i = 0; i &lt; 10; i++) {<br>        g_print("%s...\n", data);<br>        sleep(1);<br>    }<br>}<br><br>int main(int argc, char *argv[]) {<br>    GtkWidget *window;<br>    GtkWidget *button;<br><br>    gtk_init(&amp;argc, &amp;argv);<br><br>    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);<br>    gtk_window_set_title(GTK_WINDOW(window), "GTimer");<br>    gtk_window_set_default_size(GTK_WINDOW(window), 150, 50);<br><br>    button = gtk_button_new_with_label("按我");<br><br>    gtk_container_add(GTK_CONTAINER(window), button);<br>    <br>    g_signal_connect(GTK_OBJECT(button), "clicked",<br>                     G_CALLBACK(button_pressed), "do something");<br><br>    g_signal_connect(GTK_OBJECT(window), "destroy",<br>                     G_CALLBACK(gtk_main_quit), NULL);<br><br><span style="font-weight: bold;">    g_idle_add((GSourceFunc) idle_callback, "無事可作");</span><br><br>    gtk_widget_show_all(window);<br><br>    gtk_main();<br><br>    return 0;<br>}</code></pre>
+
+      <span><br>
+
+同樣的，指定的idle函式若傳回FALSE則會移除idle功能，若是使用</span><span>g_idle_add_full()：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">guint g_idle_add_full(gint priority,</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;GSourceFunc function,</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;gpointer data,</span><br>
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;GDestroyNotify notify);</span><br>
+
+      </div>
+
+      <span><br>
+
+      <br>
+
+其上的參數與g_timeout_add_full()類似。<br>
+
+      </span><span><br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

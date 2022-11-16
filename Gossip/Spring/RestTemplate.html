@@ -1,0 +1,171 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="當你將應用程式中某些元件分離出來，成為物理上一個可獨立運行的服務，並且像 @RepositoryRestResource 提供了 REST 介面，這就可以讓需要此服務的客戶端透過 HTTP 來請求，以...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="簡介 RestTemplate">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/RestTemplate.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="當你將應用程式中某些元件分離出來，成為物理上一個可獨立運行的服務，並且像 @RepositoryRestResource 提供了 REST 介面，這就可以讓需要此服務的客戶端透過 HTTP 來請求，以...">
+
+    <title>簡介 RestTemplate</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RestTemplate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 RestTemplate</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>當你將應用程式中某些元件分離出來，成為物理上一個可獨立運行的服務，並且像 <a href="RepositoryRestResource.html">@RepositoryRestResource</a> 提供了 REST 介面，這就可以讓需要此服務的客戶端透過 HTTP 來請求，以使用該服務。</p>
+<p>（當然，這只是範例專案，畢竟幾乎只處理 CRUD 的服務，就粒度來說是有點小了！）</p>
+<p>為了便於客戶端使用基於 REST 的服務，Spring 提供了 <code>RestTemplate</code>，不過，要能使用 <code>RestTemplate</code> 來運用 <a href="RepositoryRestResource.html">@RepositoryRestResource</a> 服務，需要知道一些 HATEOAS 的概念，這會是下篇文件的主題，在這邊僅先認識一下 <code>RestTemplate</code> 的基本使用方式。</p>
+<p>為了有個實際的測試對象，可以先建立一個簡單的 REST 服務。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
+public class RestTmplApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RestTmplApplication.class, args);
+    }
+
+    List&lt;Message&gt; messages = new ArrayList&lt;Message&gt;() {{
+        add(new Message("msg1"));
+        add(new Message("msg2"));
+    }};
+
+    @GetMapping("messages")
+    public List&lt;Message&gt; index() {
+        return messages;
+    }
+
+    @GetMapping("messages/{id}")
+    public Message show(@PathVariable("id") String id) {
+        return messages.get(Integer.parseInt(id) - 1);
+    }
+
+    @PostMapping("messages")
+    public Message create(@RequestBody Message message) {
+        messages.add(message);
+        return message;
+    }
+
+    @DeleteMapping("messages/{id}")
+    public Message delete(@PathVariable("id") String id) {
+        return messages.remove(Integer.parseInt(id) - 1);
+    }
+}
+</code></pre>
+<p>大部份程式碼你應該都知道作用了，唯一要注意的是 <code>create</code>，這個處理器接受 JSON 轉換後的 <code>Message</code> 實例，JSON 會是請求本體中的內容，為此必須標註 <code>@RequestBody</code>。</p>
+<p>首先來看看，如何透過 <code>RestTemplate</code> 請求並自動轉為 <code>Message</code> 實例，這透過 <code>getForObject</code> 就可以了：</p>
+<pre class="prettyprint"><code lang="java">...略
+@SpringBootTest
+public class RestTmplApplicationTests {
+    private RestTemplate restTemplate = new RestTemplate();
+
+    @Test
+    public void show() {
+        Message message = restTemplate.getForObject("http://localhost:8080/messages/{id}", Message.class, "1");
+        assertNotNull(message.getText());
+    }
+</code></pre>
+<p>基本上沒什麼好解釋的，要請求建立一個 <code>Message</code> 實例的話，可以使用 <code>postForObject</code>，因為要傳送 JSON，必須設定請求標頭，以及 <code>POST</code> 時的 <code>Message</code> 實例，<code>postForObject</code> 會自動將 <code>Message</code> 轉為 JSON 發送出去：</p>
+<pre class="prettyprint"><code lang="java">@Test
+public void create() {
+    Message message = new Message("new message");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity&lt;Message&gt; request = new HttpEntity&lt;&gt;(message, headers);
+
+    message = restTemplate.postForObject("http://localhost:8080/messages", request, Message.class);
+    assertEquals(message.getText(), "new message");
+}
+</code></pre>
+<p>要請求 REST 介面進行刪除，可以使用 <code>delete</code>：</p>
+<pre class="prettyprint"><code lang="java">@Test
+public void delete() {
+    restTemplate.delete("http://localhost:8080/messages/{id}", "1");
+    Message message = restTemplate.getForObject("http://localhost:8080/messages/{id}", Message.class, "1");
+    assertEquals(message.getText(), "msg2");
+}
+</code></pre>
+<p>至於要請求取得全部訊息，並封裝為 <code>List&lt;Message&gt;</code>，稍微多了手續，不過也可以趁機看看 <code>exchange</code> 方法的使用：</p>
+<pre class="prettyprint"><code lang="java">@Test
+public void index() {
+    RequestEntity&lt;Void&gt; request = RequestEntity
+            .get(URI.create("http://localhost:8080/messages/"))
+            .accept(MediaType.APPLICATION_JSON)
+            .build();
+
+    ResponseEntity&lt;List&lt;Message&gt;&gt; response = restTemplate
+            .exchange(request,new ParameterizedTypeReference&lt;List&lt;Message&gt;&gt;(){});
+    List&lt;Message&gt; messages = response.getBody();
+    assertTrue(messages.size() &gt; 0);
+}
+</code></pre>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Boot/RestTmpl">RestTmpl</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

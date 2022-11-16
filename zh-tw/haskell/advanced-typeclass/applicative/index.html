@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="如果有 Just 10 與 Just 5，若希望對它們相加得到 Just 15，直接 (Just 10) &#43; (Just 5) 是行不通的，也許可以定義一個 add 函式來解決這個問題： add :: Num a =&gt; Maybe a -&gt; Maybe a -&gt; Maybe a add (Just">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::可以套用函式的 Applicative" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/applicative/" />
+    <meta property="og:description" content="如果有 Just 10 與 Just 5，若希望對它們相加得到 Just 15，直接 (Just 10) &#43; (Just 5) 是行不通的，也許可以定義一個 add 函式來解決這個問題： add :: Num a =&gt; Maybe a -&gt; Maybe a -&gt; Maybe a add (Just" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::可以套用函式的 Applicative" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/advanced-typeclass/applicative/" />
+    <meta name="twitter:description" content="如果有 Just 10 與 Just 5，若希望對它們相加得到 Just 15，直接 (Just 10) &#43; (Just 5) 是行不通的，也許可以定義一個 add 函式來解決這個問題： add :: Num a =&gt; Maybe a -&gt; Maybe a -&gt; Maybe a add (Just" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443678" type="image/x-icon">
+    <title> Haskell  :: 可以套用函式的 Applicative</title>
+    <link href="../../../css/nucleus.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443678.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443678.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443678"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/advanced-typeclass/applicative/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item parent"><a href="../index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item active"><a href="index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">高階行為</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">可以套用函式的 Applicative</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#從-maybe-開始">從 Maybe 開始</a></li>
+    <li><a href="index.html#maybe-的-applicative-行為">Maybe 的 Applicative 行為</a></li>
+    <li><a href="index.html#list-的-applicative-行為">List 的 Applicative 行為</a></li>
+    <li><a href="index.html#io-的-applicative-行為">IO 的 Applicative 行為</a></li>
+    <li><a href="index.html#活用-applicative">活用 Applicative</a></li>
+    <li><a href="index.html#applicative-定律">Applicative 定律</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/pattern/index.html">pattern</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>可以套用函式的 Applicative</h1>
+
+ <i class="space fa fa-calendar"> February 12, 2022</i> 
+<p>如果有 <code>Just 10</code> 與 <code>Just 5</code>，若希望對它們相加得到 <code>Just 15</code>，直接 <code>(Just 10) + (Just 5)</code> 是行不通的，也許可以定義一個 <code>add</code> 函式來解決這個問題：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">add</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">add</span> (<span style="color:#66d9ef">Just</span> a) (<span style="color:#66d9ef">Just</span> b) <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span> (a <span style="color:#f92672">+</span> b)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">add</span> <span style="color:#66d9ef">Nothing</span>  <span style="color:#66d9ef">_</span>        <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">add</span> <span style="color:#66d9ef">_</span>        <span style="color:#66d9ef">Nothing</span>  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>現在可以 <code>add (Just 10) (Just 5)</code> 來達到需求，不過，如果需要 <code>(Just 10) * (Just 5)</code> 得到 <code>Just 50</code> 的效果呢？其他像是 list 也有這種需求呢？像是希望能 <code>add [&quot;Justin&quot;, &quot;Monica&quot;, &quot;Irene&quot;] [&quot;Happy&quot;, &quot;Lucky&quot;, &quot;Healthy&quot;]</code> 而得到 <code>[&quot;JustinHappy&quot;, &quot;JustinLucky&quot;, &quot;JustinHealthy&quot;, &quot;MonicaHappy&quot;, &quot;MonicaLucky&quot;, &quot;MonicaHealthy&quot;, &quot;IreneHappy&quot;, &quot;IreneLucky&quot;, &quot;IreneHealthy&quot;]</code> 呢？</p>
+<p>也就是說，我們希望將 <code>add (Just 10) (Just 5)</code> 這類的操作通用化！</p>
+<h2 id="從-maybe-開始">從 Maybe 開始</h2>
+<p>先思考一下，<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 這類函式，它們的型態是 <code>Num a =&gt; a -&gt; a -&gt; a</code>，也就是接受兩個引數後傳回一個值；然而從另一個度來看，也可以看成是 <code>Num a =&gt; a -&gt; (a -&gt; a)</code>，也就是接受一個引數傳回一個函式，因此可以將 <code>(+10)</code>、<code>(-5)</code> 這些函式當作引數，傳給另一個函式。</p>
+<p>之前的 <code>add</code> 函式接受兩個 <code>Maybe a</code>，傳回一個 <code>Maybe a</code>，從另一角度來看，是接受一個 <code>Maybe a</code>，傳回一個 <code>Maybe a -&gt; Maybe a</code> 的函式，這感覺像是〈<a href="../functor/index.html">可以映射的 Functor</a>〉中 <code>fmap</code> 做的事，如果有個 <code>Just 5</code>，<code>fmap (+10) (Just 5)</code> 會得到 <code>Just 10</code>，此時 <code>fmap (+10)</code> 是 <code>f b -&gt; f b</code> 的函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let fPlus10  = fmap (+10)
+</span></span><span style="display:flex;"><span>ghci&gt; :t fPlus10
+</span></span><span style="display:flex;"><span>fPlus10 :: (Functor f, Num b) =&gt; f b -&gt; f b
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>如何不直接寫死 <code>10</code> 這個數字呢？<code>fmap</code> 的型態 <code>(a -&gt; b) -&gt; f a -&gt; f b</code>，第一個參數接受一個 <code>(a -&gt; b)</code> 的函式，那可以傳入 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 這類的函式嗎？可以！<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 函式，型態是 <code>a -&gt; a -&gt; a</code>，然而也可以看成是 <code>a -&gt; (a -&gt; a)</code>，因此 <code>fmap</code> 可以接受 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 這類函式，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let fPlus = fmap (+)
+</span></span><span style="display:flex;"><span>ghci&gt; :t fPlus
+</span></span><span style="display:flex;"><span>fPlus :: (Functor f, Num a) =&gt; f a -&gt; f (a -&gt; a)
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>fmap (+)</code> 是 <code>f a -&gt; f (a -&gt; a)</code> 型態，如果 <code>fmap (+) (Just 10)</code>，會得到 <code>Maybe (a -&gt; a)</code>，也就是 <code>Maybe</code> 包含了 <code>a -&gt; a</code> 的函式，也就是 <code>(+ 10)</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let Just func  = fmap (+) (Just 10) 
+</span></span><span style="display:flex;"><span>ghci&gt; :t func
+</span></span><span style="display:flex;"><span>func :: Num a =&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; func 20
+</span></span><span style="display:flex;"><span>30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>既然如此，<code>fmap</code> 不就可以使用這個 <code>func</code>，將一個 <code>Maybe</code> 映射為另一個 <code>Maybe</code> 嗎？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; fmap func (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>將以上流程合在一起就是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let Just func  = fmap (+) (Just 10)
+</span></span><span style="display:flex;"><span>ghci&gt; fmap func (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>若不想寫死 <code>+</code>，可以使用變數 <code>operator</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let Just operator = Just (+)
+</span></span><span style="display:flex;"><span>ghci&gt; let Just func  = fmap operator (Just 10)
+</span></span><span style="display:flex;"><span>ghci&gt; fmap func (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>這就出現了一個重複的流程，將 <code>Just</code> 中的函式取出，作為 <code>fmap</code> 第一個引數，而 <code>Just something</code> 就是第二個引數，來將這個流程定義為一個函式，並考慮 <code>Nothing</code> 的情況：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> b
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> (<span style="color:#66d9ef">Just</span> func) something <span style="color:#f92672">=</span> fmap func something
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> <span style="color:#66d9ef">Nothing</span> <span style="color:#66d9ef">_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>也可以寫成 Point free 風格：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Maybe</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Maybe</span> b
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> (<span style="color:#66d9ef">Just</span> func) <span style="color:#f92672">=</span> fmap func
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">apply</span> <span style="color:#66d9ef">Nothing</span> <span style="color:#66d9ef">_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>
+</span></span></code></pre></div><p>現在有了 <code>apply</code> 函式，將 <code>Just</code> 中的函式取出，直接當作 <code>fmap</code> 的第一個引數，而 <code>Just something</code> 就是第二個引數的這個流程就可以重複使用了，因此上頭從 <code>Just (+)</code>、<code>Just 10</code> 到 <code>Just 30</code> 的這個過程，就可以寫為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; Just (+) `apply` (Just 10) `apply` (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt; 
+</span></span></code></pre></div><p>透過 <code>apply</code>，就可以使用 <code>Just (+)</code> 中的 <code>+</code> 函式，來對 <code>Just 10</code>、<code>Just 5</code> 中的 <code>10</code> 與 <code>20</code> 做套用，得到一個 <code>Just 30</code>，現在也可以使用 <code>++</code> 等其他的函式了，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; Just (++) `apply` (Just &#34;123&#34;) `apply` (Just &#34;456&#34;)
+</span></span><span style="display:flex;"><span>Just &#34;123456&#34;
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><h2 id="maybe-的-applicative-行為">Maybe 的 Applicative 行為</h2>
+<p>現在，<code>apply</code> 函式對 <code>Maybe</code> 夠通用了，如果將 <code>apply</code> 等行為抽取出來，定義為型態類別，然後將 <code>Maybe</code> 型態參數化呢？這麼一來，就可以是 <code>f (a -&gt; b) -&gt; f a -&gt; f b</code>，其中 f 是型態參數，可以是 <code>Maybe</code> 等實際型態。</p>
+<p>Haskell 的 <code>Control.Applicative</code> 模組定義的 <code>Applicative</code> 就是如此定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> (<span style="color:#66d9ef">Functor</span> f) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Applicative</span> f <span style="color:#66d9ef">where</span>   
+</span></span><span style="display:flex;"><span>    pure <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> f a   
+</span></span><span style="display:flex;"><span>    (<span style="color:#f92672">&lt;*&gt;</span>) <span style="color:#f92672">::</span> f (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> f a <span style="color:#f92672">-&gt;</span> f b
+</span></span></code></pre></div><p><code>Applicative</code> 必須要有 <code>Functor</code> 的行為，這不難理解，畢竟方才就是從 <code>fmap</code> 逐一推導，衍生出 <code>Applicative</code> 的行為，在實作 <code>Applicative</code>，確實也需要 <code>fmap</code> 的行為。</p>
+<p>從另一個角度來看，<code>Functor</code> 就像將一元運算函式，套用至 <code>f a</code> 的 <code>a</code>，<code>Applicative</code> 則可以將二元運算函式，套用至 <code>f a</code>、<code>f b</code> 的 <code>a</code> 與 <code>b</code>，你也可以說，<code>Applicative</code> 就是加強版的 <code>Functor</code>。</p>
+<p><code>pure</code> 可以將 <code>a</code> 對應至 <code>f a</code>，對於 <code>Applicative</code> 來說，目的是用來將 <code>a -&gt; b</code> 對應至 <code>f (a -&gt; b)</code>，也就是將指定的函式置入與 <code>Functor</code> 相同的環境（context），這麼一來你就可以單純地對 <code>Functor</code> 的內含值，套用 <code>a -&gt; b</code>。</p>
+<p>例如，<code>Maybe</code> 就實現了 <code>Applicative</code> 的行為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Applicative</span> <span style="color:#66d9ef">Maybe</span> <span style="color:#66d9ef">where</span>   
+</span></span><span style="display:flex;"><span>    pure <span style="color:#f92672">=</span> <span style="color:#66d9ef">Just</span>   
+</span></span><span style="display:flex;"><span>    (<span style="color:#66d9ef">Just</span> f) <span style="color:#f92672">&lt;*&gt;</span> something <span style="color:#f92672">=</span> fmap f something
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">Nothing</span> <span style="color:#f92672">&lt;*&gt;</span> <span style="color:#66d9ef">_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">Nothing</span>   
+</span></span></code></pre></div><p><code>&lt;*&gt;</code> 在實現時，其實以上頭的 <code>apply</code> 是一樣的，因此 <code>Maybe</code> 可以如下套用運算：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; import Control.Applicative
+</span></span><span style="display:flex;"><span>ghci&gt; pure (+) &lt;*&gt; Just 10 &lt;*&gt; Just 20       
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt; pure (++) &lt;*&gt; Just &#34;123&#34; &lt;*&gt; Just &#34;456&#34;
+</span></span><span style="display:flex;"><span>Just &#34;123456&#34;
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>因為 <code>(Just f) &lt;*&gt;</code>  等於  <code>fmap f</code>，<code>pure func &lt;*&gt;</code> 等於 <code>fmap func</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; pure (+) &lt;*&gt; Just 10 &lt;*&gt; Just 20
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt; (fmap (+)) (Just 10) &lt;*&gt; (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt; (+) `fmap` (Just 10) &lt;*&gt; (Just 20)
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>最後一個 <code>fmap</code> 的示範是中序形式，在 <code>Control.Applicative</code> 有個 <code>&lt;$&gt;</code> 函式，它就是中序版本的 <code>fmap</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span>(<span style="color:#f92672">&lt;$&gt;</span>) <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Functor</span> f) <span style="color:#f92672">=&gt;</span> (a <span style="color:#f92672">-&gt;</span> b) <span style="color:#f92672">-&gt;</span> f a <span style="color:#f92672">-&gt;</span> f b   
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">f</span> <span style="color:#f92672">&lt;$&gt;</span> x <span style="color:#f92672">=</span> fmap f x
+</span></span></code></pre></div><p>一開始的需求是想做出像 <code>add (Just 10) (Just 5)</code> 這類的動作，而 <code>(+) &lt;$&gt; Just 10 &lt;*&gt; Just 5</code> 看來就是我們想要的，儘管中間多了 <code>&lt;$&gt;</code>、<code>&lt;*&gt;</code> 等函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (+) &lt;$&gt; (Just 10) &lt;*&gt; (Just 20)   
+</span></span><span style="display:flex;"><span>Just 30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>Applicative</code> 的行為就是，可以指定函式，讓 <code>Applicative</code> 與 <code>Applicative</code> 可以直接套用函式。</p>
+<h2 id="list-的-applicative-行為">List 的 Applicative 行為</h2>
+<p>記得上面也希望 <code>add [&quot;Justin&quot;, &quot;Monica&quot;, &quot;Irene&quot;] [&quot;Happy&quot;, &quot;Lucky&quot;, &quot;Healthy&quot;]</code> 而得到 <code>[&quot;JustinHappy&quot;, &quot;JustinLucky&quot;, &quot;JustinHealthy&quot;, &quot;MonicaHappy&quot;, &quot;MonicaLucky&quot;, &quot;MonicaHealthy&quot;, &quot;IreneHappy&quot;, &quot;IreneLucky&quot;, &quot;IreneHealthy&quot;]</code> 嗎？你可以這麼做：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; pure (++) &lt;*&gt; [&#34;Justin&#34;, &#34;Monica&#34;, &#34;Irene&#34;] &lt;*&gt; [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;] 
+</span></span><span style="display:flex;"><span>ghci&gt; (++) &lt;$&gt; [&#34;Justin&#34;, &#34;Monica&#34;, &#34;Irene&#34;] &lt;*&gt; [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]     
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;] 
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>這是因為 list 也實現了 <code>Applicative</code> 的行為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Applicative</span> <span style="color:#66d9ef">[]</span> <span style="color:#66d9ef">where</span>   
+</span></span><span style="display:flex;"><span>    pure x <span style="color:#f92672">=</span> [x]   
+</span></span><span style="display:flex;"><span>    fs <span style="color:#f92672">&lt;*&gt;</span> xs <span style="color:#f92672">=</span> [f x <span style="color:#f92672">|</span> f <span style="color:#f92672">&lt;-</span> fs, x <span style="color:#f92672">&lt;-</span> xs]
+</span></span></code></pre></div><p>只不過 <code>pure (++) &lt;*&gt; [&quot;Justin&quot;, &quot;Monica&quot;, &quot;Irene&quot;] &lt;*&gt; [&quot;Happy&quot;, &quot;Lucky&quot;, &quot;Healthy&quot;]</code> 到底做了什麼呢？可以先來看看 <code>pure (++) &lt;*&gt; [&quot;Justin&quot;, &quot;Monica&quot;, &quot;Irene&quot;]</code> 會是什麼結果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let fs = pure (++) &lt;*&gt; [&#34;Justin&#34;, &#34;Monica&#34;, &#34;Irene&#34;]
+</span></span><span style="display:flex;"><span>ghci&gt; :t fs
+</span></span><span style="display:flex;"><span>fs :: [[Char] -&gt; [Char]]
+</span></span><span style="display:flex;"><span>ghci&gt; fs &lt;*&gt; [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;]
+</span></span><span style="display:flex;"><span>ghci&gt; [(&#34;Justin&#34; ++), (&#34;Monica&#34; ++), (&#34;Irene&#34; ++)] &lt;*&gt; [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;]    
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>pure (++) &lt;*&gt; [&quot;Justin&quot;, &quot;Monica&quot;, &quot;Irene&quot;]</code> 的結果是個 list，型態是 <code>[[Char] -&gt; [Char]]</code>，也就是一個裝著函式的 list，也就是 <code>[(&quot;Justin&quot; ++), (&quot;Monica&quot; ++), (&quot;Irene&quot; ++)]</code>，既然如此，如上直接給 <code>&lt;*&gt;</code> 一個 <code>[(&quot;Justin&quot; ++), (&quot;Monica&quot; ++), (&quot;Irene&quot; ++)]</code> 也可以，而這感覺有點像 Comprehension 表示呢！</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; [f s| f &lt;- [(&#34;Justin&#34; ++), (&#34;Monica&#34; ++), (&#34;Irene&#34; ++)], s &lt;- [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]]
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;]    
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>別忘了，多參數函式是由單參數函式組成，可以部份套用，因此也可以這麼做：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (++) &lt;$&gt; [&#34;Justin&#34;, &#34;Monica&#34;, &#34;Irene&#34;] &lt;*&gt; [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]                    
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;]    
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>這就相當於以下的 Comprehension 表示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; [name ++ state | name &lt;- [&#34;Justin&#34;, &#34;Monica&#34;, &#34;Irene&#34;], state &lt;- [&#34;Happy&#34;, &#34;Lucky&#34;, &#34;Healthy&#34;]]
+</span></span><span style="display:flex;"><span>[&#34;JustinHappy&#34;,&#34;JustinLucky&#34;,&#34;JustinHealthy&#34;,&#34;MonicaHappy&#34;,&#34;MonicaLucky&#34;,&#34;MonicaHealthy&#34;,&#34;IreneHappy&#34;,&#34;IreneLucky&#34;,&#34;IreneHealthy&#34;]    
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>也就是說，list 在實現 <code>Applicative</code> 的行為時，其實就是實現了 list 的 Comprehension 表示式運算，可讀性見人見智，如果你（或共事的其他人）不知道 <code>Applicative</code> 隱藏了什麼，或看不懂  <code>&lt;$&gt;</code> 與 <code>&lt;*&gt;</code> 是啥，Comprehension 表示式也許會比較好懂。</p>
+<h2 id="io-的-applicative-行為">IO 的 Applicative 行為</h2>
+<p><code>IO</code> 會是個 <code>Applicative</code> 嗎？想想看，如果有兩個 <code>IO String</code>，像是從兩個檔案分別讀入了內容，或許你會想將兩個串接在一起，得到一個 <code>IO String</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">readFiles</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">FilePath</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">FilePath</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> [<span style="color:#66d9ef">Char</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">readFiles</span> file1 file2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    content1 <span style="color:#f92672">&lt;-</span> readFile file1
+</span></span><span style="display:flex;"><span>    content2 <span style="color:#f92672">&lt;-</span> readFile file2
+</span></span><span style="display:flex;"><span>    return (content1 <span style="color:#f92672">++</span> content2)
+</span></span></code></pre></div><p>若 <code>++</code> 是可以指定的函式，套用至兩個 <code>IO String</code>，得到一個 <code>IO String</code>，看來像是 <code>Applicative</code> 的行為，<code>IO</code> 確實是 <code>Applicative</code> 的實例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Applicative</span> <span style="color:#66d9ef">IO</span> <span style="color:#66d9ef">where</span>   
+</span></span><span style="display:flex;"><span>    pure <span style="color:#f92672">=</span> return   
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">&lt;*&gt;</span> b <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>   
+</span></span><span style="display:flex;"><span>        f <span style="color:#f92672">&lt;-</span> a   
+</span></span><span style="display:flex;"><span>        x <span style="color:#f92672">&lt;-</span> b   
+</span></span><span style="display:flex;"><span>        return (f x)
+</span></span></code></pre></div><p><code>pure</code> 的實現就是 <code>return</code>，這會將指定的函式置入 <code>IO</code>，要將 <code>IO</code> 結果使用指定函式處理，就可以使用這種風格，因此方才的 <code>readFiles</code> 函式可以更簡潔地實現為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Control.Applicative
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">readFiles</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">FilePath</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">FilePath</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> [<span style="color:#66d9ef">Char</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">readFiles</span> file1 file2 <span style="color:#f92672">=</span> (<span style="color:#f92672">++</span>) <span style="color:#f92672">&lt;$&gt;</span> readFile file1 <span style="color:#f92672">&lt;*&gt;</span> readFile file2
+</span></span></code></pre></div><h2 id="活用-applicative">活用 Applicative</h2>
+<p>如果你定義了一個 <code>doubleMe</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> n <span style="color:#f92672">=</span> n <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><p>如果 <code>doubleMe 10</code> 就會是 20，這沒問題，如果有個 <code>Just 10</code> 呢？別急著定義新函式，因為 <code>Maybe</code> 是個 <code>Applicative</code>，就只要 <code>pure doubleMe &lt;*&gt; Just 10</code>，得到一個 Just 20，如果知道 <code>&lt;$&gt;</code> 的話，那麼寫成 <code>doubleMe &lt;$&gt; Just 10</code> 會更容易閱讀。</p>
+<p>多參數函式呢？例如定義一個 <code>addThreeNumber</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">addThreeNumber</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> a <span style="color:#f92672">-&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">addThreeNumber</span> a b c <span style="color:#f92672">=</span> a <span style="color:#f92672">+</span> b <span style="color:#f92672">+</span> c
+</span></span></code></pre></div><p><code>addThreeNumber 1 2 3</code> 當然沒問題，如果想要令 <code>addThreeNumber</code> 適用於 <code>Maybe</code>，可以寫 <code>addThreeNumber &lt;$&gt; Just 1 &lt;*&gt; Just 2 &lt;*&gt; Just 3</code>。</p>
+<p>如果有個 <code>[1, 2, 3]</code>，實際上它是 <code>1:2:3:[]</code>，如果有個 <code>[2, 3]</code>，你可以使用 <code>1:[2, 3]</code> 得到一個 <code>[1, 2, 3]</code>，如果有個 <code>Just 1</code> 與 <code>Just [2, 3]</code> 呢？你可以這麼做：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (:) &lt;$&gt; Just 1 &lt;*&gt; Just [2, 3]
+</span></span><span style="display:flex;"><span>Just [1,2,3]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>如果有個 <code>'*' : &quot;Justin&quot;</code>，那就會得到一個 <code>&quot;*Justin&quot;</code>，別老舉 <code>Maybe</code> 為例好了，如果有個 <code>IO Char</code>，想要與 <code>getLine</code> 傳回的 <code>IO String</code> 直接使用 <code>:</code> 得到一個 <code>IO String</code> 呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; text &lt;- (:) &lt;$&gt; return &#39;*&#39; &lt;*&gt; getLine 
+</span></span><span style="display:flex;"><span>Justin
+</span></span><span style="display:flex;"><span>ghci&gt; text
+</span></span><span style="display:flex;"><span>&#34;*Justin&#34;
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>基本的函式可以套用在 <code>Applicative</code> 上，那麼一個函式被部份套用後，傳回一個函式自然也可以套用在 Applicative 上囉！</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (+3) 10
+</span></span><span style="display:flex;"><span>13
+</span></span><span style="display:flex;"><span>ghci&gt; (+3) &lt;$&gt; Just 10
+</span></span><span style="display:flex;"><span>Just 13
+</span></span><span style="display:flex;"><span>ghci&gt; filter (&gt;3) [1, 2, 3, 4, 5, 6]
+</span></span><span style="display:flex;"><span>[4,5,6]
+</span></span><span style="display:flex;"><span>ghci&gt; filter (&gt;3) &lt;$&gt; Just [1, 2, 3, 4, 5, 6]
+</span></span><span style="display:flex;"><span>Just [4,5,6]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>有 Lambda 的情況呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; map (\x -&gt; abs x + 10) [1, -2, 3, -4]
+</span></span><span style="display:flex;"><span>[11,12,13,14]
+</span></span><span style="display:flex;"><span>ghci&gt; map (\x -&gt; abs x + 10) &lt;$&gt; Just [1, -2, 3, -4]
+</span></span><span style="display:flex;"><span>Just [11,12,13,14]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>函式合成自然也就沒問題：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (show . abs . sum) [1, -2, 3, -4]
+</span></span><span style="display:flex;"><span>&#34;2&#34;
+</span></span><span style="display:flex;"><span>ghci&gt; (show . abs . sum) &lt;$&gt; Just [1, -2, 3, -4]
+</span></span><span style="display:flex;"><span>Just &#34;2&#34;
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>函式合成的意思就是，像 <code>(abs . sum) [1, -2, 3, -4]</code>，結果與 <code>abs (sum [1, -2, 3, -4])</code> 相同，而 <code>.</code> 不過也只是一個函式，因此 <code>(abs . sum) [1, -2, 3, -4]</code> 也可以寫為 <code>(.) abs sum [1, -2, 3, -4]</code>，也就是說，<code>(.) abs sum [1, -2, 3, -4]</code> 的結果會與 <code>abs (sum [1, -2, 3, -4])</code>，進一步應用在 <code>Applicative</code> 就是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (.) &lt;$&gt; Just abs &lt;*&gt; Just sum &lt;*&gt; Just [1, -2, 3, -4]
+</span></span><span style="display:flex;"><span>Just 2
+</span></span><span style="display:flex;"><span>ghci&gt; abs &lt;$&gt; (sum &lt;$&gt; Just [1, -2, 3, -4])                
+</span></span><span style="display:flex;"><span>Just 2
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><h2 id="applicative-定律">Applicative 定律</h2>
+<p>實現 <code>Applicative</code> 的行為時，有其應遵守的規範，這可以在 <a href="https://hackage.haskell.org/package/base-4.16.0.0/docs/Control-Applicative.html">Control.Applicative</a> 的文件中找到：</p>
+<ul>
+<li>Identity：<code>pure id &lt;*&gt; v = v</code></li>
+<li>Composition：<code>pure (.) &lt;*&gt; u &lt;*&gt; v &lt;*&gt; w = u &lt;*&gt; (v &lt;*&gt; w)</code></li>
+<li>Homomorphism：<code>pure f &lt;*&gt; pure x = pure (f x)</code></li>
+<li>Interchange：<code>u &lt;*&gt; pure y = pure ($ y) &lt;*&gt; u</code></li>
+</ul>
+<p>既然某函式原本能對 <code>Applicative</code> 中的值做套用，該函式就能用來對 <code>Applicative</code> 做套用，那麼從這個角度來思考一個 <code>Applicative</code> 在實作時，應當遵守的 <code>Applicative</code> 定律也就不難理解，就像方才最後的函式合成例子，就是在示範 <code>Maybe Applicative</code> 符合定律中 Composition 的規範。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/advanced-typeclass/applicative/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/advanced-typeclass/applicative/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e5%8f%af%e4%bb%a5%e5%a5%97%e7%94%a8%e5%87%bd%e5%bc%8f%e7%9a%84%20Applicative&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fadvanced-typeclass%2fapplicative%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../functor/index.html" title="可以映射的 Functor"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../monad/index.html" title="解決巢狀運算的 Monad"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443678"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443678"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443678"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443678"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443678"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443678"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443678"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443678"></script>
+  </body>
+</html>

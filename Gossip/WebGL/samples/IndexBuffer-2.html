@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Index Buffer</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 position;
+            
+            void main(void) {
+                gl_Position = vec4(position.x, position.y * aspect, position.z, 1.0);
+                gl_PointSize = 5.0;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main(void) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+            function rotateXY(verteices, ax, ay) {
+                const sinax = Math.sin(ax);
+                const cosax = Math.cos(ax);
+                const sinay = Math.sin(ay);
+                const cosay = Math.cos(ay);
+
+                for(let i = 0; i < verteices.length; i += 3) {
+                    const [x, y, z] = [verteices[i], verteices[i + 1], verteices[i + 2]];
+                    const z1 = -x * sinay + z * cosay;
+                    verteices[i] = x * cosay + z * sinay;
+                    verteices[i + 1] = y * cosax - z1 * sinax;
+                    verteices[i + 2] = y * sinax + z1 * cosax;
+                }
+            }
+
+            const gl = getGLContext(document.getElementById('glCanvas'));
+            const prog = installProgram(gl, 
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader')
+            );
+
+            // 立方體八個頂點
+            const n = 0.25;
+            const verteices = [
+                 n, n, -n,
+                 n, -n, -n,
+                 n, -n, n,
+                 n, n, n,
+                 -n, n, n,
+                 -n, -n, n,
+                 -n, -n, -n,
+                 -n, n, -n
+            ];
+
+            rotateXY(verteices, Math.PI / 6, -Math.PI / 6);
+
+            // 頂點 Buffer
+            const vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.DYNAMIC_DRAW);
+
+            // 配合 gl.LINE_LOOP 使用的頂點索引
+            const indexes = [
+                0, 1, 2, 3,
+                7, 0, 3, 4,
+                6, 7, 4, 5,
+                1, 6, 5, 2
+            ];
+
+            // 索引 Buffer
+            const indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indexes), gl.STATIC_DRAW);
+
+            const attr_position = gl.getAttribLocation(prog, 'position');
+            gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+            gl.enableVertexAttribArray(attr_position);
+
+            gl.uniform1f(
+                gl.getUniformLocation(prog, 'aspect'),
+                gl.canvas.clientWidth / gl.canvas.clientHeight
+            );
+
+            let animation = false;
+            function drawCube() {
+                // 繪製
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                for(let i = 0; i < 4; i++) {
+                    gl.drawElements(gl.LINE_STRIP, 4, gl.UNSIGNED_BYTE, 4 * i);
+                }
+                rotateXY(verteices, 0, 0.025);
+                
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(verteices));
+                if(animation) {
+                    requestAnimationFrame(drawCube);
+                }
+            }
+
+            gl.canvas.addEventListener('mousedown', () => {
+                animation = !animation;
+                if(animation) {
+                    drawCube();
+                }
+            });
+
+            drawCube();
+        </script>
+    </body>
+</html>

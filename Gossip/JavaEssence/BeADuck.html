@@ -1,0 +1,152 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="你可以使用反射動態載入.class，從中擷取類別資訊，也可以直接利用載入的.class之Class實例，動態生成物件，更可以進一步操作物件的方法。
+      
+例如，若有個Student：
+ ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="怎麼當鴨子">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JavaEssence/BeADuck.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="你可以使用反射動態載入.class，從中擷取類別資訊，也可以直接利用載入的.class之Class實例，動態生成物件，更可以進一步操作物件的方法。
+      
+例如，若有個Student：
+ ...">
+
+
+    <title>怎麼當鴨子</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BeADuck.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Essence</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>怎麼當鴨子</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            你可以使用反射動態載入.class，從中擷取類別資訊，也可以直接利用載入的.class之Class實例，動態生成物件，更可以進一步操作物件的方法。<br>
+      <br>
+例如，若有個Student：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">package cc.openhome;</span><br>
+      <span style="font-weight: bold;">public class Student {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private String name;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private int score;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public Student(String name, int score) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; this.name = name;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; this.score = score;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void setName(String name) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; this.name = name;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><span style="font-weight: bold;"></span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public String getName() {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return name;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><span style="font-weight: bold;"></span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void setScore(int score) {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; this.score = score;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public int getScore() {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return score;</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+      以下的程式可以動態生成Student實例，並透過setName()設定名稱，用getName()取得名稱，一切都是以Object型態操作，不用使用轉型：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">Class clz = Class.forName("cc.openhome.Student");</span><br>
+      <span style="font-weight: bold;">Constructor constructor = <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+clz.getConstructor(new Class[] {String.class, Integer.TYPE});</span><br>
+      <span style="font-weight: bold;">Object obj = <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; constructor.newInstance(new Object[] {"caterpillar", new Integer(90)});</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br>
+      <span style="font-weight: bold;">Method setter = clz.getMethod("setName", new Class[] {String.class});</span><br>
+      <span style="font-weight: bold;">setter.invoke(obj, new Object[] {"caterpillar"});</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+      <span style="font-weight: bold;">Method getter = clz.getMethod("getName", null);</span><br>
+      <span style="font-weight: bold;">System.out.println(getter.invoke(obj, null));</span><br>
+      </div>
+      <br>
+這很有趣，這表示，你可以實現動態語言中經常出現的<a href="http://en.wikipedia.org/wiki/Duck_typing"> 鴨子類型</a> 概念：如果它走路像隻鴨子，叫聲像個鴨子，游起來像個鴨子，那它就是鴨子。<br>
+      <br>
+聽來很怪？尤其是你對動態語言沒概念的話，那麼，考慮一個情況，你會有個物件，它是什麼類別你一無所知，它會實作哪些介面你也不知道，你只知道它上頭會有個quack()方法，那該怎麼寫程式來呼叫執行這個方法？可以如下：<br>
+      
+      <div style="margin-left: 40px;">class Dog {<br>
+      
+&nbsp;&nbsp;&nbsp; public void quack() {<br>
+      
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; System.out.println("狗兒呱呱叫");<br>
+      
+&nbsp;&nbsp;&nbsp; }<br>
+      
+}<br>
+      <br>
+      <span style="font-weight: bold;">public class Main {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static void main(String[] args) throws Exception {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; doQuack(new Dog());</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static void doQuack(Object duck) throws Exception {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Method quack = duck.getClass().getMethod("quack", null);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; quack.invoke(duck, null);</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">}</span><br>
+      </div>
+      <br>
+doQuack()才不管丟進來的是阿貓還是阿狗，反正它會呱呱叫就好了！就算只是個Object也無所謂：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">doQuack(new Object() {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void quack() {</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; System.out.println("誰在呱呱叫");</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br>
+      <span style="font-weight: bold;">});</span><br>
+      </div>
+      <br>
+      不過模彷鴨子類型並不是沒有代價，也就是要付出效能作為補償（根據實際的需求，也許你可分析看看，是否有哪些Method等反射物件可以快取，不用每次都動態生成，藉此改進一些效能）。
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,188 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/Java/'https://openhome.cc/zh-tw/java/functional-api/flatmap/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在程式設計中有時會出現巢狀或瀑布式的流程，就結構來看每一層運算極為類似，只是傳回的型態不同，很難抽取流程重用。舉例來說，如果你的方法可能傳回null，你可能會設計出某個流程如下：
+      Cus...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Optional 與 Stream 的 flatMap">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Java/FlatMap.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在程式設計中有時會出現巢狀或瀑布式的流程，就結構來看每一層運算極為類似，只是傳回的型態不同，很難抽取流程重用。舉例來說，如果你的方法可能傳回null，你可能會設計出某個流程如下：
+      Cus...">
+
+
+    <title>Optional 與 Stream 的 flatMap</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FlatMap.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Optional 與 Stream 的 flatMap</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>在程式設計中有時會出現巢狀或瀑布式的流程，就結構來看每一層運算極為類似，只是傳回的型態不同，很難抽取流程重用。舉例來說，如果你的方法可能傳回<code>null</code>，你可能會設計出某個流程如下：</p>
+      <p style="margin-left: 40px;"><code>Customer customer = order.getCustomer();<br>
+          if(customer != null) {<br>
+          &nbsp;&nbsp;&nbsp; String address = customer.getAddress();<br>
+          &nbsp;&nbsp;&nbsp; if(address != null) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return address;<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }<br>
+          return "n.a.";</code></p>
+      <p>巢狀的層次可能還會更深，像是 ...</p>
+      <p style="margin-left: 40px;"><code>Customer customer = order.getCustomer();<br>
+          if(customer != null) {<br>
+          &nbsp;&nbsp;&nbsp; Address address = customer.getAddress();<br>
+          &nbsp;&nbsp;&nbsp; if(address != null) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; City city = address.getCity();<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(city != null) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ....<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }<br>
+          return "n.a.";</code></p>
+      連續的層次不深時，也許程式碼看來還算直覺，然後層次一深之後，顯然地，很容易迷失在層次之中，雖然每層都是判斷值是否為null，不過因為型態不同，看來不太好抽取流程重用。<br>
+      <br>
+      就 <a href="Optional.html">使用 <code>Optional</code> 取代 <code>null</code></a> 中的說明，<code>null</code>本身就不建議使用，如果讓<code>getCustomer()</code>傳回<code>Optional&lt;Customer&gt;</code>、讓<code>getAddress()</code>傳回<code>Optional&lt;String&gt;</code>，那一開始的程式片段可以先改為：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>String addr = "n.a.";<br>
+          Optional&lt;Customer&gt; customer = order.getCustomer();<br>
+          if(customer.isPresent()) {<br>
+          &nbsp;&nbsp;&nbsp; Optional&lt;String&gt; address = customer.get().getAddress();<br>
+          &nbsp;&nbsp;&nbsp; if(address.isPresent()) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; addr = address.get();<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }<br>
+          return addr;</code></div>
+      <br>
+      看來好像沒有高明到哪去，不過至少每一層都是<code>Optional</code>型態了，而每一層都是有無的判斷，然後將<code>Optional&lt;T&gt;</code>轉換為<code>Optional&lt;U&gt;</code>，如果將<code>Optional&lt;T&gt;</code>轉換為<code>Optional&lt;U&gt;</code>的方式可以由外部指定，那你就可以重用有無的判斷了，實際上<code>Optional</code>有個<code>flatMap()</code>方法，已經幫你寫好這個邏輯了：<br>
+      <br>
+      <code>&nbsp;&nbsp;&nbsp; public&lt;U&gt; Optional&lt;U&gt; flatMap(Function&lt;? super T, Optional&lt;U&gt;&gt; mapper) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Objects.requireNonNull(mapper);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!isPresent())<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return empty();<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return Objects.requireNonNull(mapper.apply(value));<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }</code><br>
+      <br>
+      所以，你大可以如下直接使用<code>Optional</code>的<code>flatMap()</code>方法：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>return order.getCustomer()</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(Customer::getAddress)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .orElse("n.a.");</code></div>
+      <br>
+      如果層次不深，也許看不出使用這個的好處，若層次深比較有益處時，像是一開始第二個程式片段，改寫為以下就清楚多了…<br>
+      <br>
+      <div style="margin-left: 40px;"><code>return <strong>order.getCustomer()</strong><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(<strong>Customer::getAddress</strong>)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(<strong>Address::getCity</strong>)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>.orElse("n.a.")</strong>;<br>
+        </code></div>
+      <br>
+      <code>Optional</code>的<code>flatMap()</code>這個名稱令人困惑，可從<code>Optional&lt;T&gt;</code>呼叫<code>flatMap</code>後會得到<code>Optional&lt;U&gt;</code>來想像一下，<code>flatMap()</code>就像是從盒子取出另一盒子置放一旁（flat就是平坦化的意思），過程中依指定之Lambda將前盒的<code>T</code>映射（map）為<code>U</code>再放入後盒，因為判斷是否有值的運算情境被隱藏了，使用者因此可明確指定感興趣的特定運算，從而使程式碼意圖顯露出來，又可接暢地接續運算，以避免巢狀或瀑布式的複雜檢查流程。<br>
+      <br>
+      那麼如果你沒辦法修改程式，讓<code>getCustomer()</code>、<code>getAddress()</code>、<code>getCity()</code>等傳回<code>Optional</code>型態怎麼辦？<code>Optional</code>是還有個<code>map()</code>方法，例如，若參數<code>order</code>是<code>Order</code>型態，有<code>null</code>的可能性，<code>getCustomer()</code>、<code>getAddress()</code>、<code>getCity()</code>等分別的傳回型態是<code>Customer</code>、<code>Address</code>、<code>City</code>，且有可能傳回<code>null</code>，那麼就可以這麼做：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>return Optional.ofNullable(order)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(<strong>Order::getCustomer</strong>)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(<strong>Customer::getAddress</strong>)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(<strong>Address::getCity</strong>)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>.orElse("n.a.");</strong></code></div>
+      <br>
+      與<code>flatMap()</code>的差別在於，<code>map()</code>方法實作中，對<code>mapper.apply(value)</code>的結果使用了<code>Optional.ofNullable()</code>方法（<code>flatMap</code>中使用的是<code>Objects.requireNonNull()</code>），因此有辦法持續處理<code>null</code>的情況：<br>
+      <br>
+      <code>&nbsp;&nbsp;&nbsp; public&lt;U&gt; Optional&lt;U&gt; map(Function&lt;? super T, ? extends U&gt; mapper) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Objects.requireNonNull(mapper);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!isPresent())<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return empty();<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>Optional.ofNullable(mapper.apply(value))</strong>;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+        &nbsp;&nbsp;&nbsp; }</code><br>
+      <br>
+      如果之前的<code>Order</code>有個<code>getLineItems()</code>方法，可取得訂單中的產品項目<code>List&lt;LineItem&gt;</code>，想要取得<code>LineItem</code>的名稱，可以透過<code>getName</code>來取得，若你有個<code>List&lt;Order&gt;</code>，想取得所有的產品項目名稱會怎麼寫？直覺的寫法應該是用迴圈…<br>
+      <br>
+      <div style="margin-left: 40px;"><code>List&lt;String&gt; itemNames = new ArrayList&lt;&gt;();<br>
+          for(Order order : orders) {<br>
+          &nbsp;&nbsp;&nbsp; for(LineItem lineItem : order.getLineItems()) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; itemNames.add(lineItem.getName());<br>
+          &nbsp;&nbsp;&nbsp; }<br>
+          }<br>
+        </code></div>
+      <br>
+      當然，層次不深時這樣寫很直覺也還好閱讀，不過如果層次深時，例如，想進一步取得<code>LineItem</code>的贈品名稱的話，你又得多一層<code>for</code>迴圈，如果還要繼續取下去呢？...<br>
+      <br>
+      你可以用<code>List</code>的<code>stream()</code>方法取得<code>Stream</code>之後，使用<code>flatMap()</code>方法如下改寫：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>List&lt;String&gt; itemNames = orders.stream()</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(order -&gt; order.getLineItems().stream())</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(LineItem::getName)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());</code></div>
+      <br>
+      就程式碼閱讀來說，<code>stream()</code>方法會傳回<code>Stream&lt;Order&gt;</code>，把<code>Stream</code>當成是盒子，<code>stream()</code>就是將一群<code>Order</code>物件全部放入盒中，<code>flatMap()</code>指定的Lambda運算是<code>order.getLineItems().stream()</code>，意思就是從盒中那群<code>Order</code>物件逐一取得<code>List&lt;LineItem&gt;</code>，然後再用一個<code>Stream</code>將所有<code>LineItem</code>裝起來，也就是說，<code>Stream&lt;Order&gt;</code>經由<code>flatMap</code>方法後映射為<code>Stream&lt;LineItem&gt;</code>，這類操作一個盒子一個盒子（一個<code>Stream</code>一個<code>Stream</code>）接續下去，例如，想進一步取得<code>LineItem</code>的贈品名稱可以如下：<br>
+      <br>
+      <div style="margin-left: 40px;"><code>List&lt;String&gt; itemNames = orders.stream()</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(<strong>order -&gt; order.getLineItems().stream()</strong>)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .flatMap(<strong>lineItem -&gt; lineItem.getPremiums().stream()</strong>)</code><br>
+        <code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .map(<strong>LineItem::getName</strong>)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .collect(toList());</code></div>
+      <br>
+      基本上，如果瞭解<code>Optinal</code>、<code>Stream</code>（或其他型態）的<code>flatMap()</code>方法，在一層一層盒子剝開後做了哪些運算，撰寫與閱讀程式碼時，忽略掉flatMap這個名稱，就能比較清楚程式碼的主要意圖。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p> </p>
+      <br>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

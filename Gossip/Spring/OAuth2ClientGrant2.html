@@ -1,0 +1,146 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Client Credentials 核發流程（一）〉中，已經實作了授權伺服器，現在來看看客戶端怎麼請求核發 Access Token，這邊使用 Postman 作為客戶端。
+請求核發 Acces...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Client Credentials 核發流程（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/OAuth2ClientGrant2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Client Credentials 核發流程（一）〉中，已經實作了授權伺服器，現在來看看客戶端怎麼請求核發 Access Token，這邊使用 Postman 作為客戶端。
+請求核發 Acces...">
+
+    <title>Client Credentials 核發流程（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OAuth2ClientGrant2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Client Credentials 核發流程（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="OAuth2ClientGrant1.html">Client Credentials 核發流程（一）</a>〉中，已經實作了授權伺服器，現在來看看客戶端怎麼請求核發 Access Token，這邊使用 <a href="https://www.getpostman.com/">Postman</a> 作為客戶端。</p>
+<p>請求核發 Access Token 時，客戶端以 <code>POST</code> 指定 <code>grant_type</code>、<code>scope</code>，若要求多個 <code>scope</code>，使用空白作區隔（Postman 會自行處理為 <code>+</code>，其他客戶端的話，記得自行處理）：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ClientGrant2-1.JPG" alt="Client Credentials 核發流程（二）"  /></div></div></p>
+<p>請求的 <code>scope</code> 必須是授權伺服器上有設定的 <code>scope</code>，否則會有錯誤。當然，只有這些資訊的話，授權伺服器並不知道是哪個客戶端在請求核發 Access Token，你必須以 BASIC 驗證方式，告知授權伺服器客戶端名稱與密鑰：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ClientGrant2-2.JPG" alt="Client Credentials 核發流程（二）"  /></div></div></p>
+<p>在傳送請求之後，回應中可以看到核發的 Access Token、類型、有效期（預設 12 個小時）與授權範圍：</p>
+<pre class="prettyprint"><code lang="java">{
+    "access_token": "3023124c-90d1-45fb-9dae-86f2ed1abb6e",
+    "token_type": "bearer",
+    "expires_in": 43199,
+    "scope": "account email message"
+}
+</code></pre>
+<p>在這邊看到 Access Token 使用的是 Bearer，OAuth 2 本身並沒有規範 Access Token 應該是什麼樣子，Bearer 簡單，任何客戶端只要出示 Token，就可以通行於接受 Token 的服務，因此使用時必須記得在加密連線中傳遞，以免被竊取，Bearer 沒有簽署，因而有被修改的風險。</p>
+<p>為了避免安全上的問題，以及增加一些 Token 本身攜帶資訊的能力，可以使用 <a href="https://jwt.io/">JSON Web Tokens（JWT）</a>，它對 Token 制定了規範，具有對 Token 簽署，資源伺服器可以直接確認 Token 等優點，不過需要額外的一些設定，這之後再來談。</p>
+<p>客戶端接下來要提取 Access Token，附在 <code>Authorization</code> 請求標頭中來請求資源伺服器，資源伺服器會從標頭中取得 Access Token，並向授權伺服器進行核對，取得授權相關訊息，在〈<a href="OAuth2ClientGrant1.html">Client Credentials 核發流程（一）</a>〉看過，我們開放了核對端點 <code>oauth/check_token</code>，請求這個端點時，必須以 BASIC 驗證方式，告知是哪個客戶端 ID 要進行核對，端點接受 <code>token</code> 請求參數，因此如下進行 <code>http://localhost:8081/oauth/check_token?token=3023124c-90d1-45fb-9dae-86f2ed1abb6e</code> 請求就會看到：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ClientGrant2-3.JPG" alt="Client Credentials 核發流程（二）"  /></div></div></p>
+<p>回應的訊息中可以看到資源 ID、授權範圍、是否有效、有效期、授權的客戶端 ID 等資訊，資源伺服器可以從回應中取得相關訊息用於安全控管。</p>
+<p>來寫個簡單的資源伺服器，同樣地可以選擇 Cloud Auth2 與 Web 的 Starter，build.gradle 中包含：</p>
+<pre class="prettyprint"><code lang="java">implementation('javax.xml.bind:jaxb-api:2.2.11') 
+implementation('com.sun.xml.bind:jaxb-core:2.2.11')     
+implementation('com.sun.xml.bind:jaxb-impl:2.2.11') 
+implementation('javax.activation:activation:1.1.1')  
+
+implementation('org.springframework.boot:spring-boot-starter-web')
+implementation('org.springframework.cloud:spring-cloud-starter-oauth2')
+</code></pre>
+<p>接著在 application.properties 中設定核對端點，以及客戶端 ID、密鑰等：</p>
+<pre class="prettyprint"><code lang="java">security.oauth2.client.clientId: webclient
+security.oauth2.client.clientSecret: webclient12345678
+security.oauth2.resource.token-info-uri: http://localhost:8081/oauth/check_token
+</code></pre>
+<p>（實際上，資源伺服器如何與授權伺服器互動，並不在 OAuth 2 的規範中，這只是目前採用 Bearer Token 的情況下，Spring 採用的方式，如果使用 JWT，資源伺服器可以直接確認 Token，就不需要以上的設定。）</p>
+<p>接著在啟動主類別上，標註 <code>@EnableResourceServer</code> 表示啟用資源伺服器功能，並設定安全相關資訊：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+...
+
+@SpringBootApplication
+@EnableResourceServer
+@RestController
+public class ResSvrApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ResSvrApplication.class, args);
+    }
+
+    @GetMapping("/hello")
+    public String hello(OAuth2Authentication oauth) {
+        return "hello " + oauth.getName();
+    }
+
+    @Bean
+    public ResourceServerConfigurer resourceServerConfigurer() {
+        return new ResourceServerConfigurer() {
+            @Override
+            public void configure(HttpSecurity http) throws Exception {
+                http.authorizeRequests().antMatchers("/hello").access("#oauth2.hasAnyScope('account', 'message', 'email')");
+            }
+
+            @Override
+            public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+                resources.resourceId("resource");
+            }
+        };
+    }
+}
+</code></pre>
+<p>留意這邊使用的是 <code>ResourceServerConfigurer</code>，而不是 <code>WebSecurityConfigurer</code>，在設定中，就類似角色設定，使用 <code>#oauth2.hasAnyScope</code> 限制了 <code>/hello</code> 端點，必須被授權了 <code>account</code>、<code>message</code> 或 <code>email</code> 任一範圍的客戶端，才可以進行請求，另外，也設定了資源 ID，客戶端請求的授權資訊中，必須具有相同的資源 ID，才可以請求這邊的資源。</p>
+<p>在上頭也寫了個簡單的處理器方法，透過 <code>OAuth2Authentication</code>，可以取得授權的相關資訊，在這邊簡單地取得了客戶端名稱。</p>
+<p>來看看 Postman 如何請求資源伺服器，請求時必須於 <code>Authorization</code> 標頭中附上 Access Token：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OAuth2ClientGrant2-4.JPG" alt="Client Credentials 核發流程（二）"  /></div></div></p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Cloud/OAuth2/OAuth2ClientGrant">OAuth2ClientGrant</a> 找到授權伺服器與資源伺服器的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

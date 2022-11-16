@@ -1,0 +1,154 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Flutter 中的事件基本上分為兩個層次：原始指標事件（Raw pointer events）與手勢（Gestures）。事件的觸發與否依 behavior 特性設定有關，不過，對於從 Web 前端...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="浮昇通知">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/NotificationListener.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Flutter 中的事件基本上分為兩個層次：原始指標事件（Raw pointer events）與手勢（Gestures）。事件的觸發與否依 behavior 特性設定有關，不過，對於從 Web 前端...">
+
+    <title>浮昇通知</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="NotificationListener.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>浮昇通知</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Flutter 中的事件基本上分為兩個層次：原始指標事件（Raw pointer events）與手勢（Gestures）。事件的觸發與否依 <code>behavior</code> 特性設定有關，不過，對於從 Web 前端開發過來的人而言，這些行為是有些陌生的，因為他們可能想要事件浮昇之類的行為。</p>
+<p>在 Flutter 中提供了 <code>Notification</code>，元件可以發送（dispatch）通知（Notification），通知會沿著樹浮昇（bubbling up），父裔中的 <code>NotificationListener</code> 可以獲得通知，預設情況下，通知預設會持續往上浮昇，然而父裔中某個 <code>NotificationListener</code> 可以阻止通知浮昇。</p>
+<p>例如，若想模擬一下 Web 中 DOM 的 <code>click</code> 事件，可以自訂一個 <code>ClickNotification</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+// 自訂 NotificationListener
+class ClickNotification extends Notification {
+  final Widget target;
+  ClickNotification({this.target});
+}
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+
+      // 監聽子裔的 ClickNotification
+      body: NotificationListener&lt;ClickNotification&gt; (
+        child: Center(
+
+          // 監聽 NotificationButton 的 ClickNotification
+          child: NotificationListener&lt;ClickNotification&gt; (
+            child: NotificationButton('Click me'),
+            onNotification: (notification) {
+              var button = notification.target as NotificationButton;
+              print('"${button.data}" Clicked');
+              // return true;  // 傳回 true 可阻止通知浮昇
+            }
+          )
+        ),
+        onNotification: (notification) {
+          print('bubble up');
+        }
+      ),
+    ),
+  )
+);
+
+class NotificationButton extends StatelessWidget {
+  final String data;
+
+  NotificationButton(this.data);
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener&lt;ClickNotification&gt;(
+      child: Builder(
+        builder: (context) {
+          return RawMaterialButton(
+            child: Text(data),
+            onPressed: () {
+              ClickNotification(target: this).dispatch(context);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+</code></pre>
+<p>在這個範例中，<code>ClickNotification</code> 繼承了 <code>Notification</code>，主要是用來包裹 <code>target</code>，也就是觸發通知的對象，在 <code>Scaffold</code> 的 <code>body</code> 部份，<code>NotificationListener</code> 會監聽子元件是否有通知，在其子裔中有個 <code>NotificationButton</code>，會在點選按鈕時發送 <code>ClickNotification</code>。</p>
+<p><code>NotificationButton</code> 的部份，主要將是用 <code>NotificationListener</code> 作為 <code>Builder</code> 的父元件，而在 <code>RawMaterialButton</code> 被按下時，<code>onPressed</code> 執行時，會建立 <code>ClickNotification</code> 並發送。</p>
+<p>為什麼要用 <code>Builder</code>，而不是將 <code>RawMaterialButton</code> 實例傳回？主要是在 <code>context</code>，如果你使用以下：</p>
+<pre class="prettyprint"><code lang="dart">...
+class NotificationButton extends StatelessWidget {
+  final String data;
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener&lt;ClickNotification&gt;(
+      child: RawMaterialButton(
+        child: Text(data),
+        onPressed: () {
+          ClickNotification(target: this).dispatch(context);
+        },
+      ),
+    );
+  }
+}
+</code></pre>
+<p>那麼這時的 <code>context</code> 是 <code>NotificationButton</code> 的 <code>Element</code>，也就是說，這時 <code>NotificationListener</code> 監聽的子裔，會是從 <code>NotificationButton</code> 以上發出的 <code>ClickNotification</code>，這時作為 <code>NotificationButton</code> 的子元件 <code>RawMaterialButton</code> 發出的 <code>ClickNotification</code>，是不會有作用的。</p>
+<p>至於原先指定 <code>Builder</code> 的方式，<code>builder</code> 設定的函式上 <code>context</code> 參數，接收到的是 <code>Builder</code> 對應的 <code>Element</code>，而 <code>Builder</code> 是 <code>NotificationListener</code> 的子元件，因此發送 <code>ClickNotification</code> 時，<code>Builder</code> 以上的父裔，預設可以收到通知。</p>
+<p>範例若按下按鈕，主控台會顯示「&ldquo;Click me&rdquo; Clicked」與「bubble up」文字，如果將範例中的 <code>return true</code> 處註解移除，表示阻止通知浮昇，這時就只會顯示「&ldquo;Click me&rdquo; Clicked」。</p>
+<p>實際上，Flutter 內建了一些 <code>Notification</code> 的實作，像是 <code>DraggableScrollableNotification</code>、<code>KeepAliveNotification</code>、<code>LayoutChangedNotification</code>（子類還有 <code>ScrollNotification</code>、<code>SizeChangedLayoutNotification</code>）、<code>OverscrollIndicatorNotification</code> 等，可以用來傾聽一些系統內建的通知，必要時也可以利用一下。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

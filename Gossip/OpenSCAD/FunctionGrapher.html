@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/advanced/polygon-polyhedron/'">
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果有個函式 f(x, y)，給定 x 與 y 的範圍，將之繪製成模型並列印出來，那麼數學函式就不再只是平面上的圖形，而可以是摸得到的實體，那麼數學會不會比較有趣一些？
+基本上，對於程式建模來說，這...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="函式圖形">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/FunctionGrapher.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果有個函式 f(x, y)，給定 x 與 y 的範圍，將之繪製成模型並列印出來，那麼數學函式就不再只是平面上的圖形，而可以是摸得到的實體，那麼數學會不會比較有趣一些？
+基本上，對於程式建模來說，這...">
+    <title>函式圖形</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+    <!-- 網頁層級廣告 -->
+    <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script>
+  </head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="FunctionGrapher.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --> <span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回
+            OpenSCAD 首頁</a>
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><br>
+              <div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img
+                    title="Twitter" alt="Twitter" src="../images/twitter.png"></a>
+                <a href="http://www.facebook.com/openhome.cc"><img title="Facebook"
+                    alt="Facebook" src="../images/facebook.png"></a>
+                </div>
+              <br>
+              <div id="search box">
+                <script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div>
+              <br>
+              <div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>函式圖形</h1>
+        </header>
+        <article class="content"> <br>
+          <div class="ad-3" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <p>如果有個函式 <code>f(x, y)</code>，給定 <code>x</code> 與 <code>y</code>
+            的範圍，將之繪製成模型並列印出來，那麼數學函式就不再只是平面上的圖形，而可以是摸得到的實體，那麼數學會不會比較有趣一些？</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-1.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>基本上，對於程式建模來說，這不是難事，看你想做到什麼程度！</p>
+          <h1>最簡單的方式</h1>
+          <p>在每個 <code>[x, y, f(x, y)]</code>
+            處放上一個小方塊是最簡單的方式，只要方塊夠小，就可以呈現出函式的圖形樣貌，程式也是簡單易懂：</p>
+          <pre class="prettyprint"><code lang="openscad">function f(x, y) = (pow(y,2)/pow(2, 2))-(pow(x,2)/pow(2, 2));
+
+min_value = -3;
+max_value = 3;
+resolution = 0.5;
+thickness = 1;
+
+for(x = [min_value:resolution:max_value]) {
+    for(y = [min_value:resolution:max_value]) {
+        translate([x, y, f(x, y)]) 
+            linear_extrude(thickness, center = true)
+                square(resolution, center = true);
+    }
+}
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-2.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p><code>resolution</code> 決定了 <code>x</code> 與 <code>y</code>
+            的步進值，它的值越小，函式圖案就越細緻，當然，繪製的時間就會越久，出來的模型檔案容量就越大。下圖是 <code>resolution
+              = 0.01</code> 的圖案，在我的電腦上要花上一分多鐘才能計算出預覽圖案：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-3.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>解析度與模型細緻度本來就是個權衡問題，就算是接下來要介紹的方式，也都有其必須權衡之處，不過，就上面這個方式來說，想要得到更細緻的模型，
+            耗費的時間成本相對來說，還是比較高一些。</p>
+          <h1>認識 <code>polyhedron</code></h1>
+          <p>想要建立更細緻的模型，又想試著耗費相對少的成本，可以使用 <code>polyhdedron</code> 模組，在 <a href="https://openhome.cc/Gossip/OpenSCAD/Polyline.html">線
+              段</a> 中談過 <code>polygon</code> 模組，可以指定頂點與路徑索引來建立多邊形，<code>polyhdedron</code>
+            模組可說是它的 3D 版本，可用來建立多面體。</p>
+          <p>雖然 <code>polyhdedron</code> 模組像是 <code>polygon</code> 模組的 3D
+            版本，不過多面體要考量的比較多，使用上還是比較複雜一些，基本上， <code>polyhdedron</code>
+            模組背後的使用概念，就是 <a href="../ComputerGraphics/VetexArray.htm">頂
+              點索引陣列</a>。</p>
+          <p>簡單來說，你必須先有多面體的各個頂點，然後為每個頂點編號，接著標示出每個面會用到的頂點編號為何，以 <a href="https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Primitive_Solids#polyhedron">官
+              方文件的範例</a> 來說，要建立一個與 <code>cube( [ 10, 7, 5 ] )</code>
+            相同的模型的話，先標上每個頂點編號：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Cube_numbers.jpg"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>然後找出每個面用了哪些頂點：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Cube_flat.jpg"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>接著使用 <code>polyhedron</code> 模組時，使用向量指定頂點座標，以及每個面的頂點索引：</p>
+          <pre class="prettyprint"><code lang="openscad">CubePoints = [
+  [  0,  0,  0 ],  //0
+  [ 10,  0,  0 ],  //1
+  [ 10,  7,  0 ],  //2
+  [  0,  7,  0 ],  //3
+  [  0,  0,  5 ],  //4
+  [ 10,  0,  5 ],  //5
+  [ 10,  7,  5 ],  //6
+  [  0,  7,  5 ]]; //7
+
+CubeFaces = [
+  [0,1,2,3],  // bottom
+  [4,5,1,0],  // front
+  [7,6,5,4],  // top
+  [5,6,2,1],  // right
+  [6,7,3,2],  // back
+  [7,4,0,3]]; // left
+
+polyhedron( CubePoints, CubeFaces );
+</code></pre>
+          <p>簡單易懂對吧？不過，稍微改一下範例，改一下頂點 6 的 z 值為 7 呢？</p>
+          <pre class="prettyprint"><code lang="openscad">CubePoints = [
+  [  0,  0,  0 ],  //0
+  [ 10,  0,  0 ],  //1
+  [ 10,  7,  0 ],  //2
+  [  0,  7,  0 ],  //3
+  [  0,  0,  5 ],  //4
+  [ 10,  0,  5 ],  //5
+  [ 10,  7,  7 ],  //6
+  [  0,  7,  5 ]]; //7
+
+CubeFaces = [
+  [0,1,2,3],  // bottom
+  [4,5,1,0],  // front
+  [7,6,5,4],  // top
+  [5,6,2,1],  // right
+  [6,7,3,2],  // back
+  [7,4,0,3]]; // left
+
+polyhedron( CubePoints, CubeFaces );
+</code></pre>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-4.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>現在索引編號為 4 到 7 的四個點，並不在同一個平面上，就這個簡單的模型來說，OpenSCAD
+            會試著根據你給定的點與索引，自動為你畫分出兩個三角形，因為任三點一定是在同一平面上（在不平的地面上，三腳椅有其妙用），如果試著 <code>render</code>
+            也不會出現警訊。</p>
+          <p>然而，如果有多個 <code>polyhedron</code> 操作下，OpenSCAD 在 <code>render</code>
+            時似乎會試著合併計算，此時若有多個點不共面，OpenSCAD 在 <code>render</code> 時容易會有以下的警訊：</p>
+          <pre class="prettyprint"><code lang="openscad">PolySet has nonplanar faces. Attempting alternate construction
+</code></pre>
+          <p>例如以下的這個程式碼就會出現不共面的訊息：</p>
+          <pre class="prettyprint"><code lang="openscad">points = [
+    [0, 0, 1], [1, 0, 2], 
+    [1, 1, 4], [0, 1, 1], 
+    [0, 0, 2], [1, 0, 3], 
+    [1, 1, 5], [0, 1, 2]
+];
+
+points2 = [ 
+    [1, 0, 2], [2, 0, 2], 
+    [2, 1, 0], [1, 1, 4], 
+    [1, 0, 3], [2, 0, 3], 
+    [2, 1, 1], [1, 1, 5],     
+];
+
+faces = [
+      [0,1,2,3],  // bottom
+      [4,5,1,0],  // front
+      [7,6,5,4],  // top
+      [5,6,2,1],  // right
+      [6,7,3,2],  // back
+      [7,4,0,3]   // left
+]; 
+
+polyhedron(points, faces);
+polyhedron(points2, faces);
+</code></pre>
+          <p>只試著執行上面兩個 <code>polyhedron</code>
+            其中之一並不會有不共面訊息，然而，兩個一起執行時就會，若想解決這類問題，方式是不要依賴 <code>polyhedron</code>
+            自動為不共面的點切割三角形。</p>
+          <h1>自行切割三角形</h1>
+          <p>對於函式這類的圖形，如果 <code>x</code>、<code>y</code>
+            是固定遞增，切割三角形就很容易。例如，你有以下的點：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-5.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>那麼每個點往右與往右上各取一個點，就可以構成三角形：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-6.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>然後，每個點往右上與往上各取一個點，也可以構成三角形：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-7.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>這樣就處理完一個方格了，接著就是使用迴圈處理完每個方格：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-8.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>因此，對於每個 <code>[x, y, f(x, y)]</code> 點，現在劃分為數個三角形了，對於每個三角形，只要每個 <code>f(x,
+              y)</code> 下降一個厚度值，就可以使用 <code>polyhedron</code> 畫出一個多面體：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-9.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>當你將所有三角形都如法泡製一番，就可以畫出函式圖形了：</p>
+          <pre class="prettyprint"><code lang="openscad">points = [
+    [[0, 0, 1], [1, 0, 2], [2, 0, 2], [3, 0, 3]],
+    [[0, 1, 1], [1, 1, 4], [2, 1, 0], [3, 1, 3]],
+    [[0, 2, 1], [1, 2, 3], [2, 2, 1], [3, 2, 3]],
+    [[0, 3, 1], [1, 3, 3], [2, 3, 1], [3, 3, 3]]
+];
+
+thickness = 1;
+
+faces = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [0, 1, 4, 3],
+    [1, 2, 5, 4],
+    [2, 0, 3, 5]
+];
+z_offset = [0, 0, -thickness];
+
+for(yi = [0:len(points) - 2]) {
+    for(xi = [0:len(points[yi]) - 2]) {
+        tri1_top = [
+            points[yi][xi], 
+            points[yi][xi + 1], 
+            points[yi + 1][xi + 1]
+        ];
+        tri1_bottom = [
+            tri1_top[0] + z_offset, 
+            tri1_top[1] + z_offset, 
+            tri1_top[2] + z_offset
+        ];
+
+        tri2_top = [
+            points[yi][xi], 
+            points[yi + 1][xi + 1], 
+            points[yi + 1][xi]
+        ];
+        tri2_bottom = [
+            tri2_top[0] + z_offset, 
+            tri2_top[1] + z_offset, 
+            tri2_top[2] + z_offset
+        ];
+
+        polyhedron(
+            points = concat(tri1_top, tri1_bottom), 
+            faces = faces
+        );
+
+        polyhedron(
+            points = concat(tri2_top, tri2_bottom), 
+            faces = faces
+        );
+    }
+}
+</code></pre>
+          <p>在上面，內建的 <code>concat</code> 函式用來串接兩個向量。實際畫出來的圖案會是：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-10.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>不過，還是有個問題，實際在 <code>render</code> 時，會出現以下的警訊：</p>
+          <pre class="prettyprint"><code lang="openscad">WARNING: Object may not be a valid 2-manifold and may need repair! 
+</code></pre>
+          <p>這不是我們的程式有問題，而是純綷計算上的一些誤差，使得三角形的面在結合時無法順利閉合，而使得最後 <code>render</code>
+            時可能產生破面，既然如此，那乾脆用 <code>hull</code>
+            把這兩個三角形包起來好了，下面這個程式，順便實際產生一個函式圖形：</p>
+          <pre class="prettyprint"><code lang="openscad">function f(x, y) = (pow(y,2)/pow(2, 2))-(pow(x,2)/pow(2, 2));
+
+min_value = -3;
+max_value = 3;
+resolution = 0.5;
+thickness = 1;
+
+points = [
+    for(y = [min_value:resolution:max_value])
+        [
+            for(x = [min_value:resolution:max_value]) 
+                [x, y, f(x, y)]
+        ]
+];
+
+faces = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [0, 1, 4, 3],
+    [1, 2, 5, 4],
+    [2, 0, 3, 5]
+];
+z_offset = [0, 0, -thickness];
+
+for(yi = [0:len(points) - 2]) {
+    for(xi = [0:len(points[yi]) - 2]) {
+        tri1_top = [
+            points[yi][xi], 
+            points[yi][xi + 1], 
+            points[yi + 1][xi + 1]
+        ];
+        tri1_bottom = [
+            tri1_top[0] + z_offset, 
+            tri1_top[1] + z_offset, 
+            tri1_top[2] + z_offset
+        ];
+
+        tri2_top = [
+            points[yi][xi], 
+            points[yi + 1][xi + 1], 
+            points[yi + 1][xi]
+        ];
+        tri2_bottom = [
+            tri2_top[0] + z_offset, 
+            tri2_top[1] + z_offset, 
+            tri2_top[2] + z_offset
+        ];
+
+        // 將兩個三角形包起來，避免誤差產生破面問題
+        hull() polyhedron(
+                points = concat(tri1_top, tri1_bottom), 
+                faces = faces
+            );
+
+        hull() polyhedron(
+                points = concat(tri2_top, tri2_bottom), 
+                faces = faces
+            );
+        
+    }
+}
+</code></pre>
+          <p>跟之前那個簡單方案的圖形比較看看，是不是細緻多了，而且 <code>render</code> 的速度也快上許多：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="images/FunctionGrapher-11.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>你可以進一步試著改進這個函式作為練習，例如，想想看，如果想提供函式圖形的骨架的話，要怎麼做呢？</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="https://openhome.cc/eGossip/OpenSCAD/images/lib-function_grapher-3.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <p>每個三角形是從一個正方形右上往左下切割出來的，你也可以提供選項，供使用者選擇另一個對角線方向：</p>
+          <p></p>
+          <div class="pure-g">
+            <div class="pure-u-1"><img class="pure-img-responsive" src="https://openhome.cc/eGossip/OpenSCAD/images/lib-function_grapher-4.JPG"
+                alt="函式圖形建模"></div>
+          </div>
+          <p></p>
+          <br>
+          <br>
+          <div class="ad336-280" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins
+              class="adsbygoogle" style="display:inline-block;width:336px;height:280px"
+              data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+          <br>
+          <div class="recommend" style="text-align: center;">
+            <hr>
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+
+</html>

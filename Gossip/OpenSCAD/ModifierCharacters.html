@@ -1,0 +1,232 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/OpenSCAD/'https://openhome.cc/zh-tw/openscad/advanced/debugging/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在建立模型的過程中，經常要做許多基本模型的組合，而 OpenSCAD 呈現給你最後的運算結果，然而，有時左看右看，可能就是看不到自己想檢視的細節，也許是被另一個模型遮住了，也許是想知道某個部份到底是放...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="模型的檢視與除錯">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/OpenSCAD/ModifierCharacters.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在建立模型的過程中，經常要做許多基本模型的組合，而 OpenSCAD 呈現給你最後的運算結果，然而，有時左看右看，可能就是看不到自己想檢視的細節，也許是被另一個模型遮住了，也許是想知道某個部份到底是放...">
+
+    <title>模型的檢視與除錯</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ModifierCharacters.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/OpenSCAD/index.html">回 OpenSCAD 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>模型的檢視與除錯</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在建立模型的過程中，經常要做許多基本模型的組合，而 OpenSCAD 呈現給你最後的運算結果，然而，有時左看右看，可能就是看不到自己想檢視的細節，也許是被另一個模型遮住了，也許是想知道某個部份到底是放了什麼模型，才會有這種結果，這該怎麼辦呢？</p>
+<h1><code>#</code> 突顯模型</h1>
+<p>舉個例子來說，在〈<a href="BooleanOperationsHull.html">布林運算與 hull 轉換</a>〉看過怎麼建一個愛心：</p>
+<pre class="prettyprint"><code lang="openscad">radius = 10;
+
+module heart(radius) {
+    rotated_angle = 45;
+    diameter = radius * 2;
+    $fn = 48;
+
+    rotate(-rotated_angle) union() {
+        circle(radius);
+        translate([0, -radius, 0]) 
+            square(diameter);
+    }
+
+    translate([cos(rotated_angle) * diameter, 0, 0]) 
+        circle(radius);
+}
+
+heart(radius);
+</code></pre>
+<p>這個模型是由一個正方形與兩個圓形組合而成，如果想分別檢視正方形或圓形，可以在模型的程式碼前頭放上個 <code>#</code>，這會將模型以紅色突顯出來，例如：</p>
+<pre class="prettyprint"><code lang="openscad">radius = 10;
+
+module heart(radius) {
+    rotated_angle = 45;
+    diameter = radius * 2;
+    $fn = 48;
+
+    rotate(-rotated_angle) union() {
+        #circle(radius);
+        #translate([0, -radius, 0]) 
+            square(diameter);
+    }
+
+    #translate([cos(rotated_angle) * diameter, 0, 0]) 
+        circle(radius);
+}
+
+heart(radius);
+</code></pre>
+<p>這樣你就會看到以下的畫面：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-1.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<h1><code>%</code> 半透明檢視</h1>
+<p>在〈<a href="BooleanOperationsHull.html">布林運算與 hull 轉換</a>〉也談過怎麼建立中空球：</p>
+<pre class="prettyprint"><code lang="openscad">radius = 10;
+thickness = 1;
+
+module hollow_sphere(radius, thickness) {
+    $fn = 48;
+    inner_radius = radius - thickness;
+
+    difference() {
+        sphere(radius);
+        sphere(inner_radius);
+    }   
+}
+
+hollow_sphere(radius, thickness);
+</code></pre>
+<p>不過模型建立出來後，你只能看到這樣的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-2.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<p>這是因為大球體遮住了小球體，如果你想檢視一下內外兩球體的差異，可以使用 <code>%</code>，這會將被標示的模型以半透明顯示，例如：</p>
+<pre class="prettyprint"><code lang="openscad">...
+    difference() {
+        %sphere(radius);
+        sphere(inner_radius);
+    }   
+...
+</code></pre>
+<p>這樣就可以看出內外兩個球體了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-3.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<h1><code>!</code> 單獨顯示</h1>
+<p>有時候，你只想看看模型中某個子模型，例如，在〈<a href="BooleanOperationsHull.html">布林運算與 hull 轉換</a>〉中談過怎麼在一個球體上放一個字母：</p>
+<pre class="prettyprint"><code lang="openscad">character = "A";
+font_size = 10;
+thickness = 1;
+
+module hollow_sphere(radius, thickness) {
+    $fn = 48;
+    inner_radius = radius - thickness;
+
+    difference() {
+        sphere(radius);
+        sphere(inner_radius);
+    }   
+}
+
+module sphere_character(ch, font_size, thickness) {
+    font_offset = font_size / 2;
+
+    intersection() {
+        hollow_sphere(font_size, thickness);
+        linear_extrude(font_size * 2) 
+            translate([-font_offset, -font_offset, 0]) 
+                text(ch, size = font_size);
+    }
+}
+
+sphere_character(character[0], font_size, thickness);
+sphere(font_size - thickness, $fn = 48);
+</code></pre>
+<p>如果你只想看看其中這段的效果呢？</p>
+<pre class="prettyprint"><code lang="openscad">...
+linear_extrude(font_size * 2) 
+    translate([-font_offset, -font_offset, 0]) 
+        text(ch, size = font_size);
+...
+</code></pre>
+<p>你可能會想要註解掉其他程式碼，這是個方式，不過有點麻煩，你只要在子模型前頭放上一個 <code>!</code> 就可以了：</p>
+<pre class="prettyprint"><code lang="openscad">...
+!linear_extrude(font_size * 2) 
+    translate([-font_offset, -font_offset, 0]) 
+        text(ch, size = font_size);
+...
+</code></pre>
+<p>這樣你就只會看到子模型單獨顯示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-4.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<h1><code>*</code> 停用模型</h1>
+<p>有時候你會想要停用某個子模型，看看結果如何，比方說，在上頭的 <code>sphere_character</code> 模組中，想停用這個部份：</p>
+<pre class="prettyprint"><code lang="openscad">...
+linear_extrude(font_size * 2) 
+    translate([-font_offset, -font_offset, 0]) 
+        text(ch, size = font_size);
+...
+</code></pre>
+<p>使用註解嗎？也可以，不過，得全部加上註解，像是：</p>
+<pre class="prettyprint"><code lang="openscad">...
+// linear_extrude(font_size * 2) 
+//     translate([-font_offset, -font_offset, 0]) 
+//         text(ch, size = font_size);
+...
+</code></pre>
+<p>或者是這樣：</p>
+<pre class="prettyprint"><code lang="openscad">...
+/*
+linear_extrude(font_size * 2) 
+    translate([-font_offset, -font_offset, 0]) 
+        text(ch, size = font_size);
+*/
+...
+</code></pre>
+<p>兩種方式都有點麻煩，最方便的方式是使用 <code>*</code>，例如：</p>
+<pre class="prettyprint"><code lang="openscad">...
+*linear_extrude(font_size * 2) 
+    translate([-font_offset, -font_offset, 0]) 
+        text(ch, size = font_size);
+...
+</code></pre>
+<p>這樣就可以停用整個子模型的運算了。</p>
+<h1>render() 強制繪製子模型</h1>
+<p>OpenSCAD 有時候預覽模型，會產生破圖的結果，例如在一個球體上放一個字母，會看到這種結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-5.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<p>你是可以按下 F6 執行 Render，建立完整的模型資訊，就可以看到沒有破圖了，不過，有時只是某個子模型產生預覽破圖，卻要整個模型進行 Render，有點浪費時間，這時你可以單獨對某個子模型使用 <code>render()</code>，強制它建立完整的模型資訊。例如：</p>
+<pre class="prettyprint"><code lang="openscad">...
+#render() sphere_character(character[0], font_size, thickness);
+sphere(font_size - thickness, $fn = 48);
+</code></pre>
+<p>這樣的話，就不會產生破圖了，為了突顯字母的部份，上頭的例子還加上了 <code>#</code> 對子模型做了突顯，你會看到以下的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ModifierCharacters-6.JPG" alt="模型的檢視與除錯"  /></div></div></p>
+<p>以上幾個檢視與除錯模型的方式，可以交相運用，在建立模型的過程中，會是很方便的輔助！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

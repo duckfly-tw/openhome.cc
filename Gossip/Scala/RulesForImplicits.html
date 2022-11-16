@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Scala的字串直接使用 java.lang.String，本身並沒有安插字串至原字串的方法，所以下面的程式會編譯錯誤：val old = "oz"val young = old.insert(1, ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="轉換規則">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/RulesForImplicits.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Scala的字串直接使用 java.lang.String，本身並沒有安插字串至原字串的方法，所以下面的程式會編譯錯誤：val old = "oz"val young = old.insert(1, ...">
+
+
+    <title>轉換規則</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RulesForImplicits.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>轉換規則</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            Scala的字串直接使用 <a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html">java.lang.String</a>，本身並沒有安插字串至原字串的方法，所以下面的程式會編譯錯誤：<br><pre class="prettyprint"><code lang="scala">val old = "oz"<br>val young = old.insert(1, "r")   // 編譯錯誤<br>println(young)</code></pre><br>如果你想要有insert()方法可以使用，也許可以考慮使用 <a href="http://java.sun.com/javase/6/docs/api/java/lang/StringBuilder.html">java.lang.StringBuilder</a>，例如：<br><pre class="prettyprint"><code lang="scala">val old = "oz"<br>val young = new StringBuilder(old).insert(1, "r")<br>println(young)   // orz</code></pre><br>這樣的程式看起來較為冗長，如果你想要讓insert()方法看起來更像是字串本身所內建的方法，則可以使用隱式轉換（Implicit conversion），例如：<br><pre class="prettyprint"><code lang="scala"><span style="font-weight: bold;">implicit</span> def stringToBuilder(s: String) = new StringBuilder(s)<br><br>val old = "oz"<br>val young = old.insert(1, "r")<br>println(young)    // orz</code></pre><br>上面這段程式可以順利編譯並執行，由於你將stringToBuilder()標示為<span style="font-weight: bold;">implicit</span>，它就變成隱式函式。當編譯器在執行程式時，發現old是個字串，本身並沒有insert()方法，它試著找看看名稱空間範圍（Scope）內是否有接受字串型態的函式，如果就套用該函式。也就是說，上面的程式，最後編譯器會將之變為以下：<br><pre class="prettyprint"><code lang="scala">implicit def stringToBuilder(s: String) = new StringBuilder(s)<br><br>val old = "oz"<br>val young = stringToBuilder(old).insert(1, "r")<br>println(young)</code></pre><br>所以實際上，young變數的型態是java.lang.StringBuilder。事實上，在Scala中，如果你使用字串時，呼叫了java.lang.String所沒有的方法時，卻會有對應的結果，就是套用了隱式轉換，例如：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">scala&gt; "12345".foreach(print)<br>12345<br>scala&gt; "12345".reverse<br>res2: scala.runtime.RichString = 54321<br><br>scala&gt;<br></span><span style="color: rgb(255, 255, 255);">
+
+
+
+
+            </span></div>
+
+
+<br>注意到foreach與reverse都不是字串本身具有的方法，reverse所傳回的型態是 <a href="http://www.scala-lang.org/docu/files/api/scala/runtime/RichString.html">scala.runtime.RichString</a>，這是因為在 <a href="http://www.scala-lang.org/docu/files/api/scala/Predef\$object.html">scala.Predef</a> 中定義了隱式函式stringWrapper()將字串轉為RichString：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">package scala</span><br><br><span style="font-weight: bold;">object Predef {</span><br><span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br><span style="font-weight: bold;">&nbsp; &nbsp; implicit def stringWrapper(x: String) = new runtime.RichString(x)</span><br><span style="font-weight: bold;">&nbsp; &nbsp; ....</span><br><span style="font-weight: bold;">}</span><br></div><br>由於預設import了scala.Predef（也就是每個程式都相當於有import scala.Predef._），所以上面的例子，相當於：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">scala&gt; stringWrapper("12345").foreach(print)<br>12345<br>scala&gt; stringWrapper("12345").reverse<br>res4: scala.runtime.RichString = 54321<br><br>scala&gt;<br></span><span style="color: rgb(255, 255, 255);">
+
+
+
+
+            </span></div>
+
+<br><br><br>在這邊其實已看到幾個編譯器套用隱式轉換的規則，首先就是<span style="font-weight: bold;">必須是被標示為implicit的函式或變數，才有機會被編譯器用於隱式轉換。再來是可套用的隱式轉換，必須在當時名稱空間範圍中，可以獨立識別（Single identifier）使用之函式或變數。</span>舉例來說，下面的程式會編譯失敗：<br><pre class="prettyprint"><code lang="scala">object ImplicitUtil {<br>    implicit def stringToBuilder(s: String) = new StringBuilder(s)<br>}<br><br>val old = "oz"<br>val young = old.insert(1, "r") // 編譯錯誤<br>println(young)</code></pre><br>因為在這個程式中，無法以stringToBuilder()來呼叫函式，而必須使用ImplicitUtil.stringToBuilder()，這樣就不算是獨立識別，你可以使用import：<br><pre class="prettyprint"><code lang="scala">object ImplicitUtil {<br>    implicit def stringToBuilder(s: String) = new StringBuilder(s)<br>}<br><br><span style="font-weight: bold;">import ImplicitUtil._</span><br><br>val old = "oz"<br>val young = old.insert(1, "r")<br>println(young)     // orz</code></pre><br>在 <a href="SingletonObject.html">單
+例物件</a> 中看過伴侶物件（Companion object），<span style="font-weight: bold;">編譯器也會搜尋轉換來源型態的伴侶物件，看看其中是否有定義符合的隱式轉換函式或變數，這是唯一不用符合獨立識別原則的情況。</span>例如：<br><pre class="prettyprint"><code lang="scala">object <span style="font-weight: bold;">Some</span> {<br>    implicit def someToOther(s: <span style="font-weight: bold;">Some</span>) = new Other(s)<br>}<br><br>class Some<br>class Other(s: Some) {<br>    def doOther = "XD"<br>}<br><br>val s = new Some<br>println(s.doOther)   // XD</code></pre><br><span style="font-weight: bold;">如果在範圍內，你定義的隱式轉換來源型態與目的地型態，與另一個隱式轉換函式定義重複，那麼編譯器會不知道要套用哪個隱式轉換，因而發生編譯錯誤</span>。例如：<br><pre class="prettyprint"><code lang="scala">implicit def stringToBuilder(s: String) = new runtime.RichString(s)<br>"12345".foreach(print)   // 編譯錯誤</code></pre><br>編譯這個程式時，會發生以下的錯誤：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">error: type mismatch;</span><br><span style="font-weight: bold;">&nbsp;found&nbsp;&nbsp; : java.lang.String</span><br><span style="font-weight: bold;">&nbsp;required: ?{val foreach: ?}</span><br><span style="font-weight: bold;">Note that implicit conversions are not applicable because they are ambiguous:&nbsp;both method <span style="color: red;">stringToRich</span> of type (String)scala.runtime.RichString&nbsp;and method <span style="color: red;">stringWrapper</span>
+in object Predef of type (String)scala.runtime.RichString&nbsp;are
+possible conversion functions from java.lang.String to <span style="color: red;">?{val foreach: ?}</span></span><br><span style="font-weight: bold;">"12345".foreach(print)</span><br><span style="font-weight: bold;">&nbsp;^</span><br></div><br>記得先前提過，scala.Predef中定義了stringWrapper()隱式函式，它是將String轉為RichString，而你又定義了一個stringToRich()，也是將String轉為RichString，編譯器沒辦法知道你要套用哪一個函式，直接回報錯誤！從這點也可以得知，<span style="font-weight: bold;">隱式轉換根據的是來源與目的地型態，而不是隱式函式或變數名稱，而且目的地型態，不是指隱式轉換的傳回值型態，而是指目的</span><span style="font-weight: bold;">物件的 </span><a href="StructuralTyping.html">結構型態（Structural typing）</a>。例如上例中，來源型態是字串，目的型態是<span style="font-weight: bold;">?{val foreach: ?}</span>。<br><br><span style="font-weight: bold;">隱式轉換一次只會套用一次</span>，也就是說，即使轉換後可以再套用另一個轉換，編譯器也不會對 x + y 作如 convert(convert1(x)) + y 連續套用的動作。<span style="font-weight: bold;">為了避免改變既有程式的運作，只要既有程式可以運作，編譯器也不會作隱式轉換的動作</span>。
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

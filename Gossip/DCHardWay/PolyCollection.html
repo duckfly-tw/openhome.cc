@@ -1,0 +1,205 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於繪圖而言，多邊形繪製是個常見需求，想在 Matplotlib 繪製多邊形，可以透過 matplotlib.collections 的 PolyCollection 收集多邊形頂點，例如：
+impo...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Matplotlib 多邊形繪製">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/PolyCollection.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於繪圖而言，多邊形繪製是個常見需求，想在 Matplotlib 繪製多邊形，可以透過 matplotlib.collections 的 PolyCollection 收集多邊形頂點，例如：
+impo...">
+
+    <title>Matplotlib 多邊形繪製</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PolyCollection.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Matplotlib 多邊形繪製</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>對於繪圖而言，多邊形繪製是個常見需求，想在 Matplotlib 繪製多邊形，可以透過 <code>matplotlib.collections</code> 的 <code>PolyCollection</code> 收集多邊形頂點，例如：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt
+from matplotlib.collections import PolyCollection
+
+ax = plt.gca()
+
+ax.add_collection(PolyCollection([
+    [[0, 0], [10, 0], [0, 10]],            # 三角形
+    [[0, 20], [20, 20], [20, 40], [0, 40]] # 長方形
+]))
+
+ax.add_collection(PolyCollection([
+    [[25, 15], [45, 20], [45, 40], [40, 45], [30, 40]] # 五邊形
+], linewidth=0.1, facecolor="red", edgecolor="black"))
+
+ax.set_xlim([0, 50])
+ax.set_ylim([0, 50])
+plt.show()
+</code></pre>
+<p>這可以繪製出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolyCollection-1.JPG" alt="Matplotlib 多邊形繪製"  /></div></div></p>
+<p>來運用多邊形繪製來產生〈<a href="Dtype.html">NumPy 陣列資料型態</a>〉中的謝爾賓斯基三角形：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.collections import PolyCollection
+
+def sierpinski(n):
+    def quotientAndRemainderZero(elem, n):
+        quotient = elem // n
+        remainder = elem % n
+        return quotient &amp; remainder == 0
+
+    quotientAndRemainderZero = np.frompyfunc(quotientAndRemainderZero, 2, 1)
+
+    nums = np.arange(n ** 2)
+    nums = nums[np.where(quotientAndRemainderZero(nums, n))]
+    return (nums % n, nums // n)
+
+# 在每個 x, y 建立一個三角形
+def tri(x, y):
+    return [[x, y], [x + 1, y], [x, y + 1]]
+tri = np.frompyfunc(tri, 2, 1)
+
+n = 32
+x, y = sierpinski(n)
+
+ax = plt.gca()
+ax.add_collection(PolyCollection(tri(x, y)))
+ax.set_xlim([0, n])
+ax.set_ylim([0, n])
+plt.show()
+</code></pre>
+<p>畫出來的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolyCollection-2.JPG" alt="Matplotlib 多邊形繪製"  /></div></div></p>
+<p>若要在三維空間繪製多邊形，可以透過 <code>mpl_toolkits.mplot3d.art3d</code> 的 <code>Poly3DCollection</code>，例如在〈<a href="TriSurf.html">Matplotlib 三角曲面</a>〉透過六次呼叫 <code>plot_surface</code> 來繪製立方體的範例，就可以改為：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+width = 30
+depth = 40
+height = 50
+
+def box(width, depth, height):
+    faces = Poly3DCollection([
+        [[0, 0, 0], [width, 0, 0], [width, depth, 0], [0, depth, 0]],
+        [[0, 0, height], [width, 0, height], [width, depth, height], [0, depth, height]],
+        [[0, 0, 0], [width, 0, 0], [width, 0, height], [0, 0, height]],
+        [[0, depth, 0], [width, depth, 0], [width, depth, height], [0, depth, height]],
+        [[0, 0, 0], [0, depth, 0], [0, depth, height], [0, 0, height]],
+        [[width, 0, 0], [width, depth, 0], [width, depth, height], [width, 0, height]]
+    ])
+    faces.set_edgecolor('black')
+
+    ax = plt.axes(projection='3d')
+    ax.add_collection3d(faces)
+
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+
+    lim = max(width, depth, height)
+    ax.set_xlim([0, lim])
+    ax.set_ylim([0, lim])
+    ax.set_zlim([0, lim])
+
+    plt.show()
+
+box(width, depth, height)
+</code></pre>
+<p>這可以產生以下的立方體：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolyCollection-3.JPG" alt="Matplotlib 多邊形繪製"  /></div></div></p>
+<p>既然如此，要用 <code>Poly3DCollection</code> 來繪製正四面體也是可以的：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+def tetrahedron(width):
+    n = width / (2 ** 0.5) * 0.5;
+
+    xs = np.array([n, -n,  n, -n]) 
+    ys = np.array([n,  n, -n, -n]) 
+    zs = np.array([n, -n, -n, n]) 
+
+    coord = np.dstack((xs, ys, zs))[0]
+
+    faces = Poly3DCollection([
+        coord[[0, 1, 2]], 
+        coord[[1, 2, 3]], 
+        coord[[2, 3, 0]], 
+        coord[[3, 0, 1]]
+    ])
+    faces.set_edgecolor('black')
+
+    ax = plt.axes(projection='3d')
+    ax.add_collection3d(faces)
+
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+
+    ax.set_xlim([-n, n])
+    ax.set_ylim([-n, n])
+    ax.set_zlim([-n, n])
+
+    plt.show()
+
+width = 30
+tetrahedron(width)
+</code></pre>
+<p>畫出來的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PolyCollection-4.JPG" alt="Matplotlib 多邊形繪製"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

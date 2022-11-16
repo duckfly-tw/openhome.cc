@@ -1,0 +1,1093 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="對Java而言，要識別兩個物件是否為同一個物件有兩種方式，一種是根據物件是否擁有同樣的記憶體位置來決定，在Java語法中就是透過==
+運算來比較，這是Java所定義的物件識別（Object iden...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="資料識別（Data Identity）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/DataIdentity.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="對Java而言，要識別兩個物件是否為同一個物件有兩種方式，一種是根據物件是否擁有同樣的記憶體位置來決定，在Java語法中就是透過==
+運算來比較，這是Java所定義的物件識別（Object iden...">
+
+
+    <title>資料識別（Data Identity）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DataIdentity.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>資料識別（Data Identity）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             對Java而言，要識別兩個物件是否為同一個物件有兩種方式，一種是根據物件是否擁有同樣的記憶體位置來決定，在Java語法中就是透過==
+運算來比較，這是Java所定義的<span style="font-weight: bold;">物件識別（Object identity）</span>，一種是根據equals()、hasCode()中的定義，這是Java所定義的<span style="font-weight: bold;">物件相等（Object equality）</span>。<br>
+
+
+
+
+      <br>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>物件識別</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">先探討第一種Java的識別方式在Hibernate中該注意的地方，在Hibernate中，如果是在同一個session中根據相同查詢所得到的相同
+資料，則它們會擁有相同的Java識別，舉個實際的例子來說明： <br>
+
+
+
+
+      
+      </div>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = sessions.openSession();</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Object
+obj1 = session.load(User.class, new Integer(1));</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Object
+obj2 = session.load(User.class, new Integer(1));</span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.close();</span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">System.out.println(obj1
+== obj2);</span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><br>
+
+
+
+
+      
+
+上面這個程式片段將會顯示true的結果，表示obj1與obj2是參考至同一物件，但如果是以下的情況則會顯示false： <br>
+
+
+
+
+      
+      </div>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session1 = sessions.openSession(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Object
+obj1 = session1.load(User.class, new&nbsp;new Integer(1)); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session1.close();
+      </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session2 = sessions.openSession(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Object
+obj2 = session2.load(User.class,&nbsp;new Integer(1)); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session2.close();
+      </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">System.out.println(obj1
+== obj2);</span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><br>
+
+
+
+
+      
+
+原因可以參考 <a href="SessionLevelCache.html">簡介快取（Session
+Level）</a> 。<br>
+
+
+
+
+      
+      <br>
+
+
+
+
+      應用程式中基於效能的原因，不會在一個使用者的長時間操作會話階段，持續開始Session，將物件維持在
+Persistence狀態，Hibernate並不保證不同時間所取得的資料物件，其是否參考至記憶體的同一位置，使用==來比較兩個物件的資料是否代
+表資料庫中的同一筆資料是不可
+行的。<br>
+
+
+
+
+      </div>
+
+
+
+
+      <br>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>物件相等</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">再來討論物件相等的問題，在Java程式中要比較兩個物件是否相同，會透過equals()方法，而Object預設的
+equals()本身是比較物件的記憶體參考，如果您要比較兩個物件的資料內容是否相同，您必須實作
+equals()與hashCode()，最簡單的實作方式，是在equals()中，對物件的每個屬性逐一加以比較是否相同，稱之為<span style="font-weight: bold;">by value equality</span>。<br>
+
+
+
+      <span><br>
+
+
+
+      </span></div>
+
+
+
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>資料識別</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">討論一下Hibernate中<span style="font-weight: bold;">資料識別</span>問題，對資料庫而言，其識別一筆資料唯一性的方式是根據主鍵值，如果手上有兩份資料，它們擁有同樣的主鍵值，則它們在資料庫中代表同一個
+欄位的資料<span style="font-weight: bold;"></span>。<br>
+
+
+
+
+      
+      <br>
+
+
+
+
+      由於主鍵值是資料庫中的資料唯一識別方式，因此Hibernate中的資料物件是否對應於一筆欄位資料，就是根據與主鍵值對應的物件識別屬
+性（identifier
+property），Hibernate會維護物件的識別屬性，必要時，您可以將識別屬性的setter方法設定為private，以避免程式中遭到
+修改，您可以藉由Session的getIdentifier()方法取得物件的識別屬性值。<br>
+
+
+
+
+      
+      <br>
+
+
+
+
+      如果要結合equals()、hashCode()來實作物件相等，一個根據資料庫的識別屬性的實作方式，是透過識別屬性的getter方法取得物件的識別屬性值並加以比較，
+例如若id的型態是String，一個實作的例子如下： <br>
+
+
+
+
+      
+      </div>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class User { </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; .... </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; public boolean equals(Object o) { </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if(this == o) return true; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if(id == null || !(o instanceof User))
+return false; </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; final User user == (User) o; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; return this.id.equals(user.getId()); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; } </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; public int hashCode() { </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; return id == null ?
+System.identityHashCode(this) : id.hashcode(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; } </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><br>
+
+
+
+
+      
+      <span>這個例子取自於Hibernate in
+Action第123頁的範例，稱之為<span style="font-weight: bold; color: rgb(255, 0, 0);">database identity equality</span>，然而要注意的是，因為當一個物件被new出來而還沒有save()時，它並不會被賦予id值，如果您在物件儲存前，可能就有需求比較物件的相等性，就不適用這
+個方法，例如物件若會被加入Set物件之中，該物件在被儲存至資料庫前與後，在Set中的判斷將有所不同，導致明明是同一個物件，卻使得程式出現不同的行為。 <br>
+
+
+
+      <br>
+
+
+
+      </span><span>較好的方式是</span><span style="font-weight: bold;">根據商務鍵值（Business
+key）</span><span>來實作equals()與hashCode()，稱之為<span style="font-weight: bold; color: rgb(255, 0, 0);">business key equality</span>，在 <a href="http://www.hibernate.org/hib_docs/v3/reference/en/html/">Hibernate
+官方參考手冊</a> 中給了一個例子： </span><br>
+
+
+
+
+      <span>
+
+      </span>
+
+
+      
+      
+      </div>
+
+
+      
+      
+      <div style="margin-left: 80px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class Cat { </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; ... </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; public boolean equals(Object other) { </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if (this == other) return true; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if (!(other instanceof Cat)) return
+false; </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; final Cat cat = (Cat) other; </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if (!getName().equals(cat.getName()))
+return false; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; if
+(!getBirthday().equals(cat.getBirthday())) return false; </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; return true; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; } </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; public int hashCode() { </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; int result; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; result = getName().hashCode(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; result = 29 * result +
+getBirthday().hashCode(); </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; &nbsp; &nbsp; return result; </span><br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp; } </span><br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><br>
+
+
+
+
+      與by value equality的實作方式類似，但根據性的不同是不再比對所有的屬性，而是只比較商務鍵，商
+務鍵是一個屬性或多個屬性的結合，對每個具有相同資料庫識別的物件來說，商務鍵的組合也是唯一的，商務鍵的挑選可以找那些從不為null、
+immutable或很少改變且具有唯一性的屬性（例如對應欄位中UNIQUE的屬性），選用識別屬性作為商務屬性之一也是一種選擇。<br>
+
+
+      <br>
+
+
+      願意的話，還可以使用org.apache.commons.lang.builder.EqualsBuilder與
+org.apache.commons.lang.builder.HashCodeBuilder來協助定義equals()與hashCode()，
+例如：<br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">package
+onlyfun.caterpillar;</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">import
+org.apache.commons.lang.builder.EqualsBuilder;</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">import
+org.apache.commons.lang.builder.HashCodeBuilder;</span><br>
+
+
+
+
+      
+      <br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class User {</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+&nbsp; &nbsp; &nbsp;....</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public boolean equals(Object obj) {</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(obj == this) {</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return true;</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(!(obj instanceof User)) {</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return false;</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+User user = (User) obj;</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return new EqualsBuilder()</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.append(this.name, user.getName())</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.append(this.phone, user.getPhone())</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.isEquals();</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public int hashCode() {</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return new HashCodeBuilder()</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.append(this.name)</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.append(this.phone)</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.toHashCode();</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span><br>
+
+
+
+
+      
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span></div>
+
+
+      
+      
+      <div style="margin-left: 40px;">
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+
+      </div>
+
+
+
+
+      <span>
+
+      <br>
+
+
+
+
+      <br>
+
+
+
+
+      </span>
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

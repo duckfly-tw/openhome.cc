@@ -1,0 +1,187 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/AlgorithmGossip/'https://openhome.cc/zh-tw/algorithm/basics/matching/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="&nbsp;說明
+今日的一些高階程式語言對於字串的處理支援越來越強大（例如Java、Perl等），不過字串搜尋本身仍是個值得
+探討的課題，在這邊以Boyer- Moore法來說明如何進行字串說明，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="字串核對">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/AlgorithmGossip/MatchString.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="&nbsp;說明
+今日的一些高階程式語言對於字串的處理支援越來越強大（例如Java、Perl等），不過字串搜尋本身仍是個值得
+探討的課題，在這邊以Boyer- Moore法來說明如何進行字串說明，...">
+
+
+    <title>字串核對</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MatchString.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Algorithm</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>字串核對</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+<h2>&nbsp;說明</h2>
+今日的一些高階程式語言對於字串的處理支援越來越強大（例如Java、Perl等），不過字串搜尋本身仍是個值得
+探討的課題，在這邊以Boyer- Moore法來說明如何進行字串說明，這個方法快且原理簡潔易懂。<br>
+<h2>解法</h2>
+字串搜尋本身不難，使用暴力法也可以求解，但如何快速搜尋字串就不簡單了，傳統的字串搜尋是從關鍵字與字串的開頭
+開始比對，例如 <a href="http://www.ics.uci.edu/%7Eeppstein/161/960227.html">Knuth-Morris-Pratt
+演算法</a>
+字串搜尋，這個方法也不錯，不過要花時間在公式計算上；Boyer-Moore字串核對改由關鍵字的後面開始核對字串，並製作前進表，如果比對不符合則依
+前進表中的值前進至下一個核對處，假設是p好了，然後比對字串中p-n+1至p的值是否與關鍵字相同。 <br>
+<div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="字串核對" title="字串核對" src="images/matchString-1.jpg" /></div></div><br>
+<br>
+那麼前進表該如何前進，舉個實際的例子，如果要在字串中搜尋JUST這個字串，則可能遇到的幾個情況如下所示：<br>
+<div style="text-align: center;"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="字串核對" title="字串核對" src="images/matchString-2.jpg" /></div></div><br>
+<br>
+<br>
+</div>
+依照這個例子，可以決定出我們的前進值表如下： <br>
+<table style="text-align: left; height: 102px; width: 313px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>其它</td>
+<td>J</td>
+<td>U</td>
+<td>S</td>
+<td>T</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>4（match?）</td>
+</tr>
+</tbody>
+</table>
+
+<br>
+如果關鍵字中有重複出現的字元，則前進值就會有兩個以上的值，此時則取前進值較小的值，如此就不會跳過可能的位置，例如texture這個關鍵字，t的前
+進值應該取後面的3而不是取前面的7。<br>
+<h2> 實作：<a href="MatchString.htm#Toy">Toy</a>&nbsp;&nbsp; &nbsp;<a href="MatchString.htm#C">C</a>&nbsp;&nbsp; &nbsp;<a href="MatchString.htm#Java">Java</a>&nbsp;&nbsp; &nbsp;<a href="MatchString.htm#Python">Python</a>&nbsp;&nbsp; &nbsp;<a href="MatchString.htm#Scala">Scala</a>&nbsp;&nbsp;&nbsp; <a href="MatchString.htm#Ruby">Ruby</a>&nbsp;&nbsp;&nbsp; <a href="MatchString.htm#JavaScript">JavaScript</a>&nbsp;&nbsp;&nbsp; <a href="MatchString.htm#Haskell">Haskell</a><br>
+      </h2>
+      <ul>
+<li><a name="Toy"><a href="../Toy/index.html">Toy</a></a>  </li>
+</ul>
+<pre class="prettyprint"><code>SKIP_TABLE_SIZE = 256
+
+def table(skip, key) { 
+    n = key.length()
+    iterate(0, SKIP_TABLE_SIZE).forEach(k -> skip.set(k, n))
+    iterate(0, n - 1).forEach(k -> skip.set(key.charCodeAt(k), n - k - 1))
+} 
+
+def indexOf(skip, from, text, key) { 
+    index = from
+    while index < text.length() {
+        if text.substring(index - key.length() + 1, index + 1) == key {
+            return index - key.length() + 1
+        }
+        index += skip.get(text.charCodeAt(index))
+    }
+    return -1 
+} 
+
+text = input('字串：')
+key = input('關鍵字：')
+
+skip = range(0, SKIP_TABLE_SIZE)
+table(skip, key)
+
+p = indexOf(skip, key.length() - 1, text, key)
+while p != -1 {
+    println(text.substring(p, text.length()))
+    p = indexOf(skip, p + key.length() + 1, text, key)
+}</code></pre>
+<br>
+<ul>
+<li><a name="C">C</a>  </li>
+</ul>
+<pre class="prettyprint"><code>#include &lt;stdio.h&gt; <br>#include &lt;stdlib.h&gt; <br>#include &lt;string.h&gt; <br>#define SKIP_TABLE_SIZE 256<br>#define STRING_LENGTH 80<br><br>void table(int*, char*);  // 建立前進表 <br>int indexOf(int*, int, char*, char*); // 搜尋關鍵字 <br>void subString(char*, char*, int, int); // 取出子字串 <br><br>int main(void) { <br>    int skip[SKIP_TABLE_SIZE];<br>    <br>    char input[STRING_LENGTH]; <br>    char key[STRING_LENGTH]; <br>    char sub[STRING_LENGTH] = {'\0'}; <br>    <br>    printf("字串："); <br>    gets(input); <br>    printf("關鍵字："); <br>    gets(key); <br><br>    table(skip, key);<br>    <br>    int m = strlen(input); // 計算字串長度 <br>    int n = strlen(key); <br>    int p = indexOf(skip, n - 1, input, key); <br><br>    while(p != -1) { <br>        subString(input, sub, p, m); <br>        printf("%s\n", sub); <br>        p = indexOf(skip, p + n + 1, input, key); <br>    } <br>    <br>    return 0; <br>} <br><br>void table(int* skip, char *key) { <br>    int n = strlen(key); <br>    int k;<br>    for(k = 0; k &lt; SKIP_TABLE_SIZE; k++) {<br>        skip[k] = n; <br>    }<br>    for(k = 0; k &lt; n - 1; k++) {<br>        skip[key[k]] = n - k - 1; <br>    }<br>} <br><br>int indexOf(int* skip, int from, char* str, char* key) { <br>    char sub[STRING_LENGTH] = {'\0'}; <br><br>    int strLen = strlen(str); <br>    int keyLen = strlen(key); <br>    int index = from;<br>    <br>    while(index &lt; strLen) { <br>        subString(str, sub, index - keyLen + 1, index); <br>        if(!strcmp(sub, key)) { // 比較兩字串是否相同 <br>           return index - keyLen + 1; <br>        }<br>        index += skip[str[index]]; <br>    } <br><br>    return -1; <br>} <br><br>void subString(char *text, char* sub, int s, int e) { <br>    int i, j; <br>    for(i = s, j = 0; i &lt;= e; i++, j++) {<br>        sub[j] = text[i]; <br>    }<br>    sub[j] = '\0'; <br>}  <br></code></pre>
+<br>
+<ul>
+<li><a name="Java">Java</a>  </li>
+</ul>
+<pre class="prettyprint"><code>import java.util.*;<br>import java.io.*;<br>import static java.lang.System.*;<br><br>public class StringMatcher implements Iterable&lt;String&gt; {<br>    private String str;<br>    private String key;<br>    private int[] skip = new int[256];<br><br>    public StringMatcher(String str, String key) {<br>        this.str = str;        <br>        this.key = key;<br>        Arrays.fill(skip, key.length());<br>        for(int k = 0; k &lt; key.length() - 1; k++) {<br>            skip[key.charAt(k)] = key.length() - k - 1;<br>        }<br>    }<br>    <br>    public Iterator&lt;String&gt; iterator() { return new Itr(); }<br><br>    private class Itr implements Iterator&lt;String&gt; {<br>        private int index;<br>        <br>        { index = indexOf(key.length() - 1, str, key); }<br>        <br>        private int indexOf(int from, String str, String key) {<br>            int tp = from;<br>            while(tp &lt; str.length() &amp;&amp; <br>                  ! str.substring(tp - key.length() + 1, tp + 1)<br>                       .equals(key)) {<br>                tp += skip[str.charAt(tp)];<br>            }<br>            return tp - key.length() + 1;<br>        }<br><br>        public boolean hasNext() {<br>            return index &lt; str.length() - 1;<br>        }<br><br>        public String next() {<br>            String sub = str.substring(index);<br>            index = indexOf(index + key.length() + 1, str, key);<br>            return sub;<br>        }<br><br>        public void remove() { throw new RuntimeException("Not supported"); }<br>    }<br>    <br>    public static void main(String[] args) {<br>        Scanner scanner = new Scanner(in);<br><br>        out.print("請輸入字串：");<br>        String str = scanner.nextLine();<br>        out.print("請輸入搜尋關鍵字：");<br>        String key = scanner.nextLine();<br><br>        for(String s : new StringMatcher(str, key)) {<br>            out.println(s);<br>        }<br>    }<br>}<br></code></pre>
+<br>
+<ul>
+<li><a name="Python">Python</a></li>
+</ul>
+<pre class="prettyprint"><code>def matcher(str, key):<br>    strLen = len(str)<br>    keyLen = len(key)<br>    <br>    skip = [keyLen - key.rindex(chr(k)) - 1 <br>            if(chr(k) in key[:-1]) else keyLen for k in range(256)]<br>            <br>    def next(i):<br>        return (next(i + skip[ord(str[i])]) <br>            if(i &lt; strLen and str[i - keyLen + 1: i + 1] != key) <br>            else i - keyLen + 1)<br>    <br>    def match(i):<br>        nextI = next(i + keyLen + 1)<br>        return [str[i:]] + (match(nextI) if(nextI &lt; strLen - 1) else [])<br>  <br>    return match(next(keyLen))<br>    <br>for s in matcher(input("字串："), input("關鍵字：")):<br>    print(s)</code></pre>
+<br>
+<ul>
+<li><a name="Scala">Scala</a></li>
+</ul>
+<pre class="prettyprint"><code>def matcher(str: String, key: String) = {<br>    val skip = for(k &lt;- 0 until 256) yield <br>          if(key.init.contains(k.toChar)) <br>              key.length - key.lastIndexOf(k.toChar) - 1 <br>          else key.length<br><br>    def next(i: Int): Int = {<br>        if(i &lt; str.length &amp;&amp; <br>           !str.substring(i - key.length + 1, i + 1).equals(key))<br>            next(i + skip(str.charAt(i).toInt))<br>        else i - key.length + 1<br>    }<br>    <br>    def find(i: Int): List[String] = {<br>        val nextI = next(i + key.length + 1)<br>        str.substring(i) :: (if(nextI &lt; str.length - 1) find(nextI) else Nil)<br>    }<br>    <br>    find(next(key.length))<br>}<br><br>print("字串：")<br>val str = readLine<br>print("關鍵字：")<br>val key = readLine<br>matcher(str, key).foreach(println)</code></pre>
+      <br>
+      <ul>
+        <li><a name="Ruby">Ruby</a></li>
+      </ul>
+      <pre class="prettyprint"><code># encoding: Big5<br>def matcher(str, key)<br>    skip = (0...256).map { |k|<br>        if key[0...-1].include? k.chr<br>            key.size - key.rindex(k.chr) - 1<br>        else<br>            key.size<br>        end<br>    }<br>    <br>    nextIndex = -&gt;(i) {<br>        if i &lt; str.size and str[i - key.size + 1 ... i + 1] != key<br>            nextIndex.call(i + skip[str[i].ord])<br>        else<br>            i - key.size + 1<br>        end<br>    }<br>    <br>    match = -&gt;(i) {<br>        nextI = nextIndex.call(i + key.size + 1)<br>        [str[i..-1]] + if nextI &lt; str.size - 1; match.call(nextI) else [] end<br>    }<br>              <br>    return match.call(nextIndex.call(key.size))<br>end<br><br>print "字串："<br>str = gets.chomp<br>print "關鍵字："<br>key = gets.chomp<br><br>matcher(str, key).each do |s|<br>    puts s<br>end<br></code></pre>
+      <br>
+      <ul>
+        <li><a name="JavaScript"></a>JavaScript</li>
+      </ul>
+      <pre class="prettyprint"><code>var matcher = function() {<br>    function range(n) {<br>        var r = [];<br>        for(var i = 0; i &lt; n; i++) { r[i] = i; }<br>        return r;<br>    }<br><br>    return function(str, key) {<br>        var skip = range(256).map(function(k) {<br>             return key.slice(0, -1)<br>                       .indexOf(String.fromCharCode(k)) !== -1 ? <br>                    key.length - key.lastIndexOf(String.fromCharCode(k)) - 1 :<br>                    key.length;<br>        });<br>        <br>        function next(i) {<br>            return i &lt; str.length &amp;&amp; <br>                   str.slice(i - key.length + 1, i + 1) !== key ?<br>                   next(i + skip[str.charCodeAt(i)]) :<br>                   i - key.length + 1<br>        }<br>    <br>        function match(i) {<br>            var nextI = next(i + key.length + 1);<br>            return [str.slice(i)].concat(<br>                     nextI &lt; str.length - 1 ? match(nextI) : []);<br>        }<br>        <br>        return match(next(key.length))<br>    };<br>}();<br><br>matcher('This is a test', 'is').forEach(function(s) {<br>    print(s);<br>});<br></code></pre>
+<br>
+      <ul>
+        <li><a name="Haskell">Haskell</a></li>
+      </ul>
+      <pre class="prettyprint"><code>import Data.Char<br>import Data.List<br><br>rindex elem list = <br>    let (Just a) = elem `elemIndex` (reverse list)<br>    in length list - a - 1<br><br>matcher str key =  find $ next keyLen<br>    where strLen = length str<br>          keyLen = length key<br>          skip = [if (chr k) `elem` (init key) then <br>                      keyLen - rindex (chr k) key - 1 <br>                  else keyLen | k &lt;- [0..255]]<br>          next i = if i &lt; strLen &amp;&amp; <br>                       (drop (i - keyLen + 1) . take (i + 1) $ str) /= key <br>                       then next (i + skip !! (ord (str !! i))) <br>                   else i - keyLen + 1<br>          find i = let nextI = next $ i + length key + 1<br>                   in (drop i str) : if nextI &lt; strLen - 1 then find nextI <br>                                     else []<br><br>main = do<br>    putStrLn "String..."<br>    str &lt;- getLine<br>    putStrLn "Keyword..."<br>    key &lt;- getLine<br>    sequence [putStrLn s | s &lt;- matcher str key]<br></code></pre>
+<br>   
+  
+
+  
+  
+   
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,353 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="透過 Worley 雜訊可以畫出 Voronoi 圖形，只不過代價是昂貴的運算，因為使用了全部的像素來運算，透過 CPU 來做這類運算相當吃力，因而 Worley 雜訊通常是應用 GPU 著色器的撰寫...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="勢力的交集（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/Voronoi.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="透過 Worley 雜訊可以畫出 Voronoi 圖形，只不過代價是昂貴的運算，因為使用了全部的像素來運算，透過 CPU 來做這類運算相當吃力，因而 Worley 雜訊通常是應用 GPU 著色器的撰寫...">
+
+    <title>勢力的交集（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Voronoi.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 P5JS</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>勢力的交集（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>透過 Worley 雜訊可以畫出 Voronoi 圖形，只不過代價是昂貴的運算，因為使用了全部的像素來運算，透過 CPU 來做這類運算相當吃力，因而 Worley 雜訊通常是應用 GPU 著色器的撰寫上。</p>
+<p>可以透過幾何運算來求得 Voronoi 圖形，最易於理解的是半平面交集（Half-plane intersection），因為就是從勢力範圍的觀點來求 Voronoi 圖形。</p>
+<p>例如，若一開始有兩個點，兩個點的中垂線畫出了兩者的勢力範圍：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Voronoi-1.JPG" alt="勢力的交集（一）"  /></div></div></p>
+<p>現在將藍色點與另一個空間中的點也畫出勢力範圍，那麼藍色點可以擁有的勢力範圍，就是前一個勢力範圍與目前勢力範圍的交集：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Voronoi-2.JPG" alt="勢力的交集（一）"  /></div></div></p>
+<p>重複相同步驟，藍色點與更多的點求得勢力範圍，並取得勢力範圍交集，直到全部的點都處理過為止。例如，有五個點的話，最後藍色點求得的勢力範圍就是下圖的紅色區域：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Voronoi-3.JPG" alt="勢力的交集（一）"  /></div></div></p>
+<p>對於另外四個點，也可以重複以上的步驟，在每個點的勢力範圍交集都求得後，就會得到 Voronoi 圖形：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Voronoi-4.JPG" alt="勢力的交集（一）"  /></div></div></p>
+<p>若要透過程式來實現半平面交集，只要有個夠大的正方形就可以了，為了方便，可以定義一個 <code>polygonSquare</code> 函式，可以指定正方形邊長大小，傳回正方形逆時針頂點的清單，頂點都使用 <code>p5.Vector</code> 來表示，這是因為透過向量，後續計算上會很方便：</p>
+<pre class="prettyprint"><code lang="javascript">function polygonSquare(size) {
+    const halfS = size / 2;
+    return [
+      createVector(halfS, -halfS),
+      createVector(halfS, halfS),
+      createVector(-halfS, halfS),
+      createVector(-halfS, -halfS)
+   ];
+}
+</code></pre>
+<p>那麼有兩個正方形的話，如何求得其交集呢？多邊形交集其實是個複雜的議題，幸好的是，正方形是凸多邊形，凸多邊形的交集在計算上簡單多了，先看看下圖：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Voronoi-5.JPG" alt="勢力的交集（一）"  /></div></div></p>
+<p>求得另一方在自身範圍內的頂點，以及邊的交點，將這些點收集起來逆時針排序就可以了，因此有三個子任務必須完成：</p>
+<ul>
+<li>自身範圍內的頂點</li>
+<li>邊的交點</li>
+<li>點的逆時針排序</li>
+</ul>
+<p>自身範圍內的頂點，雖然可以使用〈<a href="PixelPolygon.html">像素多邊形</a>〉中 <code>inShape</code> 的實現原理，不過凸多邊形要做這種判斷，有更簡單的方式，如果點在凸多邊形內，那麼該點與凸多邊形的每個頂點相連而成的向量，若逆時針每兩個向量進行叉積（cross），那麼叉積後的向量方向都會相同，因此可以實作出：</p>
+<pre class="prettyprint"><code lang="javascript">function inConvex(convexPoints, p) {
+    const preCp = p5.Vector.cross(
+                     p5.Vector.sub(convexPoints[convexPoints.length - 1], p),
+                     p5.Vector.sub(convexPoints[0], p)
+                  ).z;
+    for(let i = 0; i &lt; convexPoints.length - 1; i++) {
+        const cp = p5.Vector.cross(
+                       p5.Vector.sub(convexPoints[i], p),
+                       p5.Vector.sub(convexPoints[i + 1], p)
+                   ).z;
+        if(preCp * cp &lt;= 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+</code></pre>
+<p>邊的交點就是兩線的交集，若線的資料結構定義為 <code>{p1: v1, p2: v2}</code>，其中 <code>v1</code>、<code>v2</code> 是座標，然而以向量表示，有了線的點資料，就可以求斜率，然後取得線的方程式表示，兩條方程式求聯立方程式，就可以求交點：</p>
+<pre class="prettyprint"><code lang="javascript">function onLine(line, p, epsilon = 1e-5) {
+    const v1 = p5.Vector.sub(line.p1, p);
+    const v2 = p5.Vector.sub(line.p2, p);
+    return p5.Vector.cross(v1, v2).mag() &lt;= epsilon &amp;&amp; p5.Vector.dot(v1, v2) &lt;= epsilon;
+}
+
+function intersectionLines(line1, line2, epsilon = 1e-5) {
+    const a = p5.Vector.sub(line1.p2, line1.p1);
+    const b = p5.Vector.sub(line2.p2, line2.p1);
+
+    const cp = p5.Vector.cross(a, b).z;
+
+    if(abs(cp) &gt;= epsilon) { // 不共線、不平行
+        const s = p5.Vector.sub(line2.p1, line1.p1);
+        const p = p5.Vector.add(line1.p1, p5.Vector.mult(a, p5.Vector.cross(s, b).z / cp));
+
+        // 交點是否在邊上
+        if(onLine(line1, p, epsilon) &amp;&amp; onLine(line2, p, epsilon)) {
+            return p;
+        }
+    }
+
+    return null;
+}
+</code></pre>
+<p>若兩線共線或平行，兩線的向量叉積大小會是 0，因為浮點數會有計算上的誤差，這邊使用了 <code>epsilon</code> 來設定大於該值，就不視為共線或平行了。</p>
+<p>解聯立方程式得到的交點，可能是在邊的延伸上，然而我們要的是邊與邊的交點，因此必須進一步判斷交點是否在邊上，同樣地，如果點在邊上，那麼該點與邊的兩個頂點構成的向量，叉積會是 0，因為浮點數會有計算上的誤差，這邊使用了 <code>epsilon</code>，接著進一步判斷了點積（dot）的結果（也就是投影量）小於 <code>epsilon</code>，來判斷點是否在邊上。</p>
+<p>接著就是針對收集到的頂點進行排序，這很簡單，可先找出多邊形的中點，這是因為中點的求得與頂點的順序沒有關係：</p>
+<pre class="prettyprint"><code lang="javascript">function convexCenterPoint(convexPoints) {
+    let x = 0;
+    let y = 0;
+    for(let i = 0; i &lt; convexPoints.length; i++) {
+        x += convexPoints[i].x;
+        y += convexPoints[i].y;
+    }
+    return createVector(x / convexPoints.length, y / convexPoints.length);
+}
+</code></pre>
+<p>然後用中點來求得它與每個每個頂點的夾角，根據夾角進行排序：</p>
+<pre class="prettyprint"><code lang="javascript">function convexCtClk(convexPoints) {
+    const centerP = convexCenterPoint(convexPoints);
+    return convexPoints.sort((p1, p2) =&gt; {
+                           return atan2(p1.y - centerP.y, p1.x - centerP.x) - 
+                                  atan2(p2.y - centerP.y, p2.x - centerP.x);
+                        });
+}
+</code></pre>
+<p>完成這三個子任務後，就可以來求凸多邊形交集了：</p>
+<pre class="prettyprint"><code lang="javascript">// 找出凸多邊形的邊與線的交點
+function intersectionConvexLine(convexPoints, line, epsilon = 1e-10) {
+    const pts = [];
+    for(let i = convexPoints.length - 1, j = 0; j &lt; convexPoints.length; i = j++) {
+        const p = intersectionLines(line, {p1: convexPoints[i], p2: convexPoints[j]}, epsilon);
+        if(p !== null &amp;&amp; pts.every(pt =&gt; !pt.equals(p))) {
+            pts.push(p);
+        }
+    }
+    return pts;
+}
+
+// 凸多邊形交集
+function convexIntersection(convexPoints1, convexPoints2, epsilon = 1e-10) {
+    // 邊的交點
+    const points = [];
+    for(let i = convexPoints1.length - 1, j = 0; j &lt; convexPoints1.length; i = j++) {
+        const pts = intersectionConvexLine(convexPoints2, {p1: convexPoints1[i], p2: convexPoints1[j]}, epsilon);
+        for(let k = 0; k &lt; pts.length; k++) {
+            points.push(pts[k]);
+        }
+    }
+
+    return convexCtClk( // 逆時針排列
+       // 接上凸多邊形內的頂點
+       points.concat(convexPoints1.filter(p =&gt; inConvex(convexPoints2, p)))
+             .concat(convexPoints2.filter(p =&gt; inConvex(convexPoints1, p)))
+    );
+}
+</code></pre>
+<p>這篇文件就先完成到凸多邊形交集，為了做個展示，來個可平移、轉動各頂點的函式：</p>
+<pre class="prettyprint"><code lang="javascript">function polygonTranslate(polygonPoints, x, y) {
+    return polygonPoints.map(p =&gt; createVector(p.x + x, p.y + y));
+}
+
+function polygonRotate(polygonPoints, angle) {
+    return polygonPoints.map(p =&gt; p.copy().rotate(angle));
+}
+</code></pre>
+<p>底下的範例可利用方才的函式，畫出兩個正方形的交集，其中一個正方形可以用滑鼠控制位置，按左、右鍵轉動：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">let sq1;
+let sq2;
+let a = 0;
+
+function setup() {
+    createCanvas(300, 300);
+    angleMode(DEGREES);
+    sq1 = polygonTranslate(polygonSquare(50), width / 2, height / 2);
+    sq2 = polygonSquare(100);
+}
+
+function draw() {
+    background(220);
+  
+    if(mouseIsPressed) {
+        a = mouseButton === LEFT ? a + 1 : a - 1;
+    }
+  
+    fill(255);
+    beginShape();
+    sq1.forEach(v => {
+        vertex(v.x, v.y);
+    });
+    endShape(CLOSE);
+  
+    const sq = polygonTranslate(polygonRotate(sq2, a), mouseX, mouseY);
+    beginShape();
+    sq.forEach(v => {
+        vertex(v.x, v.y);
+    });
+    endShape(CLOSE);
+  
+    fill(125);
+    beginShape();
+    convexIntersection(sq1, sq).forEach(v => {
+        vertex(v.x, v.y);
+    });
+    endShape(CLOSE);  
+}
+
+function polygonSquare(size) {
+    const halfS = size / 2;
+    return [
+      createVector(halfS, -halfS),
+      createVector(halfS, halfS),
+      createVector(-halfS, halfS),
+      createVector(-halfS, -halfS)
+   ];
+}
+
+function inConvex(convexPoints, p) {
+	const preCp = p5.Vector.cross(
+	                 p5.Vector.sub(convexPoints[convexPoints.length - 1], p),
+				     p5.Vector.sub(convexPoints[0], p)
+			      ).z;
+    for(let i = 0; i < convexPoints.length - 1; i++) {
+		const cp = p5.Vector.cross(
+				       p5.Vector.sub(convexPoints[i], p),
+					   p5.Vector.sub(convexPoints[i + 1], p)
+				   ).z;
+	    if(preCp * cp <= 0) {
+		    return false;
+		}
+	}
+	
+	return true;
+}
+
+function convexCtClk(convexPoints) {
+    const centerP = convexCenterPoint(convexPoints);
+	return convexPoints.sort((p1, p2) => {
+					       return atan2(p1.y - centerP.y, p1.x - centerP.x) - 
+						          atan2(p2.y - centerP.y, p2.x - centerP.x);
+					    });
+}
+
+function onLine(line, p, epsilon = 1e-5) {
+    const v1 = p5.Vector.sub(line.p1, p);
+	const v2 = p5.Vector.sub(line.p2, p);
+	return p5.Vector.cross(v1, v2).mag() <= epsilon && p5.Vector.dot(v1, v2) <= epsilon;
+}
+
+function intersectionLines(line1, line2, epsilon = 1e-5) {
+    const a = p5.Vector.sub(line1.p2, line1.p1);
+	const b = p5.Vector.sub(line2.p2, line2.p1);
+
+	const cp = p5.Vector.cross(a, b).z;
+ 
+	if(abs(cp) >= epsilon) {
+        const s = p5.Vector.sub(line2.p1, line1.p1);
+		const p = p5.Vector.add(line1.p1, p5.Vector.mult(a, p5.Vector.cross(s, b).z / cp));
+        
+		if(onLine(line1, p, epsilon) && onLine(line2, p, epsilon)) {
+			return p;
+		}
+	}
+	
+	return null;
+}
+
+function convexCenterPoint(convexPoints) {
+    let x = 0;
+	let y = 0;
+	for(let i = 0; i < convexPoints.length; i++) {
+	    x += convexPoints[i].x;
+		y += convexPoints[i].y;
+	}
+	return createVector(x / convexPoints.length, y / convexPoints.length);
+}
+
+function intersectionConvexLine(convexPoints, line, epsilon = 1e-10) {
+    const pts = [];
+    for(let i = convexPoints.length - 1, j = 0; j < convexPoints.length; i = j++) {
+	    const p = intersectionLines(line, {p1: convexPoints[i], p2: convexPoints[j]}, epsilon);
+		if(p !== null && pts.every(pt => !pt.equals(p))) {
+            pts.push(p);
+		}
+	}
+	return pts;
+}
+
+function convexIntersection(convexPoints1, convexPoints2, epsilon = 1e-10) {
+	const points = [];
+	for(let i = convexPoints1.length - 1, j = 0; j < convexPoints1.length; i = j++) {
+	    const pts = intersectionConvexLine(convexPoints2, {p1: convexPoints1[i], p2: convexPoints1[j]}, epsilon);
+		for(let k = 0; k < pts.length; k++) {
+		    points.push(pts[k]);
+		}
+	}
+   
+	return convexCtClk(
+	   points.concat(convexPoints1.filter(p => inConvex(convexPoints2, p)))
+			 .concat(convexPoints2.filter(p => inConvex(convexPoints1, p)))
+    );
+}
+
+function polygonTranslate(polygonPoints, x, y) {
+    return polygonPoints.map(p => createVector(p.x + x, p.y + y));
+}
+
+function polygonRotate(polygonPoints, angle) {
+    return polygonPoints.map(p => p.copy().rotate(angle));
+}
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

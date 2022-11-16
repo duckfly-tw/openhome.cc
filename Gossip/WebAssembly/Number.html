@@ -1,0 +1,243 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="要熟悉基本的堆疊操作，可從數值運算開始，目前經常看到的是將一個常數推入堆疊，也就是在 i32、i64、f32、f64 之後，接下 .const。
+
+i32.const
+i64.const
+f32.co...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="數值運算">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Number.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="要熟悉基本的堆疊操作，可從數值運算開始，目前經常看到的是將一個常數推入堆疊，也就是在 i32、i64、f32、f64 之後，接下 .const。
+
+i32.const
+i64.const
+f32.co...">
+
+    <title>數值運算</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Number.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>數值運算</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>要熟悉基本的堆疊操作，可從數值運算開始，目前經常看到的是將一個常數推入堆疊，也就是在 <code>i32</code>、<code>i64</code>、<code>f32</code>、<code>f64</code> 之後，接下 <code>.const</code>。</p>
+<ul>
+<li><code>i32.const</code></li>
+<li><code>i64.const</code></li>
+<li><code>f32.const</code></li>
+<li><code>f64.const</code></li>
+</ul>
+<p>需要在堆疊中放入幾個數值，視接下來要進行的運算而定，底下的指令運算結果會置入堆疊。</p>
+<h2>整數運算</h2>
+<p>在整數運算方面，<code>i32</code> 與 <code>i64</code> 擁有相同的指令集，例如 <code>i32.add</code> 就有對應的 <code>i64.add</code>，常見的加減乘除等是二元運算，以 <code>i32</code> 為例，二元運算中與常見數學運算相關的指令有：</p>
+<ul>
+<li><code>i32.add</code>：相加</li>
+<li><code>i32.sub</code>：相減</li>
+<li><code>i32.mul</code>：相乘</li>
+<li><code>i32.div_s</code>：有號相除，捨去小數</li>
+<li><code>i32.div_u</code>：無號相除，採用 floor 捨入</li>
+<li><code>i32.rem_s</code>：有號餘除（結果採被除數之正負）</li>
+<li><code>i32.rem_u</code>：無號餘除</li>
+</ul>
+<p>與位元運算相關的指令有：</p>
+<ul>
+<li><code>i32.and</code>：AND 位元運算</li>
+<li><code>i32.or</code>：OR 位元運算</li>
+<li><code>i32.xor</code>:XOR 位元運算</li>
+<li><code>i32.shl</code>：位元左移</li>
+<li><code>i32.shr_u</code>：補 0 位元右移</li>
+<li><code>i32.shr_s</code>：補最左位元之位元右移</li>
+<li><code>i32.rotl</code>：循環位元左移</li>
+<li><code>i32.rotr</code>：循環位元右移</li>
+</ul>
+<p>與比較運算相關的指令有底下，在 WebAssembly 中，成立都是輸出 1，不成立為 0：</p>
+<ul>
+<li><code>i32.eq</code>：相等</li>
+<li><code>i32.ne</code>：不相等</li>
+<li><code>i32.lt_s</code>：有號小於</li>
+<li><code>i32.le_s</code>：有號小於等於</li>
+<li><code>i32.lt_u</code>：無號小於</li>
+<li><code>i32.le_u</code>：有號小於等於</li>
+<li><code>i32.gt_s</code>：有號大於</li>
+<li><code>i32.ge_s</code>：有號大於等於</li>
+<li><code>i32.gt_u</code>：無號大於</li>
+<li><code>i32.ge_u</code>：無號大於等於</li>
+</ul>
+<p>因為是二元運算，堆疊中必須先置入兩個數值，再來呼叫以上的指令，例如 1 + 2：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        i32.const 1
+        i32.const 2
+        i32.add
+        call $log ;; 在 conole 顯示 3
+    )
+    (start $main)
+)
+</code></pre>
+<p>在這邊看到註解的另一個形式，也就是在 <code>;;</code> 之後加上註解文字，這在編譯時會被忽略掉。</p>
+<p>實際上，如果已經熟悉堆疊操作上的順序，可以寫為：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        (i32.add (i32.const 1) (i32.const 2))
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>括號內的會先執行，可以回顧一下〈<a href="C2Wasm.html">從 C 到 WebAssembly</a>〉中，轉譯出來的 Wat，就有這類的寫法，進一步地觀察它，你就可以寫出：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        (call $log
+            (i32.add (i32.const 1) (i32.const 2))
+        )
+    )
+    (start $main)
+)
+</code></pre>
+<p>簡單來說，先習慣堆疊操作邏輯，有機會也多觀察一下 C 轉譯出的的 Wat 長什麼樣，就會寫出更自然的程式碼了，基於這一系列文件是入門的基礎，之後多半會使用較基本的寫法，若對可讀性有很大幫助，才會使用如上較自然的寫法。</p>
+<p>如果是一元運算，只要在堆疊中置入一個數值，就可以呼叫以下指令：</p>
+<ul>
+<li><code>i32.clz</code>：左邊有幾個 0 的位元</li>
+<li><code>i32.ctz</code>：右邊有幾個 0 的位元</li>
+<li><code>i32.popcn</code>：有幾個 1 的位元</li>
+<li><code>i32.eqz</code>：是否為 0</li>
+</ul>
+<h2>浮點數運算</h2>
+<p>在浮點數方面，<code>f32</code> 與 <code>f64</code> 擁有相同的指令集，以 <code>f32</code> 為例，其中二元運算的指令有：</p>
+<ul>
+<li><code>f32.add</code>：相加</li>
+<li><code>f32.sub</code>：相減</li>
+<li><code>f32.mul</code>：相乘</li>
+<li><code>f32.div</code>：相除</li>
+<li><code>f32.copysign</code>：令左運算元（先置入堆疊的值）正負號與右運算元相同</li>
+<li><code>f32.eq</code>：相等，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.ne</code>：不相等，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.lt</code>：小於，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.le</code>：小於等於，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.gt</code>：大於，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.ge</code>：大於等於，<code>nan</code> 視為不等於 <code>nan</code></li>
+<li><code>f32.min</code>：最小值，若運算元之一為 <code>nan</code>，傳回 <code>nan</code></li>
+<li><code>f32.max</code>：最大值，若運算元之一為 <code>nan</code>，傳回 <code>nan</code></li>
+</ul>
+<p>一元運算的指令有：</p>
+<ul>
+<li><code>f32.abs</code>：絕對值</li>
+<li><code>f32.neg</code>：改變正負號</li>
+<li><code>f32.ceil</code>：ceil 捨入</li>
+<li><code>f32.floor</code>：floor 捨入</li>
+<li><code>f32.trunc</code>：round 至最接近 0 的整數</li>
+<li><code>f32.nearest</code>：round 至最接近的偶數</li>
+<li><code>f32.sqrt</code>：平方根</li>
+</ul>
+<p>（有關於 round、ceil、round，可參考〈<a href="../Programmer/Float.html">算錢學問大</a>〉。）</p>
+<h2>型別轉換運算</h2>
+<p>不同型態的數值，會有放在一起運算的機會，這時必須進行適當的型態轉換，在整數部份，<code>i32</code> 擁有底下的型態轉換指令：</p>
+<ul>
+<li><code>i32.wrap/i64</code>：將 64 位元整數轉 32 位元整數，多的部份捨去</li>
+<li><code>i32.trunc_s/f32</code>：將 32 位元浮點數轉為有號 32 位元整數</li>
+<li><code>i32.trunc_s/f64</code>：將 64 位元浮點數轉為有號 32 位元整數</li>
+<li><code>i32.trunc_u/f32</code>：將 32 位元浮點數轉為無號 32 位元整數</li>
+<li><code>i32.trunc_u/f64</code>：將 64 位元浮點數轉為無號 32 位元整數</li>
+<li><code>i32.reinterpret/f32</code>：將 32 位元浮點數的位元組重新詮釋為 32 位元整數</li>
+</ul>
+<p>一個例子如下，拿掉 <code>i32.wrap/i64</code> 的話，<code>i32.add</code> 會因型態不符而出錯：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (func $main
+        i32.const 1
+        i64.const 2
+        i32.wrap/i64
+        i32.add
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p><code>i64</code> 擁有底下的型態轉換指令：</p>
+<ul>
+<li><code>i64.extend_s/i32</code>：將 32 位元整數擴充為 64 位元有號整數</li>
+<li><code>i64.extend_u/i32</code>：將 32 位元整數擴充為 64 位元無號整數</li>
+<li><code>i64.trunc_s/f32</code>：將 32 位元浮點數轉為有號 64 位元整數</li>
+<li><code>i64.trunc_s/f64</code>：將 64 位元浮點數轉為有號 64 位元整數</li>
+<li><code>i64.trunc_u/f32</code>：將 32 位元浮點數轉為無號 64 位元整數</li>
+<li><code>i64.trunc_u/f64</code>：將 64 位元浮點數轉為無號 64 位元整數</li>
+<li><code>i64.reinterpret/f64</code>：將 64 位元浮點數的位元組重新詮釋為 64 位元整數</li>
+</ul>
+<p><code>f32</code> 擁有底下的型態轉換指令：</p>
+<ul>
+<li><code>f32.demote/f64</code>：將 64 位元浮點數降為 32 位元浮點數</li>
+<li><code>f32.convert_s/i32</code>：將 32 位元有號整數轉為 32 位元浮點數</li>
+<li><code>f32.convert_s/i64</code>：將 64 位元有號整數轉為 32 位元浮點數</li>
+<li><code>f32.convert_u/i32</code>：將 32 位元無號整數轉為 32 位元浮點數</li>
+<li><code>f32.convert_u/i64</code>：將 64 位元無號整數轉為 32 位元浮點數</li>
+<li><code>f32.reinterpret/i32</code>：將 32 位元整數的位元組重新詮釋為 32 位元浮點數</li>
+</ul>
+<p><code>f64</code> 擁有底下的型態轉換指令：</p>
+<ul>
+<li><code>f64.promote/f32</code>：將 32 位元浮點數升為 64 位元浮點數</li>
+<li><code>f64.convert_s/i32</code>：將 32 位元有號整數轉為 64 位元浮點數</li>
+<li><code>f64.convert_s/i64</code>：將 64 位元有號整數轉為 64 位元浮點數</li>
+<li><code>f64.convert_u/i32</code>：將 32 位元無號整數轉為 64 位元浮點數</li>
+<li><code>f64.convert_u/i64</code>：將 64 位元無號整數轉為 64 位元浮點數</li>
+<li><code>f64.reinterpret/i64</code>：將 64 位元整數的位元組重新詮釋為 64 位元浮點數</li>
+</ul>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

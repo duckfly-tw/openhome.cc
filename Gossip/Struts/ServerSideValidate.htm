@@ -1,0 +1,337 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="驗證使用者的資料是否正確，對於Web應用程式來說是相當重要的，尤其是對一些私密資源的保護，只允許通過驗證的使用者觀看，這種需求對Web應用程式來說處處可見。
+
+      
+
+
+驗證有很多形...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="伺服端表單驗證">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Struts/ServerSideValidate.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="驗證使用者的資料是否正確，對於Web應用程式來說是相當重要的，尤其是對一些私密資源的保護，只允許通過驗證的使用者觀看，這種需求對Web應用程式來說處處可見。
+
+      
+
+
+驗證有很多形...">
+
+
+    <title>伺服端表單驗證</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ServerSideValidate.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Struts 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>伺服端表單驗證</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             驗證使用者的資料是否正確，對於Web應用程式來說是相當重要的，尤其是對一些私密資源的保護，只允許通過驗證的使用者觀看，這種需求對Web應用程式來說處處可見。<br>
+
+      <br>
+
+
+驗證有很多形式，這邊針對兩個部份，一個是<span style="font-weight: bold;">資料完整性驗證</span>，一個是<span style="font-weight: bold;">資料正確性驗證</span>。<br>
+
+      <br>
+
+      
+
+
+      
+      <ul>
+
+        <li>資料完整性</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">指的是驗證使用者是否輸入了應用程式所要求的所有訊息，以及訊息的格式是否符合程式要求等等，例如應用程式可能要求使用者同時提供使用者名稱與密碼，並且密碼長度不得少於6個字元。<br>
+
+
+      </div>
+
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>資料正確性驗證</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">是在通過完整性驗證之後的檢查，例如應用程式檢查使用者提供的使用者名稱與密碼是否符合資料庫中的資料。<br>
+
+
+      </div>
+
+
+      <br>
+
+
+另外，驗證的地點可以是在<span style="font-weight: bold;">伺服端</span>，也可以是在<span style="font-weight: bold;">客戶端</span>。<br>
+
+      <br>
+
+      
+
+      
+      <ul>
+
+        <li>客戶端</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">通常是透過JavaScript來完成，驗證工作直接在客戶端進行，不用傳回給伺服端，可以節省網路與伺服器資源。<br>
+
+
+      </div>
+
+
+      <br>
+
+      
+      
+      <ul>
+
+        <li>伺服端</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">只依賴客戶端驗證是不夠的，畢竟客戶端可能跳過它，所以伺服端也必須驗證資料，這邊要介紹的就是如何使用Struts的表單物件進行伺服端資料驗證。<br>
+
+
+      </div>
+
+
+      <br>
+
+
+其實很簡單，只要在繼承 <a href="ActionForm.htm">ActionForm</a> 之後，重新定義其validate()方法即可，不過這邊要繞個彎，在不使用Struts標籤的情況下要如何進行這項工作，這麼作的目的，在於讓您更瞭解Struts的運作流程。<br>
+
+      <br>
+
+
+如果您不想繞彎，記得下面的設定若配合Struts <a href="ActionMessage.htm">&lt;html:messages&gt;</a> 標籤的話會很方便的達成。<br>
+
+      <br>
+
+
+首先來看看表單物件如何撰寫：
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>UserForm.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar; <br> <br>import java.util.*;<br>import javax.servlet.http.*; <br>import org.apache.struts.action.*;<br>import org.apache.struts.Globals;<br>import org.apache.struts.util.MessageResources;<br><br>public class UserForm extends ActionForm {<br>    private String username;<br>    private String password;<br>    <br>    public void setUsername(String username) { <br>        this.username = username; <br>    } <br>    <br>    public void setPassword(String password) { <br>        this.password = password; <br>    } <br>    <br>    public String getUsername() { <br>        return username; <br>    }<br>    <br>    public String getPassword() {<br>        return password;<br>    } <br>    <br>    public void reset(ActionMapping mapping, <br>                      HttpServletRequest req) {<br>        username = null;<br>        password = null;<br>    }<br>    <br>    public ActionErrors validate(ActionMapping mapping, <br>            HttpServletRequest request) {<br>        <br>        Map errModel = new HashMap();<br>        MessageResources messageResources =<br>            (MessageResources) request.getAttribute(<br>                                    Globals.MESSAGES_KEY);<br>        <br>        if(getUsername() == null || <br>                getUsername().length() &lt; 1) {<br>            String msg = <br>               messageResources.getMessage(<br>                                "error.invalidUsername");<br>            errModel.put("invalidUsername", msg);<br>        }<br>        <br>        if(getPassword() == null || <br>                getPassword().length() &lt; 1) { <br>            String msg = <br>               messageResources.getMessage(<br>                               "error.invalidPassword");<br>            errModel.put("invalidPassword", msg);<br>        }<br>        <br>        if(errModel.get("invalidUsername") == null &amp;&amp;<br>           errModel.get("invalidPassword") == null) {<br>            // no error happened<br>            // return null to proceed the Action<br>            return null;<br>        }<br>        else { <br>            request.setAttribute("errors", errModel);<br>            <br>            // fake codes, just tell RequestProcessor<br>            // not to invoke Action<br>            ActionErrors errors = new ActionErrors(); <br>            errors.add(ActionMessages.GLOBAL_MESSAGE, <br>                    new ActionMessage(""));<br>            return errors;<br>        }<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      主要看看validate()方法，在這邊從request中取得了 <a href="MessageResources.htm">MessageResources</a> ，這是為了能取得訊息資源檔中的訊息設定，程式中使用一個Map物件來記錄我們所發現的錯誤訊息，最後將之設定給request。<br>
+
+      <br>
+
+
+validate()方法要傳回一個ActionErrors物件，它是ActionMesssage的子類別，如果想直接使用它們，搭配 Struts &lt;html:messages&gt;標籤會比較方便，但這邊先不打算使用。<br>
+
+      <br>
+
+
+RequestProcessor
+根據validate()傳回的ActionErrors是否為null或其中是否包括有ActionMessage物件，以判斷是不是要進一步呼叫
+Action
+物件，如果發現傳回的不是null或是包括有ActionMessage，中斷接下來呼叫Action的流程，而直接跳到您所設定好的驗證錯誤頁面。<br>
+
+      <br>
+
+
+雖然這邊不打算使用&lt;html:messages&gt;標籤，但希望上面的流程可以正常運作，所以當發現有錯誤時，仍然回傳一個 ActionErrors物件，這只是用來滿足RequestProcessor完成上述流程運作所需要的條件。。<br>
+
+      <br>
+
+
+當傳回的ActionErrors不為null，則會跳至您所設定的驗證錯誤頁面，這是在struts-config.xml中設定：
+
+
+
+      <br>
+
+
+      
+      <ul>
+
+        <li>struts-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="ISO-8859-1" ?&gt;<br><br>&lt;!DOCTYPE struts-config PUBLIC<br>"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"<br>"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd"&gt;<br><br>&lt;struts-config&gt;<br>    &lt;form-beans&gt; <br>        &lt;form-bean <br>            name="userForm" <br>            type="onlyfun.caterpillar.UserForm"/&gt; <br>    &lt;/form-beans&gt;<br><br>    &lt;action-mappings&gt; <br>        &lt;action <br>            path="/login" <br>            type="onlyfun.caterpillar.LoginAction"<br>            name="userForm"<br>            validate="true"<br>            input="/WEB-INF/pages/fail.jsp"&gt;<br>             <br>            &lt;forward<br>                name="helloUser" <br>                path="/WEB-INF/pages/hello.jsp"/&gt;<br>            &lt;forward<br>                name="loginFail" <br>                path="/WEB-INF/pages/fail.jsp"/&gt;<br>        &lt;/action&gt;         <br>    &lt;/action-mappings&gt; <br>    <br>    &lt;message-resources parameter="resources/messages"/&gt;<br>&lt;/struts-config&gt;</code></pre>
+
+
+      <br>
+
+      
+您必須設定&lt;action&gt;的validate屬性為true，這樣RequestProcessor才會執行validate()方法， &lt;action&gt;的input屬性則是讓您設定當驗證錯誤時，應該導向的頁面。<br>
+
+      <br>
+
+
+進一步的，看看LoginAction中要作的正確性驗證，它檢查使用者名稱與密碼是否符合設定：
+      <br>
+
+
+      
+      <ul>
+
+        <li>LoginAction.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.*;<br>import javax.servlet.http.*; <br>import org.apache.struts.action.*; <br>import org.apache.struts.util.MessageResources;<br>import org.apache.commons.beanutils.PropertyUtils;<br><br>public class LoginAction extends Action {<br>    public ActionForward execute(ActionMapping mapping,<br>                             ActionForm form,<br>                             HttpServletRequest request, <br>                             HttpServletResponse response) <br>                                throws Exception { <br>        <br>        String username = (String) <br>                  PropertyUtils.getSimpleProperty(<br>                                     form, "username"); <br>        String password = (String) <br>                  PropertyUtils.getSimpleProperty(<br>                                     form, "password"); <br>        <br>        request.setAttribute("username", username);<br>        <br>        if(username.equals("caterpillar") &amp;&amp; <br>                  password.equals("1234")) {<br>            return mapping.findForward("helloUser"); <br>        }<br>        <br>        Map msgModel = new HashMap();<br>        <br>        MessageResources messageResources = <br>            (MessageResources) getResources(request);<br>        <br>        msgModel.put("namePasswordMismatched", <br>                messageResources.getMessage(<br>                        "message.namePasswordMismatched"));<br>        <br>        request.setAttribute("messages", msgModel);<br>        <br>        return mapping.findForward("loginFail"); <br>    }<br>}</code></pre>
+
+
+      <br>
+
+      
+這邊使用了PropertyUtils輔助類別，這可以很方便的幫您取出表單物件中的屬性。這邊還需要一個訊息檔案來管理訊息：<br>
+
+
+      
+      <ul>
+
+        <li>message_zh_TW.properties</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java"># errors<br>error.invalidUsername=使用者名稱不得為空！<br>error.invalidPassword=密碼不得為空！<br> <br># messages<br>message.namePasswordMismatched=使用者名稱或密碼輸入錯誤！</code></pre>
+
+
+      <br>
+
+      
+來看看fail.jsp，這邊並沒有使用Struts標籤，所以只要如下取出訊息即可：<br>
+
+
+      
+      <ul>
+
+        <li>fail.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;html&gt;<br>&lt;head&gt; <br>&lt;title&gt;Sorry!&lt;/title&gt; <br>&lt;/head&gt; <br>&lt;body&gt;<br>    &lt;H1&gt;<br><br>    \${errors["invalidUsername"]}&lt;br&gt;<br>    \${errors["invalidPassword"]}&lt;br&gt;<br>    \${messages["namePasswordMismatched"]}<br>    <br>    &lt;/H1&gt;<br>    &lt;p&gt;<br>    &lt;a href='/strutsapp/html/form.htm'&gt;Login&lt;/a&gt;<br>&lt;/body&gt; <br><br>&lt;/html&gt;</code></pre>
+
+
+      <br>
+
+      
+form.htm與hello.jsp就使用 使用 <a href="ActionForm.htm">ActionForm</a> 中介紹過的即可。<br>
+
+      <br>
+
+
+在不使用ActionMessage與Struts標籤的情況下，撰寫這樣的程式好像複雜了一些，如果您想省點功夫，您可以考慮搭配 <a href="ActionMessage.htm">&lt;html:messages&gt;</a> 來撰寫這個程式。
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

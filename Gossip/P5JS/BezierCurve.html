@@ -1,0 +1,301 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="只要有適當的數學公式，就可以算出每個點的位置然後繪製圖形，〈黃金螺線〉 中看過的螺線繪製就是實際的例子，你可以在 Wolfram Alpha 知識引擎中，搜尋「Doraemon‐like curve」...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="貝茲曲線">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/BezierCurve.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="只要有適當的數學公式，就可以算出每個點的位置然後繪製圖形，〈黃金螺線〉 中看過的螺線繪製就是實際的例子，你可以在 Wolfram Alpha 知識引擎中，搜尋「Doraemon‐like curve」...">
+
+    <title>貝茲曲線</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BezierCurve.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>貝茲曲線</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>只要有適當的數學公式，就可以算出每個點的位置然後繪製圖形，〈<a href="GoldenSpiral.html">黃金螺線</a>〉 中看過的螺線繪製就是實際的例子，你可以在 <a href="https://www.wolframalpha.com/">Wolfram Alpha</a> 知識引擎中，搜尋「Doraemon‐like curve」，這可以找到<a href="https://www.wolframalpha.com/input/?i=Doraemon%E2%80%90like+curve&amp;assumption=%22ClashPrefs%22+-%3E+%7B%22PopularCurve%22%2C+%22DoraemonCurve%22%7D">曲線繪製出的哆啦 A 夢</a>，以及曲線的參數式：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-1.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>你可以試著搜尋 xxx curve，例如「person curve」等，來試著找到其他有趣的曲線；然而有時候，我們數學不夠好或者嫌麻煩，難以或不想找出數學公式來表現想要的曲線，怎麼辦呢？</p>
+<p>這時，可以使用〈<a href="https://zh.wikipedia.org/wiki/%E8%B2%9D%E8%8C%B2%E6%9B%B2%E7%B7%9A">貝茲曲線</a>〉來近似出想要的曲線，在各種近似曲線中，貝茲曲線的數學原理算是蠻好懂的，認識一下，有助於掌握貝茲曲線或其他近似曲線的運用方式。</p>
+<p>如果對微積分還有些印象，大概會記得曲線的微分，可以用來求某點的切線斜率，如果忘了，可以這麼想，如果每次只看曲線中的一小段，那麼這一小段 曲線只要夠短，小到趨近於 0 的極限，那麼幾乎就可以看成是一段直線：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-2.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>更具體地說，如果曲線的函數是 f(x)，而曲線上有某點 (x, y)，若於 X 方向前進 Δx 距離，會得到 Δy = f(x + Δx) - f(x)，剛才說 到一小段曲線只要夠短的意思是，若 Δx 趨近於 0，這時這一小段曲線變化就可以看成是直線，而直線的斜率是 Δy / Δx（這段描述其實就是微分的定義，而這一小段直線，就是曲線在點 (x, y) 處的切線）。</p>
+<p>從這個觀點來看，一段曲線，可以看成是無數的直線構成（這就是積分的概念），只不過，上一個點跟下一個點的直線斜率也許不相同：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-3.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>如果有曲線的函數 f(x)，其微分 f'(x) 代入每個點的 (x, y) 就可以得到通過這個點的直線斜率，從而得到通過這個點的直線方程式，問題就在於剛剛談到的，有時候，我們數學不夠好或者嫌麻煩，難以或不想找出數學公式 f(x) 來表現想要的曲線，怎麼辦呢？</p>
+<p>貝茲曲線的概念就是，直接用直線來描述曲線，這是什麼意思？以二次貝茲曲線舉例來說，可以使用三個點 P0、P1、P2，在 P0 與 P1 間直線的四分之一處找個點 Q0，在 P1 與 P2 間直線的四分之一處找個點 Q1，這時 Q0 與 Q1 會構成一條直線，這時也在 Q0 與 Q1 之間直線的四分之一處找個點 B0。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-4.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>接著類似的作法，只是將四分之一變成二分之一、四分之三，分別找出 B1、B2 好了，接著將 P0、B0、B1、B2、P2 連起來會是什麼呢？</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-5.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>有點像是曲線了，上面的例子其實就是將直線分為四等分，每次前進四分之一求 B 點，如果四變成了八、十六等更大的數，數字越大就越接近真正曲線了（這也是積分的概念）。</p>
+<p>那麼要怎麼得到 Q0 與 Q1 這條直線？這得先從線性貝茲曲線開始談，也就是…直線！如果 P0 與 P1 之間的距離為 LEN， 從 P0 到 P1 的中間若前進了長度為 len，若 t = len / LEN， 那麼 B(t) 會是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-6.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>其中 P0、P1、B(t) 都是向量的意思，以 OpenSCAD 具體來說，如果以 [x, y, z] 這個向量來表示座標點的話，那麼點 P0 的座標 (x0, y0, z0) 可以用 [x0, y0, z0] 向量來表示，也就是若用矩陣來表示的話：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BezierCurve-7.JPG" alt="貝茲曲線"  /></div></div></p>
+<p>自行導證出這個公式很簡單，不想導證的話也沒關係，日後有興趣再導就好，總之接著來看，如果有三個點 P0、P1、P2 呢？若 P0 與 P1 間的點有個點 X0，P1 與 P2 間有個點 X1，如果 X0 與 X1 之間的距離為 LEN，從 X0 到 X1 的中間若前進了長度為 len，若 t = len / LEN，那 麼在上頭的某點 B 就會是：</p>
+<pre class="prettyprint"><code lang="javascript">B(t) = (1 - t) X0 + t X1, t ∈ [0, 1]
+</code></pre>
+<p>如果 X0 實際上是從 P0 前進到 P1 得到，那麼 X0 的位置可以表示為 X0(t)：</p>
+<pre class="prettyprint"><code lang="javascript">X0(t) = (1 - t) P0 + t P1, t ∈ [0, 1]
+</code></pre>
+<p>如果 X1 實際上是從 P1 前進到 P2 得到，那麼 X1 的位置可以表示為 X1(t)：</p>
+<pre class="prettyprint"><code lang="javascript">X1(t) = (1 - t) P1 + t P2, t ∈ [0, 1]
+</code></pre>
+<p>將 X0(t)、X1(t) 代入方才的 B(t)，整理一下就會得到：</p>
+<pre class="prettyprint"><code lang="javascript">B(t) = (1 - t) * (1 - t) * P0 + 2 * t * (1 - t) * P1 + t * t * P2, t ∈ [0, 1]
+</code></pre>
+<p>這就是二次貝茲曲線的公式了，依同樣的邏輯，你可以求出三次或更多次的貝茲曲線，公式就直接看維基百科上的吧！（可以運用〈<a href="../AlgorithmGossip/PascalTriangle.htm">巴斯卡三角形</a>〉來協助記憶！）</p>
+<p>雖然可以實作更多次的貝茲曲線，不過控制點太多，實際上也不好控制曲線，因此最常使用的是三次貝茲曲線，也就是使用四個控制點…因此接下來就可以實作貝茲曲線了…等一下…</p>
+<p>p5.js 就有內建貝茲曲線了，以最簡單的 <code>bezier</code> 為例，它實現了三次貝茲曲線，可以接受四個點，來繪製貝茲曲線，例如以下的例子，可以藉由滑鼠點選控制點，來改變曲線的形狀：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    noFill();
+}
+
+const pts = [
+    pt(280, 20), pt(20, 20), pt(280, 280), pt(20, 280)
+];
+
+const dotD = 10;
+function draw() {
+    background(220);
+
+    ctrlPoints();
+    bezierCurve();
+}
+
+function ctrlPoints() {
+    // 控制點
+    stroke(255, 102, 0);
+    strokeWeight(dotD);
+    pts.forEach(p => {
+        point(p.x, p.y);
+    });
+
+    // 點的號碼
+    strokeWeight(1);
+    pts.forEach((p, i) => {
+        text(i, p.x, p.y + 15);
+    });
+
+    // 連接控制點
+    for(let i = 0; i < pts.length - 1; i++) {
+        line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+    }
+}
+
+function bezierCurve() {
+    stroke(0);
+    strokeWeight(4);
+    bezier(
+        pts[0].x, pts[0].y, 
+        pts[1].x, pts[1].y, 
+        pts[2].x, pts[2].y, 
+        pts[3].x, pts[3].y
+    );  
+}
+
+function pt(x, y) {
+    return {x, y, selected: false};
+}
+
+// 設定選取點
+function mousePressed() {
+    const r = dotD / 2;
+    for(let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const pv = createVector(p.x, p.y);
+        const mv = createVector(mouseX, mouseY);
+        if(pv.sub(mv).mag() < r) {
+            p.selected = true;
+            break;
+        }
+    }
+}
+
+// 拖曳選取點
+function mouseDragged() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+          pts[i].x = mouseX;
+          pts[i].y = mouseY;
+          break;
+        }
+    }
+}
+
+// 取消選取點
+function mouseReleased() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+            pts[i].selected = false;
+            break;
+        }
+    }
+}
+</script>
+<p><code>bezier</code> 預設會將曲線切為 20 等分，這可以透過 <code>bezierDetail</code> 來控制（必須在 WebGL 模式）；如果想取得曲線上計算出來的每個點的 x 或 y 座標，可以透過 <code>bezierPoint</code>；還可以透過 <code>bezierTangent</code> 取得曲線上每個點的切線斜率的 x 分量或 y 分量，例如，可以透過以下程式來顯示曲線更多的細節：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">const pts = [
+    pt(280, 20), pt(20, 20), pt(280, 280), pt(20, 280)
+];
+
+const dotD = 10;
+const detail = 10;
+
+function setup() {
+    createCanvas(300, 300); 
+    noFill();
+}
+
+function draw() {
+    background(220);
+
+    ctrlPoints();
+    bezierCurve();
+    curvePointsTangents();
+}
+
+function ctrlPoints() {
+    // 控制點
+    stroke(255, 102, 0);
+    strokeWeight(dotD);
+    pts.forEach(p => {
+        point(p.x, p.y);
+    });
+
+    // 連接控制點
+    strokeWeight(1);
+    for(let i = 0; i < pts.length - 1; i++) {
+        line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+    }
+}
+
+function bezierCurve() {
+    stroke(0);
+    strokeWeight(4);
+    bezier(
+        pts[0].x, pts[0].y, 
+        pts[1].x, pts[1].y, 
+        pts[2].x, pts[2].y, 
+        pts[3].x, pts[3].y
+    );  
+}
+
+function curvePointsTangents() {
+    for (let i = 0; i <= detail; i++) {
+        // t 表示曲線切為 detail 段後，第 i 段的起點
+        // 因此會是個 0 到 1 的值
+        const t = i / detail; 
+
+        // 曲線上的一點
+        const x = bezierPoint(pts[0].x, pts[1].x, pts[2].x, pts[3].x, t);
+        const y = bezierPoint(pts[0].y, pts[1].y, pts[2].y, pts[3].y, t);
+        stroke(255, 0, 0);
+        strokeWeight(dotD);
+        point(x, y);
+
+        // 該點的切線
+        const tx = bezierTangent(pts[0].x, pts[1].x, pts[2].x, pts[3].x, t);
+        const ty = bezierTangent(pts[0].y, pts[1].y, pts[2].y, pts[3].y, t);     
+        const tv = createVector(tx, ty).normalize().mult(50);
+        strokeWeight(1);
+        line(x, y, x + tv.x, y + tv.y);
+    }
+}
+
+function pt(x, y) {
+    return {x, y, selected: false};
+}
+
+// 設定選取點
+function mousePressed() {
+    const r = dotD / 2;
+    for(let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const pv = createVector(p.x, p.y);
+        const mv = createVector(mouseX, mouseY);
+        if(pv.sub(mv).mag() < r) {
+            p.selected = true;
+            break;
+        }
+    }
+}
+
+// 拖曳選取點
+function mouseDragged() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+          pts[i].x = mouseX;
+          pts[i].y = mouseY;
+          break;
+        }
+    }
+}
+
+// 取消選取點
+function mouseReleased() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+            pts[i].selected = false;
+            break;
+        }
+    }
+}
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

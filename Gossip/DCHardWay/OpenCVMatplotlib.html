@@ -1,0 +1,138 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OpenCV 內建了顯示圖片的功能，然而有時候，我們會想結合 Matplotlib 的功能來顯示圖片，然而若直接將 cv2.imread 傳回的陣列，透過 matplotlib.pyplot 的 im...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="OpenCV 與 Matplotlib">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/OpenCVMatplotlib.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="OpenCV 內建了顯示圖片的功能，然而有時候，我們會想結合 Matplotlib 的功能來顯示圖片，然而若直接將 cv2.imread 傳回的陣列，透過 matplotlib.pyplot 的 im...">
+
+    <title>OpenCV 與 Matplotlib</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OpenCVMatplotlib.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>OpenCV 與 Matplotlib</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>OpenCV 內建了顯示圖片的功能，然而有時候，我們會想結合 Matplotlib 的功能來顯示圖片，然而若直接將 <code>cv2.imread</code> 傳回的陣列，透過 <code>matplotlib.pyplot</code> 的 <code>imshow</code> 顯示，會出現色彩不正確的問題。例如：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg')
+plt.imshow(img)
+plt.show()
+</code></pre>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OpenCVMatplotlib-1.JPG" alt="OpenCV 與 Matplotlib"  /></div></div></p>
+<p>在〈<a href="OpenCV.html">OpenCV 與 NumPy</a>〉中談過，<code>cv2.imread</code> 傳回的物件具有 NumPy 陣列的行為，若是讀取了圖片的 RGB，軸 2 用來指定像素的 <strong>BGR</strong> 欄位索引，也就是 RGB 的相反，之所以會使用 BGR，是歷史性的原因，早期一些相機或硬體使用的就是 BGR，而 OpenCV 就這麼一直用到現在了。</p>
+<p>為了能在 Matplotlib 顯示正確的色彩，必須將 BGR 轉為 RGB，方式之一是將 BGR 拆分出來，再以 RGB 順序合併，這可以分別透過 <code>cv2</code> 的 <code>split</code> 與 <code>merge</code> 達到：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg')
+b, g, r = cv2.split(img)
+plt.imshow(cv2.merge([r, g, b]))
+plt.show()
+</code></pre>
+<p>或者是透過 <code>cv2.cvtColor</code> 指定 <code>cv2.COLOR_BGR2RGB</code>，就可以專 BGR 轉為 RGB：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg')
+plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.show()
+</code></pre>
+<p>如果你對〈<a href="Indexing.html">NumPy 陣列索引</a>〉夠熟悉，也可以透過範圍索引的方式來分離 BGR：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg')
+b = img[:,:,0]
+g = img[:,:,1]
+r = img[:,:,2]
+plt.imshow(cv2.merge([r, g, b]))
+plt.show()
+</code></pre>
+<p>既然如此，在最後一個範圍索引處，直接透過 -1 來反轉不就好了？</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg')
+plt.imshow(img[:,:,::-1])
+plt.show()
+</code></pre>
+<p>以上四個範例，都可以得到正確的色彩顯示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OpenCVMatplotlib-2.JPG" alt="OpenCV 與 Matplotlib"  /></div></div></p>
+<p>如果是用 OpenCV 以灰階方式讀入圖片，因為元素只有灰階值，應該就沒有什麼 BGR 轉 RGB 的問題了吧？！是沒錯，不過有另一個小問題：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+plt.imshow(img)
+plt.show()
+</code></pre>
+<p>這會顯示以下的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OpenCVMatplotlib-3.JPG" alt="OpenCV 與 Matplotlib"  /></div></div></p>
+<p>這是因為不指定 <code>imshow</code> 的 <code>cmap</code> 的話，會使用 <code>rcParams["image.cmap"]</code> 作為預設，自行指定 <code>cmap</code> 為 <code>gray</code> 就可以了：</p>
+<pre class="prettyprint"><code lang="python">import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('caterpillar.jpg', cv2.IMREAD_GRAYSCALE)
+plt.imshow(img, cmap = 'gray')
+plt.show()
+</code></pre>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OpenCVMatplotlib-4.JPG" alt="OpenCV 與 Matplotlib"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

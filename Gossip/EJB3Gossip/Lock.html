@@ -1,0 +1,296 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在多人使用的環境
+下，每個使用者可能進行自己的交易，交易與交易之間，必須互不干擾，使用者不會意識到別的使用者正在進行交易，就好像只有自己在進行操作一樣。
+
+
+
+
+
+      
+
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Lock 機制">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/Lock.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在多人使用的環境
+下，每個使用者可能進行自己的交易，交易與交易之間，必須互不干擾，使用者不會意識到別的使用者正在進行交易，就好像只有自己在進行操作一樣。
+
+
+
+
+
+      
+
+...">
+
+
+    <title>Lock 機制</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Lock.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Lock 機制</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在多人使用的環境
+下，每個使用者可能進行自己的交易，交易與交易之間，必須互不干擾，使用者不會意識到別的使用者正在進行交易，就好像只有自己在進行操作一樣。<br>
+
+
+
+
+
+      <br>
+
+
+
+隔離設定與與特定的資源相關，並不在 Java EE 規範之中。<br>
+
+
+
+      <br>
+
+
+
+您可以進一步參考：<a href="../HibernateGossip/IsolationLevel.html">簡
+介隔離層級</a>。<br>
+      <br>
+      樂觀鎖定（Optimistic
+locking）樂觀的認為資料很少發生同時存取的問題，通常在資料庫層級上設為read-commited隔離層級，並實行樂觀鎖定。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+在read commited隔離層級之下，允許交易讀取另一個交易已COMMIT的資料，但可能有unrepeatable read與lost update的問題存在，例如：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ol>
+        <li>交易A讀取欄位1</li>
+        <li>交易B讀取欄位1</li>
+        <li>交易A更新欄位1並COMMIT</li>
+        <li>交易B更新欄位1並COMMIT</li>
+      </ol>
+
+
+
+
+
+      <br>
+
+
+
+
+
+      交易B可能基於舊的資料來更新欄位，使得交易A的資料遺失，或者是：<br>
+
+
+
+      
+      
+      
+      
+      <ol>
+        <li>交易A讀取欄位1、2</li>
+        <li>交易B讀取欄位1、2</li>
+        <li>交易A更新欄位1、2，欄位1是新資料，欄位2是舊資料，並COMMIT</li>
+        <li>交易A更新欄位1、2，欄位1是舊資料，欄位2是新資料，並COMMIT</li>
+      </ol>
+
+
+
+      <br>
+
+
+
+為了維護正確的資料，樂觀鎖定使用應用程式上的邏輯實現版
+本控制的解決。 <br>
+      <br>
+      對於lost update的問題，可以有幾種選擇：<br>
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+        <li>先更新為主（First commit wins）</li>
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">交易A先COMMIT，交易B在COMMIT時會得到錯誤訊息，表示更新失敗，交易B必須重新取得資料，嘗試進行更新。</div>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+        <li>後更新的為主（Last commit wins）</li>
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">交易A、B都可以COMMIT，交易B覆蓋交易A的資料也無所謂。</div>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+        <li>合併衝突更新（Merge conflicting update）</li>
+      </ul>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">先更新為主的變化應用，交易A先COMMIT，交易B要更新時會得到錯誤訊息，提示使用者檢查所有欄位，選擇性的更新沒有衝突的欄位。<br>
+
+
+
+
+
+      </div>
+
+
+
+
+
+      
+
+
+      <br>
+JPA中透過版本號檢查來實現先更新為主，在資料庫中加入一個version欄位記錄，在讀取資料時
+連同版本號一同讀取，並在更新資料時比對版本號與資料庫中的版本號，如果等於資料庫中的版本號則予以更新，並遞增版本號，如果小於資料庫中的版本號就丟出
+例外（OptimisticLockingException），版本號可以是數字或時間戳記，通常使用數字。<br>
+      <br>
+若要定義Entity上版本號欄位對應的屬性，則可以使用@Version，例如：<br>
+      
+      <div style="margin-left: 40px;">package onlyfun.caterpillar;<br>
+      <br>
+      public class User {<br>
+      &nbsp;&nbsp;&nbsp; private Long id;<br>
+      &nbsp; &nbsp; <span style="color: rgb(255, 0, 0);">@Version</span><br>
+      &nbsp;&nbsp;&nbsp; private Long version; // 增加版本屬性 <br>
+      &nbsp; &nbsp; ....<br>
+      &nbsp; &nbsp; public Long getVersion() {<br>
+      &nbsp; &nbsp; &nbsp; &nbsp; return version;<br>
+      &nbsp; &nbsp; }<br>
+      <br>
+      &nbsp; &nbsp; public void setVersion(Long version) {<br>
+      &nbsp; &nbsp; &nbsp; &nbsp; this.version = version;<br>
+      &nbsp; &nbsp; }<br>
+      &nbsp;}<br>
+      </div>
+      <br>
+在EntityManager上有個lock()方法，可以讓您主動對Entity進行鎖定，lock()有兩種模式：
+LockModeType.READ與LockModeType.WRITE。前者允許另一使用者讀取，但不允許更新、刪除，可避免Dirty
+read、Non-repeatable
+read，後者則不允許另一使用者讀取、更新、刪除。使用lock()方法，Entity上必須有版本屬性，且必須在Managed狀態，否則無法取得鎖
+定，會丟出javax.persistence.PersistenceException，EntityManager會嘗試將lock()轉為資料庫
+的鎖定指令。<br>
+      <br>
+  
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

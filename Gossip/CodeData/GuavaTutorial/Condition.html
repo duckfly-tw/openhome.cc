@@ -1,0 +1,176 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="【Guava 教學】（1）從避免使用 null 開始&nbsp;&lt;&lt; 前情
+      
+      有多少次了呢？你總會對傳入的引數作一些檢查，像是某個管理物件的容器，你也許會有個 ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【Guava 教學】（2）命名明確的條件檢查">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/GuavaTutorial/Condition.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="【Guava 教學】（1）從避免使用 null 開始&nbsp;&lt;&lt; 前情
+      
+      有多少次了呢？你總會對傳入的引數作一些檢查，像是某個管理物件的容器，你也許會有個 ...">
+
+
+    <title>【Guava 教學】（2）命名明確的條件檢查</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Condition.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/GuavaTutorial/">回 Guava Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Guava 教學】（2）命名明確的條件檢查</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+      <br>
+      有多少次了呢？你總會對傳入的引數作一些檢查，像是某個管理物件的容器，你也許會有個 <code>add</code> 方法，可將傳入的 <code>List</code> 中元素逐一收納，你不希望傳入 <code>null</code>，或者傳入的 <code>List</code> 是空的…
+      <pre class="prettyprint"><code lang="java">public void add(List&lt;T&gt; lt) {
+    if(lt == null) {
+        throw new IllegalArgumentException("不能傳入 null");
+    }
+    if(lt.isEmpty()) {
+        throw new IllegalArgumentException("List 不能是空");
+    }
+    // 繼續辦事...
+}</code></pre>
+      每次都得為了做這類的檢查而撰寫類似程式碼的話，為什麼不把它封裝起來呢？像是寫個 <code>checkArgument</code>：
+      <pre class="prettyprint"><code lang="java">public static void checkArgument(boolean expression, Object errorMessage) {
+    if(expression) {
+        throw new IllegalArgumentException(errorMessage.toString());
+    }
+}</code></pre>
+      那麼你原本的方法就可以修改為：
+      <pre class="prettyprint"><code lang="java">public void add(List&lt;T&gt; lt) {
+    checkArgument(lt != null, "不能傳入 null");
+    checkArgument(!lt.isEmpty(), "List 不能是空");
+    // 繼續辦事...
+}</code></pre>
+      看來不錯，那為什麼不用 <code>assert</code> 呢？當然，我們可以用 <code>assert</code>，不過 <code>assert</code> 可以被停用，但這不是不使用 <code>assert</code> 的真正理由，真正的理由是為了「可讀性」，無論如何，使用 <code>checkArgument</code> 這樣的名稱，我們可以一目瞭然地知道，這是在檢查傳入引數，使用 <code>assert</code> 的話，總是要稍微想一下。<br>
+      在 Guava 中對這類前置檢查的工作，實際上在 <code>com.google.common.base.Preconditions</code> 上提供了一些公用方法可以使用，為了方便，建議你使用 <code>import static com.google.common.base.Preconditions.*</code>，這樣你就可以不用使用 <code>Preconditions</code> 作為前置。事實上，如果你正在使用 Guava，那麼上面的方法最好還可以修改為以下內容：
+      <pre class="prettyprint"><code lang="java">public void add(List&lt;T&gt; lt) {
+    checkNotNull(lt, "不能傳入 null");
+    checkArgument(!lt.isEmpty(), "List 不能是空");
+    // 繼續辦事...
+}</code></pre>
+      這就是 Bob 大叔在《Clean Code》中一直強調的概念「有意義的命名（Meaningful Names）」，只要有助於可讀性，流程中某個區塊都可以使用函式並「使用具描述能力的名稱（Use Descriptive Names）」來取代。比方說，如果某個方法要檢查物件內部狀態：
+      <pre class="prettyprint"><code lang="java">public void doSome() {
+    if(container.size() &gt; 100) {
+        throw new IllegalStateException("超過負載");
+    }
+    // 繼續辦事...
+}</code></pre>
+      那麼可以直接使用 Guava 的 <code>checkState</code> 方法來修改為：
+      <pre class="prettyprint"><code lang="java">public void doSome() {
+    checkState(container.size() &lt;= 100, "超過負載");
+    // 繼續辦事...
+}</code></pre>
+      乍看 <code>checkArgument</code> 與 <code>checkState</code> 感覺會有點像，是的！如果你只使用 <code>assert</code> 的話，基本上都是給個判斷條件，然後在不成立時產生錯誤。使用 <code>checkArgument</code> 與 <code>checkState</code> 的差別除了一個會丟出 <code>IllegalArgumentException</code>，一個是丟出 <code>IllegalStateException</code> 之外，最主要的是在語義差別，<code>checkArgument</code> 名稱表明這個方法是用於檢查引數，而 <code>checkState</code> 名稱表明，這個方法是用於檢查物件的狀態。<br>
+      把語義清晰納入考量的話，你會怎麼修改這段程式碼呢？
+      <pre class="prettyprint"><code lang="java">public T get(int index) {
+    if(index &lt; 0) {
+        throw new IllegalArgumentException("索引不得小於 0");
+    }
+    if(index &gt;= container.size()) {
+        throw new IllegalArgumentException("索引超出範圍");
+    }
+    // 繼續辦事...
+    return ...;
+}</code></pre>
+      用 <code>checkArgument</code>？
+      <pre class="prettyprint"><code lang="java">public T get(int index) {
+    checkArgument(index &gt;= 0, "索引不得小於 0");
+    checkArgument(index &lt; container.size(), "索引超出範圍");
+    // 繼續辦事...
+    return ...;
+}</code></pre>
+      還不錯！不過如果可以更明確地丟出 <code>IndexOutOfBoundsException</code> 的話，會比拋出 <code>IllegalArgumentException</code> 好些。由於檢查索引是很常見的需求，像是檢查 <code>Collection</code>、<code>String</code>、陣列等等，Guava 提供了 <code>checkElementIndex</code> 方法，你可以告訴它索引，以及要被存取的容器之大小。
+      <pre class="prettyprint"><code lang="java">public T get(int index) {
+    checkElementIndex(index, container.size());
+    // 繼續辦事...
+    return ...;
+}</code></pre>
+      至於 <code>checkElementIndex</code> 會做什麼事，我想，直接看看它的原始碼就可以瞭解了：
+      <pre class="prettyprint"><code lang="java">  ...
+
+  public static int checkElementIndex(int index, int size) {
+    return checkElementIndex(index, size, "index");
+  }
+
+  public static int checkElementIndex(
+      int index, int size, @Nullable String desc) {
+    // Carefully optimized for execution by hotspot (explanatory comment above)
+    if (index &lt; 0 || index &gt;= size) {
+      throw new IndexOutOfBoundsException(badElementIndex(index, size, desc));
+    }
+    return index;
+  }
+
+  private static String badElementIndex(int index, int size, String desc) {
+    if (index &lt; 0) {
+      return format("%s (%s) must not be negative", desc, index);
+    } else if (size &lt; 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    } else { // index &gt;= size
+      return format("%s (%s) must be less than size (%s)", desc, index, size);
+    }
+  }</code></pre>
+      與 <code>checkElementIndex</code> 類似的另一方法是 <code>checkPositionIndex</code>，後者在指定的索引大於 <code>size</code> 時才會丟出例外。那麼如果想檢查一段範圍呢？例如若原本有這樣一段程式碼：
+      <pre class="prettyprint"><code lang="java">public List&lt;T&gt; slice(int start, int end) {
+   if(start &lt; 0 || end &lt; start || end &gt; container.size()) {
+        throw new IllegalArgumentException("索引超出範圍");
+   }        
+   // 繼續辦事...
+   return null;
+}</code></pre>
+      那麼就可以使用 Guava 提供的 <code>checkPositionIndexes</code> 改為：
+      <pre class="prettyprint"><code lang="java">public List&lt;T&gt; slice(int start, int end) {
+   checkPositionIndexes(start, end, container.size()); 
+   // 繼續辦事...
+   return null;
+}</code></pre>
+      有時候，<code>if</code> 中的檢查如果太多，其實就建議用個 <code>isXxx</code> 方法將之封裝起來。當然，你不一定要用 Guava 的 <code>Preconditions</code>，我想 Guava 中存在這玩意的目的，或許也在提醒開發者，對某些檢查情況，或者說對某些功能來說，使用個明確、具描述性的函式，會對程式碼的可讀性有所幫助。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

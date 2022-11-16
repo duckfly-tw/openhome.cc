@@ -1,0 +1,73 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在Scala中，如果要比較兩個物件的實質相等性，可以使用==或!=，例如：val s1 = new String("Java")val s2 = new String("Java")println(s...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="物件相等性">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/ObjectEquality.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在Scala中，如果要比較兩個物件的實質相等性，可以使用==或!=，例如：val s1 = new String("Java")val s2 = new String("Java")println(s...">
+
+
+    <title>物件相等性</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ObjectEquality.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>物件相等性</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在Scala中，如果要比較兩個物件的實質相等性，可以使用==或!=，例如：<br><pre class="prettyprint"><code lang="scala">val s1 = new String("Java")<br>val s2 = new String("Java")<br>println(s1 == s2)       // 顯示 true<br>println(s1 eq s2)       // 顯示 false<br></code></pre><br>雖然兩個物件是新建構出來的，s1與s2是參考到不同物件，但在Scala中使用==是比較兩個字串的實質字元序列，所以結果會是true，在Scala中若要測試兩個參考是否為同一物件，則可以使用eq或ne方法。<br><br>==與!=方法有兩個版本，一個版本是定義在 <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html">scala.Any </a>中，Any是Scala中所有類別的最頂層父類別，其中==與!=的方法定義為：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">final&nbsp;def&nbsp;==(arg0 : Any) : Boolean</span><br><span style="font-weight: bold;">final&nbsp;def&nbsp;!=(arg0 : Any) : Boolean</span><br></div><br>在API文件說明中表示，==的作用等於equals()的作用：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">def&nbsp;equals(arg0 : Any) : Boolean</span><br></div><br>equals()的作用是測試兩個args0的作用與this是否參考同一物件。而!=等於==的反相結果，也就是o != arg0等於!(o == (arg0))。<br><br>事實上，當你在Scala中定義一個類別時沒有明確指定父類別，則會繼承 <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#equals%28Any%29">scala.AnyRef</a>（相當於Java的java.lang.Object），這是Any的直接子類別。AnyRef定義了==與!=，其版本為：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">final def&nbsp;==(arg0 : AnyRef) : Boolean&nbsp; </span><br><span style="font-weight: bold;">final def&nbsp;!=(arg0 : AnyRef) : Boolean</span><br></div><br>!=等於==的反相結果，而==的定義內容相當於：<br><div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">final def == (arg0 : Any): Boolean = </span><br><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">&nbsp; &nbsp; if (this eq null) arg0 eq null else this.equals(arg0)</span><br><span style="font-family: Courier New,Courier,monospace; font-weight: bold;"></span></div><span style="font-family: Courier New,Courier,monospace; font-weight: bold;"><br></span>eq與ne方法，是定義在AnyRef中（在Scala中，像1這樣的物件是 <a href="https://www.scala-lang.org/docu/files/api/scala/AnyVal.html">scala.AnyVal</a> 的實例，AnyVal是Any的直接子類別，所以AnyVal沒有eq與ne方法，AnyVal物件只要值相同，一定是同一個物件實例，也就是 1 equals 1 結果一定是true）：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">final def eq(arg0 : AnyRef) : Boolean&nbsp; </span><br><span style="font-weight: bold;">final def ne(arg0 : AnyRef) : Boolean&nbsp; </span><br></div><br>ne為eq的反相結果，而eq主要在測試目前物件與arg0所參考的物件是否為同一物件。<br><br>無論是Any中的==、!=或AnyRef中的==、!=、eq、ne方法，都被宣告為final，你沒辦法在子類別中重新定義（AnyVal被宣告為final，你沒辦法繼承），別以為以下是重新定義==方法：<br><pre class="prettyprint"><code lang="scala">class Point(val x: Int, val y: Int) {<br>    def ==(that: Point) = this.x == that.x &amp;&amp; this.y == that.y<br>}<br><br>val p1 = new Point(1, 1)<br>val p2 = new Point(1, 1)<br>println(p1 == p2)         // 顯示 true</code></pre><br>看來好像是對的，但是如果你這麼測試：<br><pre class="prettyprint"><code lang="scala">val p1: AnyRef = new Point(1, 1)<br>val p2 = new Point(1, 1)<br>println(p1 == p2)        // 顯示 false</code></pre><span style="font-family: Courier New,Courier,monospace; font-weight: bold;"><br></span>事實上是，你沒有重新定義Any或AnyRef的==方法，你是定義了一個新的==方法，而直接繼承了Any與AnyRef的==方法，所以之前顯示true是因為方法被重載了，而你使用的是接受Point參數的==版本。<br><br>因為Any與AnyRef的==、!=都被宣告為final，你不能重新定義==、!=方法來定義自己的物件相等性。依以上的說明，無論是哪個版本，!=一定是==的反相結果，而==都會呼叫equals()方法，所以結論是，<span style="font-weight: bold;">要定義物件相等性，請重新定義equals()方法</span>（跟Java相同）。<br><br>如何正確定義equals()需要作些討論，如果你熟悉Java，可以先看看&nbsp;<a href="../JavaEssence/ObjectEquality.html">Java 物件相等性</a> 中的說明，如果你想要知道如何以Scala語法正確定義equals()方法，則可以看看 <a href="OverrideEquals.html">重新定義 equals() 方法</a>。
+            
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

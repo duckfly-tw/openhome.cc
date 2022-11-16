@@ -1,0 +1,142 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="認識 Lambda/Closure（4）從 Scala 中借鏡&nbsp;&lt;&lt; 前情
+      English
+      終於要開始討論 Java 的 Lambda/Closure...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="認識 Lambda/Closure（5）Java 的稻草人提案">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/StrawMan.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="認識 Lambda/Closure（4）從 Scala 中借鏡&nbsp;&lt;&lt; 前情
+      English
+      終於要開始討論 Java 的 Lambda/Closure...">
+
+
+    <title>認識 Lambda/Closure（5）Java 的稻草人提案</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StrawMan.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/JavaLambdaTutorial/">回 Java Lambda</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>認識 Lambda/Closure（5）Java 的稻草人提案</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p style="text-align: right;"><a href="../../../eGossip/Blog/UnderstandingLambdaClosure5.html">English</a></p>
+      終於要開始討論 Java 的 Lambda/Closure 了！不過這邊會先討論 2009 年提出的 <a href="http://cr.openjdk.java.net/%7Emr/lambda/straw-man/">舊草案</a>，討論這份舊草案，有助於我們瞭解為什麼 Lambda/Closure 會演變至今天 JDK8 所採取的形式。<br>
+      如果打算對一列整數排序，在 JDK8 之前，你也許會寫下以下的程式碼：
+      <pre class="prettyprint"><code lang="java">// asList 與 sort 方法是從 Arrays 與 Collections 中 static import 而來
+List&lt;Integer&gt; numbers = asList(3, 2, 6, 4);
+sort(numbers, new Comparator&lt;Integer&gt;() {
+    public int compare(Integer n1, Integer n2) {
+        return -n1.compareTo(n2);
+    }
+});</code></pre>
+      你必須告訴 <code>sort</code> 方法兩個數字的順序為何。目前 Java 因為沒有一級函式，所以你必須提供 <code>Comparator</code> 實例。以上範例使用了匿名類別來建立了 <code>Comparator</code> 實例，不過冗長的語法，讓開發者較難一眼就看出打算令 <code>sort</code> 方法做些什麼。如果使用個適當的變數名稱，會讓可讀性好一些。例如：
+      <pre class="prettyprint"><code lang="java">List&lt;Integer&gt; numbers = asList(3, 2, 6, 4);
+
+Comparator&lt;Integer&gt; descending = new Comparator&lt;Integer&gt;() {
+    public int compare(Integer n1, Integer n2) {
+        return -n1.compareTo(n2);
+    }
+};
+
+<strong>sort(numbers, descending);</strong></code></pre>
+      現在，我們可以清楚地看出打算令 <code>sort</code> 方法做些什麼，不過使用匿名類別還是有點煩人。如果能使用 JDK8 採用的 Lambda/Closure 語法的話，程式碼可以更短更簡潔。例如：
+      <pre class="prettyprint"><code lang="java">List&lt;Integer&gt; numbers = asList(3, 2, 6, 4);
+sort(numbers, (n1, n2) -&gt; -n1.compareTo(n2));</code></pre>
+      在 Java 中，匿名類別是最類似 Lambda/Closure 的東西，這也是有些人聲稱 Java 其實不需要 Lambda/Closure 的原因。基本上，這沒有錯，只是在某些場合中，我們得寫比較多的程式碼罷了。近幾年來，撰寫簡明程式碼越來越被重視。雖然使用沒有 Lambda/Closure 的 Java，還是可以寫出你想要的功能，使用 Lambda/Closure 卻可以寫出簡潔的程式碼，你或其他人在讀取這樣的程式碼時會有助於產能。就如同 Bob Martin 大叔在《Clean Code》書中談到的：
+      <p style="padding-left: 30px;"><strong>今日你撰寫程式碼的難易度，取決於其周遭程式碼閱讀時的難易度。</strong></p>
+      匿名類別冗長的語法不是唯一的問題。如果匿名類別打算捕捉區域變數的話，該變數必須被宣告為 <code>final</code>。例如：
+      <pre class="prettyprint"><code lang="java">public static FactorProducer createFactorProducer(max) {
+final int[] primes = ...;
+FactorProducer producer = new FactorProducer() {
+        public int factor() {
+            ...
+            while(pow(primes[i], 2)) {
+                ...
+            }
+        }
+    };
+    return producer;
+}</code></pre>
+      在 Java 中，區域變數的生命週期有別於物件。一旦方法執行完畢，所有區域變數的生命週期也就結束了。如果匿名類別的實例能確實捕捉區域變數，並從方法中傳回，當你透過該實例存取到已結束生命週期的區域變數時會如何？為了避免這類問題，如果區域變數會在匿名類別中使用的話，Java 編譯器強迫你要在區域變數上加上 <code>final</code> 加以修飾。被捕捉的變數（而不是它參考的物件）就會是唯讀的。實際在底層中，Java 編譯器會建立在匿名類別中建立新的變數，將原本 <code>final</code> 變數的參考複製給新變數。你並非真的捕捉了外部的區域變數，你只是有一個新變數並被複製的參考值。<br>
+      匿名類別中的 <code>final</code> 有什麼問題？或者說，Closure 中只能唯讀的變數有什麼問題？這個問題的答案取決於你打算用 Closure 做些什麼？在 <a
+
+        href="http://www.codedata.com.tw/java/understanding-lambda-closure-2-what-is-closure-2">認識 Lambda/Closure（二）</a>&nbsp;中，我們看過 Closure 在 JavaScript 中可用來模擬 <code>private</code> 特性，在這種情況下，可寫的閒置變數（Free varialbe）是必要的。不過可寫的閒置變數基本上暗示著，執行流程會是循序的（Serial）。像是這段 JavaScript：
+      <pre class="prettyprint"><code lang="java">var sum = 0;
+[1, 2, 3, 4, 5].forEach(function(elem) {
+    sum += elem;
+});</code></pre>
+      可寫的閒置變數也代表著狀態是可變的（Mutable），在並行（Concurrent）程式設計時就得處理鎖定（Locking）問題。為了避免處理複雜的變數生命週期以及並行問題，如之後文章我們將看到的，JDK8 特意禁止捕捉可變的區域變數。<br>
+      在 2009 年的一份草案中，要定義 Lambda，以及要宣告一個可接受 Lambda 的變數，會是像這樣：
+      <pre class="prettyprint"><code lang="java">#int(int) doubler = #(int x)(2 * x);
+doubler.(3) // 呼叫 Lambda</code></pre>
+      以上範例作用上類似於以下：
+      <pre class="prettyprint"><code lang="java">int doubler(int x) {
+    return 2 * x;
+}
+doubler(3);</code></pre>
+      具備兩個 <code>int</code> 參數並傳回 <code>int</code> 值的 Lambda 可以如下定義：
+      <pre class="prettyprint"><code lang="java">#int(int, int) sum = #(int x, int y)(x + y)</code></pre>
+      以上程式碼在作用上類似於以下：
+      <pre class="prettyprint"><code lang="java">int sum(int x, int y) {
+    return x + y;
+}</code></pre>
+      如果要用這個語法來寫一下 <a href="http://www.codedata.com.tw/java/understanding-lambda-closure-4-learning-from-scala-lang/">認識 Lambda/Closure（四）</a> 中的 <code>bubbleSort</code> 函式，大概會像是：
+      <pre class="prettyprint"><code lang="java">def bubbleSort(int[] arr, <strong>#boolean(int, int)</strong> order) {
+    ...
+    boolean o = order.(a, b);
+    ...
+}
+int[] arr = new int[] {2, 5, 1, 7, 8};
+bubbleSort(arr, #(int a, int b)(a &gt; b));</code></pre>
+      這邊的重點在於，舊草案要求接受 Lambda 的變數，必須宣告函式型態。可以看出宣告函式型態的語法中，傳回值型態是放在左邊，然而定義 Lambda 時，函式本體是放在右邊。來思考一個問題，如果你有個 Lambda 會傳回 Lambda，那麼函式型態宣告會長什麼樣子？
+      <pre class="prettyprint"><code lang="java">##int(int)(int) sum = #(int x)(#(int y)(x + y));</code></pre>
+      哇喔...這是 C/C++ 的指標嗎？另一個問題在於，如果必須為了 Lambda/Closure 而宣告函式型態，那麼就得為 Lambda/Closure 建立一套新的 API。現有的 API 沒辦法直接受惠於新引入的 Lambda/Closure，更何況，還得解決涉及到泛型時的複雜問題。<br>
+      幸運地，JDK8 沒有採取這種特定函式型態的語法，它使用單一抽象方法（Single abstract method）型態，也就是之後被稱為函式介面（Functional interface）的方式，而這是之後的文章中將要探討的內容。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

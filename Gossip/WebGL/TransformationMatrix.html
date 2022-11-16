@@ -1,0 +1,353 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="對於 3D 物件，平移、縮放、旋轉是基本的轉換（Transformation）操作，計算方式〈電腦圖學入門〉中有討論，雖然之前的文件在旋轉時，直接實現了公式計算，然而平移、縮放、旋轉使用矩陣相乘來表示...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="轉換矩陣">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/TransformationMatrix.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="對於 3D 物件，平移、縮放、旋轉是基本的轉換（Transformation）操作，計算方式〈電腦圖學入門〉中有討論，雖然之前的文件在旋轉時，直接實現了公式計算，然而平移、縮放、旋轉使用矩陣相乘來表示...">
+
+    <title>轉換矩陣</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TransformationMatrix.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>轉換矩陣</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>對於 3D 物件，平移、縮放、旋轉是基本的轉換（Transformation）操作，計算方式〈<a href="../ComputerGraphics/index.html">電腦圖學入門</a>〉中有討論，雖然之前的文件在旋轉時，直接實現了公式計算，然而平移、縮放、旋轉使用矩陣相乘來表示的話會更方便而且有效率，這在〈<a href="../ComputerGraphics/HomogeneousCoordinate.htm">齊次座標</a>〉有列出，為了方便接下來的討論，這邊再列出來：</p>
+<ul>
+<li>平移</li>
+</ul>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TransformationMatrix-1.JPG" alt="實作矩陣運算"  /></div></div></p>
+<ul>
+<li>縮放</li>
+</ul>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TransformationMatrix-2.JPG" alt="實作矩陣運算"  /></div></div></p>
+<ul>
+<li>旋轉</li>
+</ul>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TransformationMatrix-3.JPG" alt="實作矩陣運算"  /></div></div></p>
+<p>使用 WebGL 時，為了能夠對 3D 物件進行平移、縮放、旋轉，可以將上頭的矩陣表示實現為程式碼，這時就有了問題了，矩陣表示法是一回事，那麼該怎麼用程式碼來實作矩陣？</p>
+<p>直覺地會想到，可以使用 JavaScript 陣列，那麼如何用陣列表示平移矩陣呢？或許有人會這麼想：</p>
+<pre class="prettyprint"><code lang="javascript">[
+    1, 0, 0, tx,
+    0, 1, 0, ty,
+    0, 0, 1, tz,
+    0, 0, 0, 1
+]
+</code></pre>
+<p>視覺上看來，這似乎比較符合矩陣表示法，不過，其實有另外一派的實現方式：</p>
+<pre class="prettyprint"><code lang="javascript">[
+     1,  0,  0,  0,
+     0,  1,  0,  0,
+     0,  0,  1,  0,
+    tx, ty, tz,  1
+]
+</code></pre>
+<p>嗯？這看來不自然嗎？不會地，兩派其實各自有人馬支持，因為要使用線性的陣列來表達一個二維的矩陣表示，本來就會有兩種觀點。</p>
+<p>第一個派別是列為主（row-major），也就是在線性陣列中實現時是逐列編寫，也就是這派是這麼看待陣列中的矩陣元素的：</p>
+<pre class="prettyprint"><code lang="javascript">[
+    row1
+    row2 
+    row3 
+    row4
+]
+</code></pre>
+<p>如果你覺得第一個派別比較自然，而第二個派別行為主（column-major）很奇怪，那只是觀點不同，因為行為主的派別是這麼陣列中的矩陣元素的：</p>
+<pre class="prettyprint"><code lang="javascript">[column1 column2 column3 column4]
+</code></pre>
+<p>這樣列出來，應該覺得列為主也是蠻自然的，對吧！</p>
+<p>WebGL 是從 OpenGL 沿生而來，許多寫 OpenGL 的開發者，經常忘一件事：矩陣表示法就只是矩陣表示法，<strong>線性結構實現時 OpenGL 是行為主</strong>。</p>
+<p>既然 WebGL 是從 OpenGL 沿生而來，<strong>WebGL 中使用陣列實現矩陣時，慣例上遵合 OpenGL 以行為主會比較好</strong>，因此，可以將平移、縮放、旋轉的轉換矩陣實作如下：</p>
+<pre class="prettyprint"><code lang="javascript">const mat4 = {
+    translation(tx, ty, tz) {
+        return [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            tx, ty, tz, 1
+        ];
+    },
+
+    scaling(sx, sy, sz) {
+        return [
+            sx, 0,  0,  0,
+            0, sy,  0,  0,
+            0,  0, sz,  0,
+            0,  0,  0,  1,
+        ];
+    },
+
+    xRotation(radians) {
+        const c = Math.cos(radians);
+        const s = Math.sin(radians);
+        return [
+            1, 0, 0, 0,
+            0, c, s, 0,
+            0, -s, c, 0,
+            0, 0, 0, 1,
+        ];
+    },
+
+    yRotation(radians) {
+        const c = Math.cos(radians);
+        const s = Math.sin(radians);
+        return [
+            c, 0, -s, 0,
+            0, 1, 0, 0,
+            s, 0, c, 0,
+            0, 0, 0, 1,
+        ];
+    },
+
+    zRotation(radians) {
+        const c = Math.cos(radians);
+        const s = Math.sin(radians);
+        return [
+            c, s, 0, 0,
+            -s, c, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+    }                     
+};
+</code></pre>
+<p>如果要將模型旋轉、縮放與平移，那麼著色器程式可以這麼撰寫：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    uniform float aspect;
+
+    uniform mat4 rotation;
+    uniform mat4 scaling;
+    uniform mat4 translation;
+
+    attribute vec3 position;
+    attribute vec4 color;
+
+    varying vec4 fColor;
+
+    void main(void) {
+        vec4 pos = translation * scaling * rotation * vec4(position.x, position.y, position.z, 1.0);
+        gl_Position = vec4(pos.x, pos.y * aspect, pos.z, 1.0);
+        fColor = color;
+    }
+&lt;/script&gt;          
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+    varying vec4 fColor;
+
+    void main(void) {
+        gl_FragColor = fColor;
+    }
+&lt;/script&gt;
+</code></pre>
+<p>在頂點著色器中，使用 <code>mat4</code> 型態分別建立了三個 4X4 的矩陣資料，GLSL 的乘法直接支援矩陣運算，只要將代表矩陣的陣列傳入就可以了，例如若使用〈<a href="Lib1.html">來個 WebGL 程式庫</a>〉中的成果，主要就是在透過 <code>Renderer</code> 的 <code>uniformMatrix4fv</code> 來設置：</p>
+<pre class="prettyprint"><code lang="javascript">renderer.uniformMatrix4fv('rotation', mat4.xRotation(0.5));
+renderer.uniformMatrix4fv('scaling', mat4.scaling(1.5, 1, 1));
+renderer.uniformMatrix4fv('translation', mat4.translation(0.25, 0.25, 0.25));
+</code></pre>
+<p>在 <code>Renderer</code> 的 <code>uniformMatrix4fv</code> 中，使用 <code>gl</code> 的 <code>uniformMatrix4fv</code> 來實現了：</p>
+<pre class="prettyprint"><code lang="javascript">...
+uniformMatrix4fv(name, value) {
+    this.gl.uniformMatrix4fv(
+        this.getUniformLocation(name),
+        false,
+        value
+    );    
+}
+...
+</code></pre>
+<p>你可以<a href="https://openhome.cc/Gossip/WebGL/samples/TransformationMatrix-1.html">看一下範例網頁</a>，結果會是個 X 軸方向被拉長的立方體，放置在 [0.25, 0.25, 0.25] 的位置。</p>
+<p>雖然 GLSL 處理矩半很方便，然而，我們會有各種轉換模型的需求，為了撰寫上的彈性與方便，在 JavaScript 上實現矩陣乘法還是必要的，因此，可以在 <code>mat4</code> 上增加以下方法：</p>
+<pre class="prettyprint"><code lang="javascript">const mat4 = {
+    create() {
+        return [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+    },
+
+    ...略
+
+    multiply(a, b) {
+        const a00 = a[0 * 4 + 0];
+        const a01 = a[0 * 4 + 1];
+        const a02 = a[0 * 4 + 2];
+        const a03 = a[0 * 4 + 3];
+        const a10 = a[1 * 4 + 0];
+        const a11 = a[1 * 4 + 1];
+        const a12 = a[1 * 4 + 2];
+        const a13 = a[1 * 4 + 3];
+        const a20 = a[2 * 4 + 0];
+        const a21 = a[2 * 4 + 1];
+        const a22 = a[2 * 4 + 2];
+        const a23 = a[2 * 4 + 3];
+        const a30 = a[3 * 4 + 0];
+        const a31 = a[3 * 4 + 1];
+        const a32 = a[3 * 4 + 2];
+        const a33 = a[3 * 4 + 3];
+        const b00 = b[0 * 4 + 0];
+        const b01 = b[0 * 4 + 1];
+        const b02 = b[0 * 4 + 2];
+        const b03 = b[0 * 4 + 3];
+        const b10 = b[1 * 4 + 0];
+        const b11 = b[1 * 4 + 1];
+        const b12 = b[1 * 4 + 2];
+        const b13 = b[1 * 4 + 3];
+        const b20 = b[2 * 4 + 0];
+        const b21 = b[2 * 4 + 1];
+        const b22 = b[2 * 4 + 2];
+        const b23 = b[2 * 4 + 3];
+        const b30 = b[3 * 4 + 0];
+        const b31 = b[3 * 4 + 1];
+        const b32 = b[3 * 4 + 2];
+        const b33 = b[3 * 4 + 3];
+        return [
+            b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30,
+            b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31,
+            b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32,
+            b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33,
+            b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30,
+            b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31,
+            b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32,
+            b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33,
+            b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30,
+            b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31,
+            b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32,
+            b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33,
+            b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30,
+            b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31,
+            b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32,
+            b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33
+        ];
+    },
+
+    translate(m, tx, ty, tz) {
+        return this.multiply(this.translation(tx, ty, tz), m);
+    },
+
+    scale(m, sx, sy, sz) {
+        return this.multiply(this.scaling(sx, sy, sz), m);
+    },
+
+    xRotate(m, radians) {
+        return this.multiply(this.xRotation(radians), m);
+    },
+
+    yRotate(m, radians) {
+        return this.multiply(this.yRotation(radians), m);
+    },
+
+    zRotate: function(m, radians) {
+        return this.multiply(this.zRotation(radians), m);
+    }                          
+};
+</code></pre>
+<p>為了令事情簡單一些，矩陣相乘後會傳回新陣列，而不是在現有的陣列上修改，<code>create</code> 用來建立單位矩陣，作為一開始沒有任何操作時的矩陣。</p>
+<p>現在，可以把著色器修改為：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    uniform float aspect;
+    uniform mat4 transformation;
+
+    attribute vec3 position;
+    attribute vec4 color;
+
+    varying vec4 fColor;
+
+    void main(void) {
+        vec4 pos = transformation * vec4(position.x, position.y, position.z, 1.0);
+        gl_Position = vec4(pos.x, pos.y * aspect, pos.z, 1.0);
+        fColor = color;
+    }
+&lt;/script&gt;          
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+    varying vec4 fColor;
+
+    void main(void) {
+        gl_FragColor = fColor;
+    }
+&lt;/script&gt;
+</code></pre>
+<p>你只要將轉換處理後的矩陣傳入就可以了，例如，若要有個方塊繞著中心轉動，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">let transformation = mat4.create();
+transformation = mat4.xRotate(transformation, 0.5);
+transformation = mat4.yRotate(transformation, 0.5);
+transformation = mat4.translate(transformation, 0.25, 0, 0);
+
+let i = 0;
+function drawCube() {
+    i++;
+    renderer.uniformMatrix4fv('transformation', 
+        mat4.zRotate(transformation, 0.025 * i)
+    );
+
+    renderer.clear();
+    renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+    renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+    renderer.render(cube);
+
+    requestAnimationFrame(drawCube);                
+}
+
+drawCube();
+</code></pre>
+<p>可以直接<a href="https://openhome.cc/Gossip/WebGL/samples/TransformationMatrix-2.html">看一下範例網頁</a>，從 -Z 往 +Z 看的話會是逆時針：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TransformationMatrix-4.JPG" alt="實作矩陣運算"  /></div></div></p>
+<p>效率的展現在於，如果你有一組轉換操作，最後都可以使用一個矩陣來表示，你可以保留這個矩陣，每次都用這個矩陣來轉換，想像一下，如果有 1000 個頂點，也只需要一次矩陣運算，若是單純使用函式實現公式來完成各種轉換，組合 n 次轉換，就是 n * 1000 個函式呼叫，效率的差異就在於此。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

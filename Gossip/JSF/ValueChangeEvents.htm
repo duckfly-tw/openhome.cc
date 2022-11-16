@@ -1,0 +1,232 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果使用者改變了JSF輸入元件的值後送出表單，就會發生值變事件（Value Change
+Event），這會丟出一個javax.faces.event.ValueChangeEvent物件，如果您想...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="值變事件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JSF/ValueChangeEvents.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果使用者改變了JSF輸入元件的值後送出表單，就會發生值變事件（Value Change
+Event），這會丟出一個javax.faces.event.ValueChangeEvent物件，如果您想...">
+
+
+    <title>值變事件</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ValueChangeEvents.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/JSF/">回 JSF 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>值變事件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+如果使用者改變了JSF輸入元件的值後送出表單，就會發生值變事件（Value Change
+Event），這會丟出一個javax.faces.event.ValueChangeEvent物件，如果您想要處理這個事件，有兩種方式，一是直接
+設定JSF輸入元件的valueChangeListener屬性，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px; font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&lt;h:selectOneMenu value="#{user.locale}" <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+onchange="this.form.submit();"<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+valueChangeListener="#{user.changeLocale}"&gt;<br>
+
+
+      <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;f:selectItem itemValue="zh_TW" itemLabel="Chinese"/&gt;<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;f:selectItem itemValue="en" itemLabel="English"/&gt;<br>
+
+
+&nbsp;&lt;/h:selectOneMenu&gt;<br>
+
+
+      </div>
+
+      
+&nbsp;<br>
+
+
+為了模擬GUI中選擇了選單項目之後就立即發生反應，我們在onchange屬性中使用了JavaScript，其作用是在選項項目發生改變之後，立即送
+出表單，而不用按下提交按鈕；而valueChangeListener屬性所綁定的user.changeLocale方法必須接受
+ValueChangeEvent物件，例如：<br>
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>UserBean.java<br>
+
+
+
+
+
+
+  </li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.faces.event.ValueChangeEvent;<br><br>public class UserBean {<br>    private String locale = "en";<br>    private String name;<br>    private String password;<br>    private String errMessage;<br>   <br>    public void changeLocale(ValueChangeEvent event) {<br>        if(locale.equals("en"))<br>            locale = "zh_TW";<br>        else<br>            locale = "en";<br>    }<br>    <br>    public void setLocale(String locale) {<br>        this.locale = locale;<br>    }<br>    <br>    public String getLocale() {<br>        if (locale == null) {<br>            locale = "en";<br>        }<br>        return locale;<br>    }<br>    <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>   <br>    public String getName() {<br>        return name;<br>    }<br>   <br>    public void setPassword(String password) {<br>        this.password = password;<br>    }<br>   <br>    public String getPassword() {<br>        return password;<br>    }<br>   <br>    public void setErrMessage(String errMessage) {<br>        this.errMessage = errMessage;<br>    }<br>   <br>    public String getErrMessage() {<br>        return errMessage;<br>    }<br>   <br>    public String verify() {<br>        if(!name.equals("justin") ||<br>           !password.equals("123456")) {<br>            errMessage = "名稱或密碼錯誤";<br>            return "failure";<br>        }<br>        else {<br>            return "success";<br>        }<br>    }<br>}</code></pre>
+
+
+
+
+
+
+      <br>
+
+      
+另一個方法是實作javax.faces.event.ValueChangeListener介面，並定義其processValueChange() 方法，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;package onlyfun.caterpillar;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;....</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;public class SomeListener implements ValueChangeListener {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; public void processValueChange(ValueChangeEvent event) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ....</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ....</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;}</span><br>
+
+
+      </div>
+
+      
+&nbsp;<br>
+
+
+然後在JSF頁面上使用&lt;f:valueChangeListener&gt;標籤，並設定其type屬性，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px; font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&lt;h:selectOneMenu value="#{user.locale}" <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+onchange="this.form.submit();"&gt;<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;f:valueChangeListener <br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="onlyfun.caterpillar.SomeListener"/&gt;<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;f:selectItem itemValue="zh_TW" itemLabel="Chinese"/&gt;<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;f:selectItem itemValue="en" itemLabel="English"/&gt;<br>
+
+
+&nbsp;&lt;/h:selectOneMenu&gt; <br>
+
+
+      </div>
+
+      
+&nbsp;<br>
+
+
+下面這個頁面是對 <a href="http://openhome.cc/Gossip/JSF/ImmediateEvents.htm">立即事件</a> 中的範例程式作一個修改，將語言選項改以下拉式選單的選擇方式呈現，這必須配合上面提供的UserBean類別來使用：<br>
+
+
+      
+      <ul>
+
+        <li>index.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %&gt;<br>&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;<br>&lt;%@page contentType="text/html;charset=UTF8"%&gt;<br><br>&lt;f:view locale="#{user.locale}"&gt;<br>&lt;f:loadBundle basename="messages" var="msgs"/&gt;<br><br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;&lt;h:outputText value="#{msgs.titleText}"/&gt;&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br><br>    &lt;h:form&gt;<br>        &lt;h:selectOneMenu value="#{user.locale}" <br>                  immediate="true"<br>                  onchange="this.form.submit();"       <br>                  valueChangeListener="#{user.changeLocale}"&gt;<br><br>            &lt;f:selectItem itemValue="zh_TW" <br>                          itemLabel="Chinese"/&gt;<br>            &lt;f:selectItem itemValue="en" <br>                          itemLabel="English"/&gt;<br>        &lt;/h:selectOneMenu&gt;<br>    <br>        &lt;h3&gt;&lt;h:outputText value="#{msgs.hintText}"/&gt;&lt;/h3&gt;<br>        &lt;h:outputText value="#{msgs.nameText}"/&gt;:<br>                &lt;h:inputText value="#{user.name}"/&gt;&lt;p&gt;<br>        &lt;h:outputText value="#{msgs.passText}"/&gt;: <br>                &lt;h:inputSecret value="#{user.password}"/&gt;&lt;p&gt;         <br>        &lt;h:commandButton value="#{msgs.commandText}" <br>                        action="#{user.verify}"/&gt;       <br>    &lt;/h:form&gt;<br><br>&lt;/body&gt;<br>&lt;/html&gt;<br>	<br>&lt;/f:view&gt;</code></pre>
+
+
+      <br>
+
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

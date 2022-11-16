@@ -1,0 +1,193 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果想要提供自動登入的功能，可以在登入頁面上提供「記住我」的功能，若使用者決定自動登入，使用 Cookie 來存放自動登入憑據，下次使用者再度造訪時，看看該 Cookie 是否失效，基本上就是自動登入...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Remember Me">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/RememberMe.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果想要提供自動登入的功能，可以在登入頁面上提供「記住我」的功能，若使用者決定自動登入，使用 Cookie 來存放自動登入憑據，下次使用者再度造訪時，看看該 Cookie 是否失效，基本上就是自動登入...">
+
+    <title>Remember Me</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RememberMe.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Remember Me</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果想要提供自動登入的功能，可以在登入頁面上提供「記住我」的功能，若使用者決定自動登入，使用 Cookie 來存放自動登入憑據，下次使用者再度造訪時，看看該 Cookie 是否失效，基本上就是自動登入的實作原理。</p>
+<p>問題在於，使用簡單的 Cookie 憑據會有容易被偽造的問題，必須對 Cookie 的憑據進行加工使其不易被偽造來避免風險，可以使用 Spring Security 的 Remember Me 功能來簡單達到這項任務。</p>
+<p>最簡單的方式，就是在設定頁面防護時，呼叫 <code>rememberMe</code> 方法就可以了：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+... 略
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter { 
+    ... 略
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .antMatchers("/admin").hasRole("ADMIN")  
+            .antMatchers("/member").hasAnyRole("ADMIN", "MEMBER")
+            .antMatchers("/user").authenticated()
+            .anyRequest().permitAll()
+            .and()
+            .rememberMe() // 記住我
+            .and()
+            .formLogin() 
+                .loginPage("/login_page")
+                .loginProcessingUrl("/perform_login")
+                .failureUrl("/login_page?error")
+            .and()
+            .logout()
+                .logoutUrl("/perform_logout")
+                .logoutSuccessUrl("/login_page?logout");
+    } 
+}
+</code></pre>
+<p>如此用來作為自動登入的 Cookie 憑據預設是兩星期有效期，可以使用 <code>tokenValiditySeconds</code> 自訂有效期，Cookie 的名稱預設是 <code>remember-me</code>，可以使用 <code>rememberMeCookieName</code> 自訂名稱。</p>
+<p>登入的頁面中，可以使用 <code>checkbox</code> 類型的輸入欄位，例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;登入表單&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;form method="post" action="perform_login"&gt;
+        &lt;span th:unless="${param.error == null}" th:text="登入失敗"&gt;登入失敗&lt;/span&gt;
+        &lt;span th:unless="${param.logout == null}" th:text="你已經登出"&gt;你已經登出&lt;/span&gt;
+        &lt;h2&gt;請登入&lt;/h2&gt;
+        &lt;p&gt;名稱 &lt;input type="text" name="username" required autofocus/&gt;&lt;/p&gt;
+        &lt;p&gt;密碼 &lt;input type="password" name="password" required/&gt;&lt;/p&gt;
+        &lt;p&gt;記住我 &lt;input name="remember-me" type="checkbox"/&gt;&lt;/p&gt;
+        &lt;input type="hidden"  th:name="${_csrf.parameterName}"  th:value="${_csrf.token}" /&gt;
+        &lt;button type="submit"&gt;登入&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>預設的請求參數名稱為 <code>remember-me</code>，可以使用 <code>rememberMeParameter</code> 方法來自訂請求參數名稱。如果選擇「記住我」的話，發送的 Cooke 會像是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RememberMe-1.JPG" alt="Remember Me"  /></div></div></p>
+<p>Spring Security 會以使用者名稱、密碼、有效期以及一個防止被修改的鍵來編碼 Cooke 值：</p>
+<pre class="prettyprint"><code lang="java">BASE64 編碼（名稱 + ":" + 有效期 + MD5 雜湊（名稱 + ":" + 有效期 + ":" + 密碼 + ":" + 鍵））
+</code></pre>
+<p>防止被修改的鍵預設是隨機產生，也可以使用 <code>key</code> 方法來自行設定，在使用者造訪網站時若有這樣的 Cookie 發送過來，Spring Security 可以根據使用者名稱從來取得 Web 應用程式中存放的密碼，經相同運算後，與 Cookie 值比對，若符合就自動登入。</p>
+<p>當然，雖然避免了容易被偽造的問題，不過相同有效期間下，產生的 Cookie 值是固定的，還是有 Cookie 被擷取並於有效期內惡意運用的風險。</p>
+<p>如果想在每次自動登入後，產生不同的 Cookie 值，可以在每次自動登入時，隨機產生 Token 值加入 Cookie 值的運算，當然，這個隨機產生的 Token，必須存放在 Web 應用程式之中，若想要實作此功能，可以使用 Token Repository。</p>
+<p>例如，若想使用資料庫，基於 JDBC，可以建立以下的表格：</p>
+<pre class="prettyprint"><code lang="java">CREATE TABLE persistent_logins (
+    username VARCHAR(64) NOT NULL,
+    series VARCHAR(64) NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    last_used TIMESTAMP NOT NULL,
+    PRIMARY KEY (series)
+);
+</code></pre>
+<p>Spring Security 提供了 <code>JdbcTokenRepositoryImpl</code>，它實作了 <code>PersistentTokenRepository</code> 介面，實現了 Token Repository 的增刪查找，使用的 SQL 語句，可以在 <a href="https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/authentication/rememberme/JdbcTokenRepositoryImpl.java">JdbcTokenRepositoryImpl.java</a> 找到。</p>
+<p>基本上，使用 <code>JdbcTokenRepositoryImpl</code> 只需要設定 <code>DataSource</code> 就可以了，為了簡化範例，在這邊使用 H2 的嵌入式資料庫：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.web;
+
+...略
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter { 
+    ...略
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .antMatchers("/admin").hasRole("ADMIN")  
+            .antMatchers("/member").hasAnyRole("ADMIN", "MEMBER")
+            .antMatchers("/user").authenticated()
+            .anyRequest().permitAll()
+            .and()
+            .rememberMe().tokenRepository(persistentTokenRepository())
+            .and()
+            .formLogin() 
+                .loginPage("/login_page")
+                .loginProcessingUrl("/perform_login")
+                .failureUrl("/login_page?error")
+            .and()
+            .logout()
+                .logoutUrl("/perform_logout")
+                .logoutSuccessUrl("/login_page?logout");
+    } 
+
+    @Bean(destroyMethod="shutdown")
+    public DataSource dataSource(){
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("classpath:persistent_logins.sql")
+                .build();
+    }
+
+
+    public PersistentTokenRepository persistentTokenRepository() {
+        JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
+        repo.setDataSource(dataSource());
+        return repo;
+    }
+}
+</code></pre>
+<p>可以看到，在呼叫 <code>rememberMe</code> 之後，可以使用 <code>tokenRepository</code> 方法來設定 <code>PersistentTokenRepository</code> 實例，如此就可以使用資料表格來儲存 Token 值了。</p>
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Security/RememberMe">RememberMe</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

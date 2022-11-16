@@ -1,0 +1,236 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java Tutorial 第三堂（1）IDE 與 Gradle&nbsp;&lt;&lt; 前情 
+      
+      
+      在商務應用的領域，Java 物件通常表示了商業物件，...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Java Tutorial 第三堂（2）使用 spring-jdbc 存取資料庫">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/JavaTutorial/SpringJdbc.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Java Tutorial 第三堂（1）IDE 與 Gradle&nbsp;&lt;&lt; 前情 
+      
+      
+      在商務應用的領域，Java 物件通常表示了商業物件，...">
+
+
+    <title>Java Tutorial 第三堂（2）使用 spring-jdbc 存取資料庫</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SpringJdbc.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Java Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Java Tutorial 第三堂（2）使用 spring-jdbc 存取資料庫</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             <a href="https://openhome.cc/Gossip/CodeData/JavaTutorial/IDEGradle.html">Java Tutorial 第三堂（1）IDE 與 Gradle&nbsp;&lt;&lt; 前情 </a>
+      <br>
+      <br>
+      在商務應用的領域，Java 物件通常表示了商業物件，例如帳戶、表單等，如果商業物件能長久保存，即使 JVM 重新啟動，也能在重新載入時恢復狀態，則稱這種長期保存物件狀態的機制稱為<strong>永續化（Persistence）機制</strong>。當然，你可以使用 Java 的 I/O 相關 API 來進行物件狀態的保留，甚至使用&nbsp;<a
+
+        href="http://docs.oracle.com/javase/7/docs/technotes/guides/serialization/">Java 物件序列化</a> 機制來直接儲存物件，然而，企業最常使用的永續性機制就是關聯式資料庫系統。
+      <h1>關於 JDBC</h1>
+      Java 早從 1.1 版起，就推出存取資料庫系統的 <strong>JDBC（Java Database Connectivity）</strong>規格，它分為兩個部份：JDBC 應用程式開發者介面（Application Developer Interface）以及 JDBC 驅動程式開發者介面（Driver Developer Interface）。簡而言之，JDBC 將操作資料庫的客戶端 API 與廠商實作分離，Java 開發者只要取得 JDBC 驅動程式，透過標準 API 操作，就可連結各個廠牌資料庫存取資料，不需要因為換資料庫就重新學習新的 API。
+      <br>
+      <br>
+      一個直接使用 JDBC API&nbsp;連線資料庫的片段可能會像是這樣：
+      <pre class="prettyprint"><code lang="java">String url =  "jdbc:mysql://localhost:3306/dvd_library";
+String user = "root";
+String password = "123456";
+Connection conn = null;
+SQLException ex = null;
+try {
+    conn = DriverManager.getConnection(url, user, password);
+    ....
+}
+catch(SQLException e) {
+    ex = e;
+}
+finally {
+    if(conn != null) {
+        try {
+            conn.close();
+        }
+        catch(SQLException e) {
+            if(ex == null) {
+                ex = e;
+            }
+            else {
+                ex.addSuppressed(e);
+            }
+        }
+    }
+    if(ex != null) {
+        throw new RuntimeException(ex);
+    }
+}</code></pre>
+      <br>
+      這實在是蠻嚇人的！<span style="color: #ff0000;"><strong>如果要想確實瞭解 Java 如何存取資料庫，學習 JDBC 確實是必要的</strong></span>，然而實際上 JDBC 撰寫來冗長且痛苦，就六個小時的課程來說，也沒有閒功夫來做這樣的練習，無論如何，現在有許多程式庫或框架封裝了 JDBC 並提供高階的各種抽象，讓你使用 Java 存取資料庫時，可以有更多簡單而實用的選擇。
+      <h1>使用 spring-jdbc</h1>
+      Spring Framework 由 Rod Johnson 在 2002年出版的 J2EE Design and Development 第 13 章中首次公開發表，自 2003 年 1 月起以開放原始碼專案的型式持續發展與改進，Spring&nbsp;核心包為輕量級元件容器（Lightweight Container），並提供各種 API 封裝及框架整合，學習或使用 Java 的開發者，在 Java 這條路上不免會碰到 Spring，可見 Spring 在 Java 界的重要性。
+      <span style="color: #ff0000;"><strong><br>
+          <br>
+          就目前來說，如果想使用 Spring 的任何元件，必須透過 Maven 或 Gradle 來取得相依程式庫</strong></span>。Spring 中提供對 JDBC 的封裝，如果使用 Gradle，可以在 build.gradle 建構檔案中如下定義：
+      <pre class="prettyprint"><code lang="java">apply plugin: 'java'
+apply plugin:'application'
+mainClassName = 'tw.codedata.Main'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework:spring-jdbc:4.0.0.RELEASE'
+    compile 'org.hsqldb:hsqldb:2.3.1'
+}</code></pre>
+      <br>
+      在這邊也一併加入了 &nbsp;<a href="http://hsqldb.org/">HSQLDB</a> 的相依性宣告，這是個純 Java 撰寫的資料庫，在這邊使用它，可以不用大費周章地設置資料庫系統，你可以很簡單地透過 HSQLDB 的 <code>DBCDataSource</code> 來設置資料庫，以及連線時必要的相關訊息：
+      <pre class="prettyprint"><code lang="java">JDBCDataSource dataSource = new JDBCDataSource();
+dataSource.setUrl("jdbc:hsqldb:file:src/main/resources/db/dvd_library");
+dataSource.setUser("codedata");
+dataSource.setPassword("123456");</code></pre>
+      <code><br>
+        DBCDataSource</code> 實作了 Java 標準 API 的 <span style="color: #ff0000;"><strong><code>javax.sql.DataSource</code></strong></span>，顧名思義，<code>DataSource</code> 是個資料來源，可用來取得資料庫連線 <code>java.sql.Connection</code> 的實作物件，如果資料庫檔案不存在，在 <code>setUrl</code> 時就會建立新的檔案。在 Spring 的 JDBC 的封裝中，最常使用的是 <span
+
+        style="color: #ff0000;"><strong><code>JdbcTemplate</code></strong></span>，其封裝了 JDBC 使用過程中可共用的樣版流程，建構 <code>JdbcTemplate</code> 時，需要的正是一個 <code>DataSource</code> 實作物件：
+      <pre class="prettyprint"><code lang="java">JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);</code></pre>
+      <code><br>
+        JdbcTemplate</code> 提供了許多存取資料庫的簡便方法，基本上你只需要下 SQL、給定相關的引數，就可以進行資料庫操作，舉例來說，你可以如下使用 <strong><code>execute</code></strong> 方法在 HSQLDB 中建立表格：
+      <pre class="prettyprint"><code lang="java">jdbcTemplate.execute("DROP TABLE dvds if exists");
+jdbcTemplate.execute("DROP TABLE directors if exists");
+
+jdbcTemplate.execute(
+        "CREATE TABLE directors ("
+        + "id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1),"
+        + "name VARCHAR(255),"
+        + "PRIMARY KEY(id))"
+);
+jdbcTemplate.execute(
+        "CREATE TABLE dvds ("
+        + "id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1),"
+        + "title VARCHAR(255),"
+        + "year INTEGER NOT NULL,"
+        + "duration INTEGER NOT NULL, "
+        + "director_id INTEGER NOT NULL, "
+        + "FOREIGN KEY (director_id) REFERENCES directors(id))"
+);</code></pre>
+      <br>
+      如果想要在資料表格中新增資料，可以使用 <code>JdbcTemplate</code> 的 <strong><code>update</code></strong> 方法。例如：
+      <pre class="prettyprint"><code lang="java">jdbcTemplate.update(
+        "INSERT INTO directors(name) values(?)", "codedata");
+</code></pre>
+      <br>
+      如果查詢回來的資料對應於 JVM 中的某個物件，可以使用 <strong><code>queryForObject</code></strong> 方法。例如：
+      <pre class="prettyprint"><code lang="java">jdbcTemplate.queryForObject(
+    "SELECT COUNT(*) FROM directors WHERE name=?", 
+    new Object[] {"codedata"}, Integer.class)</code></pre>
+      <br>
+      如果查詢結果不只一筆，可使用 <strong><code>queryForList</code></strong> 方法，這會傳回一個 <code>List</code>，當中每個元素都是 <code>Map</code>：
+      <pre class="prettyprint"><code lang="java">List&lt;Map&lt;String, Object&gt;&gt; results = 
+    (List&lt;Map&lt;String, Object&gt;&gt;) jdbcTemplate.queryForList(
+        "SELECT * FROM directors WHERE name=?", "codedata");</code></pre>
+      <code><br>
+        Map</code> 中的鍵就是欄位名稱，而值的部份就是欄位值，一個取得所有查詢資料的例子像是：
+      <pre class="prettyprint"><code lang="java">for(Map&lt;String, Object&gt; result : results) {
+    String title = (String) result.get("title");
+    Integer age = (Integer) result.get("age");
+    ...
+}</code></pre>
+      <br>
+      如果想要 <code>List</code> 直接是封裝過後的資料物件，可以使用 <strong><code>RowMapper</code></strong>，進行簡單的物件封裝。例如：
+      <pre class="prettyprint"><code lang="java">List&lt;Dvd&gt; dvds = jdbcTemplate.query(
+        "SELECT dvds.title, dvds.year, dvds.duration, "
+        + "directors.name FROM dvds, directors "
+        + "WHERE dvds.director_id = directors.id"
+        + " ORDER BY dvds.title",
+        new RowMapper&lt;Dvd&gt;() {
+            @Override
+            public Dvd mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Dvd(
+                       rs.getString("title"),
+                        rs.getInt("year"),
+                        rs.getInt("duration"),
+                        rs.getString("name")
+                );
+            }
+        });</code></pre>
+      <br>
+      這邊列出一些大致的用法，將來你若正式學習過 JDBC，可試著撰寫與這邊功能相似的 JDBC 程式碼，馬上就可以看出使用 <code>JdbcTemplate</code> 的好處；實際上，資料永續存取時，會搭配 <a
+
+        href="http://www.oracle.com/technetwork/java/dataaccessobject-138824.html">DAO 模式</a>，如果你需要撰寫 JDBC 實作的 DAO，可以試著繼承 Spring 的 <span
+
+        style="color: #ff0000;"><strong><code>JdbcDaoSupport</code></strong></span>，只要設定給它 <code>DataSource</code> 實例，就可以擁有取得 <code>JdbcTemplate</code> 等的現成方法。例如：
+      <pre class="prettyprint"><code lang="java">public class DvdDaoJdbcImpl extends JdbcDaoSupport implements DvdDao {
+
+    public DvdDaoJdbcImpl(DataSource dataSource) {
+        setDataSource(dataSource);
+    }
+
+    public DvdDaoJdbcImpl createTables() {
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        ...
+    }
+    ...
+}</code></pre>
+      <strong><span style="color: #ff0000;"><br>
+          練習 9：使用 spring-jdbc</span></strong>
+      <br>
+      <br>
+      在 Lab 檔案的 exercises/exercise9 中有個 SpringJDBC 專案，試著先查看一下其中 <code>Main</code>、<code>Dvd</code>、<code>DvdDao</code>、<code>DvdDaoJdbcImpl</code> 等類別的內容與關係。
+      開啟專案中的 DvdDaoJdbcImpl.java 時，你會發現其中有些程式碼不完整，試著參考以上列出的說明，將程式碼補齊，然後於專案中運行 gradle run，查看一下是否可存取、查詢與顯示表格資料。<br>
+      <br>
+      &nbsp;<a href="images/java-tutorial-the-3rd-class-2-1.png"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" class="alignnone size-full wp-image-3707"
+
+          alt="java-tutorial-the-3rd-class-2-1" src="images/java-tutorial-the-3rd-class-2-1.png"
+
+          height="204" width="723" /></div></div></a>
+      <br>
+      <br>
+      如果有不清楚如何實作的部份，請試著查看 Lab 檔案的 solutions/exercise9 中的 SpringJDBC 專案，當中有實作完成的程式碼。
+      <br>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

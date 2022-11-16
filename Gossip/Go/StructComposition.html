@@ -1,0 +1,326 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="結構本身用來組織相關資料，可以將處理結構的相關函式定義為方法，類似物件導向程式語言中，使用類別定義值域與方法，那麼繼承呢？Go 語言並非以物件導向為主要典範的語言，沒有繼承的概念，不過可以使用組合代替...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="結構組合">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/StructComposition.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="結構本身用來組織相關資料，可以將處理結構的相關函式定義為方法，類似物件導向程式語言中，使用類別定義值域與方法，那麼繼承呢？Go 語言並非以物件導向為主要典範的語言，沒有繼承的概念，不過可以使用組合代替...">
+
+    <title>結構組合</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StructComposition.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>結構組合</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>結構本身用來組織相關資料，可以將處理結構的相關函式定義為方法，類似物件導向程式語言中，使用類別定義值域與方法，那麼繼承呢？Go 語言並非以物件導向為主要典範的語言，沒有繼承的概念，不過可以使用組合代替繼承。</p>
+<h1>在組告之前</h1>
+<p>在〈<a href="http://openhome.cc/Gossip/Go/Method.html">結構與方法</a>〉中使用 <code>struct</code> 定義了 <code>Account</code>，如果今天你想定義一個支票帳戶，方式之一是…</p>
+<pre class="prettyprint"><code lang="golang">type CheckingAccount struct {
+    id string
+    name string
+    balance float64
+    overdraftlimit float64
+}
+</code></pre>
+<p>這是個很尋常的作法，也許你想將 <code>id</code>、<code>name</code> 與 <code>balance</code> 組織在一起：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type CheckingAccount struct {
+    account struct {
+        id      string
+        name    string
+        balance float64
+    }
+    overdraftlimit float64
+}
+
+func main() {
+    checking := CheckingAccount{}
+    checking.account = struct {
+        id      string
+        name    string
+        balance float64
+    }{"1234-5678", "Justin Lin", 1000}
+    checking.overdraftlimit = 30000
+
+    fmt.Println(checking)                // {{1234-5678 Justin Lin 1000} 30000}
+    fmt.Println(checking.account)        // {1234-5678 Justin Lin 1000}
+    fmt.Println(checking.account.name)   // Justin Lin
+    fmt.Println(checking.overdraftlimit) // 30000
+}
+</code></pre>
+<p>這是一種方式，不過使用起來麻煩，或許你可以這麼做：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+type CheckingAccount struct {
+    account        Account
+    overdraftlimit float64
+}
+
+func main() {
+    checking := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+
+    fmt.Println(checking)                // {{1234-5678 Justin Lin 1000} 30000}
+    fmt.Println(checking.account)        // {1234-5678 Justin Lin 1000}
+    fmt.Println(checking.account.name)   // Justin Lin
+    fmt.Println(checking.overdraftlimit) // 300000
+}
+</code></pre>
+<p>看來還不錯，不過，如果想要 <code>fmt.Println(checking.name)</code> 就能取得名稱的話，這種寫法行不通！</p>
+<h1>結構值域的查找</h1>
+<p>在定義結構時，可以將另一已定義的結構直接內嵌：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+
+    fmt.Println(account)                // {{1234-5678 Justin Lin 1000} 30000}
+    fmt.Println(account.id)             // 1234-5678
+    fmt.Println(account.name)           // Justin
+    fmt.Println(account.balance)        // 1000
+    fmt.Println(account.overdraftlimit) // 30000
+}
+</code></pre>
+<p>這稱為型態內嵌（type embedding），<code>Account</code> 被稱為 <code>CheckingAccount</code> 的內部型態，反之，<code>CheckingAccount</code> 是 <code>Account</code> 的外部型態，雖然是透過 <code>account.id</code>、<code>account.name</code>、<code>account.balance</code> 來存取，不過內部型態提昇，令內部型態定義的值域為可見。</p>
+<p>那麼，如果想要明確地透過 <code>Account</code> 的結構來存取呢？也是可以的：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+
+    fmt.Println(account)                 // {{1234-5678 Justin Lin 1000} 30000}
+    fmt.Println(account.Account.id)      // 1234-5678
+    fmt.Println(account.Account.name)    // Justin
+    fmt.Println(account.Account.balance) // 1000
+    fmt.Println(account.overdraftlimit)  // 30000
+}
+</code></pre>
+<p>雖然內部型態會提昇，然而，若外部型態中定義了同名值域，就會直接取得外部型態的值域，因此，如果 <code>CheckingAccount</code> 定義了相同的值域 <code>balance</code>，如果透過 <code>account.balance</code>，結果會是找到 <code>CheckingAccount</code> 定義的 <code>balance</code>，如果想明確找到 <code>Account</code> 的 <code>balance</code>，可以指定 <code>Account</code> 作為前置：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import "fmt"
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+type CheckingAccount struct {
+    Account
+    balance        float64
+    overdraftlimit float64
+}
+
+func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 2000, 30000}
+
+    fmt.Println(account.balance)         // 2000
+    fmt.Println(account.Account.balance) // 1000
+}
+</code></pre>
+<p>無論是結構值域或是方法，若來自兩個結構的值域或方法產生了同名衝突，Go 會有 ambiguous selector 的錯誤提示，此時你必須明確指定結構名稱，指定使用來自哪個結構的值域或方法。</p>
+<h1>方法的查找</h1>
+<p>如果內部型態原本定義了方法，這些方法也是查找時的對象：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac *Account) Deposit(amount float64) {
+    if amount &lt;= 0 {
+        panic("必須存入正數")
+    }
+    ac.balance += amount
+}
+
+func (ac *Account) Withdraw(amount float64) error {
+    if amount &gt; ac.balance {
+        return errors.New("餘額不足")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+    account.Deposit(2000)
+    account.Withdraw(500)
+    fmt.Println(account) // {{1234-5678 Justin Lin 2500} 30000}
+}
+</code></pre>
+<p>類似地，若外部型態中定義了同名的方法，那麼就會使用該方法，這類似重新定義（Override）的概念：</p>
+<pre class="prettyprint"><code lang="golang">package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+type Account struct {
+    id      string
+    name    string
+    balance float64
+}
+
+func (ac *Account) Deposit(amount float64) {
+    if amount &lt;= 0 {
+        panic("必須存入正數")
+    }
+    ac.balance += amount
+}
+
+func (ac *Account) Withdraw(amount float64) error {
+    if amount &gt; ac.balance {
+        return errors.New("餘額不足")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+type CheckingAccount struct {
+    Account
+    overdraftlimit float64
+}
+
+func (ac *CheckingAccount) Withdraw(amount float64) error {
+    if amount &gt; ac.balance+ac.overdraftlimit {
+        return errors.New("超出信用額度")
+    }
+    ac.balance -= amount
+    return nil
+}
+
+func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+    account.Deposit(2000)
+    if err := account.Withdraw(50000); err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(account)
+    }
+}
+</code></pre>
+<p>在上面的範例中，會顯示「超出信用額度」的訊息，拿掉 <code>func (account *CheckingAccount) Withdraw(amount float64)</code> 該函式的定義，則會顯示「餘額不足」的訊息。</p>
+<p>如果想指定使用 <code>Account</code> 的 <code>Withdraw</code> 函式，也還是可以的：</p>
+<pre class="prettyprint"><code lang="golang">func main() {
+    account := CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+    account.Deposit(2000)
+    if err := account.Account.Withdraw(50000); err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(account)
+    }
+}
+</code></pre>
+<p>雖然可以實現方法重新定義的概念，不過，單純只是如上定義的話，並不支援多型的概念，因為一開始這麼指定就會出錯了：</p>
+<pre class="prettyprint"><code lang="golang">// cannot use CheckingAccount literal (type CheckingAccount) as type Account in assignment
+var account Account = CheckingAccount{Account{"1234-5678", "Justin Lin", 1000}, 30000}
+</code></pre>
+<p>若想實作出多型的概念，必須使用 <code>interface</code>，這在之後的文件會加以說明。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

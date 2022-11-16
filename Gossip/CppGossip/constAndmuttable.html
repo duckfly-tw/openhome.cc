@@ -1,0 +1,177 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果在建立 string 實例時指定 const，那表示不能變動該實例的狀態，如果試圖改變該實例狀態，或者呼叫了會變動實例狀態的方法，編譯時會發生錯誤：
+const string text = "Ju...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="const 與 mutable">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/constAndmuttable.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果在建立 string 實例時指定 const，那表示不能變動該實例的狀態，如果試圖改變該實例狀態，或者呼叫了會變動實例狀態的方法，編譯時會發生錯誤：
+const string text = "Ju...">
+
+    <title>const 與 mutable</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="constAndmuttable.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>const 與 mutable</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果在建立 <code>string</code> 實例時指定 <code>const</code>，那表示不能變動該實例的狀態，如果試圖改變該實例狀態，或者呼叫了會變動實例狀態的方法，編譯時會發生錯誤：</p>
+<pre class="prettyprint"><code lang="c++">const string text = "Justin";
+text.append(" Lin") // error: no matching function
+</code></pre>
+<p><code>const</code> 修飾表示不能變動實例狀態，這並不是自動發生的事情，如果呼叫的方法沒有被 <code>const</code> 修飾，就不能通過編譯，例如，若如下使用〈<a href="ClassABC.html">定義類別</a>〉中的 <code>Account</code>，雖然 <code>to_string</code> 並沒有變動實例狀態，也不能通過編譯：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include "account.h"
+using namespace std;
+
+int main() {
+    const Account acct = {"123-456-789", "Justin Lin", 1000};
+    cout &lt;&lt; acct.to_string() &lt;&lt; endl; //  error: passing 'const Account' as 'this' argument discards qualifiers
+}
+</code></pre>
+<p>如果要通過編譯的話，<code>to_string</code> 必須加上 <code>const</code> 限定：</p>
+<p><strong>account.h</strong></p>
+<pre class="prettyprint"><code lang="c++">#include &lt;string&gt;
+using namespace std; 
+
+class Account { 
+private:
+    string id;  
+    string name; 
+    double balance;
+
+public: 
+    Account(string id, string name, double balance);
+    void deposit(double amount);
+    void withdraw(double amount);
+    string to_string() const;
+};
+</code></pre>
+<p><strong>account.cpp</strong></p>
+<pre class="prettyprint"><code lang="c++">...略
+
+string Account::to_string() const {
+    return string("Account(") + 
+           this-&gt;id + ", " +
+           this-&gt;name + ", " +
+           std::to_string(this-&gt;balance) + ")";
+}
+
+...略
+</code></pre>
+<p>當方法被加上 <code>const</code> 限定後，方法就不能有改變值域的動作，有了這個保證，方才的 <code>to_string</code> 呼叫才能通過編譯。</p>
+<p>另一個類似的問題是：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include "account.h"
+#include &lt;string&gt;
+using namespace std;
+
+class Foo {
+public:
+    Foo&amp; doSome() {
+        return *this;
+    }
+    Foo&amp; doOther() {
+        return *this;
+    }
+};
+
+int main() {
+    const Foo foo;
+    foo.doSome().doOther();
+}
+</code></pre>
+<p>這個程式在 <code>Foo foo</code> 前，若沒有加上 <code>const</code> 的話，是可以通過編譯的，你可能會想，那就在 <code>doSome</code>、<code>doOther</code> 函式本體前，也加上 <code>const</code> 就可以了吧！可惜…加上了還是不能通過編譯！</p>
+<p><code>const</code> 的要求很嚴格，不僅要求方法不能變動實例狀態，如果以參考傳回型值域，或者是如上以參考傳回實例本身，也會要求傳回值的狀態不得改變，必須得如下才能通過編譯：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include "account.h"
+#include &lt;string&gt;
+using namespace std;
+
+class Foo {
+public:
+    const Foo&amp; doSome() const {
+        return *this;
+    }
+    const Foo&amp; doOther() const {
+        return *this;
+    }
+};
+
+int main() {
+    Foo foo;
+    foo.doSome().doOther();
+}
+</code></pre>
+<p>你可能會想在被限定為 <code>const</code> 的方法中，可以改變某些值域，因為這些值域的改變，從使用者來看，並不代表實例狀態的改變。</p>
+<p>這是什麼意思呢？例如，若有個 <code>hashCode</code> 方法，可以計算出物件的雜湊值，實際上可以在首次呼叫該方法計算出雜湊值之後，使用值域將雜湊儲存下來，物件的 <code>hashCode</code> 結果從使用者來看並沒有變，若是有這類需求，值域在宣告時，可以加上 <code>mutable</code>：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+    mutable int hash = 0;
+
+public:
+    int hashCode() const {
+        if(hash == 0) {
+            // 計算雜湊值 v
+            this-&gt;hash = v;
+        }
+
+        return this-&gt;hash;
+    }
+};
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

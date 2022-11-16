@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="來看看幾個 API，以及 ES6 以後，內建的群集 API，善加利用可以省不少功夫。 Array 陣列是經常使用的資料結構，ES6 以後 Array 上新增了一些 API 值得介紹一下。">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="JavaScript::Array、Set、Map 與 ArrayBuffer" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-basics/collection/" />
+    <meta property="og:description" content="來看看幾個 API，以及 ES6 以後，內建的群集 API，善加利用可以省不少功夫。 Array 陣列是經常使用的資料結構，ES6 以後 Array 上新增了一些 API 值得介紹一下。" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="JavaScript::Array、Set、Map 與 ArrayBuffer" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/javascript/es-basics/collection/" />
+    <meta name="twitter:description" content="來看看幾個 API，以及 ES6 以後，內建的群集 API，善加利用可以省不少功夫。 Array 陣列是經常使用的資料結構，ES6 以後 Array 上新增了一些 API 值得介紹一下。" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443686" type="image/x-icon">
+    <title> JavaScript  :: Array、Set、Map 與 ArrayBuffer</title>
+    <link href="../../../css/nucleus.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443686.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443686.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443686"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/javascript/es-basics/collection/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/javascript/" title="JavaScript" class="dd-item parent"><a href="../../index.html">JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/" title="這些東西不簡單" class="dd-item"><a href="../../basics/index.html">| 這些東西不簡單</a><ul>
+          <li data-nav-id="/zh-tw/javascript/basics/es5/" title="從 ECMAScript 5 開始" class="dd-item"><a href="../../basics/es5/index.html">從 ECMAScript 5 開始</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/var/" title="使用 var 宣告變數" class="dd-item"><a href="../../basics/var/index.html">使用 var 宣告變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/type/" title="與眾不同的資料型態" class="dd-item"><a href="../../basics/type/index.html">與眾不同的資料型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/wat/" title="弱型別的代價 – WAT！" class="dd-item"><a href="../../basics/wat/index.html">弱型別的代價 – WAT！</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/operator/" title="操弄數值的運算子" class="dd-item"><a href="../../basics/operator/index.html">操弄數值的運算子</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object/" title="鍵值聚合體的物件" class="dd-item"><a href="../../basics/object/index.html">鍵值聚合體的物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/object-api/" title="物件特性 API" class="dd-item"><a href="../../basics/object-api/index.html">物件特性 API</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/basics/array/" title="數字為特性的陣列" class="dd-item"><a href="../../basics/array/index.html">數字為特性的陣列</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/" title="一切都與函式有關" class="dd-item"><a href="../../function/index.html">| 一切都與函式有關</a><ul>
+          <li data-nav-id="/zh-tw/javascript/function/abc/" title="不可輕忽的函式基礎" class="dd-item"><a href="../../function/abc/index.html">不可輕忽的函式基礎</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/first-class/" title="初探一級函式" class="dd-item"><a href="../../function/first-class/index.html">初探一級函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/this/" title="this 是什麼？" class="dd-item"><a href="../../function/this/index.html">this 是什麼？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/function/closure/" title="Closure 與一級函式" class="dd-item"><a href="../../function/closure/index.html">Closure 與一級函式</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/" title="定義物件" class="dd-item"><a href="../../object/index.html">| 定義物件</a><ul>
+          <li data-nav-id="/zh-tw/javascript/object/constructor/" title="隱藏諸多細節的建構式" class="dd-item"><a href="../../object/constructor/index.html">隱藏諸多細節的建構式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/prototype/" title="函式 prototype 特性" class="dd-item"><a href="../../object/prototype/index.html">函式 prototype 特性</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/introspection/" title="檢驗物件" class="dd-item"><a href="../../object/introspection/index.html">檢驗物件</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/namespace/" title="名稱空間管理" class="dd-item"><a href="../../object/namespace/index.html">名稱空間管理</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/object/json/" title="輕量資料格式 JSON" class="dd-item"><a href="../../object/json/index.html">輕量資料格式 JSON</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/" title="這些東西簡單了嗎？" class="dd-item parent"><a href="../index.html">| 這些東西簡單了嗎？</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-basics/let-const/" title="let 與 const" class="dd-item"><a href="../let-const/index.html">let 與 const</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/number-string/" title="增強的數值與字串" class="dd-item"><a href="../number-string/index.html">增強的數值與字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/symbol/" title="作為協定的符號" class="dd-item"><a href="../symbol/index.html">作為協定的符號</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/bigint/" title="大整數 bigint" class="dd-item"><a href="../bigint/index.html">大整數 bigint</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/object-literal/" title="物件實字簡化與增強" class="dd-item"><a href="../object-literal/index.html">物件實字簡化與增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/iterator/" title="for/of 與迭代器" class="dd-item"><a href="../iterator/index.html">for/of 與迭代器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/data-pattern/" title="Destructuring、Rest 與 Spread" class="dd-item"><a href="../data-pattern/index.html">Destructuring、Rest 與 Spread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/collection/" title="Array、Set、Map 與 ArrayBuffer" class="dd-item active"><a href="index.html">Array、Set、Map 與 ArrayBuffer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-basics/sameness/" title="JavaScript 的相等性" class="dd-item"><a href="../sameness/index.html">JavaScript 的相等性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/" title="不再只是 function 了" class="dd-item"><a href="../../es-function/index.html">| 不再只是 function 了</a><ul>
+          <li data-nav-id="/zh-tw/javascript/es-function/enhanced/" title="函式的增強" class="dd-item"><a href="../../es-function/enhanced/index.html">函式的增強</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/arrow/" title="箭號函式" class="dd-item"><a href="../../es-function/arrow/index.html">箭號函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/generator/" title="產生器函式" class="dd-item"><a href="../../es-function/generator/index.html">產生器函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/promise/" title="非同步與 Promise" class="dd-item"><a href="../../es-function/promise/index.html">非同步與 Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/es-function/async-await/" title="async、await" class="dd-item"><a href="../../es-function/async-await/index.html">async、await</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/" title="類別與模組" class="dd-item"><a href="../../class-module/index.html">| 類別與模組</a><ul>
+          <li data-nav-id="/zh-tw/javascript/class-module/class/" title="類別語法" class="dd-item"><a href="../../class-module/class/index.html">類別語法</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/inheritance/" title="實作繼承" class="dd-item"><a href="../../class-module/inheritance/index.html">實作繼承</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/class-module/module/" title="模組入門" class="dd-item"><a href="../../class-module/module/index.html">模組入門</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/" title="瀏覽器與 JavaScript" class="dd-item"><a href="../../script/index.html">| 瀏覽器與 JavaScript</a><ul>
+          <li data-nav-id="/zh-tw/javascript/script/tag/" title="初探 script 標籤" class="dd-item"><a href="../../script/tag/index.html">初探 script 標籤</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/module/" title="script 標籤與模組" class="dd-item"><a href="../../script/module/index.html">script 標籤與模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/script/security/" title="script 標籤的安全性" class="dd-item"><a href="../../script/security/index.html">script 標籤的安全性</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/" title="關於 DOM" class="dd-item"><a href="../../dom/index.html">| 關於 DOM</a><ul>
+          <li data-nav-id="/zh-tw/javascript/dom/abc/" title="DOM 簡介" class="dd-item"><a href="../../dom/abc/index.html">DOM 簡介</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/traversing/" title="走訪 DOM 樹" class="dd-item"><a href="../../dom/traversing/index.html">走訪 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/modification/" title="修改 DOM 樹" class="dd-item"><a href="../../dom/modification/index.html">修改 DOM 樹</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/dom/event/" title="事件模型" class="dd-item"><a href="../../dom/event/index.html">事件模型</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/" title="樣式處理" class="dd-item"><a href="../../style/index.html">| 樣式處理</a><ul>
+          <li data-nav-id="/zh-tw/javascript/style/abc/" title="存取樣式資訊" class="dd-item"><a href="../../style/abc/index.html">存取樣式資訊</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/display-visibility-opacity/" title="顯示、可見與不透明" class="dd-item"><a href="../../style/display-visibility-opacity/index.html">顯示、可見與不透明</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/javascript/style/class/" title="操作 class 屬性" class="dd-item"><a href="../../style/class/index.html">操作 class 屬性</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">JavaScript</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">這些東西簡單了嗎？</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Array、Set、Map 與 ArrayBuffer</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#array">Array</a></li>
+    <li><a href="index.html#set">Set</a></li>
+    <li><a href="index.html#map">Map</a></li>
+    <li><a href="index.html#arraybuffer">ArrayBuffer</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/collection/">collection</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Array、Set、Map 與 ArrayBuffer</h1>
+
+ <i class="space fa fa-calendar"> August 9, 2022</i> 
+<p>來看看幾個 API，以及 ES6 以後，內建的群集 API，善加利用可以省不少功夫。</p>
+<h2 id="array">Array</h2>
+<p>陣列是經常使用的資料結構，ES6 以後 <code>Array</code> 上新增了一些 API 值得介紹一下。首先是替換 <code>Array</code> 建構式用的 <code>Array.of</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; Array.of<span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 1 ]
+</span></span><span style="display:flex;"><span>&gt; Array.of<span style="color:#f92672">(</span>1, 2<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 1, 2 ]
+</span></span><span style="display:flex;"><span>&gt; Array.of<span style="color:#f92672">(</span>1, 2, 3<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 1, 2, 3 ]
+</span></span><span style="display:flex;"><span>&gt; Array.of<span style="color:#f92672">(</span>1, 2, 3, undefined, 4<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 1, 2, 3, undefined, 4 ]
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>在只有一個引數的時候，不會像 <code>Array(1)</code> 或 <code>new Array(1)</code> 有別於其他引數長度時的行為，如果中間有元素從缺，使用 <code>Array.of</code> 必須明確指定從缺的值是什麼（<code>null</code>？<code>undefined</code>？），如果你寫 <code>[1, 2, 3, ,4 ]</code> 會如何呢？索引 3 處會是空項目（empty item），不是 <code>undefined</code>，在〈<a href="../../basics/array/index.html">數字為特性的陣列</a>〉談過，空項目並不是 <code>undefined</code>。</p>
+<p>除此之外，大概就是在某些場合需要指定回呼函式，可以將 <code>Array.of</code> 傳入（指定 <code>Array</code>？認真的嗎？），因為你不能將 <code>[]</code> 當成函式傳入。</p>
+<p>在〈<a href="../../basics/array/index.html">數字為特性的陣列</a>〉談過，在 JavaScript 的世界中，會有很多機會遇到許多長得像陣列（Array-like）的物件，而有時候，需要將這些物件轉成陣例，使之具有真正陣列該有的行為，這不單只是將 <code>forEach</code> 之類的方法設給該物件，還有許多瑣碎的事要做。</p>
+<p>這時 ES6 的 <code>Array.from</code> 可以省許多功夫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let o <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...    &#39;0&#39; : 100,
+</span></span><span style="display:flex;"><span>...    &#39;1&#39; : 200,
+</span></span><span style="display:flex;"><span>...    &#39;2&#39; : 300,
+</span></span><span style="display:flex;"><span>...    length : 3
+</span></span><span style="display:flex;"><span>... };
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let arr <span style="color:#f92672">=</span> Array.from<span style="color:#f92672">(</span>o<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; arr.forEach<span style="color:#f92672">(</span>elem <span style="color:#f92672">=</span>&gt; console.log<span style="color:#f92672">(</span>elem<span style="color:#f92672">))</span>;
+</span></span><span style="display:flex;"><span>100
+</span></span><span style="display:flex;"><span>200
+</span></span><span style="display:flex;"><span>300
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; arr instanceof Array;
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Array.from</code> 遇到有空項目，或轉換過程會發生空項目的情況，會明確使用 <code>undefined</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; Array.from<span style="color:#f92672">([</span>1,,2<span style="color:#f92672">])</span>;
+</span></span><span style="display:flex;"><span>[ 1, undefined, 2 ]
+</span></span><span style="display:flex;"><span>&gt; Array.from<span style="color:#f92672">({</span>length : 4<span style="color:#f92672">})</span>;
+</span></span><span style="display:flex;"><span>[ undefined, undefined, undefined, undefined ]
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>除此之外，<code>Array.from</code> 可以接受一個回呼函式，在轉換過程可以進行 map 的動作：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; Array.from<span style="color:#f92672">([</span>1, , 3<span style="color:#f92672">]</span>, elem <span style="color:#f92672">=</span>&gt; elem ? elem * <span style="color:#ae81ff">2</span> : 0<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 2, 0, 6 ]
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>如果要用某個值填滿陣列，那麼 <code>Array.fill</code> 很方便：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; Array<span style="color:#f92672">(</span>10<span style="color:#f92672">)</span>.fill<span style="color:#f92672">(</span>0<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#f92672">[</span>1, 2, 3, 4, 5<span style="color:#f92672">]</span>.fill<span style="color:#f92672">(</span>0, 2, 4<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>[ 1, 2, 0, 0, 5 ]
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Array.fill</code> 第一個參數接受要填充的值，之後選擇性地接受 <code>start</code> 與 <code>end</code>，用來指定填充的索引起始與結束。</p>
+<p><code>Array</code> 的 <code>find</code> 方法其實是 findFirst 的概念，可以找到第一個符合條件的數，找不到就傳回 <code>undefined</code>，<code>findIndex</code> 則是找到第一個符合條件的元素索引位置，找不到傳回 -1：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; <span style="color:#f92672">[</span>10, 20, -30, 40<span style="color:#f92672">]</span>.find<span style="color:#f92672">(</span>n <span style="color:#f92672">=</span>&gt; n &lt; 0<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>-30
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#f92672">[</span>10, 20, -30, 40<span style="color:#f92672">]</span>.findIndex<span style="color:#f92672">(</span>n <span style="color:#f92672">=</span>&gt; n &lt; 0<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>find</code> 和 <code>findIndex</code> 的回呼函式，其實可以接受三個引數，分別是元素值、索引與原陣列參考，上面的範例只使用了元素值的部份。</p>
+<h2 id="set">Set</h2>
+<p>ES6 以後有了 <code>Set</code> API，它內部的元素不重複：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let set <span style="color:#f92672">=</span> new Set<span style="color:#f92672">([</span>1, 2, 3, 4, 5, 1, 2, 3<span style="color:#f92672">])</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; set;
+</span></span><span style="display:flex;"><span>Set { 1, 2, 3, 4, 5 }
+</span></span><span style="display:flex;"><span>&gt; set.add<span style="color:#f92672">(</span>6<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>Set { 1, 2, 3, 4, 5, 6 }
+</span></span><span style="display:flex;"><span>&gt; set.has<span style="color:#f92672">(</span>3<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; set.forEach<span style="color:#f92672">(</span>elem <span style="color:#f92672">=</span>&gt; console.log<span style="color:#f92672">(</span>elem<span style="color:#f92672">))</span>;
+</span></span><span style="display:flex;"><span>1
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>4
+</span></span><span style="display:flex;"><span>5
+</span></span><span style="display:flex;"><span>6
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>let elem of set<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...     console.log(elem);
+</span></span><span style="display:flex;"><span>... }
+</span></span><span style="display:flex;"><span>1
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>4
+</span></span><span style="display:flex;"><span>5
+</span></span><span style="display:flex;"><span>6
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#f92672">[</span>...set<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>[ 1, 2, 3, 4, 5, 6 ]
+</span></span><span style="display:flex;"><span>&gt; let <span style="color:#f92672">[</span>a, b, c<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> set;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; a;
+</span></span><span style="display:flex;"><span>1
+</span></span><span style="display:flex;"><span>&gt; b;
+</span></span><span style="display:flex;"><span>2
+</span></span><span style="display:flex;"><span>&gt; c;
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Set</code> 本身是可迭代的，因此可以使用 <code>for/of</code>，當然，也可以適用 <code>...</code> 來 Spread 元素，或者解構語法。</p>
+<p><code>Set</code> 是無序的，因此沒有直接可取值的 get 之類的方法，除了上面方法示範之外，<code>Set</code> 還有 <code>delete</code> 可用來刪除元素，<code>clear</code> 可用來清空元素，<code>size</code> 可用來查看 <code>Set</code> 中的元素數量。</p>
+<p>那麼問題來了，<code>Set</code> 中判定元素是否重複的依據是什麼？如果是基本型態，顯然就是值是不是相同，這沒有問題，那麼物件呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let o1 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>x: 10<span style="color:#f92672">}</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let o2 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>x: 10<span style="color:#f92672">}</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let o3 <span style="color:#f92672">=</span> o2;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let set <span style="color:#f92672">=</span> new Set<span style="color:#f92672">([</span>o1, o2, o3<span style="color:#f92672">])</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; set;
+</span></span><span style="display:flex;"><span>Set { { x: 10 }, { x: 10 } }
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>在上面的例子中，最後的 <code>set</code> 有兩個物件，顯然地，並不是判定物件的特性實際上是否相等，那麼有 equals、hashCode 之類的協定，可以定義物件實質的內含值是否相同嗎？沒有！對於物件，基本上就是相當於 <code>===</code> 比較。</p>
+<p>因為 JavaScript 的物件特性很容易變更，如果你瞭解其他語言中 equals、hashCode 之類的協定，也應該知道，一個狀態可變的物件，在實作 equals、hashCode 之類的協定時會有許多坑，因此就目前來說，<code>Set</code> 是特意這麼做的（並不是忽略了），這會造成一些不便，如果你真的需要能依 equals、hashCode 之類的協定來判定物件相等性，那必須自行實作或者是尋求既有的程式庫。</p>
+<p>對於 <code>Set</code> 來說，<code>NaN</code> 是可以判定相等的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let set <span style="color:#f92672">=</span> new Set<span style="color:#f92672">([</span>NaN, NaN, 0, -0<span style="color:#f92672">])</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; set;
+</span></span><span style="display:flex;"><span>Set { NaN, 0 }
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p>之後談到 ECMAScript 6 以後相等性判定時，會看到像 <code>Object.is</code> 會將 0 與 -0 視為不相等，然而，對於 0、-0，<code>Set</code> 認定是相等的，具體來說，<code>Set</code> 是採用所謂的 SameValueZero 演算來判定相等性，詳情會在下一篇文件中說明。</p>
+<p>在談到 <code>Set</code> 時，通常會一併談到 <code>WeakSet</code>，簡單來說，垃圾收集時不會考慮物件是否被 <code>WeakSet</code> 包含著，只要物件沒有其他名稱參考著，就會回收物件，如果 <code>WeakSet</code> 中本來有該物件，會自動消失，這可以用來避免必須使用 <code>Set</code> 管理物件，而後忘了從 <code>Set</code> 中清除而發生記憶體洩漏的問題。</p>
+<p><code>WeakSet</code> 中的元素只能是物件，不能是 <code>number</code>、<code>boolean</code>、<code>string</code>、<code>symbol</code> 等，也不能是 <code>null</code>，由於物件可能被垃圾回收，因此它不能被迭代（也不能使用 <code>forEach</code>）、不能使用 <code>size</code>、<code>clear</code> 方法，只能使用 <code>add</code>、<code>has</code>、<code>delete</code> 方法。</p>
+<h2 id="map">Map</h2>
+<p>接著來談談 ES6 以後的 <code>Map</code>，雖然 JavaScript 中的物件，本身就是鍵與值的集合體，然而，鍵的部份基本上就是字串，ES6 以後多了個 <code>Symbol</code> 可以做為特性，除此之外，就算使用 <code>[]</code> 指定物件作為鍵，它會取得字串描述作為特性：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let o <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>x: 10<span style="color:#f92672">}</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let map <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...     [o] : &#39;foo&#39;
+</span></span><span style="display:flex;"><span>... };
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>let p in map<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...     console.log(p);
+</span></span><span style="display:flex;"><span>... }
+</span></span><span style="display:flex;"><span>[object Object]
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Map</code> 的鍵可以是物件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let o <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>x: 10<span style="color:#f92672">}</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; let map <span style="color:#f92672">=</span> new Map<span style="color:#f92672">()</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; map.set<span style="color:#f92672">(</span>o, <span style="color:#e6db74">&#39;foo&#39;</span><span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>Map { { x: 10 } =&gt; &#39;foo&#39; }
+</span></span><span style="display:flex;"><span>&gt; map.set<span style="color:#f92672">({</span>y : 10<span style="color:#f92672">}</span>, <span style="color:#e6db74">&#39;foo2&#39;</span><span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>Map { { x: 10 } =&gt; &#39;foo&#39;, { y: 10 } =&gt; &#39;foo2&#39; }
+</span></span><span style="display:flex;"><span>&gt; <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>let <span style="color:#f92672">[</span>key, value<span style="color:#f92672">]</span> of map<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>...     console.log(key, value);
+</span></span><span style="display:flex;"><span>... }
+</span></span><span style="display:flex;"><span>{ x: 10 } &#39;foo&#39;
+</span></span><span style="display:flex;"><span>{ y: 10 } &#39;foo2&#39;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; map.get<span style="color:#f92672">(</span>o<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>&#39;foo&#39;
+</span></span><span style="display:flex;"><span>&gt; map.delete<span style="color:#f92672">(</span>o<span style="color:#f92672">)</span>;
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span>&gt; map;
+</span></span><span style="display:flex;"><span>Map { { y: 10 } =&gt; &#39;foo2&#39; }
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Map</code> 本身可迭代，使用 <code>for...of</code> 的話，迭代出來的元素會是個包含鍵與值的物件，也可以使用 <code>...</code> 來解構。除了以上示範的方法之外，可以使用 <code>has</code> 判定是否具有某個鍵，<code>delete</code> 刪除某鍵（與對應的值），使用 <code>clear</code> 清空 <code>Map</code>，使用 <code>keys</code> 取得全部的鍵，使用 <code>values</code> 取得全部的值，使用 <code>entries</code> 取得鍵值對，使用 <code>size</code> 取得鍵值數量，也可以使用 <code>forEach</code> 等。</p>
+<p>建構 <code>Map</code> 時，可以使用陣列，其中必須是 <code>[[鍵, 值], [鍵, 值]]</code> 的形式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>&gt; let map <span style="color:#f92672">=</span> new Map<span style="color:#f92672">([[</span><span style="color:#e6db74">&#39;k1&#39;</span>, <span style="color:#e6db74">&#39;v1&#39;</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;k2&#39;</span>, <span style="color:#e6db74">&#39;v2&#39;</span><span style="color:#f92672">]])</span>;
+</span></span><span style="display:flex;"><span>undefined
+</span></span><span style="display:flex;"><span>&gt; map;
+</span></span><span style="display:flex;"><span>Map { &#39;k1&#39; =&gt; &#39;v1&#39;, &#39;k2&#39; =&gt; &#39;v2&#39; }
+</span></span><span style="display:flex;"><span>&gt;
+</span></span></code></pre></div><p><code>Map</code> 中的鍵必須是唯一的，判定的方式是 SameValueZero。</p>
+<p>在談到 <code>Map</code> 時，通常會一併談到 <code>WeakMap</code>，簡單來說，垃圾收集時不會考慮物件是否被 <code>WeakMap</code> 作為鍵，只要物件沒有其他名稱參考著，就會回收物件，如果 <code>WeakMap</code> 中本來有該物件作為鍵，會自動消失，這可以用來避免必須使用 <code>Map</code> 管理物件，而後忘了從 <code>Map</code> 中清除而發生記憶體洩漏的問題。</p>
+<p><code>WeakMap</code> 中的鍵只能是物件，不能是 <code>number</code>、<code>boolean</code>、<code>string</code>、<code>symbol</code> 等，也不能是 <code>null</code>，由於鍵物件可能被垃圾回收，因此它不能被迭代（也不能使用 <code>forEach</code>）、不能使用 <code>size</code>、<code>clear</code> 方法，只能使用 <code>get</code>、<code>set</code>、<code>has</code>、<code>delete</code> 方法。</p>
+<h2 id="arraybuffer">ArrayBuffer</h2>
+<p>如果要儲存一組二進位資料，可以使用 <code>ArrayBuffer</code>，它從 ES6 以後成為標準之一，建構 <code>ArrayBuffer</code> 實例時，必須指定位元組長度，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayBuffer</span>(<span style="color:#ae81ff">32</span>); <span style="color:#75715e">// 32 個位元組
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">buf</span>.<span style="color:#a6e22e">byteLength</span>);  <span style="color:#75715e">// 顯示 32
+</span></span></span></code></pre></div><p>你沒辦法直接改變 <code>ArrayBuffer</code> 實例的內容，只能透過 <code>byteLength</code> 特性取得長度，<code>slice</code> 方法切割 <code>ArrayBuffer</code>。</p>
+<p>若要改變或取得 <code>ArrayBuffer</code> 內容，方式之一是透過 <code>TypedArray</code>，有以下幾個子類型：</p>
+<ul>
+<li><code>Int8Array</code>：8 位有號整數，長度一位元組</li>
+<li><code>Uint8Array</code>：8 位無號整數，長度一位元組</li>
+<li><code>Uint8ClampedArray</code>：8 位無號整數，長度一位元組，超出 [0, 255] 的值，會設定為 0 或 255。</li>
+<li><code>Int16Array</code>：16 位有號整數，長度二位元組。</li>
+<li><code>Uint16Array</code>：16 位無號整數，長度二位元組。</li>
+<li><code>Int32Array</code>：32 位有號整數，長度四位元組。</li>
+<li><code>Uint32Array</code>：32 位無號整數，長度四位元組。</li>
+<li><code>Float32Array</code>：32 位浮點數，長度四位元組。</li>
+<li><code>Float64Array</code>：64 位浮點數，長度八位元組。</li>
+</ul>
+<p>不同的 <code>TypedArray</code> 子類型，檢視、操作 <code>ArrayBuffer</code> 的觀點（View）不同，例如同一個  <code>ArrayBuffer</code> 實例，在不同的 <code>TypedArray</code> 觀點下，每個元素的位元長度不同，因而透過 <code>length</code> 取得元素個數也就不同：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayBuffer</span>(<span style="color:#ae81ff">32</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">i8arr</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Int8Array</span>(<span style="color:#a6e22e">buf</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">i16arr</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Int16Array</span>(<span style="color:#a6e22e">buf</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">i32arr</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Int32Array</span>(<span style="color:#a6e22e">buf</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">i8arr</span>.<span style="color:#a6e22e">length</span>);  <span style="color:#75715e">// 顯示 32
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">i16arr</span>.<span style="color:#a6e22e">length</span>); <span style="color:#75715e">// 顯示 16
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">i32arr</span>.<span style="color:#a6e22e">length</span>); <span style="color:#75715e">// 顯示 8
+</span></span></span></code></pre></div><p><code>buf</code> 有 32 個位元組，也就是 256 個位元，就 <code>Int8Array</code> 來說，8 個位元為一個元素，因此會有 32 個元素，就 <code>Int16Array</code> 來說，16 位元為一個元素，因而會有 16 個元素，同樣地，對 <code>Int32Array</code> 來說，會有 8 個元素。</p>
+<p>在設定元素時，對每個元素的觀點，也視不同的 <code>TypedArray</code> 子類型而不同，例如，透過 <code>Uint8Array</code> 來寫入與讀出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayBuffer</span>(<span style="color:#ae81ff">5</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">ui8arr</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Uint8Array</span>(<span style="color:#a6e22e">buf</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">ui8arr</span>[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">72</span>;  <span style="color:#75715e">// H
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">ui8arr</span>[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">101</span>; <span style="color:#75715e">// e
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">ui8arr</span>[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">108</span>; <span style="color:#75715e">// l
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">ui8arr</span>[<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">108</span>; <span style="color:#75715e">// l
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">ui8arr</span>[<span style="color:#ae81ff">4</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">111</span>; <span style="color:#75715e">// 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 顯示 Hello
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(String.<span style="color:#a6e22e">fromCharCode</span>.<span style="color:#a6e22e">apply</span>(<span style="color:#66d9ef">null</span>, <span style="color:#a6e22e">ui8arr</span>));
+</span></span></code></pre></div><p>在建構 <code>TypedArray</code> 子類型時，也可以使用類陣列物件，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">ui8arr</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Uint8Array</span>([<span style="color:#ae81ff">72</span>, <span style="color:#ae81ff">101</span>, <span style="color:#ae81ff">108</span>, <span style="color:#ae81ff">108</span>, <span style="color:#ae81ff">111</span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 顯示 Hello
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(String.<span style="color:#a6e22e">fromCharCode</span>.<span style="color:#a6e22e">apply</span>(<span style="color:#66d9ef">null</span>, <span style="color:#a6e22e">ui8arr</span>));
+</span></span></code></pre></div><p>在建構 <code>TypedArray</code> 之後，操作方法和特性，與 <code>Array</code> 幾乎是完全相同的，可參考 <a href="https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/TypedArray">TypedArray API 文件</a>。</p>
+<p><code>TypedArray</code> 的子類型，對待每個元素的觀點是一致的，如果資料中包含了不同類型的元素，例如，同時包含了 8 位整數與 16 位整數，可以使用 <code>DataView</code> 來處理：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayBuffer</span>(<span style="color:#ae81ff">3</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">dataView</span> <span style="color:#f92672">=</span>  <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">DataView</span>(<span style="color:#a6e22e">buf</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">dataView</span>.<span style="color:#a6e22e">setInt16</span>(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">72</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">dataView</span>.<span style="color:#a6e22e">setInt8</span>(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">105</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">dataView</span>.<span style="color:#a6e22e">getInt16</span>(<span style="color:#ae81ff">0</span>));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">dataView</span>.<span style="color:#a6e22e">getInt8</span>(<span style="color:#ae81ff">2</span>));
+</span></span></code></pre></div><p>由於資料長度不固定，在呼叫 <code>setXXX</code>、<code>getXXX</code> 時，必須指定位元組偏移量。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/javascript/es-basics/collection/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/javascript/es-basics/collection/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=JavaScript%3a%3aArray%e3%80%81Set%e3%80%81Map%20%e8%88%87%20ArrayBuffer&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fjavascript%2fes-basics%2fcollection%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../data-pattern/index.html" title="Destructuring、Rest 與 Spread"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../sameness/index.html" title="JavaScript 的相等性"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443686"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443686"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443686"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443686"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443686"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443686"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443686"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443686"></script>
+  </body>
+</html>

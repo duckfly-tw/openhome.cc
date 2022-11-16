@@ -1,0 +1,556 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="JPA中的Entity物件的狀態，可以分為四種：New、Managed、Detached、Removed。以下使用Application-Managed EntityManager&#29234;例作...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Entity 生命週期">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/EntityLifeCycle.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="JPA中的Entity物件的狀態，可以分為四種：New、Managed、Detached、Removed。以下使用Application-Managed EntityManager&#29234;例作...">
+
+
+    <title>Entity 生命週期</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="EntityLifeCycle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Entity 生命週期</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            JPA中的Entity物件的狀態，可以分為四種：New、Managed、Detached、Removed。以下使用Application-Managed EntityManager&#29234;例作說明：<br>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+        <li>New</li>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">您直接使用new創建出Entity物件，例如在之前的例子中，
+User類別所建立之實例，在還沒有使用persist()之前都是New狀態物件，這些物件還沒有與資料庫發生任何的關係，不對應於資料庫中的任一筆資料，沒有主鍵對映。<br>
+
+
+
+
+      <br>
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+        <li>Managed</li>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">當物件與資料庫中的資料有對應關係，並且與EntityManager實例有關聯而EntityManager實例尚未關閉（close），則它是在Managed狀態，具體而言，如果您將New狀態的物件使用EntityManager的persist()或merge()方法
+加以儲存、合併，或是使用find()從資料庫載入資料並封裝為物件，則該物件為Managed狀態。<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+      Managed狀態的Entity是在 <a href="PersistenceContext.html">PersistenceContext</a> 的管理之中，Managed狀態的物件對應於資料庫中的一筆資料，物件的id值與資料的主鍵值相同，並且EntityManager實例尚未失效，在這期間您對物件的任何狀
+態變動，在EntityManager實例關閉（close）或交易確認之後，資料庫中對應的資料也會跟著更新。<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+如果您將EntityManager實例關閉（close），則PersistenceContext失效，Managed狀態的物件會成為Detached狀態。<br>
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+        <li>Detached</li>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">Detached狀態的物件，其id與資料庫的主鍵值對
+應，但脫離EntityManager實例
+的管理，例如在使find()方法查詢到資料並封裝為物件之後，將EntityManager實例關閉，則物件由Managed狀態變為Detached狀
+態，Detached狀態的物件之任何屬性變動，不會對資料庫中的資料造成任何的影響。<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Detached狀態的物件可以使用merge()方法，使之與資料庫中的對應資料再度發生關聯，此時Detached狀態的物件會變為Managed狀態，也就是被PersistenceContext所管理。<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+        <li>Removed</li>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">如果您使用EntityManager實例的remove()方法刪除資料，Managed狀態的物件由於失去了對應的資料，則它會成為Removed狀
+態，一個成為Removed狀態的物件不應該被繼續重用，您應該釋放任何參考至它的名稱，讓該物件在適當的時候被垃圾回收。<br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+      簡單的說，New與Detached狀態的物件未受EntityManager管理，也就是不在PersistenceContext管理之中，對這兩個狀態的物件作任何屬性變動，不會對資料庫中
+的資料有任何的影響，而Managed狀態的物件受EntityManager管理，也就是在PersistenceContext管理之中，對物件的屬性變動，在EntityManager實例關閉（close）或交易確認之後，資料庫中對應的資料也會跟著更新。<br>
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+      &nbsp;<div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/EntityLifeCycle-1.jpg" /></div></div><br>
+
+
+
+
+
+
+
+      
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+      
+      <br>
+
+
+
+
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

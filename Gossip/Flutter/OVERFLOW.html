@@ -1,0 +1,226 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Expanded 子元件〉、〈使用輸入欄位〉、〈滑動底盤 Bottom Sheet〉等文件中，曾經遇過幾次元件繪製時 OVERFLOW 的情況，也就是出現了黃黑條紋警訊的狀況，雖然通常遇上了，就是...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="OVERFLOW 是啥？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/OVERFLOW.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Expanded 子元件〉、〈使用輸入欄位〉、〈滑動底盤 Bottom Sheet〉等文件中，曾經遇過幾次元件繪製時 OVERFLOW 的情況，也就是出現了黃黑條紋警訊的狀況，雖然通常遇上了，就是...">
+
+    <title>OVERFLOW 是啥？</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="OVERFLOW.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>OVERFLOW 是啥？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Expanded.html">Expanded 子元件</a>〉、〈<a href="TextField.html">使用輸入欄位</a>〉、〈<a href="BottomSheet.html">滑動底盤 Bottom Sheet</a>〉等文件中，曾經遇過幾次元件繪製時 OVERFLOW 的情況，也就是出現了黃黑條紋警訊的狀況，雖然通常遇上了，就是簡單地透過 <code>Expanded</code>、<code>SingleChildScrollView</code> 等就可以解決，選用什麼是視需求而定，不過最根本的還是要搞清楚，到底為什麼會 OVERFLOW？如此才能搞清楚，為什麼有些元件就不會 OVERFLOW，有些卻會？</p>
+<p>不負責任的答案是，使用 <code>Row</code> 或 <code>Column</code> 很容易出現 OVERFLOW … XD</p>
+<p>負責點但簡單的答案是，元件尺寸超過了被配給的可用空間。不過，可用空間是指什麼？元件尺寸又是什麼呢？元件的 <code>width</code>、<code>height</code> 嗎？</p>
+<p>首先要知道一件事，<code>width</code>、<code>height</code> 不是元件最後真正的尺寸，基本上只是個參考用的資訊，能不能生效要看父元件給予的約束，也就是子元件可以獲得的最大寬高與最小寬高。</p>
+<p>來看看作為 <code>runApp</code> 引數的根元件好了，給予根元件的約束，也就是根元件的最大寬高與最小寬高會是螢幕的尺寸，最大寬高與最小寬高都被限定的情況下，根元件 <code>width</code>、<code>height</code> 會被忽略，獲得的可用空間也就是螢幕的尺寸，例如，雖然底下的 <code>Container</code> 設定了 <code>width</code>、<code>height</code>，然而範例運行後，整個螢幕都會是紅色：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  Container(
+    color: Colors.red,
+    width: 100,
+    height: 100,
+  )
+);
+</code></pre>
+<p>這是因為 <code>width</code>、<code>height</code> 被忽略了，<code>Container</code> 直接使用整個可用空間（也就是螢幕尺寸）作為其尺寸，想讓 <code>Container</code> 的 <code>width</code>、<code>height</code> 生效？放個 <code>Center</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  Center(
+    child: Container(
+      color: Colors.red,
+      width: 100,
+      height: 100,
+    ),
+  )
+);
+</code></pre>
+<p><code>Center</code> 取得整個螢幕作為可用空間，也就是其尺寸會被強制設定螢幕尺寸，<code>Center</code> 也會給予子元件約束，也就是告訴子元件最大寬高是螢幕尺寸，只要不超過，你要多大都可以，因此上面的範例運行後，就會看到一個 100x100 的紅色方塊置中於螢幕，如果你將 <code>Container</code> 的 <code>width</code> 或 <code>height</code> 設得比螢幕尺寸大，<code>Center</code> 會忽略 <code>width</code> 或 <code>height</code>，這時只會看到螢幕都會是紅色，不會 OVERFLOW。</p>
+<p>如果不想約束子元件呢？可以使用 <code>UnconstrainedBox</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  UnconstrainedBox(
+    child: Container(
+      color: Colors.red,
+      width: 100,
+      height: 100,
+    ),
+  )
+);
+</code></pre>
+<p><code>UnconstrainedBox</code> 預設會有置中有效果，不會對子元件施加約束，就這個例子來說不會有問題，因為尺寸只有 100x100，不比螢幕大，如果設高一點呢？</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  UnconstrainedBox(
+    child: Container(
+      color: Colors.red,
+      width: 100,
+      height: 1000, // 比螢幕高
+    ),
+  )
+);
+</code></pre>
+<p><code>UnconstrainedBox</code> 是根元件，取得的可用空間是整個螢幕，能給予子元件的可用空間最多也就是螢幕尺寸，然而子元件的尺寸超出了，<code>UnconstrainedBox</code> 又不約束子元件，這時就會看到 OVERFLOW 了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OVERFLOW-1.JPG" alt="OVERFLOW 是啥？"  /></div></div></p>
+<p>Flutter 的一些元件，可以明確地指定約束，通常是透過 <code>constraints</code> 之類的特性指定 <code>BoxConstraints</code>，也有個 <code>ConstrainedBox</code> 元件，可以對子元件進行約束。例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  UnconstrainedBox(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: 300,
+      ),
+      child: Container(
+        color: Colors.red,
+        width: 100,
+        height: 1000,
+      ),
+    ),
+  )
+);
+</code></pre>
+<p>這次故意在 <code>UnconstrainedBox</code> 中設定 <code>ConstrainedBox</code> 作為子元件，<code>BoxConstraints</code> 可以設定 <code>maxHeight</code>、<code>minHeight</code>、<code>maxWidth</code>、<code>minWidth</code>，也就是最大、最小的寬高約束，這次就不會 OVERFLOW 了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OVERFLOW-2.JPG" alt="OVERFLOW 是啥？"  /></div></div></p>
+<p>要注意的是，<code>ConstrainedBox</code> 是根據 <code>constraints</code>，對子元件施加<strong>額外</strong>限制，例如：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  UnconstrainedBox(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: 150,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: 300,
+        ),
+        child: Container(
+          color: Colors.red,
+          width: 100,
+          height: 1000,
+        ),
+      ),
+    ),
+  )
+);
+</code></pre>
+<p>上面的範例中，<code>ConstrainedBox</code> 中還有 <code>ConstrainedBox</code>，雖然內層的 <code>maxHeight</code> 是 300，然而外層的 <code>maxHeight</code> 已設定為 150，內層並不能大於外層，這時內層的 <code>maxHeight</code> 就會被忽略：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/OVERFLOW-3.JPG" alt="OVERFLOW 是啥？"  /></div></div></p>
+<p>相對應地，如果外層設定了 <code>minWidth</code>，<code>minHeight</code>，內層的 <code>ConstrainedBox</code> 設定的 <code>minWidth</code>，<code>minHeight</code>，就不能小於外層。</p>
+<p>因此，若 <code>ConstrainedBox</code> 作為 <code>runApp</code> 的根元件，<code>constraints</code> 只會被忽略，例如，底下也是整個螢幕都是紅色的：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(
+  ConstrainedBox(
+    constraints: BoxConstraints(
+      maxHeight: 300,
+    ),
+    child: Container(
+      color: Colors.red,
+      width: 100,
+      height: 1000,
+    ),
+  )
+);
+</code></pre>
+<p>因為 <code>ConstrainedBox</code> 作為根元件，最大、最小寬高被約束為螢幕尺寸，這時等於你怎麼設 <code>ConstrainedBox</code> 的 <code>maxHeight</code>、<code>minHeight</code>、<code>maxWidth</code>、<code>minWidth</code> 來約束都沒有用，因為不能違反螢幕尺寸的最大、最小寬高約束。</p>
+<p>為什麼 <code>Row</code> 或 <code>Column</code> 會容易出現 OVERFLOW 呢？<code>Row</code> 或 <code>Column</code> 預設不會對子元件作出約束，像是〈<a href="Expanded.html">Expanded 子元件</a>〉中第一個範例，<code>Column</code> 取得整個螢幕作為可用空間，子元件在沒有約束的情況下垂直排列，超出螢幕空間，也就 OVERFLOW 了。</p>
+<p>結論就是，元件是否會 OVERFLOW，雖然主要是在於，元件尺寸是否超過了被配給的可用空間，然而可用空間有多少，必須搞清楚父子元件之間是否有約束關係。</p>
+<p>另外，約束關係往往在決定了元件的 <code>width</code>、<code>height</code> 之類的設定是否生效，如果你設定了 <code>width</code>、<code>height</code> 卻沒有生效，也許就是父元件做出了約束。</p>
+<p>另外，有些元件的 <code>width</code>、<code>height</code> 設定，往往也會被拿來作為約束的參考，<code>Container</code> 就是個例子，它本身也可以設定 <code>constraints</code>，與 <code>width</code>、<code>height</code> 的關係可以從建構式的原始碼中得知：</p>
+<pre class="prettyprint"><code lang="dart">Container({
+  Key key,
+  this.alignment,
+  this.padding,
+  this.color,
+  this.decoration,
+  this.foregroundDecoration,
+  double width,
+  double height,
+  BoxConstraints constraints,
+  this.margin,
+  this.transform,
+  this.child,
+  this.clipBehavior = Clip.none,
+}) : assert(margin == null || margin.isNonNegative),
+     assert(padding == null || padding.isNonNegative),
+     assert(decoration == null || decoration.debugAssertIsValid()),
+     assert(constraints == null || constraints.debugAssertIsValid()),
+     assert(clipBehavior != null),
+     assert(color == null || decoration == null,
+       'Cannot provide both a color and a decoration\n'
+       'To provide both, use "decoration: BoxDecoration(color: color)".'
+     ),
+     constraints = // width 與 height 會作為約束的來源資料
+      (width != null || height != null)
+        ? constraints?.tighten(width: width, height: height)
+          ?? BoxConstraints.tightFor(width: width, height: height)
+        : constraints,
+     super(key: key);
+</code></pre>
+<p>有些 Flutter 的內建元件，在內部的組建過程中，可能各自有 <code>Align</code>、<code>Container</code>、<code>ConstrainedBox</code> 之類的元件組成，因此情況可能更複雜，搞清楚這一切最好的方式，其實就在於 API 文件與原始碼，當然，如果想要有個比較簡單的開始，除了這邊的整理之外，也可以參考官方文件〈<a href="https://flutter.dev/docs/development/ui/layout/constraints">Understanding constraints</a>〉。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

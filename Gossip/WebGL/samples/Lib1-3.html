@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>A simple lib</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 vertexPosition;
+            attribute vec2 texturePosition;
+
+            varying vec2 vTexturePosition;
+    
+            void main(void) {
+                gl_Position = vec4(vertexPosition.x, vertexPosition.y * aspect, vertexPosition.z, 1.0);
+                vTexturePosition = texturePosition;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            
+            uniform sampler2D sampler;
+            
+            varying vec2 vTexturePosition;
+
+            void main(void) {
+                gl_FragColor = texture2D(sampler, vTexturePosition);
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {GL, shaderSourceById, downloadImage, Renderer, CubeGeometry, TextureAtlasMaterial, Mesh} from './js/gl-comm-2.js';
+
+            function rotateXY(verteices, ax, ay) {
+                const sinax = Math.sin(ax);
+                const cosax = Math.cos(ax);
+                const sinay = Math.sin(ay);
+                const cosay = Math.cos(ay);
+
+                for(let i = 0; i < verteices.length; i += 3) {
+                    const [x, y, z] = [verteices[i], verteices[i + 1], verteices[i + 2]];
+                    const z1 = -x * sinay + z * cosay;
+                    verteices[i] = x * cosay + z * sinay;
+                    verteices[i + 1] = y * cosax - z1 * sinax;
+                    verteices[i + 2] = y * sinax + z1 * cosax;
+                }
+            }
+
+            async function go() {
+                const image = await downloadImage('images/cube_earth.png');
+
+                const canvas = document.getElementById('glCanvas');
+
+                const renderer = new Renderer(
+                    shaderSourceById('vertex-shader'), 
+                    shaderSourceById('fragment-shader'),
+                    canvas
+                );
+
+                renderer.uniform1f('aspect', canvas.clientWidth / canvas.clientHeight);
+                renderer.setClearColor(0, 0, 0, 1);
+
+                const material = new TextureAtlasMaterial(image, TextureAtlasMaterial.DEFAULT_CUBEMAP_TEXTURE_CORDS);
+                const geometry = new CubeGeometry(0.5);
+                const cube = new Mesh(geometry, material);
+                
+                const vertBuffer = renderer.buffer(GL.ARRAY_BUFFER, geometry.verteices, GL.DYNAMIC_DRAW);
+                renderer.enableVertexAttribArray(vertBuffer, 'vertexPosition', 3);
+
+                const textureCordBuffer = renderer.buffer(GL.ARRAY_BUFFER, material.textureCords, GL.STATIC_DRAW);
+                renderer.enableVertexAttribArray(textureCordBuffer, 'texturePosition', 2);
+                
+                renderer.buffer(GL.ELEMENT_ARRAY_BUFFER, geometry.indexes, GL.STATIC_DRAW);
+
+                renderer.bindTexture(GL.TEXTURE_2D, renderer.texture2D(material.image));
+                renderer.activeTexture(GL.TEXTURE0);
+                renderer.uniform1i('sampler', 0);
+
+                rotateXY(geometry.verteices, -Math.PI / 3, Math.PI / 3);
+
+                function drawCube() {
+                    renderer.clear();
+                    renderer.bindBuffer(GL.ARRAY_BUFFER, vertBuffer);
+                    renderer.bufferSubData(GL.ARRAY_BUFFER, 0, geometry.verteices);
+                    renderer.render(cube);
+                    
+                    rotateXY(geometry.verteices, 0, 0.025);                    
+
+                    requestAnimationFrame(drawCube);
+                }
+
+                drawCube();
+            }
+
+            go();
+        </script>
+    </body>
+</html>

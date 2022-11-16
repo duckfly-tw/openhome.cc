@@ -1,0 +1,163 @@
+<!doctype html><html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Why WebAssembly? For most developers, it's not necessary to learn WebAssembly (wasm) directly. After...">
+
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Compiling C to WebAssembly">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/eGossip/WebAssembly/C2Wasm.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="Why WebAssembly? For most developers, it's not necessary to learn WebAssembly (wasm) directly. After...">
+
+    <title>Compiling C to WebAssembly</title>
+
+    <link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="C2Wasm.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Compiling C to WebAssembly</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>Why WebAssembly? For most developers, it's not necessary to learn WebAssembly (wasm) directly. After all, there are more and more tools that compile one language X to WebAssembly.</p>
+<p>Common examples today are Go, Kotlin, Rust, etc. The repo <a href="https://github.com/appcypher/awesome-wasm-langs">Awesome WebAssembly Languages</a> contains a list of languages that currently compile to or have their VMs in WebAssembly.</p>
+<p>Front-end developers may take a look at <a href="https://github.com/AssemblyScript/assemblyscript">AssemblyScript</a>. It compiles strictly typed TypeScript (basically JavaScript with types) to WebAssembly. For most web developers used to writing JavaScript, it may be an easier option to learn and compile code to WebAssembly.</p>
+<p>Over the past 3 months, I've been working on a programming language called <a href="https://github.com/JustinSDK/toy_lang">ToyLang</a>. It uses a simple parser to build a JavaScript AST evaluated directly by a JavaScript engine. If there is a chance in the future, I'll try a language which complies code to bytecode. Learning WebAssembly text format seems a great way to get familiar with how to handle bytecode.</p>
+<p>There are many options to get started with WebAssembly today. The most known project is <a href="https://github.com/kripken/emscripten">Emscripten</a> which takes LLVM bitcode - which can be generated from C/C++ - and compiles that into JavaScript. Emscripten now supports compiling to WebAssembly, too.</p>
+<p>The most common example is compiling C to WebAssembly. Some online tools even enable this in your browser, such as <a href="https://wasdk.github.io/WasmFiddle/">WasmFiddle</a>.</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/C2Wasm-1.JPG" alt="Compiling C to WebAssembly"  /></div></div></p>
+<p>Type C code in the top left editor and click &ldquo;Build&rdquo;. It compiles C to WebAssembly and shows the text format in the bottom. The WebAssembly text format is what I want to learn primarily. You may type JavaScript in the top right editor if you know how to use WebAssembly JavaScript API. It shows an example about how to invoke the <code>add</code> function. Click &ldquo;Run&rdquo; if you want to see the result.</p>
+<p>Compiling C to WebAssembly doesn't mean WebAssembly is as fast as C. Making WebAssembly fast is a goal, not the current status. You are executing WebAssembly, not C.</p>
+<p>In WasFiddlel, you may click &ldquo;Wasm&rdquo; to download a compiled &ldquo;.wasm&ldquo;. The default name is &ldquo;program.wasm&rdquo;. After downloading, write a html file.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;    
+    WebAssembly.instantiateStreaming(fetch('program.wasm'))
+               .then(prog =&gt; {
+                   console.log(prog.instance.exports.add(1, 2)); 
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>In the future, browser will support <code>script</code> tag with <code>type = "module"</code> to load a WebAssembly module. Currently, you can use Fetch API (or <code>XMLHttpRequest</code>). One of WebAssembly JavaScript API is <code>WebAssembly.instantiateStreaming</code>. Passing the result of the <code>fetch</code> function to <code>WebAssembly.instantiateStreaming</code> is the simplest way to compile and instantiate a WebAssembly module.</p>
+<p><code>WebAssembly.instantiateStreaming</code> returns <code>Promise</code>. After completing the task, you get an object which contains two properties, <code>module</code> and <code>instance</code>. The <code>module</code> property is an instance of <code>WebAssembly.Module</code>. It contains stateless WebAssembly code that has already been compiled by the browser. The <code>instance</code> property is an instance of <code>WebAssembly.Instance</code>. It contains all the exported WebAssembly functions that allow calling into WebAssembly code from JavaScript.</p>
+<p>(<code>WebAssembly.Instance.prototype</code> is not an instance of <code>WebAssembly.Module</code>. In WebAssembly JavaScript API, the instance of <code>WebAssembly.Module</code> only provides the module information while constructing the instance of <code>WebAssembly.Instance</code>.)</p>
+<p>In the above example, we only care about the exported <code>add</code> function. It can be obtained through the <code>export</code> property of the instance of <code>WebAssembly.Instance</code>. The example shows 3 in the console. Don't forget a HTTP server because you use Fetch API to fetch .wasm.</p>
+<p>You can invoke functions imported from JavaScript. For example, type the folloing code in WasmFiddle.</p>
+<pre class="prettyprint"><code lang="wat">void log(int n);
+int add(int n1, int n2) {
+  int result = n1 + n2;
+  log(result);
+  return result;
+}
+</code></pre>
+<p>After clicking &ldquo;Build&rdquo;, WasmFiddle generates the WebAssembly text format bellow.</p>
+<pre class="prettyprint"><code lang="wat">(module
+ (type $FUNCSIG$vi (func (param i32)))
+ (import "env" "log" (func $log (param i32)))
+ (table 0 anyfunc)
+ (memory $0 1)
+ (export "memory" (memory $0))
+ (export "add" (func $add))
+ (func $add (; 1 ;) (param $0 i32) (param $1 i32) (result i32)
+  (call $log
+   (tee_local $1
+    (i32.add
+     (get_local $1)
+     (get_local $0)
+    )
+   )
+  )
+  (get_local $1)
+ )
+)
+</code></pre>
+<p>Currently, you can only have a look at <code>import</code>. The imported function <code>"log"</code> is a property of the imported object <code>"env"</code>. The name <code>"env"</code> can be customized. The result of using <code>"env"</code> here is that WasmFiddle uses <code>"env"</code> as the name of the imported object when compiling C to WebAssembly.</p>
+<p>After downloading &ldquo;program.wasm&rdquo;, create a HTML.</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+    const importObj = {
+        env: {
+            log: n =&gt; console.log(n)
+        }
+    };
+
+    WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj)
+               .then(prog =&gt; {
+                   console.log(prog.instance.exports.add(1, 2)); 
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>After executing the script, the console displays two 3s. One is from the <code>log</code> function in the <code>add</code> function. The other is the returned value of <code>add</code> and written to the console by <code>console.log</code>.</p>
+<p>The process of compiling C to WebAssembly helps us to understand a basic process of how to use WebAssembly.</p>
+<ul>
+<li>Write code in a language</li>
+<li>Compile to &ldquo;.wasm&ldquo;</li>
+<li>Load &ldquo;.wasm&ldquo; in a browser</li>
+<li>Use WebAssembly JavaScript API to compile and instantiate the module</li>
+<li>Call exported WebAssembly functions in JavaScript</li>
+</ul>
+<p>In later documents, you'll use WebAssembly text format. Compiling C to WebAssembly, however, is still helpful because you can observe the WebAssembly text format to know corresponding WebAssembly instructions.</p>
+<p>Modern browsers, such as Chrome and Firefox, already have some support for WebAssembly debugging. That's one of the results why we need to understand WebAssembly text format.</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../../Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

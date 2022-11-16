@@ -1,0 +1,75 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Scala沒有public關鍵字，在Scala中，沒有使用任何存取修飾的類別成員（不加private也不加protected），就是公開成員（不包括類別參數，類別參數預設是private[this] ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="存取修飾">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/AccessModifier.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Scala沒有public關鍵字，在Scala中，沒有使用任何存取修飾的類別成員（不加private也不加protected），就是公開成員（不包括類別參數，類別參數預設是private[this] ...">
+
+
+    <title>存取修飾</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="AccessModifier.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>存取修飾</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            Scala沒有public關鍵字，在Scala中，沒有使用任何存取修飾的類別成員（不加private也不加protected），就是公開成員（不包括類別參數，類別參數預設是private[this] val），例如：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    val x = 10          // 預設是公開<br>    def plus = x + 1    // 預設是公開<br>}</code></pre><br>如果定義成員時，使用protected，則表示該成員僅讓繼承後的子類別內部來使用（如果你熟悉Java，請注意，protected在Scala中沒有套件存取的權限）：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    <span style="font-weight: bold;">protected</span> val x = 10   // protected 成員<br>}<br><br>class Other extends Some {<br>    def plus = x + 1       // 可在子類別中使用<br>}</code></pre><br>如果定義成員時，使用private，就僅可在類別內部使用，或者同一類別的實例，在類別內部可以透過實例來使用（如果你熟悉Java，請注意，Java中，外部類別可以直接存取內部類別的private成員，但Scala不行），例如：<br><pre class="prettyprint"><code lang="scala">class Outer {<br>    class Inner {<br>        <span style="font-weight: bold;">private</span> val x = 10<br>        def plus = x + 1<br>    }<br>    // 下面這行移除註解會編譯錯誤<br>    // (new Inner).x <br><br>    private val y = 10<br>    def doMe(o: Outer) = <span style="font-weight: bold;">o.y</span> + y  // o 在 Outer 中可以直接存取 y<br>}</code></pre><br><span style="font-weight: bold;">protected或private存取修飾可以加上量詞（Qualifier），語法為private[X]或protected[X]，X可以是類別、套件或單例物件，這表示權限修飾到X的範圍。</span><br><br>舉個例子來說，下面這個可以通過編譯：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    private val x = 10<br>    def doSome(s: Some) = s.x + x<br>}</code></pre><br>如果你要更嚴格的修飾，讓x完全無法透過實例存取，則可以使用private[this]，這表示私有化至this實例本身才可以存取，也就是所謂<span style="font-weight: bold;">物件私有（Object-private）</span>，例如以下就通不過編譯了：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    private<span style="font-weight: bold;">[this]</span> val x = 10<br>    def doSome(s: Some) = s.x + x  // 編譯錯誤<br>}</code></pre><br>私有化至this實例本身才可以存取，就是說，該成員完全僅可在類別內部使用，所以編譯錯誤的訊息為：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">error: value x is not a member of this.Some</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; def doSome(s: Some) = s.x + x</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+^</span><br></div><br>伴侶類別與伴侶物件預設彼此可以互相存取私有成員，例如：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    private val x = 10<br>    def minus = Some.y - 1<br>}<br><br>object Some {<br>    private val y = 10<br>    val s = new Some<br>    def plus = s.x + 1<br>}</code></pre><br>但下面這個會編譯錯誤：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    <span style="font-weight: bold;">private[this]</span> val x = 10<br>    def minus = Some.y - 1<br>}<br><br>object Some {<br>    private val y = 10<br>    val s = new Some<br>    def plus = s.x + 1   // 編譯錯誤<br>}</code></pre><br>錯誤訊息如下：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">error: value x is not a member of this.Some</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; def doSome(s: Some) = s.x + x</span><br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+^</span><br></div><br>下面這個也會編譯錯誤：<br><pre class="prettyprint"><code lang="scala">class Some {<br>    private val x = 10<br>    def minus = Some.y - 1  // 編譯錯誤<br>}<br><br>object Some {<br><span style="font-weight: bold;">    private[this] val y = 10</span><br>    val s = new Some<br>    def plus = s.x + 1<br>}</code></pre><br>錯誤訊息如下：<br><div style="margin-left: 40px;"><span style="font-weight: bold;">error: value y is not a member of object this.Some<br>&nbsp;&nbsp; def minus = Some.y - 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^</span><span style="font-weight: bold;"></span><br></div><br>在Scala中，protected並沒有套件範圍存取權限，這是因為你可以使用量詞修飾，達到套件存取權限的作用，例如，以下通不過編譯：<br><pre class="prettyprint"><code lang="scala">package cc.openhome<br>class Some {<br>    protected val x = 10<br>}<br><br>class Other {<br>    val s = new Some<br>    def get = s.x        // 編譯錯誤<br>}</code></pre><br>由於protected沒有套件存取權限，所以編譯錯誤的訊息為：<br><div style="margin-left: 40px;">error: value x cannot be accessed in cc.openhome.Some<br>&nbsp;&nbsp;&nbsp; def get = s.x<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^<br></div><br>但以下就可以編譯成功，因為你使用量詞修飾protected範圍至指定的套件層級，也就是所謂<span style="font-weight: bold;">套件私有（Package-private）</span>：<br><pre class="prettyprint"><code lang="scala">package cc.openhome<br>class Some {<br><span style="font-weight: bold;">    protected[openhome]</span> val x = 10<br>}<br><br>class Other {<br>    val s = new Some<br>    def get = s.x<br>}</code></pre><br>你不僅可以指定至openhome套件，你可以指定任何一層套件，例如：<br><pre class="prettyprint"><code lang="scala">package cc.openhome<br>class Some {<br><span style="font-weight: bold;">    protected[cc]</span> val x = 10<br>}<br><br>class Other {<br>    val s = new Some<br>    def get = s.x<br>}</code></pre><br>再看看先前的例子，原先通不過編譯：<br><pre class="prettyprint"><code lang="scala">class Outer {<br>    class Inner {<br>        private val x = 10<br>        def plus = x + 1<br>    }<br>    (new Inner).x  // 編譯錯誤<br>}</code></pre><br>編譯錯誤的訊息為：<br><div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">error: value x cannot be accessed in Outer.this.Inner</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; (new Inner).x</span><br><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^</span><br></div><br>你可以指定private防護層級至外部類別，也就是所謂<span style="font-weight: bold;">類別私有（Class-private）</span>（讓外部類別可以存取內部類別的private成員，也就是如同Java的作法），例如以下可以通過編譯：<br><span style="font-family: Courier New,Courier,monospace;"></span><pre class="prettyprint"><code lang="scala">class Outer {<br>    class Inner {<br>        <span style="font-weight: bold;">private[Outer]</span> val x = 10<br>        def plus = x + 1<br>    }<br>    (new Inner).x <br>}</code></pre><br>總而言之，private、protected看似可修飾的權限很少，但加上private[X]、protected[X]，就可以讓你指定更細部的權限控制。<br><br><br>
+      
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

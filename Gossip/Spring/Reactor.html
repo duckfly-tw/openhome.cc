@@ -1,0 +1,157 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="來認識一下如何使用 Reactor，同樣地，使用 Gradle 來管理相依程式庫，因此可以建立你的 Gradle 專案，然後在 build.gradle 中加入：
+compile 'io.projec...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="初試 Reactor">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/Reactor.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="來認識一下如何使用 Reactor，同樣地，使用 Gradle 來管理相依程式庫，因此可以建立你的 Gradle 專案，然後在 build.gradle 中加入：
+compile 'io.projec...">
+
+    <title>初試 Reactor</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Reactor.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>初試 Reactor</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>來認識一下如何使用 Reactor，同樣地，使用 Gradle 來管理相依程式庫，因此可以建立你的 Gradle 專案，然後在 build.gradle 中加入：</p>
+<pre class="prettyprint"><code lang="java">compile 'io.projectreactor:reactor-core:3.2.3.RELEASE'
+testCompile 'io.projectreactor:reactor-test:3.2.3.RELEASE'
+</code></pre>
+<p><code>reactor-core</code> 是 Reactor 核心，然而，測試資料流其實是件有挑戰性的事情（想想看，你怎麼測試 Stream API 實作的功能），為此，Reactor 提供了 <code>reactor-test</code>，可以透過其 <code>StepVerifier</code> 來協助測試。</p>
+<p>先來寫個簡單的程式，假設你有個資料來源（或許是來自網路、資料庫等），最後取得了一個 <code>List&lt;String&gt;</code>，後續程式有其他部份，都會對這個來源感興趣，並有自己的處理流程，而處理過後的資料，也會有各自感興趣的輸出：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.util.Arrays;
+import java.util.List;
+
+import reactor.core.publisher.Flux;
+
+import static java.lang.System.out;
+
+public class FsttReactor {
+    public static void main(String[] args) {
+        List&lt;String&gt; skillSource = Arrays.asList("java", "python", "javascript");
+
+        Flux&lt;String&gt; skills = Flux.fromIterable(skillSource);
+        Flux&lt;String&gt; upperSkills = skills.map(String::toUpperCase);
+        Flux&lt;String&gt; chars = upperSkills.flatMap(skill -&gt; Flux.fromArray(skill.split("")));
+
+        chars.subscribe(out::print);
+        out.println();
+        upperSkills.subscribe(out::println);
+        skills.subscribe(out::print);
+    }
+}
+</code></pre>
+<p>若來源可能有 0 到 多個資料，可以使用 <code>Flux</code>，它是個 <code>Publisher</code> 實作，若程式上來源是 <code>Iterable</code> 實例，可以使用 <code>Flux</code> 的 <code>fromIterable</code> 來建立 <code>Flux</code> 實例，後續可以使用 <code>map</code> 來做處理轉換，若處理轉換過程，需要組合另一個 <code>Flux</code>，可以使用 <code>flatMap</code>，對於某個 <code>Flux</code> 資料流有興趣的話，可以使用 <code>subscribe</code>，它有多個重載版本，這邊使用的是接受 <code>Consumer</code> 的版本，直接透過方法參考語法，將標準輸出作為訂閱者。</p>
+<p>試著執行程式的話，就會看到各自的訂閱者，依各自的資料流輸出了各自的結果：</p>
+<pre class="prettyprint"><code lang="java">JAVAPYTHONJAVASCRIPT
+JAVA
+PYTHON
+JAVASCRIPT
+javapythonjavascript
+</code></pre>
+<p>你可能有不同型態的來源，<code>Flux</code> 有多個 fromXXX 方法，像是 <code>fromStream</code> 可接受 <code>Stream</code>，<code>fromArray</code> 可接受陣列、<code>from</code> 可接受 <code>Publisher</code> 等，如果已經有個別的資料，也可以透過 <code>just</code> 方法來設定（just 這個名稱應該是來自 Haskell 中 <code>Maybe</code> 的建構式之一 <code>Just</code>）：</p>
+<pre class="prettyprint"><code lang="java">Flux&lt;String&gt; skills = Flux.just("java", "python", "javascript");
+</code></pre>
+<p><code>Flux</code> 代表 0 到多個資料的發佈者，對於 0 的情況，可以使用 <code>Flux.just()</code>，不過建議使用 <code>Flux.empty()</code> 比較清楚，當然，<code>Flux</code> 上頭還有許多方法，之後有機會用到再來談，你也可以查看一下 API 文件稍微先瞭解一下。</p>
+<p>對於 0 或 1 個資料的發佈者，例如，資料庫查詢時 <code>findUserById</code> 之類的方法，有一個或沒有的情況，這方法若想傳回一個發佈者，可以使用 <code>Mono</code>，例如：</p>
+<pre class="prettyprint"><code lang="java">Mono.just("X1234").subscribe(out::println)
+Mono.fromSupplier(() -&gt; request("X1234")).subscribe(out::println);
+Mono.justOrEmpty(instanceOrNull("X1234")).subscribe(out::println);
+</code></pre>
+<p><code>justOrEmpty</code> 也有可以接受 <code>Optional</code> 的版本，<code>Mono</code> 也有多個 <code>fromXXX</code> 版本，像是 <code>fromRunnable</code>、<code>fromCallable</code>、<code>fromFuture</code> 等，便於銜接各式的資料來源。</p>
+<p>基本上，上述的這些方法，在訂閱者 <code>subscribe</code> 前，發佈者並不會進行發佈，若想直接觸發發佈者，可以使用無引數的 <code>subscribe()</code>。</p>
+<p>就以上的例子來說，有訂閱者進行了 <code>subscribe</code> 的話，訂閱處理會是在同一個執行緒進行，可以透過 <code>subscribeOn</code> 安排在其他執行緒。</p>
+<p>就這邊的範例來說，無論何時有訂閱者進行了 <code>subscribe</code>，都收到了一開始被發佈的資料，在 Reactive 的術語說詞中，這屬於冷流（Cold stream）發佈者，之後有機會再來談談熱流（Hot stream）發佈者，也就是後續訂閱者，只會收到訂閱之後才發佈的資料。</p>
+<p>那麼，該怎麼進行測試呢？直接來看個例子，這應該不需要多解釋些什麼：</p>
+<pre class="prettyprint"><code lang="java">import org.junit.Test;
+
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+public class ReactorTest {
+
+    private Flux&lt;String&gt; skills() {
+        return Flux.just("java", "python", "javascript");
+    }
+
+    @Test
+    public void testSkills() {
+        StepVerifier.create(skills())
+                    .expectNext("java", "python", "javascript")
+                    .expectComplete()
+                    .verify();
+    }
+
+    @Test
+    public void testUpperSkills() {
+        StepVerifier.create(skills().map(String::toUpperCase))
+                    .expectNext("JAVA", "PYTHON", "JAVASCRIPT")
+                    .expectComplete()
+                    .verify();
+    }
+}
+</code></pre>
+
+<p>對 Reactor 在測試方面提供的輔助有興趣的話，可以進一步參考官方文件 <a href="https://projectreactor.io/docs/core/release/reference/#testing">Testing</a> 的內容。</p>
+
+<p>你可以在 <a href="https://github.com/JustinSDK/Spring5Tutorial/tree/master/labs/solutions/Reactor/Reactor">Reactor</a> 找到以上的範例專案。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

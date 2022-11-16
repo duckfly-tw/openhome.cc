@@ -1,0 +1,123 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="想要進行目錄、檔案等的操作，基本上就是查看 os 套件，可以使用的函式很多，逐一談好像也沒太大意義，基本上若對目錄、檔案以及權限等有所認識，應該查查文件、搜尋一些範例，大致就知道怎麼用吧！
+無論如何，...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="檔案操作">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/File.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="想要進行目錄、檔案等的操作，基本上就是查看 os 套件，可以使用的函式很多，逐一談好像也沒太大意義，基本上若對目錄、檔案以及權限等有所認識，應該查查文件、搜尋一些範例，大致就知道怎麼用吧！
+無論如何，...">
+
+    <title>檔案操作</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="File.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>檔案操作</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>想要進行目錄、檔案等的操作，基本上就是查看 <code>os</code> 套件，可以使用的函式很多，逐一談好像也沒太大意義，基本上若對目錄、檔案以及權限等有所認識，應該查查文件、搜尋一些範例，大致就知道怎麼用吧！</p>
+<p>無論如何，輸入輸出中最基本的就是檔案讀寫，至今為止看過，要開啟檔案進行讀取的話，使用的是 <code>os.Open</code> 函式，這會以唯讀方式開啟既有的檔案（否則會有 <code>PathError</code>）：</p>
+<pre class="prettyprint"><code lang="golang">func Open(name string) (*File, error)
+</code></pre>
+<p>如果要指定讀寫方式與權限的話，要使用 <code>os.OpenFile</code>：</p>
+<pre class="prettyprint"><code lang="golang">func OpenFile(name string, flag int, perm FileMode) (*File, error)
+</code></pre>
+<p><code>flag</code> 可以指定的常數有：</p>
+<pre class="prettyprint"><code lang="golang">const (
+    // 必須指定 O_RDONLY、O_WRONLY 或 O_RDWR
+    O_RDONLY int = syscall.O_RDONLY // 唯讀
+    O_WRONLY int = syscall.O_WRONLY // 唯寫
+    O_RDWR   int = syscall.O_RDWR   // 讀寫
+    // 接下來這些可以用 | 的方式附加行為
+    O_APPEND int = syscall.O_APPEND // 寫入時使用附加方式
+    O_CREATE int = syscall.O_CREAT  // 檔案不存在時建立新檔
+    O_EXCL   int = syscall.O_EXCL   // 與 O_CREATE 併用，檔案必須不存在
+    O_SYNC   int = syscall.O_SYNC   // 以同步 I/O 開啟
+    O_TRUNC  int = syscall.O_TRUNC  // 檔案開啟時清空文件
+)
+</code></pre>
+<p><code>perm</code> 的話是檔案<a href="https://en.wikipedia.org/wiki/Chmod#Octal_modes">八進位權限</a>，例如 0777；另外，還有個 <code>os.Create</code>，實現上就是使用 <code>OpenFile</code> 以 0666 的方式建立可讀寫的檔案（清空文件）：</p>
+<pre class="prettyprint"><code lang="golang">func Create(name string) (*File, error) {
+    return OpenFile(name, O_RDWR|O_CREATE|O_TRUNC, 0666)
+}
+</code></pre>
+<p><code>Open</code>、<code>OpenFile</code> 或 <code>Create</code> 都會傳回 <code>*os.File</code>；另外還有個 <code>NewFile</code>，多數情況下用不到，主要是在將檔案描述（File descriptor）以 <code>*os.File</code> 來表示，例如，<code>os.Stdin</code>、<code>os.Stdout</code>、<code>os.Stderr</code>，在〈<a href="StdOutInErr.html">從標準輸入、輸出認識 io</a>〉看過它的使用：</p>
+<pre class="prettyprint"><code lang="golang">var (
+    Stdin  = NewFile(uintptr(syscall.Stdin), "/dev/stdin")
+    Stdout = NewFile(uintptr(syscall.Stdout), "/dev/stdout")
+    Stderr = NewFile(uintptr(syscall.Stderr), "/dev/stderr")
+)
+</code></pre>
+<p><code>syscall.Stdin</code>、<code>syscall.Stdout</code>、<code>syscall.Stderr</code> 分別是標準輸入、輸出、錯誤的檔案描述，這在 <a href="https://golang.org/pkg/syscall/#pkg-variables"><code>syscall</code> 的文件</a>可以看到：</p>
+<pre class="prettyprint"><code lang="golang">var (
+    Stdin  = 0
+    Stdout = 1
+    Stderr = 2
+)
+</code></pre>
+<p><code>os.File</code> 實作了 <code>io.Reader</code>、<code>io.Writer</code> 等行為，因此只要知道〈<a href="ReaderWriter.html">io.Reader、io.Writer</a>〉，剩下的就是查詢文件，看看有哪些方法可以使用，沒什麼特別需要示範的了，倒是若需要簡單的檔案讀寫，可以看看 <a href="https://golang.org/pkg/io/ioutil/"><code>ioutil</code> 套件</a>，其中有些簡便的函式：</p>
+<pre class="prettyprint"><code lang="golang">func NopCloser(r io.Reader) io.ReadCloser
+func ReadAll(r io.Reader) ([]byte, error)
+func ReadDir(dirname string) ([]os.FileInfo, error)
+func ReadFile(filename string) ([]byte, error)
+func TempDir(dir, prefix string) (name string, err error)
+func TempFile(dir, pattern string) (f *os.File, err error)
+func WriteFile(filename string, data []byte, perm os.FileMode) error
+</code></pre>
+<p><code>ReadFile</code>、<code>WriteFile</code> 只要指定檔案名稱等，程式碼上不需要自行建立檔案、緩衝區之類的，這些函式在 <a href="https://golang.org/pkg/io/ioutil/"><code>ioutil</code> 套件</a> 的文件中，都有範例可以參考。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

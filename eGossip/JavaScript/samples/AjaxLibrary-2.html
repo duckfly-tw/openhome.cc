@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+        <script type="text/javascript" src="js/gossip-0.5.js"></script>
+        <script type="text/javascript">
+            XD.bind(window, 'load', function() {
+                XD('#category').change(function() {
+                    XD.get('XML-1.php', {category : this.value}, 
+                        function(responseXML) {
+                            var select = XD('<select>')[0];
+                            var options = 
+                              responseXML.getElementsByTagName('option');
+                            XD.each(options, function(option) {
+                                var value = option.getAttribute('value');
+                                var text = option.firstChild.nodeValue;
+                                if(navigator.userAgent
+                                            .indexOf('MSIE') === -1) {
+                                    select.add(new Option(text, value), 
+                                        select.options[
+                                           select.options.length]);
+                                }
+                                else {
+                                    select.add(new Option(text, value),
+                                        select.options.length);
+                                }
+                            });
+                            XD('#book').removeChilds().append(select);
+                        },
+                    'xml');
+                });
+            });
+        </script>        
+    <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+    <body>
+        Book: <br>
+        <select id="category">
+            <option>-- Category --</option>
+            <option value="theory">Theory</option>
+            <option value="language">Language</option>
+            <option value="web">Web</option>
+        </select><br><br>
+        Buy: <div id="book"></div>
+    </body>
+</html>

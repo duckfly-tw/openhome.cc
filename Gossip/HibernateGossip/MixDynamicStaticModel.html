@@ -1,0 +1,320 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="接續 動
+態模型（Dynamic
+Model） 的內容，有時為了設計上的彈性，動態模型也可以與靜態的POJO模型混用，例如預設您會使用POJO，但有時您可能使用Map收集一些資料，然後存入資料表中...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="混用靜態模型與動態模型">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/MixDynamicStaticModel.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="接續 動
+態模型（Dynamic
+Model） 的內容，有時為了設計上的彈性，動態模型也可以與靜態的POJO模型混用，例如預設您會使用POJO，但有時您可能使用Map收集一些資料，然後存入資料表中...">
+
+
+    <title>混用靜態模型與動態模型</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MixDynamicStaticModel.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>混用靜態模型與動態模型</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             接續 <a href="DynamicModel.html">動
+態模型（Dynamic
+Model）</a> 的內容，有時為了設計上的彈性，動態模型也可以與靜態的POJO模型混用，例如預設您會使用POJO，但有時您可能使用Map收集一些資料，然後存入資料表中，或者是用一個POJO來映射多個表格，但有時藉由entity name來指定要取出哪個表格的資料。<br>
+
+
+
+      <br>
+
+
+
+要混用靜態模型與動態模型，基本上是同時在HBM上設定name與entity-name屬性，例如：<br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+
+
+      &lt;hibernate-mapping&gt; <br>
+
+
+
+      &nbsp;&nbsp;&nbsp; &lt;class name="onlyfun.caterpillar.User"<br>
+
+
+
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entity-name="UserEntity" <br>
+
+
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table="T_USER"&gt; <br>
+
+
+
+      &nbsp; &nbsp; ...<br>
+
+
+
+      &lt;/hibernate-mapping&gt;<br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+如上設定之後，在進行資料儲存時，可以如下進行：<br>
+
+
+
+      
+      
+      
+      
+      <div style="margin-left: 40px;">User user = new User(); <br>
+
+
+
+      user.setName("caterpillar"); <br>
+
+
+
+      user.setAge(new Long(30)); <br>
+
+
+
+      <br>
+
+
+
+      Session session = HibernateUtil.getSessionFactory().openSession(); <br>
+
+
+
+      Transaction tx= session.beginTransaction(); <br>
+
+
+
+      session.save(<span style="color: rgb(255, 0, 0);">"UserEntity"</span>, user);<br>
+
+
+
+      tx.commit(); <br>
+
+
+
+      session.close(); <br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+特別注意，必須指定entity-name，方可進行儲存，而在查詢資料時，可以如下所示：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session session = HibernateUtil.getSessionFactory().openSession();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">List users = session.createQuery("from UserEntity").list();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(int i = 0; i &lt; users.size(); i++) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; User user = (User) users.get(i);</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; System.out.println(user.getName() + "\t" + user.getAge());</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+      </div>
+
+
+      <br>
+
+
+可以看到，預設是採用POJO來進行儲存，查詢也是以POJO傳回資料，如果現在程式需要以動態模型的方式來進行儲存，則可以如下：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Map user = new HashMap();<br>
+
+
+user.put("name", "caterpillar");<br>
+
+
+user.put("age", new Long(30));<br>
+
+
+      <br>
+
+
+Session session = HibernateUtil.getSessionFactory().openSession();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session dynamicSession = <span style="color: rgb(255, 0, 0);">session.getSession(EntityMode.MAP);</span></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction tx= dynamicSession.beginTransaction();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">dynamicSession.save("UserEntity", user);</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">tx.commit();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.close(); </span><br>
+
+
+      </div>
+
+
+      
+      <br>
+
+
+注意不需要特別關閉使用getSession()方法取得的Session，它會隨著父Session而關閉，如果是查詢資料的話，道理也是相同：<br>
+
+
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session session = HibernateUtil.getSessionFactory()</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.openSession().<span style="color: rgb(255, 0, 0);">getSession(EntityMode.MAP);</span></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">List users = session.createQuery("from UserEntity").list();</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(int i = 0; i &lt; users.size(); i++) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; Map user = (Map) users.get(i);</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; System.out.println(user.get("name") + "\t" + user.get("age"));</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.close();</span><br>
+
+
+      </div>
+
+
+      
+      <br>
+
+除了以程式動態改變模型設定之外，您還可以在hibernate.cfg.xml中設定default_entity_mode為dynamic-map，表示全部採用動態模式，不過這會影響整個程式，並不建議使用。<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">&lt;property name="default_entity_mode"&gt;dynamic-map&lt;/property&gt;</span><br>
+
+      </div>
+
+      <br>
+
+      <br>
+
+
+
+  
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

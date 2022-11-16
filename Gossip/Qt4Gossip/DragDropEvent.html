@@ -1,0 +1,313 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="想
+要在圖形元件上啟用拖放功能，可以使用QWidget上所繼承下來的setAcceptDrops()方法，設定元件接受拖放動作，在拖放動作發生時，會
+有相對應的QDragEnterEvent、QD...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="拖放事件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/DragDropEvent.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="想
+要在圖形元件上啟用拖放功能，可以使用QWidget上所繼承下來的setAcceptDrops()方法，設定元件接受拖放動作，在拖放動作發生時，會
+有相對應的QDragEnterEvent、QD...">
+
+
+    <title>拖放事件</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DragDropEvent.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>拖放事件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             想
+要在圖形元件上啟用拖放功能，可以使用QWidget上所繼承下來的setAcceptDrops()方法，設定元件接受拖放動作，在拖放動作發生時，會
+有相對應的QDragEnterEvent、QDragMoveEvent、QDragLeaveEvent與QDropEvent等事件發生，您可以重
+新定義dragEnterEvent()、dragMoveEvent()、dragLeaveEvent()與dropEvent()等事件處理者，以
+處理相對應的拖放事件，通常會使用的是dragEnterEvent()與dropEvent()。<br>
+
+
+
+
+      <br>
+
+
+
+
+以下是一個簡單的拖放事件處理程式，您可以將圖檔拖放至QLabel上，QLabel會自動載入圖片並顯示出來：<br>
+
+
+
+
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>ImageLabel.h</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#ifndef IMAGE_LABEL_H<br>#define IMAGE_LABEL_H<br><br>#include &lt;QLabel&gt;<br><br>class QDragEnterEvent;<br>class QDropEvent;<br><br>class ImageLabel : public QLabel {<br>   Q_OBJECT<br>   <br>public:<br>    ImageLabel(QWidget *parent = 0);<br><br>protected:<br>    void dragEnterEvent(QDragEnterEvent *event);<br>    void dropEvent(QDropEvent *event);<br><br>private:<br>    void readImage(const QString &amp;fileName);<br>};<br><br>#endif</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+
+
+
+      ImageLabel繼承了QLabel，並且將重新定義dragEnterEvent()及dropEvent()，以處理
+對應的拖放事件，readImage()則會在拖放圖檔至QLabel上時，將圖片檔案載入並設定給QLabel來顯示，ImageLabel的實作如
+下：<br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>ImageLabel.cpp</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QDragEnterEvent&gt;<br>#include &lt;QDropEvent&gt;<br>#include &lt;QUrl&gt;<br>#include &lt;QFile&gt;<br>#include &lt;QTextStream&gt;<br>#include "ImageLabel.h"<br><br>ImageLabel::ImageLabel(QWidget *parent) : QLabel(parent) {<br>    this-&gt;setAcceptDrops(true);<br>}<br><br>void ImageLabel::dragEnterEvent(QDragEnterEvent *event) {<br>    if(event-&gt;mimeData()-&gt;hasFormat("text/uri-list")) {<br>        event-&gt;acceptProposedAction();<br>    }<br>}<br><br>void ImageLabel::dropEvent(QDropEvent *event) {<br>    QList&lt;QUrl&gt; urls = event-&gt;mimeData()-&gt;urls();<br>    if (urls.isEmpty()) {<br>        return;<br>    }<br>    <br>    QString fileName = urls.first().toLocalFile();<br>    if (fileName.isEmpty()) {<br>        return;<br>    }<br>    <br>    this-&gt;setWindowTitle(fileName);<br>    readImage(fileName);<br>}<br><br>void ImageLabel::readImage(const QString &amp;fileName) {<br>    QPixmap pixmap(fileName);<br>    this-&gt;setPixmap(pixmap);<br>    this-&gt;resize(pixmap.width(), pixmap.height());<br>}</code></pre>
+
+
+
+
+      <span><br>
+
+
+
+
+      setAcceptDrops(true)設定接受拖放，當圖片檔案被拖入元件時，發生QDragEnterEvent並分派
+給dragEnterEvent()處理。QDragEnterEvent的mimeData()方法傳回QMimeData，當中包括了MIME
+（Multipurpose Internet Mail
+Extensions）類型的相關資訊，hasFormat("text/uri-list")測試是否含有文字資訊的URI（Universal
+Resource
+Identifier），也可以使用hasUrls()來進行同樣的測試。<br>
+
+
+
+      <br>
+
+
+
+當拖放行為開始執行時，執行拖放行為的一方會需要知道接受放置的另一方接受何種操作，例如拖放檔案時，當拖放完成時，原檔案是被複製或移動。</span><span>執行拖放行為的一方會設定可被接受的動作，而接受放置的一方可選擇接受何種動作，並傳回相關資訊給執行方</span><span>，</span><span>acceptProposedAction()的作用為接受</span><span>執行拖放行為的一方所設定的預設動作。</span><br>
+
+
+
+      <span>
+      <br>
+
+
+
+
+當放置時會發生QDropEvent並分派給dropEvent()來處理，QMimeData的urls()取得所拖放檔案的QUrl，由於您所拖放的
+檔案可能不只一個，所以urls()傳回的是內含QUrl的QList物件，您取得第一個QUrl並取得檔名資訊，再進行圖檔的讀取並設定至QLabel
+上。<br>
+
+
+
+
+      <br>
+
+
+
+
+可以撰寫以下的程式來執行：<br>
+
+
+
+
+      </span>
+      
+      
+      
+      
+      <ul>
+
+
+
+
+        <li>main.cpp</li>
+
+
+
+
+      
+      
+      
+      
+      </ul>
+
+
+
+
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QApplication&gt;<br>#include &lt;QMainWindow&gt;<br>#include "ImageLabel.h"<br>#include &lt;QTextEdit&gt;<br><br>int main(int argc, char **argv) {<br>    QApplication app(argc, argv);<br>    <br>    ImageLabel *imgLabel = new ImageLabel;<br>    imgLabel-&gt;setWindowTitle("Drag &amp; Drop");<br>    imgLabel-&gt;setText("&lt;center&gt;Drag &amp; Drop Image here&lt;/center&gt;");<br>    imgLabel-&gt;resize(300, 200);<br>    imgLabel-&gt;show();<br><br>    return app.exec();<br>}</code></pre>
+
+
+
+
+      <span><br>
+
+
+
+
+執行時，元件若可以進行拖放，則會出現相關的游標以提醒使用者，在Windows下是個「+」的游標：<br>
+
+
+
+
+      <br>
+
+
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/DragDropEvent-1.jpg" /></div></div><br>
+
+
+
+
+      <br>
+
+
+
+
+有些元件預設即接受拖放行為，例如QLineEdit，您可以直接將文字拖曳至QLineEdit，這會將拖曳的文字置放至您置放的位置，若您想改變這個
+行為，可以設定QLineEdit的setAcceptDrops()為false，然後設定其父元件的setAcceptDrops()為true，讓
+拖放事件傳播至父元件，由父元件來處理拖放相關事件，以改變QLineEdit的預設拖放行為，例如讓純文字檔案拖至QLineEdit時，可以自動載入
+文字至QLineEdit中。<br>
+
+
+
+
+      <br>
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

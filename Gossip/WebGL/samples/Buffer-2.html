@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Buffer</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            attribute vec3 position;
+            
+            void main(void) {
+                gl_Position = vec4(position, 1.0);
+                gl_PointSize = 5.0;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            void main(void) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+            const gl = getGLContext(document.getElementById('glCanvas'));
+            const prog = installProgram(gl, 
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader')
+            );
+            
+            // 正三角頂點
+            const verteices = [
+                 0.25, 0.0, 0.0,
+                 0.0, 0.433, 0.0,
+                -0.25, 0.0, 0.0
+            ];
+
+            // 建立、指定、綁定 Buffer
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);
+
+            const attr_position = gl.getAttribLocation(prog, 'position');
+            gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+            gl.enableVertexAttribArray(attr_position);
+
+            // 繪製
+            let i = 0;
+            let modes = [gl.LINE_STRIP, gl.LINE_LOOP, gl.TRIANGLES];
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(modes[i], 0, 3);
+            
+            gl.canvas.addEventListener('mousedown', () => {
+                i = (i + 1) % 3;
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(modes[i], 0, 3);
+            });
+
+        </script>
+    </body>
+</html>

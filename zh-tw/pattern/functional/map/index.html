@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈Pattern matching〉看過這個範例： def doubleIt(lt): match lt: case []: return [] case [head, *tail]: return [head * 2] &#43; doubleIt(tail) map 映射 你可能會想把一組資料全部乘 2，那麼可以使用上面的 d">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::Map" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/map/" />
+    <meta property="og:description" content="在〈Pattern matching〉看過這個範例： def doubleIt(lt): match lt: case []: return [] case [head, *tail]: return [head * 2] &#43; doubleIt(tail) map 映射 你可能會想把一組資料全部乘 2，那麼可以使用上面的 d" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::Map" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/map/" />
+    <meta name="twitter:description" content="在〈Pattern matching〉看過這個範例： def doubleIt(lt): match lt: case []: return [] case [head, *tail]: return [head * 2] &#43; doubleIt(tail) map 映射 你可能會想把一組資料全部乘 2，那麼可以使用上面的 d" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443693" type="image/x-icon">
+    <title> 漫談模式  :: Map</title>
+    <link href="../../../css/nucleus.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443693.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443693"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/functional/map/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item"><a href="../../behavioral/index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../../behavioral/template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../../behavioral/chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../../behavioral/command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../../behavioral/iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../../behavioral/strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../../behavioral/observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../../behavioral/state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../../behavioral/visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../../behavioral/interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../../behavioral/memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../../behavioral/mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item parent"><a href="../index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="../immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="../pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item active"><a href="index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="../filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="../reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item"><a href="../flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">函數式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">Map</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#map-映射">map 映射</a></li>
+    <li><a href="index.html#回到命令式">回到命令式</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/functional-programming/index.html">functional programming</a>
+  <a class="tag-link" href="../../../tags/python/index.html">Python</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/lazy-evaluation/">lazy evaluation</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/functor/">Functor</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/comprehension/">comprehension</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>Map</h1>
+
+ <i class="space fa fa-calendar"> January 22, 2022</i> 
+<p>在〈<a href="../pattern-matching/index.html">Pattern matching</a>〉看過這個範例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">doubleIt</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> []      
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> [head <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>] <span style="color:#f92672">+</span> doubleIt(tail)
+</span></span></code></pre></div><h2 id="map-映射">map 映射</h2>
+<p>你可能會想把一組資料全部乘 2，那麼可以使用上面的 <code>doubleIt</code>，如果你想將一組資料加 3 呢？將一組資料平方？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">plus3</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> []      
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> [head <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>] <span style="color:#f92672">+</span> plus3(tail)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pow2</span>(lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> []      
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> [head <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>] <span style="color:#f92672">+</span> pow2(tail)
+</span></span></code></pre></div><p>嗯嗯？流程與 <code>doubleIt</code> 幾乎是一模一樣，除了 <code>head * 2</code>、<code>head + 3</code>、<code>head ** 2</code>、遞迴函式名稱不同？想對首元素做什麼，若可以傳入函式決定就可以的話，就可以抽取出一個 <code>map</code> 函式，來完成這些任務：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">map</span>(mapper, lt):
+</span></span><span style="display:flex;"><span>    match lt:
+</span></span><span style="display:flex;"><span>        case []:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> []      
+</span></span><span style="display:flex;"><span>        case [head, <span style="color:#f92672">*</span>tail]:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> [mapper(head)] <span style="color:#f92672">+</span> map(mapper, tail)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>]
+</span></span><span style="display:flex;"><span>doubled <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>, lt)
+</span></span><span style="display:flex;"><span>plus3 <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>, doubled)
+</span></span><span style="display:flex;"><span>pow2 <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>, plus3)
+</span></span></code></pre></div><p>實際上，Python 本身就有 <code>map</code> 函式，而且它傳回的會是產生器，差別在哪個，以上的範例，若最後想要的是 <code>pow2</code>，必須先迭代 <code>lt</code> 生成 <code>doubled</code>，這是一個 <code>list</code>，然後迭代 <code>doubled</code> 生成 <code>plus3</code>，這也是一個 <code>list</code>，最後再迭代 <code>plus3</code>，生成最後的 <code>list</code>。</p>
+<p>不過，若使用 Python 內建的 <code>map</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>]
+</span></span><span style="display:flex;"><span>doubled <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>, lt)
+</span></span><span style="display:flex;"><span>plus3 <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>, doubled)
+</span></span><span style="display:flex;"><span>pow2 <span style="color:#f92672">=</span> map(<span style="color:#66d9ef">lambda</span> n: n <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>, plus3)
+</span></span></code></pre></div><p><code>doubled</code> 是個產生器，實際上這時還沒真正進行迭代，<code>plus3</code>、<code>pow2</code> 也都是產生器，最後你想要什麼呢？一個 <code>list</code>？那就 <code>list(pow2)</code>，這時才會要求 <code>pow2</code> 產生器迭代，然後 <code>pow2</code> 要求 <code>plus3</code>，<code>plus3</code> 才開始處理，每處理一個元素乘 2，就交給下一層加 3，然後下一層做平方&hellip;</p>
+<p>也就是說這整個流程，實際上只會做一次迭代，這也是在〈<a href="../immutable.html">Immutable</a>〉中談到的，「根據任務的性質，也有不同的方式可以減少運算次數」，Python 的產生器，就是其中一個例子。</p>
+<p>實際上，對於映射這種任務，Python 更常使用的是 comprehension 表示式，這部份將一起在〈<a href="../filter/index.html">Filter</a>〉中說明。</p>
+<p>Java 的 Stream API 也具有這種惰性求值（lazy evaluation）的特性，每次的 <code>map</code> 操作會傳回 <code>Stream</code>，最後才有個終結操作，看指定使用哪種 <code>Collector</code>，以傳回想要的型態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var result <span style="color:#f92672">=</span> List<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> 2<span style="color:#f92672">,</span> 5<span style="color:#f92672">,</span> 8<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">*</span> 2<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">+</span> 3<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">*</span> n<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>Collectors<span style="color:#f92672">.</span><span style="color:#a6e22e">toList</span><span style="color:#f92672">());</span>
+</span></span></code></pre></div><p>不過，並不是每種語言的標準 API 都會有惰性求值就是了，例如，JavaScript 就沒有，每次的 <code>map</code> 操作，會傳回 <code>Array</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>].<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>                              .<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">n</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>                              .<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">n</span> =&gt; <span style="color:#a6e22e">n</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">n</span>);
+</span></span></code></pre></div><h2 id="回到命令式">回到命令式</h2>
+<p>方才談到了三個語言，都有 <code>map</code> 這類的 API，只是使用上風格不同，為什麼？想將一組數字乘 2、加 3、平方，命令式角度的話，很容易會想到用迴圈：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lt <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>doubled <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> lt:
+</span></span><span style="display:flex;"><span>    doubled<span style="color:#f92672">.</span>append(n <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>plus3 <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> lt:
+</span></span><span style="display:flex;"><span>    plus3<span style="color:#f92672">.</span>append(n <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pow2 <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> lt:
+</span></span><span style="display:flex;"><span>    pow2<span style="color:#f92672">.</span>append(n <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>)
+</span></span></code></pre></div><p>命令式中使用迴圈本身是沒什麼問題，就上例來說，也還算容易觀察出類似流程，可以抽取出來：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">map</span>(mapper, lt):
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> lt:
+</span></span><span style="display:flex;"><span>        result<span style="color:#f92672">.</span>append(mapper(n))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><p>不過，〈<a href="../immutable.html">Immutable</a>〉中談過，許多開發者很容易就出現順便在迴圈裡做個什麼行為的壞習慣，然後整個迴圈中的類似流程，就被埋沒了，變得難以抽取共用流程，從而只能不斷不斷地使用迴圈。</p>
+<p>〈<a href="../immutable.html">Immutable</a>〉中談過，若無法做 x = x + 1 這類動作，你就只能透過遞迴來做重複性的任務，因為無法做 x = x + 1 的動作，為了便於實作遞迴，你會自然地一次只做一次事，從而令流程不至於複雜，然後，很容易像這篇文件一開始的範例，馬上發現流程的相似性。</p>
+<p>最後你就會發現，你想做的就是將一組資料，映射為另一組資料，這是從比較高階的角度，來看待將一組數字乘 2、加 3、平方的需求，現代語言若有 <code>map</code> 這類元素，就是希望你面對一組資料的處理時，可以用這種高階角度來撰寫程式，避免不斷地寫出類似的迴圈，避免出現順便在迴圈裡做個什麼行為的壞習慣。</p>
+<p>而且這種對流程的高階抽象，還隱藏了效能增進的可能性，如果你親自寫迴圈來完成這類需求，採用的是外部迭代（External iteration），然而，若將實作細節隱藏在 <code>map</code> 裡，你使用 <code>map</code> 時，怎麼會知道 <code>map</code> 怎麼迭代呢？這是內部迭代（Internal iteration），因為內部迭代行為被隱藏了，也就有許多實現效率的可能性。</p>
+<p>Python 的產生器做法，是其中一個例子，Java 的 Stream API，甚至還有機會進行平行化來增進效能：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>var result <span style="color:#f92672">=</span> List<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> 2<span style="color:#f92672">,</span> 5<span style="color:#f92672">,</span> 8<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">parallelstream</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">*</span> 2<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">+</span> 3<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>n <span style="color:#f92672">-&gt;</span> n <span style="color:#f92672">*</span> n<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>Collectors<span style="color:#f92672">.</span><span style="color:#a6e22e">toList</span><span style="color:#f92672">());</span>
+</span></span></code></pre></div><p>面對一組資料，想逐一處理其中元素，成為另一組資料時，若使用的語言中，有 <code>map</code> 之類的 API，可以優先考慮該怎麼運用它們來完成需求，而不是第一時間想到迴圈。</p>
+<p>其實 Python 的話，還有 comprehension 的寫法，可以完成 <code>map</code> 的需求，這就下一篇文件再來談吧！</p>
+
+<div class="notices info">
+    <div class="label"></div><p>可以 <code>map</code> 的來源並不限於 <code>list</code>，也可能是樹狀結構等其他類型，例如，Java 的 <code>Collection</code> 具有 <code>stream</code> 方法可以建立 <code>Stream</code>，後續可以進行 <code>map</code> 操作，這表示 <code>TreeSet</code> 等結構，也是作為 <code>map</code> 來源，因此 <code>map</code> 可以再抽象化為指定 <code>a -&gt; b</code> 函式，將 <code>f a</code> 轉換為 <code>f b</code>（<code>f</code> 代表 <code>list</code>、樹狀等類型），這種再度抽象化後的概念就是 <a href="../../../haskell/advanced-typeclass/functor/index.html">Functor</a>。</p>
+
+</div>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/functional/map/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/functional/map/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aMap&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2ffunctional%2fmap%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../pattern-matching/index.html" title="Pattern matching"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../filter/index.html" title="Filter"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443693"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443693"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443693"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443693"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443693"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443693"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443693"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443693"></script>
+  </body>
+</html>

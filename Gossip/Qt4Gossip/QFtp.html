@@ -1,0 +1,141 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="QFtp在使用上與 QHttp 非常類似，只不過FTP機制比HTTP來得更為複雜一些，所以QFtp上可以進行的相關操作更為豐富，以下先製作一個簡單的程式，使用QFtp進行FTP檔案下載，首先是FtpG...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="QFtp">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Qt4Gossip/QFtp.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="QFtp在使用上與 QHttp 非常類似，只不過FTP機制比HTTP來得更為複雜一些，所以QFtp上可以進行的相關操作更為豐富，以下先製作一個簡單的程式，使用QFtp進行FTP檔案下載，首先是FtpG...">
+
+
+    <title>QFtp</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="QFtp.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Qt4 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>QFtp</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             QFtp在使用上與 <a href="QHttp.html">QHttp</a> 非常類似，只不過FTP機制比HTTP來得更為複雜一些，所以QFtp上可以進行的相關操作更為豐富，以下先製作一個簡單的程式，使用QFtp進行FTP檔案下載，首先是FtpGet的定義：<br>
+
+      
+      
+      <ul>
+
+        <li>FtpGet.h</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c++">#ifndef FTPGET_H<br>#define FTPGET_H<br><br>#include &lt;QObject&gt;<br><br>class QUrl;<br>class QFtp;<br>class QFile;<br><br>class FtpGet : public QObject {<br>    Q_OBJECT<br><br>public:<br>    FtpGet(QObject *parent = 0);<br>    void downloadFile(const QUrl &amp;url);<br>    <br>signals:<br>    void finished();<br>    <br>private slots:<br>    void done(bool error);<br>    <br>private:<br>    QFtp *ftp;<br>    QFile *file;<br>    <br>};<br><br>#endif</code></pre>
+
+
+
+
+
+
+
+
+
+
+      <span><br>
+
+      定義上與上一個QHttp故意設計的類似，基本上實作也非常接近：<br>
+
+      </span>
+      
+      <ul>
+
+        <li>FtpGet.cpp</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QtNetwork&gt;<br>#include &lt;QFile&gt;<br>#include &lt;iostream&gt;<br>#include "FtpGet.h"<br>using namespace std;<br><br>FtpGet::FtpGet(QObject *parent) : QObject(parent) {<br>    ftp = new QFtp(this);<br>    connect(ftp, SIGNAL(done(bool)), this, SLOT(done(bool)));<br>}<br><br>void FtpGet::downloadFile(const QUrl &amp;url) {<br>    QFileInfo fileInfo(url.path());<br>    QString fileName = fileInfo.fileName();<br><br>    file = new QFile(fileName);<br>    if (!file-&gt;open(QIODevice::WriteOnly)) {<br>        cerr &lt;&lt; "Unable to save the file" &lt;&lt; endl;<br>        delete file;<br>        file = 0;<br>        return;<br>    }<br>     <br>    ftp-&gt;setTransferMode(QFtp::Passive);<br>    ftp-&gt;connectToHost(url.host(), url.port(21));<br>    ftp-&gt;login("user", "passwd");<br>    ftp-&gt;get(url.path(), file);<br>    ftp-&gt;close();<br>}<br><br>void FtpGet::done(bool error) {<br>    if (error) {<br>        cerr &lt;&lt; "Error: " &lt;&lt; qPrintable(ftp-&gt;errorString()) &lt;&lt; endl;<br>    } else { <br>        cerr &lt;&lt; "File downloaded as " &lt;&lt; qPrintable(file-&gt;fileName())<br>             &lt;&lt; endl;<br>    }<br>    file-&gt;close();<br>    delete file;<br>    file = 0;<br>    <br>    emit finished();<br>}</code></pre>
+
+      <span><br>
+
+您可以使用QFtp的setTransferMode()來設定傳送模式，例如上面的程式設定為被動</span><span>（Passive）</span><span>模式，要連接至伺服器，使用connectToHost()方法，要登入則使用login()方法，下載檔案使用get()（上傳則使用put()）等，接下來寫個簡單的測試程式：<br>
+
+      </span>
+      
+      <ul>
+
+        <li>main.cpp</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="c++">#include &lt;QCoreApplication&gt;<br>#include &lt;QUrl&gt;<br>#include "FtpGet.h"<br>#include &lt;iostream&gt;<br>using namespace std;<br><br>int main(int argc, char *argv[]) {<br>    QCoreApplication app(argc, argv);<br>    <br>    FtpGet getter;<br>    getter.downloadFile(<br>        QUrl("ftp://caterpillar.onlyfun.net/public_html/index.html"));<br>    <br>    QObject::connect(&amp;getter, SIGNAL(finished()),<br>                     &amp;app, SLOT(quit()));<br>    <br>    return app.exec();<br>}</code></pre>
+
+      <span><br>
+
+在Qt的說明文件中，有個 <a href="http://doc.trolltech.com/4.3.3/network-ftp.html">FTP Example</a> 範例，您可以參考當中的程式，了解更多有關QFtp的使用方式。<br>
+
+      <br>
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+      </span> 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

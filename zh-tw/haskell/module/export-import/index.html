@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="到目前為止，你已經定義過一些函式，也可能遇過一些名稱衝突問題，例如，若在 .hs 中直接自定義一個 length 函式： length :: [a] -&gt; Int length [] = 0 length (_:xs) = 1 &#43; (length $ tail xs) 編譯時">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::定義與使用模組" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/module/export-import/" />
+    <meta property="og:description" content="到目前為止，你已經定義過一些函式，也可能遇過一些名稱衝突問題，例如，若在 .hs 中直接自定義一個 length 函式： length :: [a] -&gt; Int length [] = 0 length (_:xs) = 1 &#43; (length $ tail xs) 編譯時" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::定義與使用模組" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/module/export-import/" />
+    <meta name="twitter:description" content="到目前為止，你已經定義過一些函式，也可能遇過一些名稱衝突問題，例如，若在 .hs 中直接自定義一個 length 函式： length :: [a] -&gt; Int length [] = 0 length (_:xs) = 1 &#43; (length $ tail xs) 編譯時" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443680" type="image/x-icon">
+    <title> Haskell  :: 定義與使用模組</title>
+    <link href="../../../css/nucleus.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443680.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443680"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/module/export-import/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item parent"><a href="../index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item active"><a href="index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item"><a href="../../advanced-typeclass/index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../../advanced-typeclass/functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../../advanced-typeclass/applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../../advanced-typeclass/monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../../advanced-typeclass/do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../../advanced-typeclass/composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">模組</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">定義與使用模組</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#自定義模組">自定義模組</a></li>
+    <li><a href="index.html#匯入模組">匯入模組</a></li>
+    <li><a href="index.html#關於-main-模組">關於 Main 模組</a></li>
+    <li><a href="index.html#分層模組">分層模組</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/namespace/">namespace</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/module/">module</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/scope/">scope</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>定義與使用模組</h1>
+
+ <i class="space fa fa-calendar"> February 9, 2022</i> 
+<p>到目前為止，你已經定義過一些函式，也可能遇過一些名稱衝突問題，例如，若在 .hs 中直接自定義一個 <code>length</code> 函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">length</span> <span style="color:#f92672">::</span> [a] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">length</span> <span style="color:#66d9ef">[]</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">length</span> (<span style="color:#66d9ef">_</span><span style="color:#66d9ef">:</span>xs) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> (length <span style="color:#f92672">$</span> tail xs)
+</span></span></code></pre></div><p>編譯時就會發生「Ambiguous occurrence」的錯誤：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>    Ambiguous occurrence ‘length’
+</span></span><span style="display:flex;"><span>    It could refer to
+</span></span><span style="display:flex;"><span>       either ‘Prelude.length’,
+</span></span><span style="display:flex;"><span>              imported from ‘Prelude’ at test.hs:1:1
+</span></span><span style="display:flex;"><span>              (and originally defined in ‘Data.Foldable’)
+</span></span><span style="display:flex;"><span>           or ‘Main.length’, defined at test.hs:2:1
+</span></span><span style="display:flex;"><span>  |
+</span></span><span style="display:flex;"><span>3 | length (_:xs) = 1 + (length $ tail xs)
+</span></span><span style="display:flex;"><span>  |                      ^^^^^^
+</span></span></code></pre></div><p>之前使用過一些標準函式，像是 <code>filter</code>、<code>map</code> 等，這些是 Haskell 預先從 <code>Prelude</code> 模組匯入（import）的函式，<code>length</code> 函式也是其中之一。</p>
+<p>如果沒有為自訂名稱或函式等定義模組，那麼它們會是 <code>Main</code> 模組的一部份，因此想使用 <code>length</code> 這個函式時，編譯器就困惑了，你想使用的到底是 <code>Prelude.length</code>？還是 <code>Main.length</code> 呢？</p>
+<h2 id="自定義模組">自定義模組</h2>
+<p>來試著定義一個 <code>List</code> 模組，於其中自訂義 <code>List</code> 型態，並實現 <code>length</code>、<code>map</code> 等函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">module</span> List
+</span></span><span style="display:flex;"><span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">List</span>(<span style="color:#66d9ef">Empty</span>, <span style="color:#66d9ef">Con</span>),
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">map</span>
+</span></span><span style="display:flex;"><span>) <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Prelude <span style="color:#66d9ef">hiding</span> (<span style="color:#a6e22e">length</span>, <span style="color:#a6e22e">map</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">data</span> <span style="color:#66d9ef">List</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">Empty</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Con</span> a (<span style="color:#66d9ef">List</span> a) <span style="color:#66d9ef">deriving</span> <span style="color:#66d9ef">Show</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">length</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">List</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">length</span> <span style="color:#66d9ef">Empty</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">length</span> (<span style="color:#66d9ef">Con</span> <span style="color:#66d9ef">_</span> xs) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> (length xs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">List</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">List</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map</span> <span style="color:#66d9ef">_</span> <span style="color:#66d9ef">Empty</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">Empty</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map</span> mapper (<span style="color:#66d9ef">Con</span> x xs) <span style="color:#f92672">=</span> <span style="color:#66d9ef">Con</span> (mapper x) (map mapper xs)
+</span></span></code></pre></div><p>Haskell 使用 <code>module</code> 定義模組，如果希望模組名稱為 <code>List</code>，那麼 .hs 檔案的主檔名也要取為相同名稱，接著括號中定義了模組可匯出的名稱有哪些，當其他人使用你的模組時，只有這邊定義的名稱才會被看見。</p>
+<p>如果你自定義了資料型態，若想要其他人能使用值建構式，記得也要在括號中匯出；如果不想要別人使用值建構式，只能使用你提供的函式來建立值，可以不用匯出，如此一來，可以隱藏值的建立與模式匹配等細節。</p>
+<p>如果想將 <code>Prelude</code> 中預導入的函式隱藏起來，可以使用 <code>import Prelude hiding (name1, name2)</code>，這樣就不用迴避 <code>length</code>、<code>map</code> 等內建函式的命名。</p>
+<h2 id="匯入模組">匯入模組</h2>
+<p>接下來，可以建立另一個 .hs 檔案來使用以上自定義的 <code>Map</code> 模組，像是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Prelude <span style="color:#66d9ef">hiding</span> (<span style="color:#a6e22e">length</span>, <span style="color:#a6e22e">map</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> List
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> lt <span style="color:#f92672">=</span> <span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">Empty</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> length lt             <span style="color:#75715e">-- 顯示 3</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> map (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) lt  <span style="color:#75715e">-- 顯示 Con 2 (Con 4 (Con 6 Empty))</span>
+</span></span></code></pre></div><p>如果 List.hs 位於同一個目錄，可以直接以指令 <code>ghc Main.hs</code> 編譯，這會連同 List.hs 一同編譯，如果 List.hs 位於其他目錄，可以使用 <code>ghc -idir1:dir2:dir3 Main.hs</code> 進行編譯，其中 dir1 等是目錄名稱。</p>
+<p><code>import module</code> 語法，可讓 <code>module</code> 匯出的名稱全為可見，因此上面的範例可以直接使用 <code>length</code>、<code>map</code> 等名稱，為了不與內建的 <code>length</code>、<code>map</code> 衝突，一開始也撰寫了 <code>import Prelude hiding (length, map)</code>。</p>
+<p>如果只想要匯入其中幾個函式，可以使用 <code>import module (name1, name2)</code> 的格式，那麼就只有 <code>module</code> 匯出的 <code>name1</code>、<code>name2</code> 是可見的，如果想要匯入大部份名稱，但隱藏其中幾個名稱，就是使用方才看過的 <code>import module hiding (name1, name2)</code> 格式。</p>
+<p>如果想在匯入模組後，保留模組名稱作為名稱空間，可以使用 <code>import qualified module</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#66d9ef">qualified</span> List
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> lt <span style="color:#f92672">=</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Empty</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span>length lt             <span style="color:#75715e">-- 顯示 3</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span>map (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) lt  <span style="color:#75715e">-- 顯示 Con 2 (Con 4 (Con 6 Empty))</span>
+</span></span></code></pre></div><p>也可以使用其他名稱作為名稱空間，只要加上 <code>as</code> 來命名：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#66d9ef">qualified</span> List <span style="color:#66d9ef">as</span> Lt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> lt <span style="color:#f92672">=</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Empty</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span>length lt             <span style="color:#75715e">-- 顯示 3</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span>map (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) lt  <span style="color:#75715e">-- 顯示 Con 2 (Con 4 (Con 6 Empty))</span>
+</span></span></code></pre></div><p>如上所示，由於使用了 <code>import qualified List as Lt</code>，原 <code>Lt</code> 模組中的名稱，現在可使用 <code>LtLt</code> 作為名稱前置，也可以在 <code>import qualified</code> 時結合 <code>()</code> 或 <code>hiding</code>，來達到想要的名稱空間管理效果，例如，<code>import qualified List (length, map)</code> 或 <code>import qualified List as Lt hiding (length, map)</code>。</p>
+<h2 id="關於-main-模組">關於 Main 模組</h2>
+<p>如果沒有定義模組，就是屬於 <code>Main</code> 模組，以最簡單的這個程式來說：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> putStrLn <span style="color:#e6db74">&#34;哈囉！世界！&#34;</span>
+</span></span></code></pre></div><p>也可以明確定義出 <code>Main</code> 模組：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">module</span> Main <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> putStrLn <span style="color:#e6db74">&#34;Hello, world!&#34;</span>
+</span></span></code></pre></div><h2 id="分層模組">分層模組</h2>
+<p>隨著模組越來越多，需要管理的名稱空間會越來越多，檔案也越來越多，單層結構的模組就會不敷使用，可以建立分層模組，例如，若要將上頭的 <code>List</code>、<code>length</code>、<code>map</code>，改置於 <code>Util.List</code> 模組之中，那麼 List.hs 可以修改如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">module</span> Utill.List
+</span></span><span style="display:flex;"><span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">List</span>(<span style="color:#66d9ef">Empty</span>, <span style="color:#66d9ef">Con</span>),
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">map</span>
+</span></span><span style="display:flex;"><span>) <span style="color:#66d9ef">where</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Prelude <span style="color:#66d9ef">hiding</span> (<span style="color:#a6e22e">length</span>, <span style="color:#a6e22e">map</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 其餘同上</span>
+</span></span></code></pre></div><p>由於 <code>module</code> 定義了名稱 <code>Util.List</code>，你的 List.hs 也必須置於 Util 目錄底下，要使用這個模組，可以如下撰寫 Main.hs：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#66d9ef">qualified</span> Util.List <span style="color:#66d9ef">as</span> Lt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> lt <span style="color:#f92672">=</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Con</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Empty</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span>length lt             <span style="color:#75715e">-- 顯示 3</span>
+</span></span><span style="display:flex;"><span>    print <span style="color:#f92672">$</span> <span style="color:#66d9ef">Lt</span><span style="color:#f92672">.</span>map (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>) lt  <span style="color:#75715e">-- 顯示 Con 2 (Con 4 (Con 6 Empty))</span>
+</span></span></code></pre></div><p>在使用 <code>ghc</code> 指令編譯 Main.hs 時，可以使用 <code>-rdir1:dir2:dir2</code> 來指定分層模組的起始目錄，例如指定 <code>ghc -iMyModule Main.hs</code>，那麼，在 MyModule 目錄下，就要包括你的 Util 目錄。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/module/export-import/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/module/export-import/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e5%ae%9a%e7%be%a9%e8%88%87%e4%bd%bf%e7%94%a8%e6%a8%a1%e7%b5%84&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fmodule%2fexport-import%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../index.html" title="模組"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../list-set-map/index.html" title="Data.List/Set/Map 模組"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443680"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443680"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443680"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443680"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443680"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443680"></script>
+  </body>
+</html>

@@ -1,0 +1,207 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="〈3D 入門〉中談過，相機不過就是種比喻，因為它擁有可以調整觀察的位置、方向等參數，除了相機之外，還有其他調整觀察的方式。
+例如，3D 物件是繪製於一個立體空間之中，就 p5.js 的觀點來看，這個空...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="正交投影">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/Ortho.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="〈3D 入門〉中談過，相機不過就是種比喻，因為它擁有可以調整觀察的位置、方向等參數，除了相機之外，還有其他調整觀察的方式。
+例如，3D 物件是繪製於一個立體空間之中，就 p5.js 的觀點來看，這個空...">
+
+    <title>正交投影</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Ortho.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 P5JS</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>正交投影</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>〈<a href="WebGL.html">3D 入門</a>〉中談過，相機不過就是種比喻，因為它擁有可以調整觀察的位置、方向等參數，除了相機之外，還有其他調整觀察的方式。</p>
+<p>3D 物件是繪製於一個立體空間之中，就 p5.js 的觀點來看，這個空間就是觀察範圍，而預設的座標範圍是以畫布大小來決定，在 x 軸的最小座標是 <code>-width / 2</code>，最大為 <code>width / 2</code>，在 y 軸的最小是 <code>-height / 2</code>，最大為 <code>height / 2</code>，在 z 軸的最小座標為 <code>-max(width, height) / 2</code>，最大是 <code>max(width, height) / 2</code>，3D 物件的資訊超出這個範圍的就不會繪製。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-1.JPG" alt="正交投影"  /></div></div></p>
+<p>因為預設的觀察範圍與畫布大小，在尺寸上是一比一對應的，因此基本上，你繪製的 3D 物件，在不改變立體空間大小的情況下，只要用畫布的 <code>width</code>、<code>height</code> 來作為邊界判斷，就可以決定 3D 物件畫出來的大小、位置等。</p>
+<p>有時候，你不一定想要一比一的對應，例如，在畫布尺寸不變下，你可能會自行縮小 3D 物件尺寸（例如，100 變為 50），採用更小的座標單位（例如，從 1 變為 0.5），以便呈現更大的場景。</p>
+<p>相對於這個想法，就是就是重新定義空間座標範圍，例如，為 x 軸 <code>-width</code> 至 <code>width</code>，在 y 軸 <code>-height</code> 至 <code>height</code> 等，如此一來，不用改變 3D 物件大小，也不用自行採用更小的座標單位，因為畫布尺寸不變，相當於擴大觀察範圍，看到的 3D 物件就會變小。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-2.JPG" alt="正交投影"  /></div></div></p>
+<p>若是縮小空間座標範圍，相當於縮小觀察範圍，這時將觀察到的物件繪入原尺寸畫布，看到的 3D 物件就會變大，如果立體空間不足以繪製 3D 物件，那 3D 物件超出立體空間的部份就不會繪製。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-3.JPG" alt="正交投影"  /></div></div></p>
+<p>簡單來說，就相當於觀察的視野變大或變小，這種觀察方式被稱為正交投影（Orthogonal projection）。</p>
+<p>為了能自訂觀察範圍，p5.js 提供了個 <code>ortho</code>，它擁有 <code>left</code>, <code>right</code>、<code>bottom</code>，<code>top</code>、<code>near</code>、<code>far</code> 等參數，<code>left</code> 是觀察範圍可用的最左邊界的座標值（負值），<code>right</code> 是最右邊界座標值（正值），<code>top</code> 是最上邊界座標值（正值），<code>bottom</code> 是最下邊界座標值（負值），<code>near</code> 與 <code>far</code> 不是座標值，<code>near</code> 是觀察範圍與投影面（也就是畫布）近的那面之距離，<code>far</code> 是遠的那面之距離：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-4.JPG" alt="正交投影"  /></div></div></p>
+<p>可以使用以下的範例來驗證上述的說明：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">let orthoArgs 
+function setup() {
+    createCanvas(300, 300, WEBGL);
+    angleMode(DEGREES);
+
+    orthoArgs = [
+        [-width / 2, width / 2, -height / 2, height / 2],
+        [-width, width, -height, height],
+        [-width / 4, width / 4, -height / 4, height / 4],
+    ]; 
+	ortho(...orthoArgs[0]);
+    
+}
+
+let a = 0;
+function draw(){
+    background(220);
+
+    axes(width / 2);
+
+    rotateX(a);
+  
+    box(100);
+
+    a++;
+}
+
+// 繪製座標軸
+function axes(length) {
+    const LL = length * 0.95;
+    const SL = length * 0.05;
+
+    push();
+    // x 軸
+    stroke(255, 0, 0);
+    line(0, 0, length, 0);
+    line(length, 0, LL, SL);
+    line(length, 0, LL, -SL);
+
+    // y 軸
+    stroke(0, 255, 0);
+    line(0, 0, 0, length);
+    line(0, length, SL, LL);
+    line(0, length, -SL, LL);
+
+    // z 軸
+    stroke(0, 0, 255);
+    line(0, 0, 0, 0, 0, length);
+    line(0, 0, length, SL, 0, LL);
+    line(0, 0, length, -SL, 0, LL);
+    pop();
+}
+
+let i = 0;
+function mousePressed() {
+    i = (i + 1) % 3;
+    ortho(...orthoArgs[i]);
+}
+</script>
+<p><code>ortho</code> 的 <code>near</code> 與 <code>far</code> 預設為 <code>0</code> 與 <code>max(width, height)</code>，因此以上範例沒有指定，因為觀察範圍足以涵蓋立方體，實際上 <code>left</code>, <code>right</code>、<code>bottom</code>，<code>top</code> 不用設定各自相反數，或比例放大縮小，因為 <code>left</code>, <code>right</code>、<code>bottom</code>，<code>top</code>、<code>near</code>、<code>far</code> 會用來計算觀察範圍的中心，然後 3D 物件的座標資訊，會轉換為相對於觀察範圍中心點之座標，這部份可參考〈<a href="https://openhome.cc/Gossip/P5JS/OrthographicProjection.html">正交投影矩陣</a>〉）。</p>
+<p><code>ortho</code> 可以跟 <code>camera</code> 結合使用（底層是兩個轉換矩陣的運算），這時可以想像，相機與觀察範圍的近面是連動的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-5.JPG" alt="正交投影"  /></div></div></p>
+<p>如果你移動相機，觀察範圍也會跟著一起動：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Ortho-6.JPG" alt="正交投影"  /></div></div></p>
+<p>因此要注意觀察範圍是否涵蓋 3D 物件，例如，底下將相機拉遠的話，只會看到立方體的一部份在轉：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+	createCanvas(300, 300, WEBGL);
+	angleMode(DEGREES);
+
+	camera(width / 2, width / 2, height / 2, 0, 0, 0, 0, 1, 0);
+	ortho(-width / 2, width / 2, -height / 2, height / 2);
+	
+}
+
+let a = 0;
+function draw(){
+	background(220);
+
+	axes(width / 2);
+
+	rotateX(a);
+  
+	box(100);
+
+	a++;
+}
+
+// 繪製座標軸
+function axes(length) {
+	const LL = length * 0.95;
+	const SL = length * 0.05;
+
+	push();
+	// x 軸
+	stroke(255, 0, 0);
+	line(0, 0, length, 0);
+	line(length, 0, LL, SL);
+	line(length, 0, LL, -SL);
+
+	// y 軸
+	stroke(0, 255, 0);
+	line(0, 0, 0, length);
+	line(0, length, SL, LL);
+	line(0, length, -SL, LL);
+
+	// z 軸
+	stroke(0, 0, 255);
+	line(0, 0, 0, 0, 0, length);
+	line(0, 0, length, SL, 0, LL);
+	line(0, 0, length, -SL, 0, LL);
+	pop();
+}
+
+let zoomIn = true;
+function mousePressed() {
+	zoomIn = !zoomIn;
+	camera(width / 2, width / 2, zoomIn ? height / 2 : height, 0, 0, 0, 0, 1, 0);
+}
+</script>
+<p>實際上，p5.js 預設使用透視投影（Perspective projection），這可以讓 3D 物件近相機的部份看來比較大，離相機遠的看來比較小，這將在下一篇文件再來看看…</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

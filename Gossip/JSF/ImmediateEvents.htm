@@ -1,0 +1,338 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="所謂的即時事件（Immediate Events），是指JSF視圖元件在取得請求中該取得的值之後，即立即處理指定的事件，而不再進行後續的轉換器處理、驗證器處理、更新模型值等流程。
+
+      ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="即時事件">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JSF/ImmediateEvents.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="所謂的即時事件（Immediate Events），是指JSF視圖元件在取得請求中該取得的值之後，即立即處理指定的事件，而不再進行後續的轉換器處理、驗證器處理、更新模型值等流程。
+
+      ...">
+
+
+    <title>即時事件</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImmediateEvents.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JSF 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>即時事件</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+
+
+
+
+所謂的即時事件（Immediate Events），是指JSF視圖元件在取得請求中該取得的值之後，即立即處理指定的事件，而不再進行後續的轉換器處理、驗證器處理、更新模型值等流程。<br>
+
+      <br>
+
+
+在JSF的事件模型中會有所謂即時事件，導因於Web應用程式的先天特性不同於GUI程式，所以JSF的事件模式與GUI程式的事件模式仍有相當程度的不同，一個最基本的問題正因為HTTP無狀態的特性，使得Web應用程式天生就無法直接喚起伺服端的特定物件。<br>
+
+      <br>
+
+
+所有的物件喚起都是在伺服端執行的，至於該喚起什麼物件，則是依一個基本的流程：<br>
+
+      
+
+
+      
+      <ul>
+
+        <li>回復畫面（Restore View）</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">依客戶端傳來的session資料或伺服端上的session資料，回復JSF畫面元件。<br>
+
+
+      </div>
+
+
+      
+      <ul>
+
+        <li>套用請求值（Apply Request Values）</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">JSF畫面元件各自獲得請求中的值屬於自己的值，包括舊的值與新的值。<br>
+
+
+      </div>
+
+
+      
+      <ul>
+
+        <li>執行驗證（Process Validations）</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">轉換為物件並進行驗證。<br>
+
+
+      </div>
+
+
+      
+      <ul>
+
+        <li>更新模型值（Update Model Values）</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 80px;">更新Bean或相關的模型值。<br>
+
+
+      </div>
+
+
+      
+      <ul>
+
+        <li>喚起應用程式（Invoke Application）</li>
+
+      
+      </ul>
+
+
+      
+      <div style="margin-left: 40px;">執行應用程式相關邏輯。<br>
+
+
+      </div>
+
+
+      
+      <ul>
+
+        <li>繪製回應畫面（Render Response）</li>
+
+      
+      </ul>
+
+
+      <br>
+
+
+對先前的請求處理完之後，產生畫面以回應客戶端執行結果。<br>
+
+      <br>
+
+
+對於動作事件（Action Event）來說，元件的動作事件是在套用請求值階段就生成ActionEvent物件了，但相關的事件處理並不是馬上進行，ActionEvent會先被排入佇列，然後必須再通過驗證、更新模式值階段，之後才處理佇列中的事件。<br>
+
+      <br>
+
+
+這樣的流程對於按下按鈕然後執行後端的應用程式來說不成問題，但有些事件並不需要這樣的流程，例如只影響畫面的事件。<br>
+
+      <br>
+
+
+舉個例子來說，在表單中可能有使用者名稱、密碼等欄位，並提供有一個地區選項按鈕，使用者可以在不填下按鈕的情況下，就按下地區選項按鈕，如果依照正常的流程，則會進行驗證、更新模型值、喚起應用程式等流程，但顯然的，使用者名稱與密碼是空白的，這會引起不必要的錯誤。<br>
+
+      <br>
+
+
+您可以設定元件的事件在套用請求值之後立即被處理，並跳過後續的階段，直接進行畫面繪製以回應請求，對於JSF的input與command元件，都有一個immediate屬性可以設定，只要將其設定為true，則指定的事件就成為立即事件。<br>
+
+      <br>
+
+
+一個例子如下：
+
+
+
+
+      <br>
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>index.jsp</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %&gt;<br>&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;<br>&lt;%@page contentType="text/html;charset=UTF8"%&gt;<br><br>&lt;f:view locale="#{user.locale}"&gt;<br>&lt;f:loadBundle basename="messages" var="msgs"/&gt;<br><br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;&lt;h:outputText value="#{msgs.titleText}"/&gt;&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br><br>    &lt;h:form&gt;<br>        &lt;h3&gt;&lt;h:outputText value="#{msgs.hintText}"/&gt;&lt;/h3&gt;<br>        &lt;h:outputText value="#{msgs.nameText}"/&gt;:<br>                &lt;h:inputText value="#{user.name}"/&gt;&lt;p&gt;<br>        &lt;h:outputText value="#{msgs.passText}"/&gt;: <br>                &lt;h:inputSecret value="#{user.password}"/&gt;&lt;p&gt;         <br>        &lt;h:commandButton value="#{msgs.commandText}" <br>                        action="#{user.verify}"/&gt;                  <br>        &lt;h:commandButton value="#{msgs.Text}" <br>                      immediate="true"                         <br>                      actionListener="#{user.changeLocale}"/&gt;<br>   &lt;/h:form&gt;<br><br>&lt;/body&gt;<br>&lt;/html&gt;<br>	<br>&lt;/f:view&gt;</code></pre>
+
+
+      <br>
+
+      
+這是一個可以讓使用者決定使用語系的示範，最後一個commandButton元件被設定了immediate屬性，當按下這個按鈕後，JSF套用請求值
+之後會立即處理指定的actionListener，而不再進行驗證、更新模型值，簡單的說，就這個程式來說，您在輸入欄位與密碼欄位中填入的值，不會影
+響您的user.name與user.password。<br>
+
+      <br>
+
+
+基於範例的完整起見，我們列出這個程式Bean物件及faces-config.xml：
+      <br>
+
+
+      
+      <ul>
+
+        <li>UserBean.java</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import javax.faces.event.ActionEvent;<br><br>public class UserBean {<br>    private String locale = "en";<br>    private String name;<br>    private String password;<br>    private String errMessage;<br>   <br>    public void changeLocale(ActionEvent e) {<br>        if(locale.equals("en"))<br>            locale = "zh_TW";<br>        else<br>            locale = "en";<br>    }<br>    <br>    public String getLocale() {<br>        if (locale == null) {<br>            locale = "en";<br>        }<br>        return locale;<br>    }<br>    <br>    public void setName(String name) {<br>        this.name = name;<br>    }<br>   <br>    public String getName() {<br>        return name;<br>    }<br>   <br>    public void setPassword(String password) {<br>        this.password = password;<br>    }<br>   <br>    public String getPassword() {<br>        return password;<br>    }<br>   <br>    public void setErrMessage(String errMessage) {<br>        this.errMessage = errMessage;<br>    }<br>   <br>    public String getErrMessage() {<br>        return errMessage;<br>    }<br>   <br>    public String verify() {<br>        if(!name.equals("justin") ||<br>           !password.equals("123456")) {<br>            errMessage = "名稱或密碼錯誤";<br>            return "failure";<br>        }<br>        else {<br>            return "success";<br>        }<br>    }<br>}</code></pre>
+
+
+      <br>
+
+
+      
+      <ul>
+
+        <li>faces-config.xml</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0"?&gt;<br>&lt;!DOCTYPE faces-config PUBLIC<br> "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"<br> "http://java.sun.com/dtd/web-facesconfig_1_0.dtd"&gt;<br><br>&lt;faces-config&gt;<br>    &lt;navigation-rule&gt;<br>        &lt;from-view-id&gt;/pages/index.jsp&lt;/from-view-id&gt;<br>        &lt;navigation-case&gt;<br>            &lt;from-outcome&gt;success&lt;/from-outcome&gt;<br>            &lt;to-view-id&gt;/pages/welcome.jsp&lt;/to-view-id&gt;<br>        &lt;/navigation-case&gt;<br>        &lt;navigation-case&gt;<br>            &lt;from-outcome&gt;failure&lt;/from-outcome&gt;<br>            &lt;to-view-id&gt;/pages/index.jsp&lt;/to-view-id&gt;<br>        &lt;/navigation-case&gt;<br>    &lt;/navigation-rule&gt;<br>       <br>    &lt;managed-bean&gt;<br>        &lt;managed-bean-name&gt;user&lt;/managed-bean-name&gt;<br>        &lt;managed-bean-class&gt;<br>            onlyfun.caterpillar.UserBean<br>        &lt;/managed-bean-class&gt;<br>        &lt;managed-bean-scope&gt;session&lt;/managed-bean-scope&gt;<br>    &lt;/managed-bean&gt;<br>&lt;/faces-config&gt;</code></pre>
+
+
+      <br>
+
+      
+訊息資源檔的內容則是如下：<br>
+
+
+      
+      <ul>
+
+        <li>messages_en.properties</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">titleText=JSF Demo<br>hintText=Please input your name and password<br>nameText=name<br>passText=password<br>commandText=Submit<br>Text= \u4e2d\u6587</code></pre>
+
+
+      <br>
+
+      
+Text中設定的是「中文」轉換為Java Unicode Escape格式的結果，另一個訊息資源檔的內容則是英文訊息的翻譯而已，其轉換為Java Unicode Escape格式結果如下：<br>
+
+
+      
+      <ul>
+
+        <li>messages_zh_TW.properties</li>
+
+      
+      </ul>
+
+
+      
+      <pre class="prettyprint"><code lang="java">titleText=JSF\u793a\u7bc4<br>hintText=\u8acb\u8f38\u5165\u540d\u7a31\u8207\u5bc6\u78bc<br>nameText=\u540d\u7a31<br>passText=\u5bc6\u78bc<br>commandText=\u9001\u51fa<br>Text=English</code></pre>
+
+
+      <br>
+
+      
+
+welcome.jsp就請自行設計了，程式的畫面如下：<br>
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/immediateEvents-1.jpg" /></div></div><br>
+
+
+      <br>
+
+
+      <br>
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/immediateEvents-2.jpg" /></div></div><br>
+
+
+      <br>
+
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

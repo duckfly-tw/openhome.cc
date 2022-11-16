@@ -1,0 +1,231 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果引數的個數無法事先確定，而且引數的型態可能各不相同，C++ 11 以後可以透過可變參數模版（variadic template）來解決。
+#include &lt;iostream&gt; 
+us...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="可變參數模版">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/VariadicTemplate.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果引數的個數無法事先確定，而且引數的型態可能各不相同，C++ 11 以後可以透過可變參數模版（variadic template）來解決。
+#include &lt;iostream&gt; 
+us...">
+
+    <title>可變參數模版</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="VariadicTemplate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>可變參數模版</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果引數的個數無法事先確定，而且引數的型態可能各不相同，C++ 11 以後可以透過可變參數模版（variadic template）來解決。</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename... Types&gt;
+void foo(Types... params) {
+    cout &lt;&lt; sizeof...(Types) &lt;&lt; " "
+         &lt;&lt; sizeof...(params) &lt;&lt; endl;
+}
+
+int main() { 
+    foo(1);             // 顯示 1 1
+    foo(1, "XD");       // 顯示 2 2
+    foo(1, "XD", 3.14); // 顯示 3 3
+
+    return 0; 
+} 
+</code></pre>
+<p><code>typename</code> 之後接續了省略語法 <code>...</code>，這可以看成 <code>Types</code> 代表不定長度的 <code>typename T1, typename T2, ...</code>，<code>Types</code> 被稱為模版參數包（template parameter pack），宣告參數時，<code>Types... params</code> 代表了不定長度的 <code>T1 t1, T2 t2, ...</code>，<code>params</code> 被稱為函式參數包（function parameter pack）。</p>
+<p>可以使用 <code>sizeof...</code> 來得知實際呼叫時的型態數量或引數數量，這個值是編譯時期推斷得知的，根據範例中呼叫的方式，在編譯時期 <code>foo</code> 會被實例出 <code>foo(int)</code>、<code>foo(int, const char*)</code> 與 <code>foo(int, const char*, double)</code> 版本，因此 <code>params</code> 並不是個物件，那麼該怎麼取得呼叫時的引數呢？</p>
+<p>如果呼叫時的引數是同一型態，一個簡單的方式是展開為陣列、<code>vector</code> 等型態。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include &lt;vector&gt; 
+using namespace std; 
+
+template &lt;typename T, typename ...Ts&gt;
+T sum(T first, Ts... rest) {
+    vector&lt;T&gt; nums = {rest...};
+    T r = first;
+    for(auto n : nums) {
+        r += n;
+    }
+    return r;
+}
+
+int main() { 
+    cout &lt;&lt; sum(1, 2, 3) &lt;&lt; endl;
+    cout &lt;&lt; sum(1, 2, 3, 4, 5) &lt;&lt; endl;
+    return 0; 
+} 
+</code></pre>
+<p>在編譯時期，上面的範例會產生 <code>sum(int, int, int)</code> 與 <code>sum(int, int, int, int, int)</code> 兩個版本，而 <code>{rest...}</code> 用來解開參數包，解開之意是指 <code>{rest...}</code> 會分別產生 <code>{p1, p2, p3}</code> 與 <code>{p1, p2, p3, p4, p5}</code>（<code>p1</code> 等名稱代表參數）。</p>
+<p>如果實際上傳遞的引數型態各不相同，又該怎麼辦，這時得使用遞迴並配合解開參數包。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T&gt;
+void print(T p) {
+    cout &lt;&lt; p &lt;&lt; endl;
+}
+
+template &lt;typename T, typename ...Ts&gt;
+void print(T first, Ts... rest) {
+    cout &lt;&lt; first &lt;&lt; " ";
+    print(rest...);
+}
+
+int main() { 
+    print(1);
+    print(1, "2");
+    print(1, "2", 3.14);
+
+    return 0; 
+} 
+</code></pre>
+<p><code>print(1)</code> 會實例一個 <code>print(int)</code> 版本，這沒有問題；<code>print(1, "2")</code> 的實例一個 <code>print(int, const char*)</code> 版本，然後 <code>print(rest..)</code> 的部份會解開為 <code>print("2")</code>，這又會實例出 <code>print(const char*)</code>：</p>
+<pre class="prettyprint"><code lang="c++">void print(const char* p) {
+    cout &lt;&lt; p &lt;&lt; endl;
+}
+
+void print(int p1, const char* p2) {
+    cout &lt;&lt; p1 &lt;&lt; " ";
+    print(p2);
+}
+</code></pre>
+<p>這就是為何可變參數模版可以接受不同型態引數的原因了，依以上的說明，<code>print(1, "2", 3.14)</code> 最後會實例出以下的版本：</p>
+<pre class="prettyprint"><code lang="c++">void print(double p) {
+    cout &lt;&lt; p &lt;&lt; endl;
+}
+
+void print(const char* p1, double p2) {
+    cout &lt;&lt; p1 &lt;&lt; " ";
+    print(p3);
+}
+
+void print(int p1, const char* p2, double p3) {
+    cout &lt;&lt; p1 &lt;&lt; " ";
+    print(p2, p3);
+}
+</code></pre>
+<p>在〈<a href="https://en.cppreference.com/w/cpp/language/parameter_pack">Parameter pack</a>〉中就舉了個實作 <code>tprintf</code> 函式的例子：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+
+void tprintf(const char* format) // base function
+{
+    std::cout &lt;&lt; format;
+}
+
+template&lt;typename T, typename... Targs&gt;
+void tprintf(const char* format, T value, Targs... Fargs) // recursive variadic function
+{
+    for ( ; *format != '\0'; format++ ) {
+        if ( *format == '%' ) {
+           std::cout &lt;&lt; value;
+           tprintf(format+1, Fargs...); // recursive call
+           return;
+        }
+        std::cout &lt;&lt; *format;
+    }
+}
+
+int main()
+{
+    tprintf("% world% %\n","Hello",'!',123);
+    return 0;
+}
+</code></pre>
+<p>因為可變參數模版可以使用的引數會是各種型態，若各種不同型態有各自的處理方式，那就得知道目前處理的資料是哪種型態，而以上的例子也暗示了，可以像 C 的 <code>printf</code>，在格式上指定 <code>%d</code>、<code>%s</code> 等，提供資訊以進一步決定各個引數的型態為何，以進行相對應的處理。</p>
+<p>在解開參數包的同時，可以指定套用某個函式，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+#include &lt;vector&gt; 
+using namespace std; 
+
+template&lt;typename T&gt;
+T sum(T first) {
+    return first;
+}
+
+template&lt;typename T, typename... Ts&gt;
+T sum(T first, Ts... params) {
+    return first + sum(params...);
+}
+
+template&lt;typename T&gt;
+T doubleIt(T t) {
+    return t + t;
+}
+
+template&lt;typename T, typename... Ts&gt;
+T doubleSum(T first, Ts... params) {
+    return doubleIt(first) + sum(doubleIt(params)...);
+}
+
+int main() { 
+    cout &lt;&lt; sum(1, 2) &lt;&lt; endl;                              // 3
+    cout &lt;&lt; sum(string("1"), string("2")) &lt;&lt; endl;          // 12
+    cout &lt;&lt; doubleSum(1, 2) &lt;&lt; endl;                        // 6
+    cout &lt;&lt; doubleSum(string("1"), string("2")) &lt;&lt; endl;    // 1212
+    return 0; 
+} 
+</code></pre>
+<p>在 <code>doubleSum</code> 中的 <code>sum(doubleIt(params)...)</code>，指的是解開參數包的時候，用每個參數呼叫 <code>doubleIt</code>，如果是 <code>doubleSum(string("1"), string("2"), string("3"))</code> 的呼叫，編譯器產生的版本會是（至於其他版本就依此類推了）：</p>
+<pre class="prettyprint"><code lang="c++">string doubleSum(string first, string p1, string p2) {
+    return doubleIt(first) + sum(doubleIt(p1), doubleIt(p2));
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,174 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 Pandas 組織資料時，若想要繪圖，可以直接使用 Matplotlib，這可以掌握許多繪圖細節，然而對於簡單的繪圖需求，可以直接透過 Pandas 對 Matplotlib 的整合，例如〈Nu...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Pandas 繪圖">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/PandasPlot.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="使用 Pandas 組織資料時，若想要繪圖，可以直接使用 Matplotlib，這可以掌握許多繪圖細節，然而對於簡單的繪圖需求，可以直接透過 Pandas 對 Matplotlib 的整合，例如〈Nu...">
+
+    <title>Pandas 繪圖</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PandasPlot.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Pandas 繪圖</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>使用 Pandas 組織資料時，若想要繪圖，可以直接使用 Matplotlib，這可以掌握許多繪圖細節，然而對於簡單的繪圖需求，可以直接透過 Pandas 對 Matplotlib 的整合，例如〈<a href="NumPyMatplotlib.html">NumPy 與 Matplotlib</a>〉中的 <code>sin</code> 繪圖，使用 Pandas 的繪圖整合的話，可以如下撰寫：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+x = np.arange(0, 2 * np.pi, np.pi / 180)  # 0 到 2 * PI，步進值 PI / 180
+y = np.sin(x)
+
+sin = pd.Series(y, index = x)   
+sin.plot(title = 'y = sin(x)', xlabel = 'x', ylabel = 'y')
+
+plt.show()
+</code></pre>
+<p>繪製出來的圖案如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PandasPlot-1.JPG" alt="Pandas 繪圖"  /></div></div></p>
+<p>如果要畫散佈圖的話，必須使用 <code>DataFrame</code>，呼叫 <code>plot</code> 時指定 <code>kind</code> 為 <code>'scatter'</code>，並指定 <code>x</code> 與 <code>y</code> 來自哪一行，例如：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt
+import pandas as pd
+
+scores = pd.DataFrame(
+    [
+        [90, 99, 100],
+        [99, 87, 94],
+        [92, 85, 76],
+        [87, 67, 72],
+        [85, 89, 67]
+    ],
+    columns = ['數學', '英文', '物理']
+)
+
+scores.plot(kind = 'scatter', x = '數學', y = '英文')
+plt.show()
+</code></pre>
+<p>這會顯示以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PandasPlot-2.JPG" alt="Pandas 繪圖"  /></div></div></p>
+<p>因此，對於〈<a href="Dtype.html">NumPy 陣列資料型態</a>〉中的謝爾賓斯基三角形，可以使用以下的程式：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+def sierpinski(n):
+    def quotientAndRemainderZero(elem, n):
+        quotient = elem // n
+        remainder = elem % n
+        return quotient &amp; remainder == 0
+
+    quotientAndRemainderZero = np.frompyfunc(quotientAndRemainderZero, 2, 1)
+
+    nums = np.arange(n ** 2)
+    nums = nums[np.where(quotientAndRemainderZero(nums, n))]
+    return (nums % n, nums // n)
+
+
+n = 64
+x, y = sierpinski(n)
+
+plotwidth = 6
+axislim = (-0.5, n - 0.5)
+plotsize = (plotwidth, plotwidth)
+PTS_PER_INCH = 72
+plotwidth_pts = PTS_PER_INCH * plotwidth
+markersize = 0.775 * plotwidth_pts / n
+
+tri = pd.DataFrame(np.array([x, y]).T)
+tri.plot(
+    title = 'Sierpinski triangle', 
+    kind = 'scatter', 
+    x = 0, 
+    y = 1,
+    xlabel = 'x', 
+    ylabel = 'y',
+    xlim = axislim,
+    ylim = axislim,
+    # Matplotlib 的 plot.scatter 方法需要的參數
+    marker = 's',
+    s = markersize ** 2
+)
+plt.show()
+</code></pre>
+<p>原本 Matplotlib 的 <code>plot.scatter</code> 方法需要的參數，可以附加在 <code>DataFrame</code> 的 <code>plot</code> 方法上，它們會轉給 Matplotlib 的 <code>plot.scatter</code> 方法，繪製出來的圖案如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PandasPlot-3.JPG" alt="Pandas 繪圖"  /></div></div></p>
+<p>在最簡單的情境下，什麼都不用設，就會有預設的圖例、著色等，例如：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt
+import pandas as pd
+
+scores = pd.DataFrame(
+    [
+        [90, 99, 100],
+        [99, 87, 94],
+        [92, 85, 76],
+        [87, 67, 72],
+        [85, 89, 67]
+    ],
+    columns = ['數學', '英文', '物理'],
+    index = ['No.01', 'No.02', 'No.03', 'No.04', 'No.05']
+)
+
+scores.plot()
+plt.show()
+</code></pre>
+<p>這會呈現出以下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PandasPlot-4.JPG" alt="Pandas 繪圖"  /></div></div></p>
+<p>如果使用 Pandas，對於簡單的圖案，可以試著直接使用整合的繪圖功能，若需要設定的細節變多，或者是整合的繪圖功能無法直接滿足時，再試著直接設定 Matplotlib。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

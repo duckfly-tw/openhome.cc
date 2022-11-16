@@ -1,0 +1,174 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="來看看另一個函式模版的例子：
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+template &lt;...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="尾端傳回型態">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/TailingReturnType.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="來看看另一個函式模版的例子：
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+template &lt;...">
+
+    <title>尾端傳回型態</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TailingReturnType.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>尾端傳回型態</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>來看看另一個函式模版的例子：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+auto addThese(T begin, T end) {
+    auto r = *begin;
+    for(auto it = begin + 1; it != end; it++) {
+        r += *it;
+    }
+    return r;
+}
+
+int main() {
+    vector&lt;int&gt; vt = {1, 2, 3};
+    cout &lt;&lt; addThese(vt.begin(), vt.end()) &lt;&lt; endl;
+
+    vector&lt;string&gt; vt2 = {"Justin", "Monica", "Irene"};
+    cout &lt;&lt; addThese(vt2.begin(), vt2.end()) &lt;&lt; endl;   
+
+    return 0;
+}
+</code></pre>
+<p><code>addThese</code> 傳回迭代器範圍內元素的加總，就範例來說，因為 <code>vt</code> 是 <code>vector&lt;int&gt;</code>，因此元素型態是 <code>int</code>，現在問題來了，如果想在標頭檔宣告函式原型呢？這樣行不通：</p>
+<pre class="prettyprint"><code lang="c++">template &lt;typename T&gt;
+auto addThese(T begin, T end);
+</code></pre>
+<p>因為沒有程式碼上下文，是要怎麼 <code>auto</code> 傳回型態呢？就範例來說，<code>*begin</code> 的型態就是 <code>int</code>，那麼這樣呢？</p>
+<pre class="prettyprint"><code lang="c++">template &lt;typename T&gt;
+decltype(*begin) addThese(T begin, T end);
+</code></pre>
+<p>這樣也行不通，因為編譯器剖析程式碼到 <code>decltype(*begin)</code>，根本還沒看到 <code>begin</code> 參數，像這種情況，可以使用尾端傳回型態（tailing return type）：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+auto addThese(T begin, T end) -&gt; decltype(*begin + *end);
+
+int main() {
+    vector&lt;int&gt; vt = {1, 2, 3};
+    cout &lt;&lt; addThese(vt.begin(), vt.end()) &lt;&lt; endl;
+
+    return 0;
+}
+
+template &lt;typename T&gt;
+auto addThese(T begin, T end) -&gt; decltype(*begin + *end) {
+    auto r = *begin;
+    for(auto it = begin + 1; it != end; it++) {
+        r += *it;
+    }
+    return r;
+}
+</code></pre>
+<p>在範例中，編譯器已經看到了參數 <code>begin</code> 與 <code>end</code>，之後使用 <code>-&gt; decltype(*begin + *end)</code> 就沒問題，那為什麼不用 <code>decltype(*begin)</code> 呢？</p>
+<p>因為 <code>*begin</code> 是個 lvalue，若迭代器中的元素型態是 <code>E</code>，那 <code>decltype(*begin)</code> 會推斷出 <code>E&amp;</code>，這樣的話，傳回型態會參考區域變數 <code>r</code>，然而函式執行完後 <code>r</code> 就無效了，因此不能使用 <code>decltype(*begin)</code>；這邊需要的是個 rvalue，以令其推斷出 <code>E</code>，因此使用 <code>decltype(*begin + *end)</code>。</p>
+<p>尾端傳回型態並不是只能用在模版，有些偏好將函式傳回型態寫在最後的開發者，會特意這麼撰寫函式：</p>
+<pre class="prettyprint"><code lang="c++">auto add(int a, int b) -&gt; int {
+    return a + b;
+}
+</code></pre>
+<p>另一個會運用到的場合，可能是在遇到底下的情況時：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+public:
+    class Orz {
+
+    };
+
+    Orz* orz();
+};
+
+Foo::Orz* Foo::orz() {
+    return new Foo::Orz();
+}
+</code></pre>
+<p>之後會談到類別定義，簡單來說，這邊定義了一個巢狀類別，在實作 <code>orz</code> 成員函式時，必須得以 <code>Foo::Orz*</code> 來指明傳回型態，因為必須知道是在哪個類別中的內部類別，然而，可以使用尾端傳回型態來簡化：</p>
+<pre class="prettyprint"><code lang="c++">class Foo {
+public:
+    class Orz {
+
+    };
+
+    Orz* orz();
+};
+
+auto Foo::orz() -&gt; Orz* {
+    return new Foo::Orz();
+}
+</code></pre>
+<p>因為 <code>auto</code> 後的 <code>Foo::</code> 已經指明了外部類別了，尾端傳回型態時就可以直接指定 <code>Orz*</code>，不用再加上 <code>Foo::</code>。</p>
+<p>簡單來說，尾端傳回型態既有的型態，或者取用 <code>-&gt;</code> 前看過的相關名稱，用以宣告或簡化傳回型態。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

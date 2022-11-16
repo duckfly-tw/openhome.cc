@@ -1,0 +1,313 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在Struts 1.1之後，很多的請求分配職責都落入了RequestProcessor的手上，ActionServlet則專責於組態配置及應用程式模組的設定。
+
+      
+
+
+
+Req...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="簡介 ActionMapping">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Struts/ActionMapping.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在Struts 1.1之後，很多的請求分配職責都落入了RequestProcessor的手上，ActionServlet則專責於組態配置及應用程式模組的設定。
+
+      
+
+
+
+Req...">
+
+
+    <title>簡介 ActionMapping</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ActionMapping.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Struts 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 ActionMapping</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+
+
+
+
+
+
+
+
+
+在Struts 1.1之後，很多的請求分配職責都落入了RequestProcessor的手上，ActionServlet則專責於組態配置及應用程式模組的設定。<br>
+
+      <br>
+
+
+
+RequestProcessor採取 Command
+模式，根據客戶端的請求呼叫Action物件，其分配的依據是客戶端請求的URI及Action物件的對應，這些都設定在struts-
+config.xml的&lt;action-mappings&gt;標籤中。<br>
+
+      <br>
+
+
+
+&lt;action-mappings&gt;用來描述一組ActionMapping物件，當中的每一個&lt;action&gt;
+標籤都對應一個ActionMapping物件，當客戶端發出請求至RequestProcessor時，請求的URI對應於&lt;
+action&gt;標籤中設定的path屬性，而要呼叫的Action物件則是type屬性所設定的物件，RequestProcessor會將請求的
+執行工作交給該Action物件來執行。<br>
+
+      <br>
+
+
+
+舉個例子來說，如果&lt;action-mappings&gt;設定如下的話：<br>
+
+      
+
+
+
+
+
+
+
+      
+      <div style="margin-left: 40px; font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">...</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&lt;action-mappings&gt;</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;action </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/hello" </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="onlyfun.caterpillar.HelloAction"&gt; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/action&gt; </span><br>
+
+
+
+      <br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;action </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/login" </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="onlyfun.caterpillar.LoginAction"&gt; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/action&gt; </span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;&lt;/action-mappings&gt;</span><br>
+
+
+
+      <span style="font-weight: bold;">&nbsp;...</span><br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+則當請求的URL是http://localhost:8080/strutsapp/hello.do時，
+RequestProcessor會使用/hello.do來確認對應的ActionMapping物件（實際上即找出path設定為/hello的
+&lt;action&gt;標籤），該ActionMapping物件告知RequestProcessor要使用
+onlyfun.caterpillar.HelloAction，而後RequestProcessor會將呼叫HelloAction的
+execute()方法，並將ActionMapping物件當作參數傳遞給它。<br>
+
+      <br>
+
+
+
+RequestProcessor實際上將工作交給Action物件，Action物件在第一次被呼叫時產生，之後一直使用它。
+Action物件的運作必須提供一些參數來描述工作的細節，諸如使用哪一個ActionForm、forward對象的查找、錯誤發生時的頁面對象等等，
+Struts將這些資訊包裝在ActionMapping中，並作為參數傳送給Action物件，以使得Action在需要相關的資訊時可以從
+ActionMapping中取得。<br>
+
+      <br>
+
+
+
+如果客戶端請求了struts-config.xml中沒有定義的資源，Struts會丟出 404 Invalid path 的訊息，您可以撰寫匿名的ActionMapping來提供自己的錯誤訊息：<br>
+
+      
+
+
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">... </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&lt;action&gt; </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; name="error" </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; unknown="true" </span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; forward="/WEB-INF/pages/error.jsp"/&gt;</span><br>
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;...</span><br>
+
+
+
+      </div>
+
+
+
+      <br>
+
+
+
+如果RequestProcessor遇到沒有定義的Action請求，則會交由匿名的ActionMapping來處理。<br>
+
+      <br>
+
+
+
+在&lt;action&gt;標籤中會使用&lt;forward&gt;標籤，用於查找與指定Action物件完成之後，要轉發請求回應的去向，您使
+用ActionMapping的findForward()方法來查找對應的forward對象，另外，您也可以提供一個&lt;
+global-forward&gt;設定，如果ActionMapping的findForward()方法找不到指定的forward對象，則會查找
+&lt;global-forward&gt;所設定的對象，一個設定例子如下：
+
+      <br>
+
+
+
+
+
+
+
+
+
+
+
+      
+      <ul>
+
+        <li>struts-config.xml</li>
+
+      
+      </ul>
+
+
+
+      
+      <pre class="prettyprint"><code lang="java">... <br> &lt;struts-config&gt; <br>    &lt;global-forwards&gt; <br>        &lt;forward <br>            name="welcome" <br>            path="/welcome.do"/&gt; <br>    &lt;/global-forwards&gt;<br><br>    &lt;action-mappings&gt;<br>        &lt;action<br>             path="/welcome <br>             type="onlyfun.caterpillar.WelcomeAction"&gt; <br>             &lt;forward<br>                 name="welcomeUser" <br>                 path="/WEB-INF/pages/welcome.jsp"/&gt; <br>         &lt;/action&gt;<br>        &lt;action<br>             path="/hello" <br>             type="onlyfun.caterpillar.HelloAction"&gt; <br>             &lt;forward<br>                 name="helloUser" <br>                 path="/WEB-INF/pages/hello.jsp"/&gt; <br>         &lt;/action&gt;<br>     &lt;action-mappings&gt;<br> &lt;/struts-config&gt; <br>... </code></pre>
+
+
+
+
+
+
+
+
+
+
+
+      <br>
+
+      
+
+&lt;global-forward&gt;提供一個全局可查找的forward對象，在Struts的組態中，可以為每一個&lt;
+action&gt;標籤指定forward對象，如果在&lt;action&gt;中查找不到，就會至&lt;global-
+forward&gt;中查找。對於一些共同使用的forward對象，您可以集中於&lt;global-forward&gt;中管理。<br>
+
+      <br>
+
+
+
+在Struts中，ActionMapping繼承自ActionConfig，大部份的屬性定義實際上都已經在ActionConfig
+中完成，在將來ActionMapping有可能會被AutoConfig所取代，不過在目前ActionMapping仍舊存在，根據線上API的說
+明，存在的事實基於它仍是現存應用程式所使用到的類別。 
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

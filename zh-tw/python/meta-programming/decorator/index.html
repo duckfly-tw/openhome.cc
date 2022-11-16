@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈屬性與方法〉看過 @property，在〈使用 with as〉 看過 @contextmanager 等裝飾器（decorator），這些裝飾器本質上就是接受 callable 物件 傳回 callable 物件的 callable 物">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Python::裝飾器" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/python/meta-programming/decorator/" />
+    <meta property="og:description" content="在〈屬性與方法〉看過 @property，在〈使用 with as〉 看過 @contextmanager 等裝飾器（decorator），這些裝飾器本質上就是接受 callable 物件 傳回 callable 物件的 callable 物" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Python::裝飾器" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/python/meta-programming/decorator/" />
+    <meta name="twitter:description" content="在〈屬性與方法〉看過 @property，在〈使用 with as〉 看過 @contextmanager 等裝飾器（decorator），這些裝飾器本質上就是接受 callable 物件 傳回 callable 物件的 callable 物" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443697" type="image/x-icon">
+    <title> Python  :: 裝飾器</title>
+    <link href="../../../css/nucleus.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443697.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443697.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443697"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/python/meta-programming/decorator/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/python/" title="Python" class="dd-item parent"><a href="../../index.html">Python</a><ul>
+          <li data-nav-id="/zh-tw/python/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/python/basics/hello/" title="Hello, Python" class="dd-item"><a href="../../basics/hello/index.html">Hello, Python</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/basics/module/" title="簡介模組" class="dd-item"><a href="../../basics/module.html">簡介模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/basics/io-format-encoding/" title="IO／格式／編碼" class="dd-item"><a href="../../basics/io-format-encoding/index.html">IO／格式／編碼</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/" title="內建型態" class="dd-item"><a href="../../built-in-types/index.html">| 內建型態</a><ul>
+          <li data-nav-id="/zh-tw/python/built-in-types/number/" title="數值" class="dd-item"><a href="../../built-in-types/number/index.html">數值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/string/" title="字串" class="dd-item"><a href="../../built-in-types/string/index.html">字串</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/list/" title="清單" class="dd-item"><a href="../../built-in-types/list/index.html">清單</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/set/" title="集合" class="dd-item"><a href="../../built-in-types/set/index.html">集合</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/dict/" title="字典" class="dd-item"><a href="../../built-in-types/dict/index.html">字典</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/built-in-types/tuple/" title="tuple" class="dd-item"><a href="../../built-in-types/tuple/index.html">tuple</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/math-abc/" title="基本運算" class="dd-item"><a href="../../math-abc/index.html">| 基本運算</a><ul>
+          <li data-nav-id="/zh-tw/python/math-abc/variable/" title="變數" class="dd-item"><a href="../../math-abc/variable/index.html">變數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/math-abc/arithmetic/" title="算術運算" class="dd-item"><a href="../../math-abc/arithmetic/index.html">算術運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/math-abc/comp-assign-logic/" title="比較、指定、邏輯運算" class="dd-item"><a href="../../math-abc/comp-assign-logic/index.html">比較、指定、邏輯運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/math-abc/bitwise/" title="位元運算" class="dd-item"><a href="../../math-abc/bitwise/index.html">位元運算</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/flow-control/" title="流程語法" class="dd-item"><a href="../../flow-control/index.html">| 流程語法</a><ul>
+          <li data-nav-id="/zh-tw/python/flow-control/if/" title="if 分支判斷" class="dd-item"><a href="../../flow-control/if/index.html">if 分支判斷</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/flow-control/while-for/" title="while 迴圈、for 迭代" class="dd-item"><a href="../../flow-control/while-for/index.html">while 迴圈、for 迭代</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/flow-control/for-comprehension/" title="for Comprehension" class="dd-item"><a href="../../flow-control/for-comprehension/index.html">for Comprehension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/flow-control/match-case/" title="初試 match/case" class="dd-item"><a href="../../flow-control/match-case/index.html">初試 match/case</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/function/" title="函式入門" class="dd-item"><a href="../../function/index.html">| 函式入門</a><ul>
+          <li data-nav-id="/zh-tw/python/function/def/" title="定義函式" class="dd-item"><a href="../../function/def/index.html">定義函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/function/first-class/" title="一級函式、lambda 運算式" class="dd-item"><a href="../../function/first-class/index.html">一級函式、lambda 運算式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/function/scope/" title="初探變數範圍" class="dd-item"><a href="../../function/scope/index.html">初探變數範圍</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/function/yield/" title="yield 產生器" class="dd-item"><a href="../../function/yield/index.html">yield 產生器</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/encapsulation/" title="封裝" class="dd-item"><a href="../../encapsulation/index.html">| 封裝</a><ul>
+          <li data-nav-id="/zh-tw/python/encapsulation/class/" title="類別入門" class="dd-item"><a href="../../encapsulation/class/index.html">類別入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/encapsulation/attr_method/" title="屬性與方法" class="dd-item"><a href="../../encapsulation/attr_method/index.html">屬性與方法</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/encapsulation/attr_namespace/" title="屬性名稱空間" class="dd-item"><a href="../../encapsulation/attr_namespace/index.html">屬性名稱空間</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/encapsulation/special-method/" title="特殊方法" class="dd-item"><a href="../../encapsulation/special-method/index.html">特殊方法</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/encapsulation/callable/" title="callable 物件" class="dd-item"><a href="../../encapsulation/callable.html">callable 物件</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/inheritance/" title="繼承" class="dd-item"><a href="../../inheritance/index.html">| 繼承</a><ul>
+          <li data-nav-id="/zh-tw/python/inheritance/is-a/" title="共同行為與 is a" class="dd-item"><a href="../../inheritance/is-a/index.html">共同行為與 is a</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/inheritance/enum/" title="使用 enum 列舉" class="dd-item"><a href="../../inheritance/enum/index.html">使用 enum 列舉</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/inheritance/mixin/" title="多重繼承與 Mixin" class="dd-item"><a href="../../inheritance/mixin/index.html">多重繼承與 Mixin</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/" title="例外處理" class="dd-item"><a href="../../exception/index.html">| 例外處理</a><ul>
+          <li data-nav-id="/zh-tw/python/exception/try-except/" title="使用 try、except" class="dd-item"><a href="../../exception/try-except/index.html">使用 try、except</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/hierarchy/" title="例外繼承架構" class="dd-item"><a href="../../exception/hierarchy/index.html">例外繼承架構</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/raise/" title="raise 例外" class="dd-item"><a href="../../exception/raise/index.html">raise 例外</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/else-finally/" title="使用 else、finally" class="dd-item"><a href="../../exception/else-finally/index.html">使用 else、finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/with-as/" title="使用 with as" class="dd-item"><a href="../../exception/with-as/index.html">使用 with as</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/exception/assert/" title="使用 assert" class="dd-item"><a href="../../exception/assert/index.html">使用 assert</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/module-package/" title="模組／套件" class="dd-item"><a href="../../module-package/index.html">| 模組／套件</a><ul>
+          <li data-nav-id="/zh-tw/python/module-package/namespace/" title="管理模組名稱" class="dd-item"><a href="../../module-package/namespace/index.html">管理模組名稱</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/module-package/path/" title="模組路徑" class="dd-item"><a href="../../module-package/path/index.html">模組路徑</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/module-package/package/" title="使用套件" class="dd-item"><a href="../../module-package/package/index.html">使用套件</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/" title="meta programming" class="dd-item parent"><a href="../index.html">| meta programming</a><ul>
+          <li data-nav-id="/zh-tw/python/meta-programming/slots_abstractmethods/" title="__slots__、__abstractmethods__、__init_subclass__" class="dd-item"><a href="../slots_abstractmethods/index.html">__slots__、__abstractmethods__、__init_subclass__</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/attr/" title="__getattribute__、__getattr__、__setattr__、__delattr__" class="dd-item"><a href="../attr/index.html">__getattribute__、__getattr__、__setattr__、__delattr__</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/decorator/" title="裝飾器" class="dd-item active"><a href="index.html">裝飾器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/descriptor/" title="描述器" class="dd-item"><a href="../descriptor/index.html">描述器</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/type/" title="type 類別" class="dd-item"><a href="../type/index.html">type 類別</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/metaclass/" title="metaclass" class="dd-item"><a href="../metaclass/index.html">metaclass</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/python/meta-programming/super-mro/" title="super 與 mro" class="dd-item"><a href="../super-mro/index.html">super 與 mro</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Python</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">meta programming</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">裝飾器</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#基於函式實作">基於函式實作</a></li>
+    <li><a href="index.html#wraps-裝飾器">@wraps 裝飾器</a></li>
+    <li><a href="index.html#裝飾類別方法">裝飾類別／方法</a></li>
+    <li><a href="index.html#基於-callable-物件實作">基於 callable 物件實作</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/meta-programming/">meta programming</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/decorator/">decorator</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/callable/">callable</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>裝飾器</h1>
+
+ <i class="space fa fa-calendar"> May 11, 2022</i> 
+<p>在〈<a href="../../encapsulation/attr_method/index.html">屬性與方法</a>〉看過 <code>@property</code>，在〈<a href="../../exception/with-as/index.html">使用 with as</a>〉 看過 <code>@contextmanager</code> 等裝飾器（decorator），這些裝飾器本質上就是接受 <a href="../../encapsulation/callable.html">callable 物件</a> 傳回 callable 物件的 callable 物件。</p>
+<h2 id="基於函式實作">基於函式實作</h2>
+<p>簡單的裝飾器可以使用函式定義，該函式接受函式且傳回函式。這邊以實際的例子來說明，假設你設計了點餐程式，目前主餐有炸雞，價格為 49 元：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(friedchicken())  <span style="color:#75715e"># 49.0</span>
+</span></span></code></pre></div><p>之後在程式中其他幾個地方都呼叫了 <code>friedchicken</code> 函式，若現在打算增加附餐，以便客戶點主餐時可以搭配附餐，問題在於程式碼該怎麼做？修改 <code>friedchicken</code> 函式？另外增加一個 <code>friedchickenside1</code> 函式？也許你的主餐不只有炸雞，還有漢堡、義大利麵等各式主餐呢！無論是修改各個主餐的相關函式，或者新增各種 <code>xxxxside1</code> 函式，顯然都很麻煩而沒有彈性。</p>
+<p>Python 的函式是一級值，函式可以接受函式並傳回函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish1</span>(meal):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">lambda</span>: meal() <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>friedchicken <span style="color:#f92672">=</span> sidedish1(friedchicken)
+</span></span><span style="display:flex;"><span>print(friedchicken())    <span style="color:#75715e"># 顯示79.0</span>
+</span></span></code></pre></div><p>對於底下的程式碼，若 <code>decorator</code> 是個函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@decorator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">func</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><p>執行時結果相當於：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>func <span style="color:#f92672">=</span> decorator(func)
+</span></span></code></pre></div><p>因此方才的範例，可以使用以下方式撰寫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish1</span>(meal):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">lambda</span>: meal() <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(friedchicken())    <span style="color:#75715e">#  顯示 79.0</span>
+</span></span></code></pre></div><p>使用 <code>@sidedish1</code> 這樣的標註方式，讓 <code>@sidedish1</code> 像是對 <code>friedchicken</code> 函式加以裝飾，在不改變 <code>friedchicken</code> 的行為下，增加了附餐的行為，這類的函式實現了 <a href="../../../pattern/structural/decorator.html">Decorator</a> 模式，若必要，也可以進一步堆疊裝飾器：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish1</span>(meal: PriceFunc) <span style="color:#f92672">-&gt;</span> PriceFunc:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">lambda</span>: meal() <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish2</span>(meal: PriceFunc) <span style="color:#f92672">-&gt;</span> PriceFunc:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">lambda</span>: meal() <span style="color:#f92672">+</span> <span style="color:#ae81ff">40</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish1</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish2</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(friedchicken())   <span style="color:#75715e"># 顯示119.0</span>
+</span></span></code></pre></div><p>最後執行時的函式順序，就是從堆疊最底層開始往上層呼叫；<code>@</code> 之後可以是傳回函式的運算式，因此若裝飾器語法需要帶有參數，用來作為裝飾器的函式，必須先以指定的參數執行一次，傳回的函式物件再用來裝飾指定的函式。</p>
+<p>例如以下這個帶參數的裝飾器：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@deco</span>(<span style="color:#e6db74">&#39;param&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">func</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><p>實際上執行時，相當於：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>func <span style="color:#f92672">=</span> deco(<span style="color:#e6db74">&#39;param&#39;</span>)(func)
+</span></span></code></pre></div><h2 id="wraps-裝飾器">@wraps 裝飾器</h2>
+<p>如果經過裝飾的 <code>friedchicken</code> 函式本身 <code>print</code> 出來，會顯示什麼呢？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#  &lt;function sidedish1.&lt;locals&gt;.&lt;lambda&gt; at 0x0000027090022F70&gt;</span>
+</span></span><span style="display:flex;"><span>print(friedchicken)    
+</span></span></code></pre></div><p>明明就是 <code>friedchicken</code>，顯示出來卻說它是…嗯…<code>sidedish1</code> 中的 <code>lambda</code> 函式，這是因為傳回的函式不是原本的函式，就目前這個範例來說，雖然不會有什麼問題，然而，若這是某模組中的函式，被裝飾的過程是私有實作，透過查看函式的資訊，就有可能因曝露相關的實作細節而被誤導。</p>
+<p>若希望被裝飾的函式，可以假裝它就是原本的函式，必須修改傳回函式的名稱等相關資訊（像是記錄在 <code>__module__</code>、<code>__name__</code>、<code>__doc__</code> 等的資訊），想達到此目的，捷徑之一是透過 <code>functools.wraps</code> 裝飾要傳回的函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish1</span>(meal):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(meal)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapper</span>():
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> meal() <span style="color:#f92672">+</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">friedchicken</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 顯示 79.0</span>
+</span></span><span style="display:flex;"><span>print(friedchicken())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 顯示 &lt;function friedchicken at 0x00000270900180D0&gt;</span>
+</span></span><span style="display:flex;"><span>print(friedchicken)
+</span></span></code></pre></div><h2 id="裝飾類別方法">裝飾類別／方法</h2>
+<p>裝飾器可以用來裝飾類別，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decorator</span>(cls):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@decorator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Some</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><p>程式碼執行的效果相當於：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decorator</span>(cls):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Some</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Some <span style="color:#f92672">=</span> decorator(Some)
+</span></span></code></pre></div><p>例如，若先前的 <code>friedchicken</code> 函式，因為設計上的考量，打算定義為 <code>FriedChicken</code>，若想對 <code>FriedChicken</code> 類別裝飾，加上附餐功能，可以設計一個函式如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sidedish1</span>(cls):
+</span></span><span style="display:flex;"><span>    wrapped_content <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>    wrapped_price <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>price
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(wrapped_content)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">content</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> wrapped_content(self) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; | 可樂 | 薯條&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(wrapped_price)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">price</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> wrapped_price(self) <span style="color:#f92672">+</span> <span style="color:#ae81ff">30.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    cls<span style="color:#f92672">.</span>content <span style="color:#f92672">=</span> content
+</span></span><span style="display:flex;"><span>    cls<span style="color:#f92672">.</span>price <span style="color:#f92672">=</span> price
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> cls
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@sidedish1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FriedChicken</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">content</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;不黑心炸雞&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">price</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">49.0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>friedchicken <span style="color:#f92672">=</span> FriedChicken()
+</span></span><span style="display:flex;"><span>print(friedchicken<span style="color:#f92672">.</span>content())   <span style="color:#75715e"># 不黑心炸雞 | 可樂 | 薯條</span>
+</span></span><span style="display:flex;"><span>print(friedchicken<span style="color:#f92672">.</span>price())     <span style="color:#75715e"># 79.0</span>
+</span></span></code></pre></div><p>這個範例的 <code>sidedish1</code> 函式接受類別，在函式內部修改了類別的 <code>content</code> 與 <code>price</code> 方法，最後原類別被傳回，如果使用 <code>@sidedish1</code> 裝飾 <code>FriedChicken</code> 類別，在建構類別實例之後，透過實例呼叫 <code>content</code> 與 <code>price</code> 方法，都會先呼叫原類別定義之方法，然後加上額外的資訊。</p>
+<p>對類別定義的方法裝飾也是可行的，若是實例方法，傳回的函式，第一個參數是用來接受類別的實例。例如，若要以函式來實作方法裝飾器，一個簡單的例子如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">log</span>(mth):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(mth)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapper</span>(self, a, b):
+</span></span><span style="display:flex;"><span>        print(self, a, b)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mth(self, a, b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Some</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@log</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">doIt</span>(self, a, b):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> a <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>s <span style="color:#f92672">=</span> Some()
+</span></span><span style="display:flex;"><span>print(s<span style="color:#f92672">.</span>doIt(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>))
+</span></span></code></pre></div><p><code>@log</code> 標註了 <code>doIt</code> 方法，這相當於在類別中定義了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>doIt <span style="color:#f92672">=</span> log(doIt)
+</span></span></code></pre></div><p>因為要接受實例，<code>wrapper</code> 的 <code>self</code> 參數不可省略。可以將上例設計的更通用一些，讓 <code>@log</code> 裝飾的對象，不限於可接受兩個引數的方法。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">log</span>(mth: Callable) <span style="color:#f92672">-&gt;</span> Callable:
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(mth)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapper</span>(self, <span style="color:#f92672">*</span>arg, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(self, arg, kwargs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mth(self, <span style="color:#f92672">*</span>arg, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Some</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@log</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">doIt</span>(self, a, b):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> a <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>s <span style="color:#f92672">=</span> Some()
+</span></span><span style="display:flex;"><span>print(s<span style="color:#f92672">.</span>doIt(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>))
+</span></span></code></pre></div><h2 id="基於-callable-物件實作">基於 callable 物件實作</h2>
+<p>在〈<a href="../../encapsulation/callable.html">callable 物件</a>〉談過，函式不過就是 callable 物件的一種，如果裝飾器實作時需要有帶有狀態，使用函式實現時會有較為複雜、不直覺等原因時，可以考慮以類別定義 <code>__call__</code>，也就是基於 callable 物件實作裝飾器。</p>
+<p>因此，若基於 callable 物件實作裝飾器，基本概念是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">decorator</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, func):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>func <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __call__(self, <span style="color:#f92672">*</span>args):
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>func(<span style="color:#f92672">*</span>args)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 對 result 作裝飾（傳回）</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@decorator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">some</span>(arg):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>some(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>執行以上的程式片段，其實相當於：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>some <span style="color:#f92672">=</span> decorator(some)
+</span></span><span style="display:flex;"><span>some(<span style="color:#ae81ff">1</span>)   <span style="color:#75715e"># 呼叫 some.__call__(1)</span>
+</span></span></code></pre></div><p>若最後 <code>some</code> 參考之實例，想偽裝為被裝飾前的函式，必須額外下點功夫。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CallableWrapper</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, func):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>func <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __call__(self, <span style="color:#f92672">*</span>args):
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>func(<span style="color:#f92672">*</span>args)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 對 result 作裝飾（傳回）</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decorator</span>(func):
+</span></span><span style="display:flex;"><span>    callable_wrapper <span style="color:#f92672">=</span> CallableWrapper(func)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(func)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapper</span>(arg):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> callable_wrapper(arg)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@decorator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">some</span>(arg):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>some(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p><code>wraps</code> 會使用 <code>func</code> 的資訊，修改傳回的 <code>wrapper</code> 函式，而最後呼叫 <code>some(1)</code> 等同於呼叫 <code>wrapper(1)</code>，結果就是 <code>callable_wrapper(1)</code>，最後呼叫了 <code>callable_wrapper.__call__(1)</code>。</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/python/meta-programming/decorator/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/python/meta-programming/decorator/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Python%3a%3a%e8%a3%9d%e9%a3%be%e5%99%a8&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpython%2fmeta-programming%2fdecorator%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../attr/index.html" title="__getattribute__、__getattr__、__setattr__、__delattr__"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../descriptor/index.html" title="描述器"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443697"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443697"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443697"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443697"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443697"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443697"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443697"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443697"></script>
+  </body>
+</html>

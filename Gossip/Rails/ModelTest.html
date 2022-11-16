@@ -1,0 +1,193 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Rails預設有三個執行環境，即development、test與production，有幾個檔案與這三個執行環境有關，config/database.yml中預設定義了三個執行環境所使用的資料庫設定...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="模型測試">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/ModelTest.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Rails預設有三個執行環境，即development、test與production，有幾個檔案與這三個執行環境有關，config/database.yml中預設定義了三個執行環境所使用的資料庫設定...">
+
+
+    <title>模型測試</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ModelTest.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>模型測試</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>Rails預設有三個執行環境，即development、test與production，有幾個檔案與這三個執行環境有關，config/database.yml中預設定義了三個執行環境所使用的資料庫設定：</p>
+      <ul>
+        <li>database.yml</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+  pool: 5
+  timeout: 5000
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+  pool: 5
+  timeout: 5000
+
+production:
+  adapter: sqlite3
+  database: db/production.sqlite3
+  pool: 5
+  timeout: 5000<br></code></pre>
+      <p>建立新專案時，預設就會產生development.sqlite3與test.sqlite3，後者是作為測試時的資料庫，其中的資料在每次測試時都會根據相關設定重建，確保每次測試的資料來源一致。config/environments中也分別有development.rb、production.rb、test.rb，分別作為三個環境的組態檔案。<br>
+      </p>
+      <p>Rails的應用程式通常與資料庫有密切互動，所以實際上進行測試時若存在相關模型測試檔案，就必須在資料庫中有對應的表格定義。例如 <a
+
+          href="Test.html">認識 Rails 測試</a> 中的例子，如果已像 <a href="Scaffold.html">觀摩 Scaffold</a> 中產生了<span
+
+          class="courier">Message</span>模型，即使你指定執行rational_number_test.rb，也會發生以下錯誤，告訴你沒有對應的表格：</p>
+      <div class="cmd">~gossip\$ ruby -Itest test/unit/rational_number_test.rb<br>
+              Loaded suite test/unit/rational_number_test<br>
+              Started<br>
+              <br>
+              RationaNumberlTest:<br>
+              &nbsp;&nbsp;&nbsp; ERROR rational number addition (0.00s) <br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ActiveRecord::StatementInvalid: Could not find table 'messages'<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /usr/local/lib/ruby/gems/1.9.1/gems/activerecord-3.1.3/lib/active_record/connection_adapters/sqlite_adapter.rb:439:in `table_structure'<br>
+              <br>
+              &nbsp;&nbsp;&nbsp; ERROR rational number subtraction (0.00s) <br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ActiveRecord::StatementInvalid: Could not find table 'messages'<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /usr/local/lib/ruby/gems/1.9.1/gems/activerecord-3.1.3/lib/active_record/connection_adapters/sqlite_adapter.rb:439:in `table_structure'<br>
+              <br>
+              <br>
+              Finished in 0.007304 seconds.<br>
+              <br>
+              2 tests, 0 assertions, 0 failures, 2 errors, 0 skips<br>
+              <br>
+            </div>
+      <br>
+      在執行測試之前，得執行過rake db:migrate，產生schema.rb之後，再執行rake db:test:load，將schema.rb中的結構記錄載入測試資料庫，之後若有任何遷移變更，可執行rake db:test:prepare，將遷移變更載入測試資料庫，再執行相關測試。<br>
+      <br>
+      來看看一個測試<span class="courier">Message</span>的例子：<br>
+      <ul>
+        <li>message_test.rb</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">require 'test_helper'
+
+class MessageTest &lt; ActiveSupport::TestCase
+    test "should not save message without name" do
+        assert !Message.new.save, "Saved the message without name"
+    end
+end<br></code></pre>
+      <br>
+      <span class="courier">這測試了Message儲存時，必須驗證name是否設定，接著修改Message定義</span>：<br>
+      <ul>
+        <li>message.rb</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">class Message &lt; ActiveRecord::Base
+    validates :name, :presence =&gt; true
+end<br></code></pre>
+      &nbsp;<br>
+      如果在測試之前，資料庫中必須有某些既存的資料，那麼你可以定義fixtures，也就是範例資料，這是test/fixtures資料夾中定義YAML，例如：<br>
+      <ul>
+        <li>messages.yml</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">justin:
+  name: Justin Lin
+  title: About Java TWO 2012
+  content: When will it be?
+ 
+momor:
+  name: Momor Huang
+  title: Kindle DX Arrived
+  content: As title<br></code></pre>
+      <br>
+      Rails預設會載入test/fixtures中的YAML，原因在於 <a href="Test.html">認識 Rails 測試</a> 中看過的，test_helper.rb中定義了<span
+
+        class="courier">fixtures :all</span>（如果只想指定載入特定YAML，可以指定如<span class="courier">fixtures :messages</span>），以便進行單元測試與功能測試，載入的過程有：<br>
+      <ol>
+        <li>移除資料庫表格中對應fixtures的資料</li>
+        <li>將fixtures中的資料重新載入表格</li>
+        <li>將fixtures中的資料載入對應變數</li>
+      </ol>
+      <p>以上例而言，可以透過messages方法來取得對應的fixture，例如messages(:justin)可取得YAML中定義的資料，取得的物件是模型的型態，例如messages(:justin)就是取得Message物件。</p>
+      <p>fixture定義檔中，也可以使用Erb，內嵌的Ruby程式碼會先被處理。例如：</p>
+      <ul>
+        <li>messages.yml</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">&lt;% sample_content = "blah..blah" %&gt;<br>justin:
+  name: Justin Lin
+  title: About Java TWO 2012
+  content: &lt;%= sample_content %&gt;
+ 
+momor:
+  name: Momor Huang
+  title: Kindle DX Arrived
+  content: &lt;%= sample_content %&gt;
+</code></pre>
+      <p></p>
+      <p>實際上除了如上使用ruby指令逐一執行測試之外，也可以使用rake test執行所有已定義的測試，如果僅想執行單元測試，可以執行rake test:units，這會執行test/unit中定義的單元測試，類似地，執行rake test:functionals可執行test/functional中定義的功能測試，執行rake test:integration可執行test/integration中定義的功能測試。</p>
+      <p><br>
+      </p>
+      <p><br>
+      </p>
+      <p><br>
+      </p>
+      <p> </p>
+      <p></p>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul>
+    
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

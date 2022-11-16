@@ -1,0 +1,165 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈簡介例外處理〉示範了如何以字串作為例外拋出，catch 例外時型態指明為 char const*，這表示相同型態的例外被拋出時，會執行對應的 catch 區塊，如果有多個型態的話，可以指定多個 c...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="捕捉自訂例外">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Catch.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈簡介例外處理〉示範了如何以字串作為例外拋出，catch 例外時型態指明為 char const*，這表示相同型態的例外被拋出時，會執行對應的 catch 區塊，如果有多個型態的話，可以指定多個 c...">
+
+    <title>捕捉自訂例外</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Catch.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>捕捉自訂例外</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="ExceptionHandling.html">簡介例外處理</a>〉示範了如何以字串作為例外拋出，<code>catch</code> 例外時型態指明為 <code>char const*</code>，這表示相同型態的例外被拋出時，會執行對應的 <code>catch</code> 區塊，如果有多個型態的話，可以指定多個 <code>catch</code>：</p>
+<pre class="prettyprint"><code lang="c++">try {
+    foo();
+}
+catch(int errCode) {
+    ...
+}
+catch(char const* errorMsg) {
+    ...
+}
+</code></pre>
+<p>只不過直接 <code>catch</code> 基本型態之類的例外，在程式的意圖上不清楚，而且這類例外可以表現的資訊有限，<code>int</code> 型態的例外被捕捉後，還得比對錯誤碼，字串的例外被捕捉後，不一定只是想顯示字串，可能還要比對字串內容等，以做其他相應的處理。</p>
+<p>你可以自訂例外類型，並令類型名稱具有代表例外意涵的實質意義，例如：</p>
+<pre class="prettyprint"><code lang="c++">class Exception {
+    const string message;
+
+public:
+    explicit Exception(const string &amp;message) : message(message) {}
+
+    virtual const char* what() {
+        return this-&gt;message.c_str();
+    }
+
+    virtual ~Exception() = default;
+};
+
+class InvalidArgument : public Exception {
+    using Exception::Exception;
+};
+
+class Insufficient : public Exception {
+    int balance;
+
+public:
+    explicit Insufficient(const string &amp;message, int balance) 
+                : Exception(message), balance(balance) {}
+
+    int getBalance() {
+        return balance;
+    }
+};
+</code></pre>
+<p>這麼一來，就可以依不同的例外型態來捕捉例外實例了：</p>
+<pre class="prettyprint"><code lang="c++">Account acct = {"123-456-789", "Justin Lin", 1000};
+
+try {
+    acct.withdraw(10200);
+    acct.deposit(-500);
+}
+catch(InvalidArgument &amp;ex) {
+    cout &lt;&lt; "引數錯誤：" &lt;&lt; ex.what() &lt;&lt; endl;
+}
+catch(Insufficient &amp;ex) {
+    cout &lt;&lt; "帳號錯誤："  &lt;&lt; endl
+         &lt;&lt; "\t" &lt;&lt; ex.what() &lt;&lt; endl
+         &lt;&lt; "\t餘額 " &lt;&lt; ex.getBalance() &lt;&lt; endl;
+}
+</code></pre>
+<p><code>catch</code> 時若型態有繼承關係，父型態不能寫在子型態的 <code>catch</code> 之前，因為會先被比對到，導致後續的子型態 <code>catch</code> 寫了等於沒寫，編譯時也會提出警訊：</p>
+<pre class="prettyprint"><code lang="c++">Account acct = {"123-456-789", "Justin Lin", 1000};
+
+try {
+    acct.withdraw(10200);
+    acct.deposit(-500);
+}
+catch(Exception &amp;ex) {
+    cout &lt;&lt; ex.what() &lt;&lt; endl;
+}
+// warning: exception of type 'InvalidArgument' will be caught by earlier handler for 'Exception'
+catch(InvalidArgument &amp;ex) {
+    cout &lt;&lt; "引數錯誤：" &lt;&lt; ex.what() &lt;&lt; endl;
+}
+catch(Insufficient &amp;ex) {
+    cout &lt;&lt; "帳號錯誤："  &lt;&lt; endl
+         &lt;&lt; "\t" &lt;&lt; ex.what() &lt;&lt; endl
+         &lt;&lt; "\t餘額 " &lt;&lt; ex.getBalance() &lt;&lt; endl;
+}
+</code></pre>
+<p>如果例外的型態具有相同父類，那可以將父類寫在最後，作為同類型例外的捕遺：</p>
+<pre class="prettyprint"><code lang="c++">try {
+    acct.withdraw(10200);
+    acct.deposit(-500);
+}
+catch(InvalidArgument &amp;ex) {
+    cout &lt;&lt; "引數錯誤：" &lt;&lt; ex.what() &lt;&lt; endl;
+}
+catch(AccountException &amp;ex) {
+    cout &lt;&lt; "帳號操作錯誤：" &lt;&lt; ex.what() &lt;&lt; endl;
+}
+catch(Exception &amp;ex) {
+    cout &lt;&lt; ex.what() &lt;&lt; endl;
+}
+</code></pre>
+<p>C++ 有個全捕捉語法 <code>catch(...)</code>，用來捕捉全部型態的例外，不過並不鼓勵使用，這之後再來談。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

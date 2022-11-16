@@ -1,0 +1,232 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈建立記憶體〉中談過，WebAssembly 預設的資料型態有 i32、i64、f32、f64，對於高階的資料結構，例如陣列，必須自行實作，接下來，就以實作陣列作為例子，首先，來決定一下陣列在記憶體...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="實作陣列">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Array.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈建立記憶體〉中談過，WebAssembly 預設的資料型態有 i32、i64、f32、f64，對於高階的資料結構，例如陣列，必須自行實作，接下來，就以實作陣列作為例子，首先，來決定一下陣列在記憶體...">
+
+    <title>實作陣列</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Array.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>實作陣列</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="Memory.html">建立記憶體</a>〉中談過，WebAssembly 預設的資料型態有 <code>i32</code>、<code>i64</code>、<code>f32</code>、<code>f64</code>，對於高階的資料結構，例如陣列，必須自行實作，接下來，就以實作陣列作為例子，首先，來決定一下陣列在記憶體中的結構&hellip;</p>
+<p>為了簡化，只考慮 <code>i32</code> 整數陣列，記憶體中第一個 <code>i32</code> 打算用來記錄可用空間的位元組偏移量，至於每個陣列，會使用一個 <code>i32</code> 來記錄陣列長度，之後是陣列的元素。</p>
+<p>也就是若有兩個陣列，一個長度為 2，一個長度為 3，那麼記憶體中的資料會是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Array-1.JPG" alt="實作陣列"  /></div></div></p>
+<p>可以定義一個 <code>$arr</code> 函式來建立陣列，它接受一個長度引數，傳回陣列首元素的位元組偏移量：</p>
+<pre class="prettyprint"><code lang="wat">;; 建立新陣列
+(func $arr (param $len i32) (result i32)
+    (local $offset i32)                              ;; 記錄陣列偏移量
+    (set_local $offset (i32.load (i32.const 0)))     ;; 取得偏移量
+
+    (i32.store (get_local $offset)                   ;; 首個 i32 儲存陣列長度
+               (get_local $len)
+    ) 
+
+    (i32.store (i32.const 0)                         ;; 在記憶體開頭記錄可用空間的偏移量
+               (i32.add 
+                   (i32.add
+                       (get_local $offset)
+                       (i32.mul 
+                           (get_local $len) 
+                           (i32.const 4)
+                       )
+                   )
+                   (i32.const 4)                     ;; 別忘了每個陣列首個 i32 是記錄長度 
+               )
+    )
+    (get_local $offset)                              ;; 建立的陣列偏移量
+)
+</code></pre>
+<p>建立陣列時，會從記憶體第一個 <code>i32</code> 取得可用空間的位元組偏移量，在該位置儲存陣列長度，這個位置最後會作為函式呼叫的結果值，接著在記憶體第一個 <code>i32</code> 記錄可用空間的偏移量。</p>
+<p>要取得陣列長度的話，可以定義一個 <code>$len</code> 函式：</p>
+<pre class="prettyprint"><code lang="wat">;; 取得陣列長度
+(func $len (param $arr i32) (result i32)
+    (i32.load (get_local $arr))
+)
+</code></pre>
+<p>為了取得陣列長度，必須傳入陣列在記憶體裡的偏移量，也就是 <code>$arr</code> 建立陣列後的傳回值，<code>$len</code> 會以 <code>i32</code> 取出數值，這個數值就是陣列長度。</p>
+<p>接著來實作陣列索引存取，為了方便，先建立一個 <code>$offset</code>，在指定陣列索引時，協助計算出每個元素在記憶體中的偏移量：</p>
+<pre class="prettyprint"><code lang="wat">;; 在指定陣列索引時，計算出每個元素在記憶體中的偏移量
+(func $offset (param $arr i32) (param $i i32) (result i32)
+    ;; 陣列偏移量 + 根據索引及型態計算而得的偏移量
+    (i32.add
+         (i32.add (get_local $arr) (i32.const 4))    ;; 別忘了每個陣列首個 i32 是記錄長度 
+         (i32.mul (i32.const 4) (get_local $i))      ;; 一個 i32 元素是四個位元組
+    )
+)
+</code></pre>
+<p>接著是 <code>$set</code> 與 <code>$get</code>，接受索引來設值與取值：</p>
+<pre class="prettyprint"><code lang="wat">;; 使用索引設定元素值
+(func $set (param $arr i32) (param $i i32) (param $value i32)
+    (i32.store 
+        (call $offset (get_local $arr) (get_local $i)) 
+        (get_local $value)
+    ) 
+)
+;; 使用索引取得元素值    
+(func $get (param $arr i32) (param $i i32) (result i32)
+    (i32.load 
+        (call $offset (get_local $arr) (get_local $i)) 
+    )
+)
+</code></pre>
+<p>來實際建立一個陣列：</p>
+<pre class="prettyprint"><code lang="wat">(func $main
+    (local $a1 i32)
+
+    ;; 因為記憶體首個 i32 記錄可用空間偏移量
+    ;; 第一個可用空間偏移量應為 4（位元組）
+    (i32.store (i32.const 0) (i32.const 4))     
+
+    (set_local $a1 (call $arr (i32.const 5)))   ;; 建立長度為 5 的陣列，指定給 $a1
+
+    (call $len (get_local $a1))
+    call $log                                   ;; 顯示長度為 5
+
+    ;; 在 $a1 索引 1 存入 10
+    (call $set (get_local $a1) (i32.const 1) (i32.const 10))
+
+    ;; 取得 $a1 索引 1 的值
+    (call $get (get_local $a1) (i32.const 1))
+    call $log                                   ;; 顯示元素值為 10
+)
+</code></pre>
+<p>程式在一開始時，就會將記憶體首元素設定為 4，這是因為第一個 <code>i32</code> 用來儲存可用空間偏移量，因而可用空間要從 4 開始。</p>
+<p>底下是完整的程式實作：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (memory 1)
+    ;; 建立新陣列
+    (func $arr (param $len i32) (result i32)
+        (local $offset i32)                              ;; 記錄陣列偏移量
+        (set_local $offset (i32.load (i32.const 0)))     ;; 取得偏移量
+
+        (i32.store (get_local $offset)                   ;; 首個 i32 儲存陣列長度
+                   (get_local $len)
+        ) 
+
+        (i32.store (i32.const 0)                         ;; 記憶體開頭記錄可用空間的偏移量
+                   (i32.add 
+                       (i32.add
+                           (get_local $offset)
+                           (i32.mul 
+                               (get_local $len) 
+                               (i32.const 4)
+                           )
+                       )
+                       (i32.const 4)                     ;; 別忘了每個陣列首個 i32 是記錄長度 
+                   )
+        )
+        (get_local $offset)                              ;; 建立的陣列偏移量
+    )
+    ;; 取得陣列長度
+    (func $len (param $arr i32) (result i32)
+        (i32.load (get_local $arr))
+    )
+    ;; 在指定陣列索引時，計算出每個元素在記憶體中的偏移量
+    (func $offset (param $arr i32) (param $i i32) (result i32)
+        ;; 陣列偏移量 + 根據索引及型態計算而得的偏移量
+        (i32.add
+             (i32.add (get_local $arr) (i32.const 4))    ;; 別忘了每個陣列首個 i32 是記錄長度 
+             (i32.mul (i32.const 4) (get_local $i))      ;; 一個 i32 元素是四個位元組
+        )
+    )
+    ;; 使用索引設定元素值
+    (func $set (param $arr i32) (param $i i32) (param $value i32)
+        (i32.store 
+            (call $offset (get_local $arr) (get_local $i)) 
+            (get_local $value)
+        ) 
+    )
+    ;; 使用索引取得元素值    
+    (func $get (param $arr i32) (param $i i32) (result i32)
+        (i32.load 
+            (call $offset (get_local $arr) (get_local $i)) 
+        )
+    )
+    (func $main
+        (local $a1 i32)
+
+        ;; 因為記憶體首個 i32 記錄可用空間偏移量
+        ;; 第一個可用空間偏移量應為 4（位元組）
+        (i32.store (i32.const 0) (i32.const 4))     
+
+        (set_local $a1 (call $arr (i32.const 5)))   ;; 建立長度為 5 的陣列，指定給 $a1
+
+        (call $len (get_local $a1))
+        call $log
+
+        ;; 在 $a1 索引 1 存入 10
+        (call $set (get_local $a1) (i32.const 1) (i32.const 10))
+
+        ;; 取得 $a1 索引 1 的值
+        (call $get (get_local $a1) (i32.const 1))
+        call $log        
+    )
+    (start $main)
+)
+</code></pre>
+<p>現在來思考一個問題，如果要匯出陣列呢？別忘了，記憶體匯出至 JavaScript，其實是個 <code>ArrayBuffer</code>，因此，必須有個中間的轉換函式，依陣列在記憶體中的結構，從 <code>ArrayBuffer</code> 各個元素，然後指定給 JavaScript 的陣列。</p>
+<p>那麼將 JavaScript 陣列匯入 WebAssembly 呢？一樣地，要有個中間的轉換函式，從 JavaScript 陣列收集元素，然而依結構存入 <code>ArrayBuffer</code>，無論這個 <code>ArrayBuffer</code> 是來自於匯出的 <code>WebAssembly.Memory</code>，或者是自行建立 <code>WebAssembly.Memory</code> 後匯入模組。</p>
+<p>不同的語言會有不同的高階資料結構，這些語言在能支持編譯為 WebAssembly 時，應該也都會提供轉換程式庫，來支持各自高階資料結構的匯出、匯入、轉換等，像是 Go 1.11 中 <a href="https://github.com/golang/go/blob/master/misc/wasm/wasm_exec.js">wasm_exec.js</a> 這類的東西。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

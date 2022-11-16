@@ -1,0 +1,184 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="一個請求 URI 實際上是由三個部份所組成，你可以使用 HttpServletRequest 的 getRequestURI() 來取得：
+requestURI = contextPath + ser...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="URL 模式">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/URLPattern.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="一個請求 URI 實際上是由三個部份所組成，你可以使用 HttpServletRequest 的 getRequestURI() 來取得：
+requestURI = contextPath + ser...">
+
+    <title>URL 模式</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="URLPattern.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>URL 模式</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>一個請求 URI 實際上是由三個部份所組成，你可以使用 <code>HttpServletRequest</code> 的 <code>getRequestURI()</code> 來取得：</p>
+<pre class="prettyprint"><code>requestURI = contextPath + servletPath + pathInfo
+</code></pre>
+<p>其中 contextPath 是環境路徑（Context path），是容器用來決定該挑選哪個 Web 應用程式的依據（一個容器上可能部署多個Web應用程式），在 Servlet 4.0 之前，環境路徑的設定並沒有標準規範，而是依伺服器實作而有所不同。例如在 Tomcat 9 中，可以設定 context.xml 的 <code>&lt;Context path="xxxx"&gt;</code> 來決定，在 Servlet 4.0 中，可以於 web.xml 中使用 <code>&lt;default-context-path&gt;</code> 來設定預設路徑，然而，容器實作廠商可以覆蓋這個設定。</p>
+<p>你可使用 <code>HttpServletRequest</code> 的 <code>getContextPath()</code> 來取得。如果應用程式環境路徑與 Web 伺服器環境根路徑相同，則應用程式環境路徑為空字串，如果不是，則應用程式環境路徑以 <code>/</code> 開頭，不包括 <code>/</code> 結尾。</p>
+<p>一旦決定是哪個 Web 應用程式來處理請求，接下來就進行 Servlet 的挑選，Servlet 必須設定 URL 模式（URL pattern），可以設定的格式是：</p>
+<ul>
+<li><code>/</code> 開頭但 <code>/*</code> 結尾的 URL 模式被用於路徑對應（Path mapping）。例如若設定 URL 模式為 <code>/guest/*</code>，則請求 URI 扣去環境路徑的部份若為 /guest/test.view、/guest/home.view 等以 /guest/ 作為開頭的，都會交由該Servlet處理。</li>
+<li>以 <code>*.</code> 開頭的 URL 模式被用於延伸對應（extension mapping）。例如若 URL 模式設定為 <code>*.view</code>，則所有以 .view 結尾的請求，都會交由該 Servlet 處理。</li>
+<li>空字串是個特殊的URL模式，對應至環境根目錄（Context root），也就是 <code>/</code> 的請求，但不用於設置 <code>&lt;url-pattern&gt;</code> 或 <code>urlPattern</code> 屬性。例如若環境根目錄為App，則 <code>http://host:port/App/</code> 的請求，路徑資訊是 /，而 Servlet 路徑與環境路徑都是空字串。</li>
+<li>僅包括 <code>/</code> 的 URL 模式，表示預設 Servlet，當找不到適合的 URL 模式對應時，就會使用預設 Servlet。</li>
+<li>其他的字串設定，都是用在於嚴格匹配（Exact match）。</li>
+</ul>
+<p>如果 URL 模式在設定比對的規則在某些 URL 請求時有所重疊，例如若有 <code>/admin/login.do</code>、<code>/admin/*</code> 與 <code>*.do</code> 三個URL模式設定，則請求時比對的原則是從最嚴格的 URL 模式開始符合。如果你請求 /admin/login.do，則一定是由 URL 模式設定為 <code>/admin/login.do</code> 的 Servlet 來處理，而不會是 <code>/admin/*</code> 或 <code>*.do</code>。如果你請求 /admin/setup.do，則是由 <code>/admin/*</code> 的 Servlet 來處理，而不會是 <code>*.do</code>。</p>
+<p>在最上面的 requestURI 中，servletPath 的部份是指 Servlet 路徑（Servlet path），不包括路徑資訊（Path info）與請求參數（Request parameter）。Servlet 路徑直接對應至URL模式資訊，可使用 <code>HttpServletRequest</code> 的 <code>getServletPath()</code> 來取得，Servlet 路徑基本上是以 <code>/</code> 開頭，但 <code>/*</code> 與空字串的URL模式比對而來的請求除外，在 <code>/*</code> 與空字串的情況下，Servlet 路徑是 <code>""</code>。</p>
+<p>例如若某個請求是根據 <code>/hello.do</code> 對應至 Servlet，則 Servlet 路徑就是 <code>"/hello.do"</code>，如果是透過 <code>/servlet/*</code> 對應至 Servlet，則 Servlet 路徑就是 <code>"/servlet"</code>，但如果是透過 <code>/*</code> 或空字串，則 Servlet 路徑就是 <code>""</code>。</p>
+<p>在最上面的 requestURI 中，pathInfo 的部份是指路徑資訊（Path info），路徑資訊不包括請求參數，指的是不包括 Context Path 與 Servlet Path 部份的額外路徑資訊。可使用 <code>HttpServletRequest</code> 的 <code>getPathInfo()</code> 來取得。如果沒有額外路徑資訊，則為 <code>null</code>（延伸對應、預設 Servlet、嚴格匹配的情況下），如果有額外路徑資訊，則是個以 <code>"/"</code> 為開頭的字串。</p>
+<p>例如若對以下的 Servlet 請求之 URL 為 http://localhost:8080/ServletDemo/servlet/path：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/servlet/*")
+public class Path extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("    &lt;head&gt;");
+        out.println("        &lt;title&gt;Path Servlet&lt;/title&gt;");
+        out.println("    &lt;/head&gt;");
+        out.println("    &lt;body&gt;");
+        out.println(request.getRequestURI() + "&lt;br&gt;");
+        out.println(request.getContextPath() + "&lt;br&gt;");
+        out.println(request.getServletPath() + "&lt;br&gt;");
+        out.println(request.getPathInfo());
+        out.println("    &lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+}
+</code></pre>
+<p>則會顯示以下的內容：</p>
+<pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Path Servlet&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+/ServletDemo/servlet/path&lt;br&gt;
+/ServletDemo&lt;br&gt;
+/servlet&lt;br&gt;
+/path
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>在 Servlet 4.0 中，<code>HttpServletRequest</code> 新增了 <code>getHttpServletMapping()</code> 方法，可以取得  <code>javax.servlet.http.HttpServletMapping</code> 實作物件，透過該物件，可以在執行時期，偵測執行中的 Servlet，是透過哪個 URL 對應而來，以及被比對到的值為何等，例如：</p>
+<pre class="prettyprint"><code>package cc.openhome;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletMapping;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/servlet/*")
+public class Path extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpServletMapping mapping = request.getHttpServletMapping();
+
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("    &lt;head&gt;");
+        out.println("        &lt;title&gt;Path Servlet&lt;/title&gt;");
+        out.println("    &lt;/head&gt;");
+        out.println("    &lt;body&gt;");
+        out.println(mapping.getMappingMatch() + "&lt;br&gt;");
+        out.println(mapping.getMatchValue() + "&lt;br&gt;");
+        out.println(mapping.getPattern());
+        out.println("    &lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+}
+</code></pre>
+<p><code>HttpServletMapping</code> 的 <code>getMappingMatch()</code> 會傳回 <code>javax.servlet.http.MappingMatch</code> 列舉值，成員有 <code>CONTEXT_ROOT</code>、<code>DEFAULT</code>、<code>EXACT</code>、<code>EXTENSION</code> 與 <code>PATH</code>，個別的 URL 模式意義在前面有談過了。</p>
+<p><code>getMatchValue()</code> 會傳回實際上符合的比對值，<code>getPattern()</code> 傳回使用之 URL 模式，例如，若請求 http://localhost:8080/ServletDemo/servlet/path，那麼會路徑比對成功，而比對值是 path，結果會顯示如下：</p>
+<pre class="prettyprint"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Path Servlet&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+PATH&lt;br&gt;
+path&lt;br&gt;
+/servlet/*
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

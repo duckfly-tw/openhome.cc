@@ -1,0 +1,160 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 Go 1.13 之前，errors 套件只公開了 New 函式，從 Go 1.13 之後，增加了 Is、As、與 Unwrap 函式。
+Is 函式是用於取代 == 判斷錯誤的場合，例如以下的程式片...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="errors 套件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Go/errors.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 Go 1.13 之前，errors 套件只公開了 New 函式，從 Go 1.13 之後，增加了 Is、As、與 Unwrap 函式。
+Is 函式是用於取代 == 判斷錯誤的場合，例如以下的程式片...">
+
+    <title>errors 套件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="errors.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< Go 語言</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>errors 套件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 Go 1.13 之前，<code>errors</code> 套件只公開了 <code>New</code> 函式，從 Go 1.13 之後，增加了 <code>Is</code>、<code>As</code>、與 <code>Unwrap</code> 函式。</p>
+<p><code>Is</code> 函式是用於取代 <code>==</code> 判斷錯誤的場合，例如以下的程式片段：</p>
+<pre class="prettyprint"><code lang="golang">if err == io.EOF {
+    ...
+}
+</code></pre>
+<p>可以改用 <code>Is</code> 函式：</p>
+<pre class="prettyprint"><code lang="golang">if errors.Is(err, io.EOF) {
+    ...
+}
+</code></pre>
+<p><code>Is</code> 也可以用於判斷 <code>nil</code>，<code>err</code> 若有實作 <code>Is</code> 方法，也可以使用 <code>Is</code> 函式來判斷，因為 <code>Is</code> 函式的原始碼是這麼實作的：</p>
+<pre class="prettyprint"><code lang="golang">func Is(err, target error) bool {
+    if target == nil {
+        return err == target
+    }
+
+    isComparable := reflectlite.TypeOf(target).Comparable()
+    for {
+        if isComparable &amp;&amp; err == target {
+            return true
+        }
+        if x, ok := err.(interface{ Is(error) bool }); ok &amp;&amp; x.Is(target) {
+            return true
+        }
+        // TODO: consider supporing target.Is(err). This would allow
+        // user-definable predicates, but also may allow for coping with sloppy
+        // APIs, thereby making it easier to get away with them.
+        if err = Unwrap(err); err == nil {
+            return false
+        }
+    }
+}
+</code></pre>
+<p>（從原始碼中的註解可以看到，未來可能進一步支援 <code>target</code> 實作 <code>Is</code> 方法的情況。）</p>
+<p><code>As</code> 函式是用於取代型態斷言判斷錯誤類型的場合，例如以下的程式片段：</p>
+<pre class="prettyprint"><code lang="golang">if e, ok := err.(*PathError); ok {
+    ...
+}
+</code></pre>
+<p>可以改用 <code>As</code> 函式：</p>
+<pre class="prettyprint"><code lang="golang">var e *PathError
+if errors.As(err, &amp;e) {
+    ...
+}
+</code></pre>
+<p>來看看 <code>As</code> 函式的實作：</p>
+<pre class="prettyprint"><code lang="golang">func As(err error, target interface{}) bool {
+    if target == nil {
+        panic("errors: target cannot be nil")
+    }
+    val := reflectlite.ValueOf(target)
+    typ := val.Type()
+    if typ.Kind() != reflectlite.Ptr || val.IsNil() {
+        panic("errors: target must be a non-nil pointer")
+    }
+    if e := typ.Elem(); e.Kind() != reflectlite.Interface &amp;&amp; !e.Implements(errorType) {
+        panic("errors: *target must be interface or implement error")
+    }
+    targetType := typ.Elem()
+    for err != nil {
+        if reflectlite.TypeOf(err).AssignableTo(targetType) {
+            val.Elem().Set(reflectlite.ValueOf(err))
+            return true
+        }
+        if x, ok := err.(interface{ As(interface{}) bool }); ok &amp;&amp; x.As(target) {
+            return true
+        }
+        err = Unwrap(err)
+    }
+    return false
+}
+</code></pre>
+<p><code>target</code> 若不是指標就會 <code>panic</code>；另外，<code>err</code> 可以是個實作 <code>As</code> 方法的實例。</p>
+<p>在 <code>Is</code> 與 <code>As</code> 的實作中，都看到了 <code>Unwrap</code> 函式：</p>
+<pre class="prettyprint"><code lang="golang">func Unwrap(err error) error {
+    u, ok := err.(interface {
+        Unwrap() error
+    })
+    if !ok {
+        return nil
+    }
+    return u.Unwrap()
+} 
+</code></pre>
+<p>從 Go 1.13 開始，錯誤可以實作 <code>Unwrap</code> 方法，如果 <code>e1.Unwrap()</code> 可以得到 <code>e2</code>，那麼 <code>e1</code> 實例包裹了 <code>e2</code>，因此，對於需要包含根源錯誤的情況，保存根源錯誤的欄位不需要是公開的，可以透過 <code>Unwrap</code> 來傳回，<code>Unwrap</code> 為取得包裹的錯誤提供了統一的名稱。</p>
+<p><code>fmt</code> 套件有個 <code>Errorf</code> 函式，可以格式化字串並傳回 <code>error</code> 實例，在 Go 1.13 之前的版本，就只是將格式化後的字串傳給 <code>errors.New</code>；從 Go 1.13 開始，<code>Errorf</code> 支援 <code>%w</code>，這會令傳回的 <code>error</code> 實例會包裹指定的錯誤，並具有 <code>Unwrap</code> 方法。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

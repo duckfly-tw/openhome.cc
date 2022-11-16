@@ -1,0 +1,99 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="當請求來到伺服器時，Rails會收集請求資訊，你可以透過一些方法或物件來得知各種請求資訊，例如請求參數名稱與請求參數值可以透過params方法來取得，傳回的物件是ActiveSupport::Hash...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="params 與 request">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/ParamsRequest.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="當請求來到伺服器時，Rails會收集請求資訊，你可以透過一些方法或物件來得知各種請求資訊，例如請求參數名稱與請求參數值可以透過params方法來取得，傳回的物件是ActiveSupport::Hash...">
+
+
+    <title>params 與 request</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ParamsRequest.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>params 與 request</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>當請求來到伺服器時，Rails會收集請求資訊，你可以透過一些方法或物件來得知各種請求資訊，例如請求參數名稱與請求參數值可以透過<span
+
+          class="courier">params</span>方法來取得，傳回的物件是<span class="courier">ActiveSupport::HashWithIndifferentAccess的實例，父類別為Hash。ActiveSupport::HashWithIndifferentAccess與Hash的不同在於，如果以:name及"name"為鍵，前者會視作相同的鍵，而後者則不然</span>。</p>
+      <p>如果要指定請求參數名稱來取得對應的值，可以如下：</p>
+      <p style="margin-left: 40px;"><span class="courier" style="font-weight: bold;">name = params[:name]</span><br>
+        <span style="color: rgb(0, 0, 0); font-family: serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; background-color: rgb(255, 255, 255); display: inline ! important; float: none;"></span></p>
+      <p><span class="courier">這會傳回String實例，若傳來的是像"123"這樣的字串值，而你需要的是整數型態，則必須使用to_i或Integer這類的方法將之剖析為整數型態。若請求中沒有所指定的請求參數名稱，則會傳回nil</span>。<br>
+      </p>
+      <p>如果表單上有可複選的元件，例如核取方塊（Checkbox）、清單（List）等，同一個請求參數名稱會有多個值，此時的HTTP查詢字串其實就是像name[]=10&amp;name[]=20&amp;name[]=30，<span
+
+          class="courier">此時可以用params[:name]方法取得一個Array實例，每個索引元素都是String實例，代表被選取的值。</span>例如：<br>
+      </p>
+      <p class="courier" style="margin-left: 40px;"><span><strong>names = params[:name] # names 的內容會是["10", "20", "30"]</strong></span><br
+
+          style="font-weight: bold;">
+      </p>
+      <p>當然，[與]必須作URL編碼，如果要自行編碼，實際的請求參數必須是name%5B%5D=10&amp;name%5B%5D=20&amp;name%5B%5D。</p>
+      <p>如果是相同關係的請求參數，可以組織在一起，例如使用者資訊的發送，可以組織為user[name]=Justin&amp;user[age]=20&amp;user[city]=Kaohsiung的方式，實際作URL編碼則會是user%5Bname%5D=Justin&amp;user%5Bage%5D=20&amp;user%5Bcity%5D=Kaohsiung，此時可用<span
+
+          class="courier">params[:user]取得ActiveSupport::HashWithIndifferentAccess物件，內容為{"name" =&gt; "Justin", "age" =&gt; "20", "city" =&gt; "Kaohsiung"}</span>。如果是user[address][city]=Kaohsiung&amp;user[address][postcode]=804這類的請求參數，則可以使用<span
+
+          class="courier">params[:user][:address]取得內嵌的ActiveSupport::HashWithIndifferentAccess</span>或者是直接用<span
+
+          class="courier">params[:user][:address][:city]來取得值</span>。例如：<br>
+      </p>
+      <p style="margin-left: 40px; font-weight: bold;"><span class="courier">address = params[:user][:address]<br>
+          city = address[:city]&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; # 或 params[:user][:address][:city]<br>
+          postcode = address[:postcode] # 或 params[:user][:address][:postcode]</span></p>
+      <p>Rails預設可以接收POST方式傳送的JSON格式，如果有個JSON如下：</p>
+      
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

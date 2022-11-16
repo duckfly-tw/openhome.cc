@@ -1,0 +1,168 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="若多個使用者可共住一個房間，則使用者與房間的關係就是多對一的關係。
+
+      
+      
+
+      
+
+您可以使用@ManyToOne於User類別的Room屬性上標示多對一...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="多對一">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/ManyToOne.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="若多個使用者可共住一個房間，則使用者與房間的關係就是多對一的關係。
+
+      
+      
+
+      
+
+您可以使用@ManyToOne於User類別的Room屬性上標示多對一...">
+
+
+    <title>多對一</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ManyToOne.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多對一</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            若多個使用者可共住一個房間，則使用者與房間的關係就是多對一的關係。<br>
+
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/ManyToOne-1.jpg" /></div></div><br>
+
+      <br>
+
+您可以使用@ManyToOne於User類別的Room屬性上標示多對一關係，例如：<br>
+
+      
+      
+      <ul>
+
+        <li>User.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.Serializable;<br>import javax.persistence.CascadeType;<br>import javax.persistence.Column;<br>import javax.persistence.Entity;<br>import javax.persistence.GeneratedValue;<br>import javax.persistence.GenerationType;<br>import javax.persistence.Id;<br>import javax.persistence.JoinColumn;<br>import javax.persistence.ManyToOne;<br>import javax.persistence.Table;<br><br>@Entity<br>@Table(name="T_USER")<br>public class User implements Serializable {<br>    @Id<br>    @GeneratedValue(strategy = GenerationType.AUTO)<br>    @Column(name="USER_ID")<br>    private Long id;<br>    private String name;<br>    private Long age;<br><br><span style="font-weight: bold;">    @ManyToOne(cascade=CascadeType.ALL)</span><br><span style="font-weight: bold;">    @JoinColumn(name="ROOM_ID_FK")</span><br><span style="font-weight: bold;">    private Room room;</span><br>    // 以下為 Getter、Setter<br>    ....<br>}</code></pre>
+
+      <br>
+而Room類別可以撰寫如下：<br>
+      
+      <ul>
+        <li>Room.java</li>
+      </ul>
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.io.Serializable;<br>import javax.persistence.Column;<br>import javax.persistence.Entity;<br>import javax.persistence.GeneratedValue;<br>import javax.persistence.GenerationType;<br>import javax.persistence.Id;<br>import javax.persistence.Table;<br><br>@Entity<br>@Table(name="T_ROOM")<br>public class Room implements Serializable {<br>    @Id<br>    @GeneratedValue(strategy = GenerationType.AUTO)<br>    @Column(name="ROOM_ID")<br>    private Long id;<br>    private String address;<br><span style="font-weight: bold;"></span><br>    // 以下為 Getter、Setter<br>    ....<br>}</code></pre>
+      <br>
+在這樣的設定下，是由User維持對Room的參考來維持多對一的關係，Room並沒有意識到User的存在，而您在儲存時，由於設定了CascadeType.ALL，所以直接儲存User實例時，所參考的Room實例也會一併被儲存，例如一個範例如下所示：<br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Room room = new Room();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; room.setAddress("NTU-M8-419");</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User user1 = new User();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user1.setName("caterpillar");</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user1.setAge(new Long(30));</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user1.setRoom(room);</span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User user2 = new User();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user2.setName("Justin");</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user2.setAge(new Long(35));</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user2.setRoom(room);</span><br>
+      <br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityManager entityManager =</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+JPAUtil.getEntityManagerFactory().createEntityManager();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntityTransaction etx = entityManager.getTransaction();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.begin();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.persist(user1);</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.persist(user2);</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; etx.commit();</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entityManager.close();</span><br>
+      <br>
+此時會先儲存Room實例，取得ROOM_ID之後，再儲存User實例，並將ROOM_ID_FK設為與ROOM_ID相同，此時表格內容如下所示：<br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/ManyToOne-2.jpg" /></div></div><br>
+      <br>
+而如果您使用以下的方式查詢：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">User user = entityManager.find(User.class, new Long(1));</span><br>
+      </div>
+      <br>
+在使用Hibernate作為JPA的實作時，會產生以下的SQL語句：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">Hibernate: </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; select</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.USER_ID as USER1_0_1_,</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.age as age0_1_,</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.name as name0_1_,</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.ROOM_ID_FK as ROOM4_0_1_,</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; room1_.ROOM_ID as ROOM1_1_0_,</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; room1_.address as address1_0_ </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; from</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_USER user0_ </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; left outer join</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_ROOM room1_ </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; on user0_.ROOM_ID_FK=room1_.ROOM_ID </span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; where</span><br>
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user0_.USER_ID=?</span><br>
+      </div>
+      <br>
+      <br>
+      <br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

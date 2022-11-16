@@ -1,0 +1,485 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="每
+個EntityManager都與一個 Persistence
+Context 關聯，EntityManager不直接維護Entity，而是將之委托給Persistence
+Context，P...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="EntityManager 範圍">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/EntityManagerScope.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="每
+個EntityManager都與一個 Persistence
+Context 關聯，EntityManager不直接維護Entity，而是將之委托給Persistence
+Context，P...">
+
+
+    <title>EntityManager 範圍</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="EntityManagerScope.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>EntityManager 範圍</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            每
+個EntityManager都與一個 <a href="PersistenceContext.html">Persistence
+Context</a> 關聯，EntityManager不直接維護Entity，而是將之委托給Persistence
+Context，Persistence Context中會維護一組Entity實例，Entity實例在Persistence
+Context中為Managed狀態，這在 <a href="EntityLifeCycle.html">Entity&nbsp;生命週期</a>
+中有說明。<br>
+
+
+
+
+
+
+      <br>
+
+      之前有關於 <a href="EntityManager.html">使用 EntityManager</a> 以及 <a href="EntityLifeCycle.html">Entity&nbsp;生命週期</a>，都是以Application-Managed EntityManager為例作說明，若是在Container-Managed EntityManager的情況下，您可以設定由容器來為您管理Persistence Context的範圍。<br>
+
+      <br>
+
+
+
+
+
+
+      在 <a href="FirstContainerManagedJPA.html">第一個
+JPA（容器管理）</a>
+的例子中，在注入PersistenceContext至EntitySessionBean時，並沒有使用type指定
+PersistenceContext的類型，則Persistence
+Context預設為Transaction-scoped，在EntitySessionBean方
+法開始前會啟始交易，結束後停止交易，Persistence
+Context的存活範圍在交易之間，也就是Entity實例在交易完成之後，將會不受EntityManager的管理，將不在是Managed狀態，而處於Detached狀
+態。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+您可以在使用@PersistenceContext時，指定type屬性為PersistenceContextType.EXTENDED（預設為PersistenceContextType.TRANSACTION），
+使Persistence Context為Extended Persistence
+Context，在EntityManager實例存活期間，Entity始終受到PersistenceContext的管理，Extended
+Persistence Context只能用於Stateful Session Bean中，Entity會一直受EntityManager的PersistenceContext管理，直到Stateful
+Session Bean結束而EntityManager關閉（close）為止。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+舉個例子來說，當您使用預設的Transaction-scoped Persistence
+Context，則要更新資料表中的對應資料時，Detached狀態的Entity必須先使其回到Managed狀態，也就是您也許會在Session
+Bean中設計像以下的一些方法：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User updateUser(User user) { // 若 user 已被變更<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user1;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User updateUser(User user, String name) {&nbsp;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; user1.setName(name);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user1;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User deleteUser(User user) {<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; entityManager.remove(user1);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user1;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      ....<br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+您可以想像指定type屬性為PersistenceContextType.EXTENDED
+時，一旦進入EntityManager的管理，Entity一直處於Managed的狀態，若如此，則以上的程式片段中，有些不再需要：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User updateUser(User user) { // 若 user 已被變更<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user1;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User updateUser(User user, String name) {&nbsp;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; user.setName(name);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; public User deleteUser(User user) {<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; User user1 = entityManager.merge(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; entityManager.remove(user);<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; &nbsp; &nbsp; return user;<br>
+
+
+
+
+
+
+      &nbsp;
+&nbsp; }<br>
+
+
+
+
+
+
+      ....<br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      <br>
+
+
+
+嚴格說來，本頁標題名稱應該叫作PersistenceContext範圍，因為type屬性設定的正是EntityManager的Persistence Context有效範圍，不過一般也常稱為Transaction-scoped EntityManager或Extended-scoped EntityManager。<br>
+
+
+      <br>
+
+若為Application-Managed EntityManager，像是在 <a href="FirstLocalJPA.html">第一個 JPA（單機客戶端）</a> 或 <a href="ServletJPA.html">在 Servlet 中直接使用 JPA</a> 中的Application-Managed EntityManager，則其行為類似於以上說明的Extended-scoped EntityManager，也就是Persistence Context是隨著EntityManager的關閉而失效，也就是當EntityManager關閉後，Entity就不再為Managed狀態。<br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

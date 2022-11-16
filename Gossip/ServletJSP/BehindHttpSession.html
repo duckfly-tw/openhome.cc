@@ -1,0 +1,108 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 HttpSession 進行會話管理十分方便，讓 Web 應用程式看似可以「記得」是瀏覽器發出的請求，連接數個請求間的關係。但無論如何，Web 應用程式是基於 HTTP 協定的事實並沒有改變，實...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="HttpSession 原理">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/BehindHttpSession.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="使用 HttpSession 進行會話管理十分方便，讓 Web 應用程式看似可以「記得」是瀏覽器發出的請求，連接數個請求間的關係。但無論如何，Web 應用程式是基於 HTTP 協定的事實並沒有改變，實...">
+
+    <title>HttpSession 原理</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="BehindHttpSession.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>HttpSession 原理</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>使用 <code>HttpSession</code> 進行會話管理十分方便，讓 Web 應用程式看似可以「記得」是瀏覽器發出的請求，連接數個請求間的關係。但無論如何，Web 應用程式是基於 HTTP 協定的事實並沒有改變，實際上如何「得知」數個請求之間的關係，這件工作是由 Web 容器幫你執行。</p>
+<p>當你嘗試執行 <code>HttpServletRequest</code> 的 <code>getSession()</code> 時，Web容器會為你建立 <code>HttpSession</code> 物件，每個 <code>HttpSession</code> 物件都會有個特殊的 ID，稱之為Session ID，你可以執行 <code>HttpSession</code> 的 <code>getId()</code> 來取得 Session ID。這個 Session ID 預設會使用 Cookie 存放至瀏覽器，Cookie 的名稱預設是 <code>JSESSIONID</code>，數值則是 <code>getId()</code> 取得的 Session ID。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BehindHttpSession-1.JPG" alt="HttpSession 原理"  /></div></div></p>
+<p>由於 Web 容器本身是執行於 JVM 中的一個 Java 程式，透過 <code>getSession()</code> 取得的 <code>HttpSession</code>，則是 Web 容器中的一個 Java 物件，<code>HttpSession</code> 存放的屬性，自然也就存放於伺服端的 Web 容器之中。每個 <code>HttpSession</code> 各有特殊的Session ID，當瀏覽器請求應用程式時，會將Cookie中存放的Session ID一併發送給應用程式，Web 容器根據 Session ID 來找出對應的 <code>HttpSession</code> 物件，如此就可以取得各瀏覽器個別的會話資料。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/BehindHttpSession-2.JPG" alt="HttpSession 原理"  /></div></div></p>
+<p>使用 <code>HttpSession</code> 來進行會話管理時，設定為屬性的資料是儲存在伺服端，而 Session ID 預設使用 Cookie 存放於瀏覽器。Web 容器儲存 Session ID 的 Cookie 預設為關閉瀏覽器就失效，所以當你重新開啟瀏覽器請求應用程式時，透過 <code>getSession()</code> 取得的就是新的 <code>HttpSession</code> 物件。</p>
+<p>每次請求來到應用程式時，容器會根據發送過來的 Session ID 取得對應的 <code>HttpSession</code>。由於 <code>HttpSession</code> 物件會佔用記憶體空間，所以 <code>HttpSession</code> 的屬性中儘量不要儲存耗資源的大型物件，必要時將屬性移除，或者不需使用 <code>HttpSession</code> 時，執行 <code>invalidate()</code> 讓 <code>HttpSession</code> 失效。</p>
+<p>注意！預設關閉瀏覽器會馬上失效的是瀏覽器上的 Cookie，不是伺服器上的 <code>HttpSession</code> 物件。因為 Cookie 失效了，就無法透過 Cookie 來發送 Session ID，所以嘗試 <code>getSession()</code> 時，容器會產生新的 <code>HttpSession</code>。要讓 <code>HttpSession</code> 立即失效必須執行 <code>invalidate()</code> 方法，否則的話，<code>HttpSession</code> 會等到設定的失效期間過後才會被容器銷毀回收。</p>
+<p>你可以執行 <code>HttpSession</code> 的 <code>setMaxInactiveInterval()</code> 方法，設定瀏覽器多久沒有請求應用程式的話， <code>HttpSession</code> 就自動失效，設定的單位是「秒」。你也可以在 web.xml 中設定 <code>HttpSession</code> 預設的失效時間，但要特別注意！設定的時間單位是「分鐘」。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;/web-app …&gt;
+    ...
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;30&lt;/session-timeout&gt; &lt;!-- 30 分鐘 --&gt;
+    &lt;/session-config&gt;
+&lt;/web-app&gt;
+</code></pre>
+<p>注意！使用 <code>HttpSession</code>，預設是使用 Cookie 儲存 Session ID，但你不用介入操作 Cookie 的細節，容器會幫你完成相關操作。特別注意的是，執行 <code>HttpSession</code> 的 <code>setMaxInactiveInterval()</code> 方法，所設定的是 <code>HttpSession</code> 物件在瀏覽器多久沒活動就失效的時間，而不是儲存 Session ID 的 Cookie 失效時間。儲存 Session ID 的 Cookie 預設為關閉瀏覽器就失效。</p>
+<p>在 Servlet 4.0 中，<code>HttpSession</code> 預設失效時間，也可以透過 <code>ServletContext</code> 的 <code>setSessionTimeout()</code> 來設定。</p>
+<p>在 Servlet 3.0 中新增了 <code>SessionCookieConfig</code> 介面，你可以透過 <code>ServletContext</code> 的 <code>getSessionCookieConfig()</code> 來取得實作該介面的物件，要取得 <code>ServletContext</code> 的話，則可以透過 <code>Servlet</code> 實例的 <code>getServletContext()</code> 來取得（關於 <code>ServletContext</code>，之後還會介紹）。</p>
+<p>透過 <code>SessionCookieConfig</code> 實作物件，你可以設定儲存 Session ID 的 Cookie 相關資訊，例如可以透過 <code>setName()</code> 將預設的 Session ID 名稱修改為別的名稱，透過 <code>setMaxAge()</code> 設定儲存 Session ID 的 Cookie 存活期限（單位是秒）等。</p>
+<p>但是要注意的是，設定 <code>SessionCookieConfig</code> 必須在 <code>ServletContext</code> 被初始化之前，所以實際上你要修改 Session ID、Cookie 存活期等資訊時，必須在 web.xml 中設定。例如：</p>
+<pre class="prettyprint"><code lang="java">&lt;/web-app …&gt;
+    ...
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;30&lt;/session-timeout&gt; &lt;!-- 30 分鐘 --&gt;
+        &lt;cookie-config&gt;
+            &lt;name&gt;yourJsessionid&lt;/name&gt;
+            &lt;secure&gt;true&lt;/secure&gt;
+            &lt;http-only&gt;true&lt;/http-only&gt;
+            &lt;max-age&gt;1800&lt;/max-age&gt; &lt;!-- 1800 秒，不建議 --&gt;
+        &lt;/cookie-config&gt;
+    &lt;/session-config&gt;
+&lt;/web-app&gt;
+</code></pre>
+<p>另一個方法則是實作 <code>ServletContextListener</code>，容器在初始化 <code>ServletContext</code> 時會呼叫 <code>ServletContextListener</code> 的 <code>contextInitialized()</code> 方法，可以在其中取得 <code>ServletContext</code> 進行設定 <code>SessionCookieConfig</code>。關於 <code>ServletContextListener</code> 之後還會說明。</p>
+<p>由於許多應用程式，都會在 <code>HttpSession</code> 中置放代表已登入的 Token 屬性，之後藉此判斷使用者是否登入，這表示只有有人可以拿到 Session ID（Session Hijacking），或者令客戶端使用特定的 Session ID（Session Fixation），就能達到入侵的可能性。</p>
+<p>因此，建議不採用預設的 Session ID 名稱、在加密連線中傳遞 Session ID、設定 HTTP-Only 等，在使用者登入成功之後，變更 Session ID 以防止客戶端被指定了特定的 Session ID，而將重要的登入 Token 等資訊存入了特定的 <code>HttpSession</code>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

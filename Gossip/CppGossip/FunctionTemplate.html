@@ -1,0 +1,250 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="經常地，你會撰寫相同演算流程的函式，雖然參數型態不同，然而物件的協定相同：
+bool greaterThan(int a, int b) {
+    return a &gt; b;
+}
+
+bool ...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="函式模版">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/FunctionTemplate.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="經常地，你會撰寫相同演算流程的函式，雖然參數型態不同，然而物件的協定相同：
+bool greaterThan(int a, int b) {
+    return a &gt; b;
+}
+
+bool ...">
+
+    <title>函式模版</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FunctionTemplate.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>函式模版</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>經常地，你會撰寫相同演算流程的函式，雖然參數型態不同，然而物件的協定相同：</p>
+<pre class="prettyprint"><code lang="c++">bool greaterThan(int a, int b) {
+    return a &gt; b;
+}
+
+bool greaterThan(string a, string b) {
+    return a &gt; b;
+}
+</code></pre>
+<p>這時就會希望，參數的型態也可以…呃…參數化，也就是 <code>a</code>、<code>b</code> 的型態可以在呼叫時指定，而不是如上寫死了兩個版本，這時可以使用函式模版：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T&gt;
+bool greaterThan(T a, T b) {
+    return a &gt; b;
+}
+
+int main() { 
+    // 顯示 0
+    cout &lt;&lt; greaterThan(10, 20) &lt;&lt; endl;
+
+    // 顯示 1
+    cout &lt;&lt; greaterThan(string("xyz"), string("abc")) &lt;&lt; endl;
+
+    return 0; 
+} 
+</code></pre>
+<p>在這個範例中，<code>greaterThan</code> 是個函式模版（function template），或稱為泛型函式（generic function），定義模版時使用 <code>template</code>，之後跟著模版參數列，<code>typename</code> 定義了一個模版參數 <code>T</code>，若有多個模版參數，各自都要使用 <code>typename</code> 來定義，每個模版參數以逗號區隔。</p>
+<p>程式碼 <code>greaterThan(10, 20)</code> 建立了一個模版的實例（instance），相當於 <code>greaterThan&lt;int&gt;(10, 20)</code>，而 <code>greaterThan(string("xyz"), string("abc"))</code> 建立了另一個模版實例，相當於 <code>greaterThan(string("xyz"), string("abc"))</code>。</p>
+<p>建立一個模版實例的意思是，編譯器推斷出 <code>T</code> 的型態，產生並編譯了一個對應版本，這就是之所以名為模版的原因，也就是說編譯器以你定義的模版為基礎，為 <code>greaterThan(10, 20)</code> 建立了 <code>bool greaterThan(int, int)</code>，為 <code>greaterThan(string("xyz"), string("abc"))</code> 建立了 <code>bool greaterThan(string, string)</code>。</p>
+<p>如果有某個版本，不想要編譯器建立，而想要自行實作呢？可以明確地定義特化版本：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T&gt;
+bool greaterThan(T a, T b) {
+    return a &gt; b;
+}
+
+template &lt;&gt;
+bool greaterThan(string s1, string s2) {
+    return s1.size() &gt; s2.size();
+}
+
+int main() { 
+    cout &lt;&lt; greaterThan(10, 20) &lt;&lt; endl;
+    cout &lt;&lt; greaterThan(string("xyz"), string("abc")) &lt;&lt; endl;
+
+    return 0; 
+} 
+</code></pre>
+<p>在這個例子中，也許你想比的是字串的長度而不是字典順序，為此建立了特化版本，因此編譯器就不會自行建立 <code>bool greaterThan(string, string)</code> 的版本，而是使用你定義的特化版本，執行結果就都顯示 0 了。</p>
+<p>現在來看看一個需求，傳遞陣列給函式時會使用指標，一個例子是：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+void printAll(int *arr, int len) {
+    for(int i = 0; i &lt; len; i++) {
+        cout &lt;&lt; arr[i] &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+}
+
+int main() { 
+    int arr1[] = {1, 2};
+    int arr2[] = {3, 4, 5};
+
+    printAll(arr1, 2);
+    printAll(arr2, 3);
+
+    return 0; 
+} 
+</code></pre>
+<p>如果想在 <code>printAll</code> 中使用 for range 可行嗎？就上例來說沒辦法，根據〈<a href="PointerAndArray.html">指標與陣列</a>〉與〈<a href="Pointer2Pointer.html">指標的指標</a>〉的說明，必須改為以下：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+void printAll(int (*arr)[2]) {
+    for(auto elem : *arr) {
+        cout &lt;&lt; elem &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+}
+
+void printAll(int (*arr)[3]) {
+    for(auto elem : *arr) {
+        cout &lt;&lt; elem &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+}
+
+int main() { 
+    int arr1[] = {1, 2};
+    int arr2[] = {3, 4, 5};
+
+    printAll(&amp;arr1);
+    printAll(&amp;arr2);
+
+    return 0; 
+} 
+</code></pre>
+<p>問題是解決了，然而也在參數上寫死了陣列長度，仔細看看兩個函式的實作內容是相同的，這時你會想，編譯器可以為函式模版推斷出對應型態的版本，那可否推斷出陣列長度的值呢？可以喔！</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T, int L&gt;
+void printAll(T (*arr)[L]) {
+   for(auto elem : *arr) {
+       cout &lt;&lt; elem &lt;&lt; " ";
+   }
+   cout &lt;&lt; endl;
+}
+
+int main() { 
+    int arr1[] = {1, 2};
+    int arr2[] = {3, 4, 5};
+
+    printAll(&amp;arr1);
+    printAll(&amp;arr2);
+
+    return 0; 
+} 
+</code></pre>
+<p>在上例中，<code>L</code> 並不是以 <code>typename</code> 定義，而是 <code>int</code>，這稱為模版的非型態參數（nontype parameter），編譯器會試著為非型態參數推斷出一個值，值的推斷來源必須是個常數運算式，也就是靜態時期可決定的值。</p>
+<p>上例可以使用參考，令呼叫時更直覺一些，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T, int L&gt;
+void printAll(T (&amp;arr)[L]) {
+   for(auto elem : arr) {
+       cout &lt;&lt; elem &lt;&lt; " ";
+   }
+   cout &lt;&lt; endl;
+}
+
+int main() { 
+    int arr1[] = {1, 2};
+    int arr2[] = {3, 4, 5};
+
+    printAll(arr1);
+    printAll(arr2);
+
+    return 0; 
+} 
+</code></pre>
+<p>實際上，<code>T (&amp;arr)[L]</code> 的宣告是多此一舉，既然都用了模版了，底下照樣也行得通：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+template &lt;typename T&gt;
+void printAll(T &amp;arr) {
+   for(auto elem : arr) {
+       cout &lt;&lt; elem &lt;&lt; " ";
+   }
+   cout &lt;&lt; endl;
+}
+
+int main() { 
+    int arr1[] = {1, 2};
+    int arr2[] = {3, 4, 5};
+
+    printAll(arr1);
+    printAll(arr2);
+
+    return 0; 
+} 
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

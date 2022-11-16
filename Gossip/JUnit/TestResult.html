@@ -1,0 +1,520 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="繼
+續 建立測試案例
+的故事，測試人員又來了：「你的執行器提供的測試訊息怎麼都是文字模式？如果哪天要顯示在視窗模式下怎麼辦？還有！可以多些測試訊息嗎？只顯示成功或失敗
+其實沒啥幫助耶！」
+  ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="收集測試結果">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/TestResult.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="繼
+續 建立測試案例
+的故事，測試人員又來了：「你的執行器提供的測試訊息怎麼都是文字模式？如果哪天要顯示在視窗模式下怎麼辦？還有！可以多些測試訊息嗎？只顯示成功或失敗
+其實沒啥幫助耶！」
+  ...">
+
+
+    <title>收集測試結果</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TestResult.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>收集測試結果</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            繼
+續 <a href="TestTemplate.html">建立測試案例</a>
+的故事，測試人員又來了：「你的執行器提供的測試訊息怎麼都是文字模式？如果哪天要顯示在視窗模式下怎麼辦？還有！可以多些測試訊息嗎？只顯示成功或失敗
+其實沒啥幫助耶！」<br>
+      <br>
+他的抱怨也不是沒有道理，那麼，所有的錯誤就先用例外（Exception）丟出好了，到時接住（Catch）例外，再看怎麼顯示訊息好了。所以，你改了
+一下<span style="font-family: Courier New,Courier,monospace;">Assert</span>類
+別：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      public
+class Assert {<br>
+      &nbsp;&nbsp;&nbsp;
+public static void assertEquals(String message, int expected, int
+result) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; if(expected != result) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(message == null) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new
+RuntimeException(String.format(<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; "失敗，預期為 %d，但是傳回 %d！", expected,
+result));<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new
+RuntimeException(String.format(message, expected, result));<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public static void assertEquals(int expected, int result) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; assertEquals(null, expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+你很貼心，這次修改後還可以讓測試人員自訂錯誤訊息。不過接下來比較麻煩，你要收集錯誤訊息，所以你先定義一個<span style="font-family: Courier New,Courier,monospace;">TestResult</span>：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      import
+java.util.*;<br>
+      public
+class TestResult {<br>
+      &nbsp;&nbsp;&nbsp;
+private List&lt;String&gt; messages = new ArrayList&lt;String&gt;();<br>
+      &nbsp;&nbsp;&nbsp;
+public void run(TestCase test) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; try {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; test.run();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; catch(Throwable t) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; messages.add(t.getMessage());<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public List&lt;String&gt; getMessages() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; return messages;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+測試失敗時會丟出例外，例外發生時收集訊息。<br>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">接著要改比較多東
+西了，因為要讓這個TestResult進入TestCase收集訊息。首先你調整了一下Test介面的定義：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">package test.cc.openhome;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public interface Test {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; void runTest(TestResult
+result);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+由於介面定義改了，實作Test介面的相關類別都得調整一下，以下紅字部份是有調整的：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">package
+test.cc.openhome;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">import
+java.lang.reflect.*;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public
+class TestCase extends Assert implements Test {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+private String fName;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public TestCase() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public TestCase(String name) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; fName = name;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+protected void setUp() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+protected void tearDown() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      <span style="color: red;">@Override</span></span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public void runTest(TestResult result) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; result.run(this);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public void run() { </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; setUp();</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; runTest();</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; tearDown();</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public void runTest() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Method runMethod= null;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; try {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; runMethod=
+getClass().getMethod(fName, null);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; } catch (Exception e) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException(e);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; if (!Modifier.isPublic(runMethod.getModifiers())) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException("方法
+\"" + fName + "\" 必須是 public");</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; try {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+invoke 中發生所有例外，一律會用InvocationTargetException包裹<br>
+      </span></span><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; runMethod.invoke(this, new
+Class[0]);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; } </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; catch(InvocationTargetException e) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+這邊要取得</span></span><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">InvocationTargetException
+中的目標例外，才是真正的錯誤訊息</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new
+RuntimeException(this.getClass() + "." +<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; runMethod.getName() +
+": " + e.getTargetException().getMessage());</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; catch (Exception e) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; throw new RuntimeException(e);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public String getName() {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; return fName;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+      </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+public void setName(String name) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; fName = name;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+}</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span></span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      </span>這樣<span style="font-family: Courier New,Courier,monospace;">TestCase</span>就
+調整好了，由於你還會使用<span style="font-family: Courier New,Courier,monospace;">TestSuite</span>來
+組合測試，而且它也實作了<span style="font-family: Courier New,Courier,monospace;">Test</span>介
+面，所以<span style="font-family: Courier New,Courier,monospace;">TestSuite</span>也
+得修一下：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      import
+java.lang.reflect.*;<br>
+      import
+java.util.*;<br>
+      public
+class TestSuite implements Test {<br>
+      &nbsp;&nbsp;&nbsp;
+private List&lt;Test&gt; tests = new ArrayList&lt;Test&gt;();<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public TestSuite() {}<br>
+      &nbsp;&nbsp;&nbsp;
+public TestSuite(Class clz) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; Method[] methods = clz.getDeclaredMethods();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; for (Method method : methods) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if
+(Modifier.isPublic(method.getModifiers())<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &amp;&amp; method.getName().startsWith("test")) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Constructor
+constructor = null;<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; try {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; constructor = clz.getConstructor();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestCase testCase = (TestCase)
+constructor.newInstance();<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; testCase.setName(method.getName());<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; add(testCase);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } catch
+(Exception e) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; throw new RuntimeException(e);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+public void runTest(TestResult result) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; for (Test test : tests) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; test.runTest(result);<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void add(Test test) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; tests.add(test);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public void add(Class clz) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; tests.add(new TestSuite());<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+&nbsp;&nbsp;&nbsp; public List&lt;Test&gt; get() {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return tests;<br>
+&nbsp;&nbsp;&nbsp; }<br>
+       }<br>
+      </div>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">再來是
+TestRunner了，原本的TestRunner改一下，建立TestResult，執行測試以收集資訊：<br>
+      </span>
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      public
+class TestRunner {<br>
+      &nbsp;&nbsp;&nbsp;
+public static TestResult run(Test test) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; TestResult result = new TestResult(); <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+test.runTest(result);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return result;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+public static TestResult run(Class clz) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return run(new TestSuite(clz)); <br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+如果要個文字模式的顯示，那就設計個TextTestRunner好了：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">package test.cc.openhome;</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">public class TextTestRunner {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static void
+run(Test test) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+TestResult result = TestRunner.run(test);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for(String message : result.getMessages()) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; System.out.println(message);</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public static void
+run(Class clz) {</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+run(new TestSuite(clz)); </span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span></span><br>
+      <span style="font-family: Courier New,Courier,monospace;"><span style="font-weight: bold;">}</span></span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      </span>例如，若測試人員的測試案例如下：<br>
+      
+      <div style="margin-left: 40px;">package
+test.cc.openhome;<br>
+      <br>
+      import
+cc.openhome.Calculator;<br>
+      <br>
+      public
+class CalculatorTest extends TestCase {<br>
+      &nbsp;&nbsp;&nbsp;
+private Calculator calculator;<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+protected void setUp() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; calculator = new Calculator();<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+@Override<br>
+      &nbsp;&nbsp;&nbsp;
+protected void tearDown() {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; calculator = null;<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testPlus() {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 2;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.plus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public void testMinus() {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int expected = 2;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int result = calculator.minus(3, 2);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+assertEquals(expected, result);<br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      &nbsp;&nbsp;&nbsp;
+      <br>
+      &nbsp;&nbsp;&nbsp;
+public static void main(String[] args) {<br>
+      &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; <span style="color: red;">TextTestRunner.run(CalculatorTest.class);</span><br>
+      &nbsp;&nbsp;&nbsp;
+}<br>
+      }<br>
+      </div>
+      <br>
+      <span style="font-family: Courier New,Courier,monospace;">testPlus()
+與testMinus()中的</span>expected<span style="font-family: Courier New,Courier,monospace;">我故意寫錯了，所以測試一定會失敗，這時
+測試人員會看到的訊息是：<br>
+      </span>
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace;">class
+test.cc.openhome.CalculatorTest.testPlus: 失敗，預期為 2，但是傳回 5！</span><br>
+      <span style="font-family: Courier New,Courier,monospace;">class
+test.cc.openhome.CalculatorTest.testMinus: 失敗，預期為 2，但是傳回 1！</span><br>
+      </div>
+      <span style="font-family: Courier New,Courier,monospace;"><br>
+      </span>事實上，這個故事發生前，你若知道有個 <a href="http://www.junit.org/">JUnit</a>
+測試框架，你什麼都不用作，人家都幫你寫好了，而且更完善，JUnit 基本原理都說完了，所以接下來，可以開始介紹 JUnit 了。。XD<br>
+      <br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

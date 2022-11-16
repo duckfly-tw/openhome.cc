@@ -1,0 +1,199 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果只是想寫讀取檔案，在〈Assets 管理〉中有提及，可以透過 AssetBundle 來的 loadString 等方法，從 assets 資料夾中讀取，那麼寫入呢？
+AssetBundle 只提...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="檔案路徑與讀寫">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/PathProvider.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果只是想寫讀取檔案，在〈Assets 管理〉中有提及，可以透過 AssetBundle 來的 loadString 等方法，從 assets 資料夾中讀取，那麼寫入呢？
+AssetBundle 只提...">
+
+    <title>檔案路徑與讀寫</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PathProvider.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>檔案路徑與讀寫</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果只是想寫讀取檔案，在〈<a href="Assets.html">Assets 管理</a>〉中有提及，可以透過 <code>AssetBundle</code> 來的 <code>loadString</code> 等方法，從 assets 資料夾中讀取，那麼寫入呢？</p>
+<p><code>AssetBundle</code> 只提供了一些讀取的方法，若要寫入，基本上可以透過 Dart 提供的標準 <code>io</code> 程式庫，只不過，必須解決路徑的問題，Android、iOS 等彼此間會有路徑不同的問題，雖然試著指定特定路徑也可以，然而 Flutter 本身的目標是跨裝置，最好是有一致的方式來指定路徑。</p>
+<p>Flutter 官方推薦使用 <a href="https://pub.dev/packages/path_provider">path_provider</a>，撰寫文件的這個時間點，其版本是 1.6.11，要使用這個程式庫，可以在 pubspec.yaml 中的 <code>dependencies</code> 區段加入：</p>
+<pre class="prettyprint"><code lang="dart">dependencies:
+  path_provider: ^1.6.11
+</code></pre>
+<p>接著在終端機中執行以下指令取得程式庫：</p>
+<pre class="prettyprint"><code lang="dart">flutter packages get
+</code></pre>
+<p>為了使用 Dart 標準 <code>io</code> 與 <code>path_provider</code>，先如下 <code>import</code>：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+</code></pre>
+<p><code>path_provider</code> 提供了一些方法，可以取得路徑，來看看其中的幾個方法：</p>
+<ul>
+<li><p><code>getApplicationSupportDirectory</code>：可存放應用程式資料之路徑，這類資料由應用程式自行產生，不曝露給使用者，例如應用程式自行產生的專屬格式檔案，這個資料夾會在應用程式被移除後自動刪除。</p>
+</li>
+<li><p><code>getApplicationDocumentsDirectory</code>：通常可用來存放應用程式專屬格式，然而是使用者操作而產生的檔案，例如特定格式的應用程式專案封裝檔案，要存放通用格式的使用者資料也可以，不過這個這個資料夾會在應用程式被移除後自動刪除。</p>
+</li>
+<li><p><code>getExternalStorageDirectory</code>：取得外部儲存裝置的路徑，例如 SD 卡，應用程式被移除後不會影響這個路徑，可用來儲存使用者操作而產生的檔案，然而非應用程式專屬格式的檔案，例如 JPG 格式的照片，若不支援或沒有外部儲存裝置，呼叫此方法會拋出錯誤。</p>
+</li>
+<li><p><code>getTemporaryDirectory</code>：取得暫存資料夾，這個資料夾隨時可能被系統或使用者操作清除。</p>
+</li>
+</ul>
+<p>來寫個函式取得 <code>getApplicationDocumentsDirectory</code> 的路徑：</p>
+<pre class="prettyprint"><code lang="dart">Future&lt;String&gt; get _appDocPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+</code></pre>
+<p>有了路徑之後，可以進一步建立 <code>File</code>，例如，建立一個代表 message.txt 的 <code>File</code>：</p>
+<pre class="prettyprint"><code lang="dart">Future&lt;File&gt; get _messageFile async {
+  final path = await _appDocPath;
+  return File('$path/message.txt');
+}
+</code></pre>
+<p>有了 <code>File</code> 後，做點基本的讀寫：</p>
+<pre class="prettyprint"><code lang="dart">Future&lt;String&gt; readMessage() async {
+    final file = await _messageFile;
+    String contents = await file.readAsString();
+    return contents;
+}
+
+Future&lt;File&gt; writeMessage(String message) async {
+  final file = await _messageFile;
+  return file.writeAsString('$message');
+}
+</code></pre>
+<p>底下是個應用範例，應用程式會有個輸入欄位，載入 message.txt 的內容，如果一開始沒有這個檔案就建立一個，你在輸入欄位鍵入內容後按下 Enter，會將欄位內容寫入 message.txt：</p>
+<pre class="prettyprint"><code lang="dart">import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+
+Future&lt;String&gt; get _appDocPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+
+Future&lt;File&gt; get _messageFile async {
+  final path = await _appDocPath;
+  return File('$path/message.txt');
+}
+
+Future&lt;String&gt; readMessage() async {
+    final file = await _messageFile;
+    String contents = await file.readAsString();
+    return contents;
+}
+
+Future&lt;File&gt; writeMessage(String message) async {
+  final file = await _messageFile;
+  return file.writeAsString('$message');
+}
+
+void main() =&gt; runApp(
+  MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(
+        title: Text('Openhome.cc'),
+      ),
+      body: Message()
+    )
+  )
+);
+
+class Message extends StatefulWidget {
+  @override
+  State&lt;StatefulWidget&gt; createState() =&gt; _Message();
+}
+
+class _Message extends State&lt;Message&gt; {
+  var messageController = TextEditingController(); 
+  File messageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageFile
+      .then((file) =&gt; file.exists())
+      .then((exists) async {
+        if(exists) {
+          messageController.text = await readMessage();
+          print(messageController.text);
+        }
+        else {
+          //messageController.text = '';
+          messageFile.create();
+        }
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: messageController,
+      decoration: InputDecoration(
+        labelText: '訊息',
+        hintText: '無訊息',
+        prefixIcon: Icon(Icons.message),
+      ),
+      textInputAction: TextInputAction.done,
+      onSubmitted: (value) =&gt; writeMessage(value),
+    );
+  }
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Lib2</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {TetrahedronGeometry, CubeGeometry, IcosahedronGeometry, BasicMaterial, Mesh, OrthographicCamera, PerspectiveCamera, Scene, BasicPainter} from './js/gl-comm-3.js';
+            
+            function randomFaceColors(n) {
+                const faceColors = [];
+                for(let i = 0; i < n; i++) {
+                    faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+                }
+                return faceColors;
+            }
+
+            const canvas = document.getElementById('glCanvas');
+            const painter = new BasicPainter(canvas);
+            painter.setBackgroundColor(0, 0, 0, 1);
+
+            const perspective = new PerspectiveCamera(
+                Math.PI / 4,                               // fovy
+                canvas.clientWidth / canvas.clientHeight,  // 寬高比
+                0.1,                                       // 近面
+                canvas.clientWidth                         // 遠面
+            );
+            perspective.setPosition(0, canvas.clientHeight / 8, 0);
+
+            const ortho = new OrthographicCamera(
+                -canvas.clientWidth / 2,  // 左邊界
+                canvas.clientWidth / 2,   // 右邊界
+                canvas.clientHeight / 2,  // 上邊界
+                -canvas.clientHeight / 2, // 下邊界
+                0.1,                      // 近面
+                canvas.clientWidth        // 遠面
+            );
+            ortho.setPosition(0, canvas.clientHeight / 8, 0);
+
+            const scene = new Scene(perspective);
+            scene.addMesh(new Mesh(new TetrahedronGeometry(75), new BasicMaterial(3, randomFaceColors(4))));
+            scene.addMesh(new Mesh(new CubeGeometry(75), new BasicMaterial(4, randomFaceColors(6))));
+            scene.addMesh(new Mesh(new IcosahedronGeometry(75), new BasicMaterial(3, randomFaceColors(20))));
+
+            let changeProjection = false;
+            canvas.addEventListener('mousedown', () => {
+                changeProjection = true;
+            });
+            
+            const origin = [0, 0, -canvas.clientWidth / 2];
+            const r = canvas.clientWidth / 4;
+            
+            let i = 0;
+            function drawIcosahedronGeometry() {
+                if(changeProjection) {
+                    scene.camera = scene.camera === perspective ? ortho : perspective;
+                    changeProjection = false;
+                }
+                i++;
+                
+                Array.from(scene.meshes)
+                     .forEach((mesh, j) => {
+                        const a = 0.025 * i + 2 * Math.PI / scene.meshes.size * j;
+                        mesh.setPosition(
+                            origin[0] + r * Math.cos(a), 
+                            origin[1], 
+                            origin[2] - r * Math.sin(a)
+                        );
+                        mesh.yRotate(0.025);                         
+                     });
+
+                painter.paint(scene);
+
+                requestAnimationFrame(drawIcosahedronGeometry);                
+            }
+
+            drawIcosahedronGeometry();
+        </script>
+    </body>
+</html>

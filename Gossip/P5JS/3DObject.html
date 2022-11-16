@@ -1,0 +1,544 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="除了 box 之外，p5.js 內建的 3D 物件還有 plane、sphere、cylinder、cone、ellipsoid、torus 等，如果需要其他的 3D 物件，可以透過 beginSha...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="自訂 3D 物件">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/3DObject.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="除了 box 之外，p5.js 內建的 3D 物件還有 plane、sphere、cylinder、cone、ellipsoid、torus 等，如果需要其他的 3D 物件，可以透過 beginSha...">
+
+    <title>自訂 3D 物件</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="3DObject.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 P5JS</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>自訂 3D 物件</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>除了 <code>box</code> 之外，p5.js 內建的 3D 物件還有 <code>plane</code>、<code>sphere</code>、<code>cylinder</code>、<code>cone</code>、<code>ellipsoid</code>、<code>torus</code> 等，如果需要其他的 3D 物件，可以透過 <code>beginShape</code>、<code>vertex</code>、<code>endShape</code> 等自行建立。例如，p5.js 的 <code>box</code> 不能指定位置，底下定義一個可指定位置的立方體：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300, WEBGL);
+    angleMode(DEGREES);
+}
+
+let a = 0;
+function draw() {
+    background(220);
+    a++;
+    rotateY(a);
+    rotateX(45);
+    myBox(50, width / 4);
+} 
+
+function myBox(size, x = 0, y = 0, z = 0) {
+    const hs = size / 2;
+    const vertices = [
+        [-hs, hs, -hs],
+        [-hs, hs, hs],
+        [hs, hs, hs],
+        [hs, hs, -hs],
+        [-hs, -hs, -hs],
+        [-hs, -hs, hs],
+        [hs, -hs, hs],
+        [hs, -hs, -hs]
+    ].map(v => [v[0] + x, v[1] + y, v[2] + z]);
+    const faces = [
+        [0, 3, 2, 1],
+        [4, 5, 6, 7],
+        [5, 1, 2, 6],
+        [4, 7, 3, 0],
+        [5, 4, 0, 1],
+        [6, 2, 3, 7]
+    ];
+  
+    for(let i = 0; i < 6; i++) {
+          beginShape();
+          [
+              vertices[faces[i][0]],
+              vertices[faces[i][1]],
+              vertices[faces[i][2]],
+              vertices[faces[i][3]]
+          ].forEach(v => vertex(v[0], v[1], v[2]));
+          endShape(CLOSE);
+    }
+}
+</script>
+<p>可以看到，建立的方式是透過 <code>beginShape</code>、<code>vertex</code>、<code>endShape</code> 指定頂點，p5.js 會自行處理深度問題，在指定頂點時，一個方式是列出全部頂點，然後透過<a href="../ComputerGraphics/VetexArray.htm">頂點索引</a>來處理，指定頂點時，p5.js 並沒有明確規範順序，然而為了日後對於面的各種計算時方便，順序建議一致，例如都是逆時針或都是順時針，我的習慣是採用逆時針（不過 p5.js 的 <code>beginShape</code> 文件中都是採用順時針）。</p>
+<p>只要是共面的頂點，都可以透過這個方式來建構，然而對於比較複雜的 3D 物件，要採用三角形來建構，除了採取頂點索引方式，若你的形狀允許，也可以採取<a href="../ComputerGraphics/NoIndexVetexArray.htm">無索引頂點</a>方式。</p>
+<p>例如正四面體的四個面都是正三角，在定義頂點時，拿出三角函數是一個方式，不過，其實正四面體可以連接正立方體的四個頂點來畫出來：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/3DObject-1.JPG" alt="自訂 3D 物件"  /></div></div></p>
+<p>對正四面體來說，可以採用頂點索引或無索引頂點，對於後者，因為正四面體可以有共用邊，將之展開的話就可以清楚看出：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/3DObject-2.JPG" alt="自訂 3D 物件"  /></div></div></p>
+<p>也就是在實作時，只要依序且循環地走訪頂點四次就可以了，是正四面體的實作範例：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300, WEBGL);
+    angleMode(DEGREES);
+}
+
+let a = 0;
+function draw() {
+    background(220);
+    a++;
+    rotateY(a);
+    rotateX(a);
+    tetrahedron(100);
+} 
+
+function tetrahedron(size) {
+    const n = size / sqrt(2) * 0.5;
+    const vertices = [
+        [n, n, n],
+        [-n, n, -n],
+        [n, -n, -n],
+        [-n, -n, n]
+    ];
+    for(let i = 0; i < 4; i++) {
+          const vi0 = i;
+          const vi1 = (i + 1) % 4;
+          const vi2 = (i + 2) % 4;
+          beginShape();
+          vertex(vertices[vi0][0], vertices[vi0][1], vertices[vi0][2]);
+          vertex(vertices[vi1][0], vertices[vi1][1], vertices[vi1][2]);
+          vertex(vertices[vi2][0], vertices[vi2][1], vertices[vi2][2]);
+          endShape(CLOSE);
+    }
+}
+</script>
+<p>無索引頂點不是每種 3D 物件時都適用，然而有時就是懶，可以只頂點，可否自行找出索引陣列嗎？其實方才的四面體就是一個例子，無索引頂點其實只是說，你不用自行列出索引，而是由程式計算索引，例如，可以建立一個接受頂點與三角面索引的 <code>polyhedron</code>：</p>
+<pre class="prettyprint"><code lang="javascript">function polyhedron(points, faces) {
+    faces.forEach(vi =&gt; {
+        const [x0, y0, z0] = points[vi[0]];
+        const [x1, y1, z1] = points[vi[1]];
+        const [x2, y2, z2] = points[vi[2]];
+        beginShape();
+        vertex(x0, y0, z0);
+        vertex(x1, y1, z1);
+        vertex(x2, y2, z2);
+        endShape(CLOSE);
+    });
+}
+</code></pre>
+<p>然後方才的四面體範例可以重構為：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300, WEBGL);
+    angleMode(DEGREES);
+}
+
+let a = 0;
+function draw() {
+    background(220);
+    a++;
+    rotateY(a);
+    rotateX(a);
+    tetrahedron(100);
+} 
+
+function tetrahedron(size) {
+    const n = size / sqrt(2) * 0.5;
+    const vertices = [
+        [n, n, n],
+        [-n, n, -n],
+        [n, -n, -n],
+        [-n, -n, n]
+    ];
+  
+    const faces = [];
+    for(let i = 0; i < 4; i++) {
+        faces.push([i, (i + 1) % 4, (i + 2) % 4]);
+    }
+
+    polyhedron(vertices, faces);
+}
+
+function polyhedron(vertices, faces) {
+    faces.forEach(vi => {
+	    const [x0, y0, z0] = vertices[vi[0]];
+		const [x1, y1, z1] = vertices[vi[1]];
+		const [x2, y2, z2] = vertices[vi[2]];
+        beginShape();
+		vertex(x0, y0, z0);
+		vertex(x1, y1, z1);
+		vertex(x2, y2, z2);
+	    endShape(CLOSE);
+	});
+}
+</script>
+<p>要能自動生成頂點索引，必須能為 3D 物件類型定義生成方式，四面體是一個例子，另一個例子是凸面體，它可以藉由 3D 的凸包（hull）演算來求頂點索引。</p>
+<p>3D 的凸包（hull）演算方式之一是遞增法，先將隨意給定的點依 x、y、z 排序，然後求出一個四面體作為初始的凸面體：</p>
+<pre class="prettyprint"><code lang="javascript">// 求得一個四面體
+function fstTetrahedron(points) {
+    const vts = [0];
+    vts.push(tV1(points, vts));
+    vts.push(tV2(points, vts));
+    vts.push(tV3(points, vts));
+
+    const [v0, v1, v2, v3] = vts;
+    // 面的法向量
+    const n = p5.Vector.cross(
+                  p5.Vector.sub(points[v1], points[v0]), 
+                  p5.Vector.sub(points[v2], points[v0])
+              );
+    // 邊的向量
+    const e = p5.Vector.sub(points[v3], points[v0]);
+
+    return {
+        vts, 
+        faces : p5.Vector.dot(n, e) &gt; 0 ? [
+            [v1, v0, v2],
+            [v0, v1, v3],
+            [v1, v2, v3],
+            [v2, v0, v3]
+        ] : [
+            [v0, v1, v2],
+            [v1, v0, v3],
+            [v2, v1, v3],
+            [v0, v2, v3]
+        ]
+    };
+}
+
+function tV1(points, vts) {
+    const v0 = vts[0];
+    for(let v1 = 1; v1 &lt; points.length; v1++) {
+        if(p5.Vector.sub(points[v1], points[v0]).mag() !== 0) {
+            return v1;
+        }
+    }
+    throw new Error('指定的頂點全共點');
+}
+
+function tV2(points, vts) {
+    const [v0, v1] = vts;
+    for(let v2 = v1 + 1; v2 &lt; points.length; v2++) {
+        // 兩個向量的法向量長度
+        const nL = p5.Vector.cross(
+                       p5.Vector.sub(points[v1], points[v0]), 
+                       p5.Vector.sub(points[v2], points[v0])
+                   ).mag();
+        if(nL !== 0) {
+            return v2;
+        }
+    }
+    throw new Error('指定的頂點全共線');
+}
+
+function tV3(points, vts) {
+    const [v0, v1, v2] = vts;
+    // 面的法向量
+    const n = p5.Vector.cross(
+                    p5.Vector.sub(points[v1], points[v0]), 
+                    p5.Vector.sub(points[v2], points[v0])
+                );
+    for(let v3 = v2 + 1; v3 &lt; points.length; v3++) {
+        // 邊的向量
+        const e = p5.Vector.sub(points[v3], points[v0]);
+        if(p5.Vector.dot(n, e) !== 0) {
+            return v3;
+        }
+    }
+    throw new Error('指定的頂點全共面');
+}
+</code></pre>
+<p>後續每次增加一個點，看看既有凸面體的每個面若與新增的點結合為多面體的話，會是該多面體的凸面、凹面或共面（點在同一個面），這可以用 <code>faceType</code> 來計算：</p>
+<pre class="prettyprint"><code lang="javascript">function faceType(pts, p, face) {
+    const p0 = pts[face[0]];
+    const p1 = pts[face[1]];
+    const p2 = pts[face[2]];
+    // 面的法向量
+    const n = p5.Vector.cross(p5.Vector.sub(p1, p0), p5.Vector.sub(p2, p0));
+    // 點 p 與面上一個頂點構成的向量
+    const d = p5.Vector.dot(p5.Vector.sub(p0, p), n);
+    // 標示是凸面、凹面或共面的邊
+    return d &gt; 0 ? 1 :   // 凸面
+           d &lt; 0 ? -1 :  // 凹面
+           0;            // 共面
+}
+</code></pre>
+<p>若是凸面或共面加以保留，接著點要與保留的面連結成為多面體，連結的方式是找到凸、凹面的邊，連結邊的頂點，為此，使用了一個 <code>edges</code> 來標示邊是凸面、凹面或共面的邊：</p>
+<pre class="prettyprint"><code lang="javascript">function hull(points) {
+    // 排序並建立 p5.Vector，便於利用向量運算
+    const pts = points.sort(byXyz)
+                      .map(p =&gt; createVector(p[0], p[1], p[2]));
+
+    // 用來標示邊是在凸面、凹面或共面上
+    const edges = [];
+    for(let i = 0; i &lt; pts.length; i++) {
+        edges.push([]);
+    }
+
+    let {vts, faces} = fstTetrahedron(pts);
+    for(let i = 0; i &lt; pts.length; i++) {
+        if(!vts.includes(i)) {
+            const types = faces.map(face =&gt; faceType(pts, pts[i], face)); // 面的類型
+            // 標示是凸面、凹面或共面的邊
+            for(let j = 0; j&lt; faces.length; j++) {
+                edges[faces[j][0]][faces[j][1]] = types[j];
+                edges[faces[j][1]][faces[j][2]] = types[j];
+                edges[faces[j][2]][faces[j][0]] = types[j];     
+            }
+
+            faces = nextFaces(i, faces, types, edges);
+        }
+    }
+
+    polyhedron(points, faces);
+}
+
+function byXyz(p1, p2) {
+    const dx = p1[0] - p2[0];
+    if(dx === 0) {
+        const dy = p1[1] - p2[1];
+        if(dy === 0) {
+            return p1[2] - p2[2];
+        }
+        return dy;
+    }
+    return dx;
+}
+
+function nextFaces(i, currentFaces, types, edges) {
+    // 保留凸面、共面
+    const faces = currentFaces.filter((_, j) =&gt; types[j] &gt;= 0);  
+    // i 點要與保留的面連結成為多面體
+    for(let j = 0; j &lt; currentFaces.length; j++) {
+        let [v0, v1, v2] = currentFaces[j];
+        // 若是凸面、凹面的共用邊，與點 i 建立新面
+        if(edges[v0][v1] &lt; 0 &amp;&amp; edges[v0][v1] != edges[v1][v0]) {
+            faces.push([v0, v1, i]);
+        }
+        if(edges[v1][v2] &lt; 0 &amp;&amp; edges[v1][v2] != edges[v2][v1]) {
+            faces.push([v1, v2, i]);
+        }
+        if(edges[v2][v0] &lt; 0 &amp;&amp; edges[v2][v0] != edges[v0][v2]) {
+            faces.push([v2, v0, i]);
+        }
+    }
+    return faces;
+}
+</code></pre>
+<p>底下是完整的範例，其中隨意設立了多面體的頂點：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300, WEBGL);
+    angleMode(DEGREES);
+}
+
+let a = 0;
+function draw() {
+    background(220);
+    const points = [
+		[50, 50, 50],
+		[50, 50, 0],
+		[-50, 50, 0],
+		[-50, -50, 0],
+		[50, -50, 0],
+		[0, 0, 50],
+		[0, 0, -50]
+	];
+    a++;
+    rotateY(a);
+    rotateX(a);
+    hull(points);
+}
+
+function fstTetrahedron(points) {
+    const vts = [0];
+	vts.push(tV1(points, vts));
+	vts.push(tV2(points, vts));
+	vts.push(tV3(points, vts));
+	
+    const [v0, v1, v2, v3] = vts;
+	const n = p5.Vector.cross(
+	              p5.Vector.sub(points[v1], points[v0]), 
+				  p5.Vector.sub(points[v2], points[v0])
+			  );
+	const e = p5.Vector.sub(points[v3], points[v0]);
+
+	return {
+	    vts, 
+		faces : p5.Vector.dot(n, e) > 0 ? [
+			[v1, v0, v2],
+			[v0, v1, v3],
+			[v1, v2, v3],
+			[v2, v0, v3]
+		] : [
+			[v0, v1, v2],
+			[v1, v0, v3],
+			[v2, v1, v3],
+			[v0, v2, v3]
+		]
+	};
+}
+
+function tV1(points, vts) {
+    const v0 = vts[0];
+    for(let v1 = 1; v1 < points.length; v1++) {
+	    if(p5.Vector.sub(points[v1], points[v0]).mag() !== 0) {
+		    return v1;
+		}
+	}
+    throw new Error('指定的頂點全共點');
+}
+
+function tV2(points, vts) {
+    const [v0, v1] = vts;
+    for(let v2 = v1 + 1; v2 < points.length; v2++) {
+	    const nL = p5.Vector.cross(
+		               p5.Vector.sub(points[v1], points[v0]), 
+					   p5.Vector.sub(points[v2], points[v0])
+				   ).mag();
+	    if(nL !== 0) {
+		    return v2;
+		}
+	}
+	throw new Error('指定的頂點全共線');
+}
+
+function tV3(points, vts) {
+    const [v0, v1, v2] = vts;
+	const n = p5.Vector.cross(
+	                p5.Vector.sub(points[v1], points[v0]), 
+					p5.Vector.sub(points[v2], points[v0])
+				);
+    for(let v3 = v2 + 1; v3 < points.length; v3++) {
+		const e = p5.Vector.sub(points[v3], points[v0]);
+	    if(p5.Vector.dot(n, e) !== 0) {
+		    return v3;
+		}
+	}
+	throw new Error('指定的頂點全共面');
+}
+
+function faceType(pts, p, face) {
+    const p0 = pts[face[0]];
+	const p1 = pts[face[1]];
+	const p2 = pts[face[2]];
+	const n = p5.Vector.cross(p5.Vector.sub(p1, p0), p5.Vector.sub(p2, p0));
+	const d = p5.Vector.dot(p5.Vector.sub(p0, p), n);
+	return d > 0 ? 1 : 
+		   d < 0 ? -1 : 
+		   0;
+}
+
+function hull(points) {
+    const pts = points.sort(byXyz)
+                      .map(p => createVector(p[0], p[1], p[2]));
+
+	const edges = [];
+	for(let i = 0; i < pts.length; i++) {
+	    edges.push([]);
+	}
+	
+	let {vts, faces} = fstTetrahedron(pts);
+	for(let i = 0; i < pts.length; i++) {
+	    if(!vts.includes(i)) {
+			const types = faces.map(face => faceType(pts, pts[i], face));
+			for(let j = 0; j< faces.length; j++) {
+				edges[faces[j][0]][faces[j][1]] = types[j];
+				edges[faces[j][1]][faces[j][2]] = types[j];
+				edges[faces[j][2]][faces[j][0]] = types[j];     
+			}
+		 
+			faces = nextFaces(i, faces, types, edges);
+		}
+	}
+
+    polyhedron(points, faces);
+}
+
+function byXyz(p1, p2) {
+    const dx = p1[0] - p2[0];
+    if(dx === 0) {
+        const dy = p1[1] - p2[1];
+        if(dy === 0) {
+            return p1[2] - p2[2];
+        }
+        return dy;
+    }
+    return dx;
+}
+
+function nextFaces(i, currentFaces, types, edges) {
+    const faces = currentFaces.filter((_, j) => types[j] >= 0); 
+	for(let j = 0; j < currentFaces.length; j++) {
+		let [v0, v1, v2] = currentFaces[j];
+		if(edges[v0][v1] < 0 && edges[v0][v1] != edges[v1][v0]) {
+			faces.push([v0, v1, i]);
+		}
+		if(edges[v1][v2] < 0 && edges[v1][v2] != edges[v2][v1]) {
+			faces.push([v1, v2, i]);
+		}
+		if(edges[v2][v0] < 0 && edges[v2][v0] != edges[v0][v2]) {
+			faces.push([v2, v0, i]);
+		}
+	}
+	return faces;
+}
+
+function polyhedron(vertices, faces) {
+	faces.forEach(vi => {
+		const [x0, y0, z0] = vertices[vi[0]];
+		const [x1, y1, z1] = vertices[vi[1]];
+		const [x2, y2, z2] = vertices[vi[2]];
+		beginShape();
+		vertex(x0, y0, z0);
+		vertex(x1, y1, z1);
+		vertex(x2, y2, z2);
+		endShape(CLOSE);
+	});
+}
+</script>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,178 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="步進馬達這東西的學問真不少，就結論而言，控制步進馬達最好的方式，就是找到與手邊步進馬達可以配合的程式庫來使用。Arduino IDE 不是有 Stepper 程式庫可以使用嗎？嗯！它是可以用一些步進馬...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（16）控制步進馬達">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino16.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="步進馬達這東西的學問真不少，就結論而言，控制步進馬達最好的方式，就是找到與手邊步進馬達可以配合的程式庫來使用。Arduino IDE 不是有 Stepper 程式庫可以使用嗎？嗯！它是可以用一些步進馬...">
+
+    <title>mBlock &amp; Arduino（16）控制步進馬達</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino16.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（16）控制步進馬達</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>步進馬達這東西的學問真不少，就結論而言，控制步進馬達最好的方式，就是找到與手邊步進馬達可以配合的程式庫來使用。Arduino IDE 不是有 Stepper 程式庫可以使用嗎？嗯！它是可以用一些步進馬達上，不過，不見得能完全發揮步進馬達應有的控制能力，控制某些馬達則會有些問題，正巧，我手上這顆 28BYJ-48 5V DC 就是！&hellip; XD</p>
+<h1>認識步進馬達</h1>
+<p>在 Arduino 官方網站的 <a href="http://arduino.cc/en/reference/stepper">Arduino - Stepper</a> 文件中，談到了步進馬達的兩個基本分類：單極步進馬達（Unipolar Stepper）與雙極步進馬達（Bipolar Stepper）。那麼就從這兩個分類開始認識！</p>
+<p>單極步進馬達是提供單一方向的電流來驅動馬達，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-1.jpg" alt="單極步進馬達"  /></div></div></p>
+<p>在上圖中，可以看到線圈各有一個共同接點，通常接電源，只要改變其他接點的電壓訊號，就可以產生電流，而電流都是固定的方向，而由於有四個線圈，這樣的馬達被稱為四相（Phase）馬達。</p>
+<p>雙極步進馬達的電流則是雙向的，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-2.jpg" alt="雙極步進馬達"  /></div></div></p>
+<p>這類馬達在驅動時，需要改變電流的方向來達到不同激磁的效果，而由於有兩個線圈，這樣的馬達被稱為二相馬達。</p>
+<p>馬達的相數除了二向、四相之外，還有單相、三相、五相等，這是為了達到不同程度的控制，馬達的控制是運用電流通過線圈會產生磁場，並與另一永久磁鐵產生作用，來達到轉動的效果，以四相步進馬達為例：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-3.jpg" alt="一相激磁"  /></div></div></p>
+<p>如果做為定子的線圈激磁後，面對轉子一面是 S 極，就會吸引轉子的 N 極，只要依順序對各相線圈激磁，就會產生轉動效果，像上面這種一次激磁一個線圈的方式，稱為一相激磁，因為每次只激磁一個線圈，電力消耗小，不過缺點是振動大、轉距小。</p>
+<p>常見的激磁方式是二相激磁，顧名思義，一次激磁兩相，由於有兩相用以吸引住轉子，因此振動小、轉距大：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-4.jpg" alt="二相激磁"  /></div></div></p>
+<p>也有一相、二相輪流激磁，稱為一／二相激磁，順序其實就是上面兩張圖的結合：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-5.jpg" alt="一／二相激磁"  /></div></div></p>
+<p>可以看出這種激磁方式，每次轉動的角度為一相或二相激磁的一半，可以得到更精確的控制。</p>
+<h1>步進馬達控制電路</h1>
+<p>步進馬達需要比較高的電壓或電流驅動，在 Arduino 官方網站的 <a href="http://arduino.cc/en/reference/stepper">Arduino - Stepper</a> 文件中，有 <a href="http://arduino.cc/en/Reference/StepperUnipolarCircuit">Unipolar Steppers</a> 及 <a href="http://arduino.cc/en/Reference/StepperBipolarCircuit">Bipolar Steppers</a> 兩個頁面，介紹了如何連接出能驅動步進馬達的電路，分別有可以接成兩個控制腳位與四個控制腳位的方式。</p>
+<p>其中會用到的 IC 是達靈頓陣列（Darlington Array），如先前〈mBlock &amp; Arduino（15）認識電晶體與繼電器〉談到的，若想運用電晶體提供更大的電流來驅動馬達，可以使用兩個或多個電晶體的組合，達靈頓陣列中有多組達靈頓電路，以 <a href="https://www.google.com.tw/search?es_sm=93&amp;biw=1600&amp;bih=781&amp;tbm=isch&amp;sa=1&amp;q=ULN2003APG+Darlington&amp;oq=ULN2003APG+Darlington&amp;gs_l=img.3...2127.2628.0.3091.2.2.0.0.0.0.120.231.0j2.2.0.msedr...0...1c.1.64.img..1.1.110.s4yERui0Nws">ULN2003APG</a> 來說，裏頭有七組達靈頓電路。</p>
+<p>如果不想那麼麻煩地自己接電路，那麼可以依使用的步進馬達來搭配現成的步進馬達驅動模組：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-6.jpg" alt="步進馬達驅動模組"  /></div></div></p>
+<p>這個步進馬達驅動模組，左上四個腳位可以接到 Arduino 的數位輸出腳位，下方有 +、- 兩個腳位，分別接 Vcc 與 GND，右上白色插槽用來連接我手邊這顆五線四相的 28BYJ-48 5V DC，上圖步進馬達驅動模組中的 ULN2003APG，可搭配 28BYJ-48 5V DC 這個步進馬達：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-7.jpg" alt="28BYJ-48 5V DC 步進馬達"  /></div></div></p>
+<p>28BYJ-48 5V DC 這個步進馬達，其中紅線是接 5V 電源，各線的連接是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-8.jpg" alt="28BYJ-48 5V DC 步進馬達"  /></div></div></p>
+<p>如果搭配 ULN2003，要對 28BYJ-48 5V DC 步進馬達做激磁，那麼 ULN2003 的輸入腳位 4、3、2、1，提供電位以進行激磁的順序為　…</p>
+<ul>
+<li>一相激磁：1000-0100-0010-0001</li>
+<li>二相激磁：1100-0110-0011-1001</li>
+<li>一／二相激磁：1000-1100-0100-0110-0010-0011-0001-1001</li>
+</ul>
+<h1>以 mBlock 控制步進馬達</h1>
+<p>如果想要體驗一下步進馬達轉動，那麼可以簡單地如下實作，腳位 D8 到 D11 分別對應至澄、黃、粉、藍，例如一相激磁：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-9.jpg" alt="mBlock 控制步進馬達"  /></div></div></p>
+<p>執行程式之後，你可以見到步進馬達緩慢的轉動，將順序改為 S4 到 S1，就會看到馬達緩慢的逆轉，這邊沒有設任何的工作時間延遲，這是因為 mBlock 執行速度的關係，直接使用 Arduino 積木方塊，只能是這個速度了。</p>
+<p>類似地，以下是二相激磁：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-10.jpg" alt="mBlock 控制步進馬達"  /></div></div></p>
+<p>以下是一／二相激磁：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino16-11.jpg" alt="mBlock 控制步進馬達"  /></div></div></p>
+<h1>關於 Stepper 程式庫</h1>
+<p>如果想更進一步試試步進馬達控制，可以使用 Arduino IDE 中的 Stepper 範例，它們使用到 Arduino 的 Stepper 程式庫，不過，如果你手邊是 28BYJ-48 5V DC 步進馬達，就要注意一下了，以 stepper_oneRevolution 範例為例：</p>
+<pre class="prettyprint"><code lang="arduino">#include &lt;Stepper.h&gt;
+
+const int stepsPerRevolution = 200;  
+// change this to fit the number of steps per revolution
+// for your motor
+
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+
+void setup() {
+  // set the speed at 60 rpm:
+  myStepper.setSpeed(60);
+  // initialize the serial port:
+  Serial.begin(9600);
+}
+
+void loop() {
+  // step one revolution  in one direction:
+  Serial.println("clockwise");
+  myStepper.step(stepsPerRevolution);
+  delay(500);
+
+  // step one revolution in the other direction:
+  Serial.println("counterclockwise");
+  myStepper.step(-stepsPerRevolution);
+  delay(500);
+}
+</code></pre>
+<p>直接執行的話，你的馬達只會有一個方向的轉動，無法逆轉，這是因為 28BYJ-48 5V DC 的接線順序，與 Stepper 程式庫預期的不同，如果你的 28BYJ-48 5V DC 的接線順序由澄、黃、粉、藍分別是接至 D8 到 D11，那麼有兩個方式可以解決，一個方式是在 Arduino 上將 D9 與 D10 接線對調，另一個方式是在建立 <code>Stepper</code> 時，<code>9</code> 與 <code>10</code> 對調：</p>
+<pre class="prettyprint"><code lang="arduino">Stepper myStepper(stepsPerRevolution, 8, 10, 9, 11);
+</code></pre>
+<p>再來是 <code>stepsPerRevolution</code> 必須設定為你的馬達實際上一圈會有多少步，如果是 28BYJ-48 5V DC 的話，查詢到的規格上寫著，步進角為 <code>5.625 / 64</code>，因此這馬達轉一圈需要的步數是 <code>360 / (5.625 / 64)</code>，也就是 <code>4096</code> 步，不過，這是一／二相激磁才會有的步數，如果你查看　Stepper 程式庫原始碼，會發現，它是採二相激磁的實作方式，因此，使用這個 Stepper 程式庫，你實際上要設的 <code>stepsPerRevolution</code> 必須是 <code>2048</code> 步。</p>
+<p>不過，如果你改了腳位也將 <code>stepsPerRevolution</code>  設為 <code>2048</code>，步進馬達還是不會動，這是因為  Stepper 程式庫中 <code>setSpeed</code> 函式的關係：</p>
+<pre class="prettyprint"><code lang="arduino">void Stepper::setSpeed(long whatSpeed)
+{
+    this-&gt;step_delay = 60L * 1000L / this-&gt;number_of_steps / whatSpeed;
+}
+</code></pre>
+<p>這是以毫秒為單位來設置 <code>step_delay</code>，如果你設為 <code>2048</code> 步，那 <code>number_of_steps</code> 就是 <code>2048</code>，那麼 <code>step_delay</code> 就會是 <code>29.296875 / whatSpeed</code>，如果 <code>whatSpeed</code> 設為 <code>60</code>，那結果就會是 <code>0.48828125</code>，然而 <code>step_delay</code> 是 <code>unsigned long</code>，也就是實際上結果只會儲存 <code>0</code>，那麼 <code>step</code> 函式中 <code>millis() - this-&gt;last_step_time &gt;= this-&gt;step_delay</code> 該行，就會一直是成立的，也就是完全沒給工作時間，這麼一來馬達就不會動了。</p>
+<p>因此，如果你直接使用 Stepper 程式庫，設為 2048 步之後，那麼速度就不能設太高，例如以下就可以正常正反轉了：</p>
+<pre class="prettyprint"><code lang="arduino">#include &lt;Stepper.h&gt;
+
+const int stepsPerRevolution = 2048;  
+// change this to fit the number of steps per revolution
+// for your motor
+
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 10, 9, 11);
+
+void setup() {
+  // set the speed at 60 rpm:
+  myStepper.setSpeed(5);
+  // initialize the serial port:
+  Serial.begin(9600);
+}
+
+void loop() {
+  // step one revolution  in one direction:
+  Serial.println("clockwise");
+  myStepper.step(stepsPerRevolution);
+  delay(500);
+
+  // step one revolution in the other direction:
+  Serial.println("counterclockwise");
+  myStepper.step(-stepsPerRevolution);
+  delay(500);
+}
+</code></pre>
+<p>如果你會使用 Arduino 官方語言的話，改寫 Stepper 應該不是難事，可以試著實作一／二相激磁，並令其能支援 28BYJ-48 5V DC 的 <code>4096</code> 步與高轉速，懶的話，網路上是也有人已經實作或改寫好的版本，不過，想要精確控制的話，重點還是在於，認識你的步進馬達與程式庫！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

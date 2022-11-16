@@ -1,0 +1,166 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="雖然涉及一些數學運算，不過，你應該試著去理解過感知器的原理，如果你暫時沒那時間，或者是曾經試著從公式去理解而不得其門而入，以下來提供另一種理解方式。
+在〈多層感知器（一）〉中使用了三個感知器，如果將三...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="多層感知器（二）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/MultilayerPerceptron2.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="雖然涉及一些數學運算，不過，你應該試著去理解過感知器的原理，如果你暫時沒那時間，或者是曾經試著從公式去理解而不得其門而入，以下來提供另一種理解方式。
+在〈多層感知器（一）〉中使用了三個感知器，如果將三...">
+
+    <title>多層感知器（二）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="MultilayerPerceptron2.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多層感知器（二）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>雖然涉及一些數學運算，不過，你應該試著去理解過感知器的原理，如果你暫時沒那時間，或者是曾經試著從公式去理解而不得其門而入，以下來提供另一種理解方式。</p>
+<p>在〈<a href="MultilayerPerceptron.html">多層感知器（一）</a>〉中使用了三個感知器，如果將三個感知器的 <code>coef_</code> 與 <code>intercept_</code> 顯示出來會得到：</p>
+<pre class="prettyprint"><code lang="python">print(p1.coef_, p1.intercept_)  # [[-60. 107.]] [0.]
+print(p2.coef_, p2.intercept_)  # [[ 321. -800.]] [-1.]
+print(p3.coef_, p3.intercept_)  # [[2. 2.]] [-1.]
+</code></pre>
+<p>在〈<a href="Perceptron.html">分類與感知器</a>〉中提過，<code>coef_</code> 是感知器的權重向量（在直線的情況下，也可以理為直線的法向量），而 <code>intercept_</code> 其實是感知器的偏差（bias）（在直線的情況下，也可以理為直線的截距）。</p>
+<p>對於一個感知器，它的輸出其實是透過 <strong>W</strong> . <strong>X</strong> + b，要輸出 1 或 0，<strong>W</strong> 表示權重向量，<strong>X</strong> 是變數值的向量，b 是偏差值，如果 <strong>W</strong> . <strong>X</strong> + b > 0 輸出 1，<strong>W</strong> . <strong>X</strong> + b &lt;= 0 輸出 0。</p>
+<p>既然〈<a href="MultilayerPerceptron.html">多層感知器（一）</a>〉中已經訓練好三個感知器，那麼就直接用它的權重與偏差吧！對於 <code>p1</code>、<code>p2</code> 感知器可以寫成：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+def a(x):
+    return 1 if x &gt; 0 else 0
+
+def p1_predict(height, waist):
+    w1 = np.array([-60, 107])
+    b1 = 0
+    return a(np.dot(w1, [height, waist]) + b1)
+
+def p2_predict(height, waist):
+    w2 = np.array([321, -800])
+    b2 = -1
+    return a(np.dot(w2, [height, waist]) + b2)
+
+height = 165
+waist = 85
+
+print(p1_predict(height, waist)) # 顯示 0
+print(p2_predict(height, waist)) # 顯示 0
+</code></pre>
+<p>現在 <code>p1</code>、<code>p2</code> 各輸出為 0，接著將輸出接至 <code>p3</code></p>
+<pre class="prettyprint"><code lang="python">def p3_predict(p1_o, p2_o):
+    w3 = np.array([2, 2])
+    b3 = -1
+    return a(np.dot(w3, [p1_o, p2_o]) + b3)
+
+# 顯示 0
+print(
+    p3_predict(
+        p1_predict(height, waist), 
+        p2_predict(height, waist)
+    )
+)
+</code></pre>
+<p>你可以試試不同的 <code>height</code>、<code>waist</code>，看看 <code>p3_predict</code> 最後輸出結果是否符合分類；其實以上的過程，可以透過矩陣運算組合在一起：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+import matplotlib.pyplot as plt
+
+def a(x):
+    return np.where(x &gt; 0, 1, 0)
+
+def p1p2_predict(height, waist):
+    # 建立矩陣
+    w = np.array([
+        [-60, 107],
+        [321, -800]
+    ]) 
+    b = np.array([0, -1])
+    # @ 是矩陣相乘
+    return a(w @ [height, waist] + b) 
+
+def p3_predict(p1p2_o):
+    w3 = np.array([2, 2])
+    b3 = -1
+    return a(np.dot(w3, p1p2_o) + b3)
+
+height = 165
+waist = 85
+
+print(
+    p3_predict(
+        p1p2_predict(height, waist)
+    )
+)
+</code></pre>
+<p>為了將一般化，來為這些感知器、權重、偏差等取名稱好了，為此編好號碼：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron2-1.JPG" alt="多層感知器（二）"  /></div></div></p>
+<p>每一層的感知器，是由上往下編號，對於第 1 層的 1 號感知器，權重為 <code>[-60, 107]</code>，偏差為 0，給予名稱 [w<sup>1</sup><sub>11</sub>, w<sup>1</sup><sub>12</sub>]，以及 b<sup>1</sup><sub>1</sub>，也就是說上標表示哪一層，下標表示哪一號感知器接收上一層哪一個輸入，例如 1 層 1 號感知器需要就是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron2-2.JPG" alt="多層感知器（二）"  /></div></div></p>
+<p>類似地，1 層 2 號感知器需要就是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron2-3.JPG" alt="多層感知器（二）"  /></div></div></p>
+<p>那麼方才的矩陣運算，就可以表示為 W<sup>(1)</sup> @ x + b<sup>(1)</sup>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron2-4.JPG" alt="多層感知器（二）"  /></div></div></p>
+<p>方才程式運算時的 <code>a</code> 函式，將運算結果轉為 0 或 1，稱為激勵函式，之所以這麼稱呼，是因為它控制了什麼樣的值，可以輸出 1，進一步激發下一個感知器，為什麼需要這個激勵函式呢？一個感知器的輸出是 <strong>W</strong> . <strong>X</strong> + b，可以處理線性的問題，將多個感知器的輸出直接作為其他感知器的輸入，最後組合出來的輸出，其實也會是 <strong>W</strong> . <strong>X</strong> + b 這樣的形式，還是只能處理線性的問題。</p>
+<p>多個感知器的輸出若有了激勵函式的轉換，再作為其他感知器的輸入，組合出來的形式就有可能是 <strong>W</strong> . <strong>X</strong> + b 以外的形式，根據感知器的數量、激勵函式的選擇以及層數的不同，組合後的形式會是千變萬化，也就是說，你的分類線不再是直線，而會是各種可能的形狀，可以用來處理非線性的分類問題了。</p>
+<p>從另一個角度來看，激勵函式是在改變特徵空間，將空間中的一組特徵映射至另一個空間成為另一組特徵，然後在該空間中尋找映射後特徵的線性邊界。</p>
+<p>聽來很像是〈<a href="MultipleRegression2.html">多元線性迴歸（二）</a>〉中談過的 <code>PolynomialFeatures</code>，轉換後的特徵值可以更好地被線性模型 <code>LinearRegression</code> 擬合？某些程度上是類似的概念，只不過各種感知器的數量、激勵函式的選擇以及層數的不同下，各種特徵空間轉換的組合更為複雜，更加難以想像。</p>
+<p>這就是為什麼，這邊要透過三個感知器來組合，因為比較容易理解激勵函式的作用，簡單來說，原本一個感知器只能有一條直線進行分類，透過激勵函式的轉換以及感知器的組合，就像是結合了兩條分類直線，來達到非線性分類的需求。</p>
+<p>將激勵函式組合上去，就成為 a(W<sup>(1)</sup> * x + b<sup>(1)</sup>)，就目前來說，結果會是個 1x2 矩陣，會是 2 層 1 號感知器的輸入，而對於 2 層 1 號感知器需要的是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/MultilayerPerceptron2-5.JPG" alt="多層感知器（二）"  /></div></div></p>
+<p>根據上圖的標示，最後的輸出結果會是 a(W<sup>(2)</sup> @ a(W<sup>(1)</sup> @ x + b<sup>(1)</sup>) + b<sup>(2)</sup>)，可以看到，若有更多層、更多感知器，這樣的表示方式下，就是矩陣大小以及相乘的層次問題。</p>
+<p>另一方面，透過一些數學推導過程，權重矩陣與偏差矩陣的實際值，可以從資料中學習得到，有興趣瞭解推導過程，就自行找相關的理論書或文件…XD</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

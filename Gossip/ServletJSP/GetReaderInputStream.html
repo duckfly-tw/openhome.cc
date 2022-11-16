@@ -1,0 +1,242 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="getReader()、getInputStream()
+HttpServletRequest 上定義有 getReader() 方法，可以讓你取得一個 BufferedReader，透過該 Buff...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="getReader()、getInputStream()">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/GetReaderInputStream.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="getReader()、getInputStream()
+HttpServletRequest 上定義有 getReader() 方法，可以讓你取得一個 BufferedReader，透過該 Buff...">
+
+    <title>getReader()、getInputStream()</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="GetReaderInputStream.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>getReader()、getInputStream()</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>
+<br  /><code>HttpServletRequest</code> 上定義有 <code>getReader()</code> 方法，可以讓你取得一個 <code>BufferedReader</code>，透過該 <code>BufferedReader</code>，可以讓你讀取請求的本體（Body）資料。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/postbody")
+public class PostBody extends HttpServlet {
+    protected void doPost(HttpServletRequest request, 
+            HttpServletResponse response) throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;body&gt;");
+        out.println(bodyContent(request.getReader()));
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    }
+
+    private String bodyContent(BufferedReader reader) throws IOException {
+        String input = null;
+        StringBuilder requestBody = new StringBuilder();
+        while((input = reader.readLine()) != null) {
+            requestBody.append(input)
+                       .append("&lt;br&gt;");
+        }
+        return requestBody.toString();
+    } 
+}
+</code></pre>
+<p>試著對這個 Servlet 以下列表單發出請求：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;form action="postbody" method="post"&gt;
+        Username: &lt;input type="text" name="user"&gt;&lt;br&gt; 
+        Password: &lt;input type="password" name="passwd"&gt;&lt;br&gt; 
+        &lt;input type="submit" name="login"&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>則你在網頁上會看到以下內容，因為 <code>POST</code> 時，查詢字串（Query string）是放在請求本體之中發送：</p>
+<pre class="prettyprint"><code lang="java">user=caterpillar&amp;passwd=123456&amp;login=%B0e%A5X%ACd%B8%DF
+</code></pre>
+<p>HTML 的 <code>&lt;form&gt;</code> 標籤，<code>enctype</code> 屬性預設值是 <code>"application/x-www-form-urlencoded"</code>，如果上傳的是檔案，必須設定為 <code>"multipart/form-data"</code>，原理可以參考〈<a href="https://www.javaworld.com.tw/jute/post/view?bid=6&amp;id=56147&amp;sty=1&amp;tpg=2&amp;age=0">HTTP 檔案上傳機制解析</a>〉的內容。如果你使用以下的表單選擇一個檔案發送：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;form action="postbody" method="post"
+          enctype="multipart/form-data"&gt;
+          Select File :&lt;input type="file" name="filename" value="" /&gt;&lt;br&gt;
+        &lt;input type="submit" value="Upload" name="upload" /&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>例如發送一個 JPG 圖檔，則在網頁上會看到：</p>
+<pre class="prettyprint"><code lang="java">-----------------------------7e11a63520166
+Content-Disposition: form-data; name="filename"; filename="caterpillar.jpg"
+Content-Type: image/pjpeg
+
+會有一堆奇奇怪怪的字元，這些字元是實際的檔案內容
+
+-----------------------------7e11a63520166
+Content-Disposition: form-data; name="upload"
+
+Upload
+-----------------------------7e11a63520166--
+</code></pre>
+<p>所以你要取得上傳的檔案，就是判斷檔案的開始與結束區段，你可以使用 <code>HttpServletRequest</code> 的 <code>getInputStream()</code> 取得 <code>ServletInputStream</code>，它是 <code>InputStream</code> 的子類別，代表請求本體的串流物件，你可以利用它來處理上傳的檔案區段。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/upload")
+public class Upload extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        byte[] content = bodyContent(request);
+        String contentAsTxt = new String(content, "ISO-8859-1");
+
+        String filename = filename(contentAsTxt);
+        Range fileRange = fileRange(contentAsTxt, request.getContentType());
+
+        write(
+            content, 
+            contentAsTxt.substring(0, fileRange.start)
+                        .getBytes("ISO-8859-1")
+                        .length, 
+            contentAsTxt.substring(0, fileRange.end)
+                        .getBytes("ISO-8859-1")
+                        .length, 
+            "c:/workspace/" + filename
+        );
+    }
+
+    private byte[] bodyContent(HttpServletRequest request) throws IOException {
+        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            InputStream in = request.getInputStream();
+            byte[] buffer = new byte[1024];
+            int length = -1;
+            while((length = in.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+            }
+            return out.toByteArray();
+        }
+    }
+
+    private String filename(String contentTxt) throws UnsupportedEncodingException {
+        Pattern pattern = Pattern.compile("filename=\"(.*)\"");
+        Matcher matcher = pattern.matcher(contentTxt);
+        matcher.find();
+        return matcher.group(1);
+    }
+
+    private static class Range {
+        final int start;
+        final int end;
+        public Range(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+
+    private Range fileRange(String content, String contentType) {
+        Pattern pattern = Pattern.compile("filename=\".*\"\\r\\n.*\\r\\n\\r\\n(.*+)");
+        Matcher matcher = pattern.matcher(content);
+        matcher.find();
+        int start = matcher.start(1);
+
+        String boundary = contentType.substring(
+                contentType.lastIndexOf("=") + 1, contentType.length());
+        int end = content.indexOf(boundary, start) - 4;   
+
+        return new Range(start, end);
+    }
+
+    private void write(byte[] content, int start, int end, String file) throws IOException {
+        try(FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+            fileOutputStream.write(content, start, (end - start));
+        }   
+    }
+}
+</code></pre>
+<p>你可以利用這個表單來選擇檔案上傳：</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;form action="upload" method="post"
+          enctype="multipart/form-data"&gt;
+          Select File :&lt;input type="file" name="filename" value="" /&gt;&lt;br&gt;
+        &lt;input type="submit" value="Upload" name="upload" /&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>在同一個請求期間，<code>getReader()</code> 與 <code>getInputStream()</code> 只能擇一呼叫，若同一請求期間兩者都有呼叫，則會丟出 <code>IllegalStateException</code> 例外。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

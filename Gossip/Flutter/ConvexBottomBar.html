@@ -1,0 +1,184 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈底部工具列 BottomAppBar〉中談過，如果知道怎麼繪圖的話，可以做出按鈕處凸起的效果，若只是要示範個概念，底下是個簡單的範例：
+import 'package:flutter/materi...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="畫個簡單的 ConvexBottomBar">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/ConvexBottomBar.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈底部工具列 BottomAppBar〉中談過，如果知道怎麼繪圖的話，可以做出按鈕處凸起的效果，若只是要示範個概念，底下是個簡單的範例：
+import 'package:flutter/materi...">
+
+    <title>畫個簡單的 ConvexBottomBar</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ConvexBottomBar.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>畫個簡單的 ConvexBottomBar</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="BottomAppBar.html">底部工具列 BottomAppBar</a>〉中談過，如果知道怎麼繪圖的話，可以做出按鈕處凸起的效果，若只是要示範個概念，底下是個簡單的範例：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('Openhome.cc')),
+        body: Center(
+          child: Image(
+            image: NetworkImage('https://openhome.cc/Gossip/images/caterpillar.jpg'),
+            width: 200,
+            height: 200,
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: ConstrainedBox(
+          constraints: BoxConstraints.tightFor(height: kBottomNavigationBarHeight),
+          child: CustomPaint(
+              size: Size.infinite,
+              painter: ConvexBar(),
+          ),
+        )
+      ),
+    );
+  }
+}
+
+class ConvexBar extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Colors.blue;
+
+    var halfWidth = size.width / 2;
+    var halfHeight = size.height / 2;
+
+    canvas.drawRect(
+        Rect.fromCenter(
+            center: Offset(halfWidth, halfHeight + kBottomNavigationBarHeight / 8),
+            width: size.width,
+            height: kBottomNavigationBarHeight),
+        paint
+    );
+    canvas.drawCircle(
+        Offset(halfWidth, halfHeight / 6),
+        45,
+        paint
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) =&gt; false;
+}
+</code></pre>
+<p>簡單來說，<code>ConvexBar</code> 就是依尺寸與適當位置，畫個四邊形與圓形，執行後的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ConvexBottomBar-1.JPG" alt="畫個簡單的 ConvexBottomBar"  /></div></div></p>
+<p><code>CustomPaint</code> 有個 <code>child</code> 特性，可以接受一個 <code>Widget</code>，<code>CustomPainter</code> 畫的圖不會覆蓋 <code>child</code>，因此若不想搭配 <code>floatingActionButton</code>，也可以自己做個簡單的</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(title: Text('Openhome.cc')),
+          body: Center(
+            child: Image(
+              image: NetworkImage('https://openhome.cc/Gossip/images/caterpillar.jpg'),
+              width: 200,
+              height: 200,
+            ),
+          ),
+          bottomNavigationBar: ConvexBottomBar()
+      ),
+    );
+  }
+}
+
+class ConvexBottomBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: kBottomNavigationBarHeight * 1.5),
+      child: CustomPaint(
+          size: Size.infinite,
+          painter: ConvexBar(),
+          child: IconButton(
+            icon: Icon(Icons.pets,
+              color: Colors.white,
+            ),
+          )
+      ),
+    );
+  }
+}
+
+class ConvexBar extends CustomPainter {
+  同上...略
+}
+</code></pre>
+<p>這個範例是個簡單的示範，如何令其通用就自己試著依需求來重構了，執行後的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ConvexBottomBar-2.JPG" alt="畫個簡單的 ConvexBottomBar"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

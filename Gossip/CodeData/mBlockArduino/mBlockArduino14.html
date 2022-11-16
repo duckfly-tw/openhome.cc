@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="被動式紅外線感應器（Passive Infrared Sensor, PIR）也經常被稱為 PIR 動作感應器（PIR Motion Sensor），是一種可偵測紅外線的感測器，生活中許多物品都會發出...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="mBlock &amp; Arduino（14）使用人體動作感應器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/mBlockArduino/mBlockArduino14.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="被動式紅外線感應器（Passive Infrared Sensor, PIR）也經常被稱為 PIR 動作感應器（PIR Motion Sensor），是一種可偵測紅外線的感測器，生活中許多物品都會發出...">
+
+    <title>mBlock &amp; Arduino（14）使用人體動作感應器</title>
+
+<link rel="stylesheet" href="../../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../css/caterpillar.css">
+     <script async src="../../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="mBlockArduino14.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 mBlock & Arduino</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>mBlock &amp; Arduino（14）使用人體動作感應器</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            <p>被動式紅外線感應器（Passive Infrared Sensor, PIR）也經常被稱為 PIR 動作感應器（PIR Motion Sensor），是一種可偵測紅外線的感測器，生活中許多物品都會發出紅外線，而 PIR 主要是偵測人體發出的紅外線變化，來判斷是否有人體移動發生。</p>
+<p>相對於被動式紅外線感應器的是主動式紅外線感應器，像是洗手檯的感應式水龍頭，就裝有主動式紅外線感應器，感應器會主動發射紅外線，如果有物體接近遮擋，紅外線會反射，依此判斷是否要供水。</p>
+<h1>認識 PIR 模組</h1>
+<p>PIR 模組外觀上可以看到一個白色半球體透鏡，你可以打開它，裏頭可看到 PIR 主要用來感測微量訊號的熱電感應器（Pyroelectricity Sensor）：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-1.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>上圖中，你可以看到熱電感應器下方有兩個可焊接的腳位（在 VCC 腳位上方），兩個腳位間的電阻值必須夠大，PIR 才會作動，你可以接上光敏電阻，當光線越暗，光敏電阻的電阻值就會越大，因此可讓 PIR 在黑暗的環境中才作動。</p>
+<p>在 PIR 的底部，可以看到 VCC、OUT 與 GND 三個腳位：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-2.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>我手邊的這個 PIR 模組為 DSN-FIR800，感測到紅外線變化時，OUT 會輸出 3.3V 的電壓，並持續一段延遲時間後，再回到 0V 電壓。</p>
+<p>延遲時間可以透過下圖 Tx 可變電阻（使用一字或十字起子）來調整，下圖中 Sx 可變電阻，則可用來調整敏感度，對可變電阻順時針轉動 Tx，延遲時間加長（零點幾秒到幾十分鐘），順時針轉動 Sx，可感應的距離增加（約 3 公尺到 7 公尺）。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-3.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>DSN-FIR800 預設是可重複觸發（在上圖中左下標示為 H 與 L 的地方調整，連接中間與 H 表示可重複觸發），也就是當感測到紅外線變化而 OUT 輸出 3.3V 電壓，在延遲時間內若持續感測到紅外線變化，那麼就會持續保持 3.3V 電壓，直到不再感測到紅外線變化後一段延遲時間，才將電壓降為 0V，這通常用於判斷，人體是否有持續動作（或太久沒動靜）的場合。</p>
+<p>有些廠商製作的模組，可以使用 Jumper 在可重複與不可重複觸發之間做調整，會比較方便，不可重複觸發，是當感測到紅外線變化而 OUT 輸出 3.3V 電壓，無論延遲時間內有無感測到紅外線變化，時間一到就會先降為 0V 電壓。</p>
+<p>連接 PIR 後，需要有一段幾十秒的暖機時間，在這段時間內紅外線變化的輸出會是不穩定的狀態。</p>
+<h1>感應人體動作來點亮 LED</h1>
+<p>如果想使用 mBlock 與 Arduino 來取得 PIR 的感應資料，並點亮 LED，可以如下連接電路，其中紅線要實際上對應至你的感應器 VCC 腳位，黑線對應至 GND 腳位：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-4.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>程式很簡單，就是根據 OUT 腳位的電位，決定要不要讓 LED 點亮：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-5.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>程式執行後，用手試著在 PIR 前晃動一下，就會看到 LED 點亮，實際上，你可能是在感應到人體移動之後，作些額外的程式動作，而不單只是點亮 LED，因為如果單純只是要點亮 LED（或者是搭配繼電器點亮燈炮），並不需要程式，只要如下連接電路也可以：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-6.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>如果你手邊有光敏電阻，想要測試一下黑暗環境才使得 PIR 作動，那可以如下作暫時性的連接：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/mBlockArduino14-7.jpg" alt="PIR 動作感應器"  /></div></div></p>
+<p>這麼一來，只有在拿布蓋住光敏電阻的情況下，PIR 才會作動，此時用手試著在 PIR 前晃動，LED 才會點亮。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article></main></div></body>
+<script src="../../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

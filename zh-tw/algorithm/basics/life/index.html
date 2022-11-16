@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="1970 年 10 月的《Scientific American》的數學遊戲專欄中，John Conway 發表了生命遊戲，他建議你兩種顏色棋子要夠多，以及一個夠大的棋盤">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="常見程式演算::康威生命遊戲" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/algorithm/basics/life/" />
+    <meta property="og:description" content="1970 年 10 月的《Scientific American》的數學遊戲專欄中，John Conway 發表了生命遊戲，他建議你兩種顏色棋子要夠多，以及一個夠大的棋盤" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="常見程式演算::康威生命遊戲" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/algorithm/basics/life/" />
+    <meta name="twitter:description" content="1970 年 10 月的《Scientific American》的數學遊戲專欄中，John Conway 發表了生命遊戲，他建議你兩種顏色棋子要夠多，以及一個夠大的棋盤" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443671" type="image/x-icon">
+    <title> 常見程式演算  :: 康威生命遊戲</title>
+    <link href="../../../css/nucleus.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443671.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443671.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443671"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/algorithm/basics/life/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/algorithm/" title="常見程式演算" class="dd-item parent"><a href="../../index.html">常見程式演算</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/basics/" title="老掉牙" class="dd-item parent"><a href="../index.html">| 老掉牙</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/basics/hanoi-tower/" title="河內塔" class="dd-item"><a href="../hanoi-tower/index.html">河內塔</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/fibonacci/" title="費氏數列" class="dd-item"><a href="../fibonacci/index.html">費氏數列</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/pascal-triangle/" title="巴斯卡三角形" class="dd-item"><a href="../pascal-triangle/index.html">巴斯卡三角形</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/tricolor/" title="三色旗" class="dd-item"><a href="../tricolor/index.html">三色旗</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/maze/" title="老鼠走迷宮" class="dd-item"><a href="../maze/index.html">老鼠走迷宮</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/knight-tour/" title="騎士走棋盤" class="dd-item"><a href="../knight-tour/index.html">騎士走棋盤</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/queens/" title="八皇后" class="dd-item"><a href="../queens/index.html">八皇后</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/coins/" title="八銀幣" class="dd-item"><a href="../coins/index.html">八銀幣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/life/" title="康威生命遊戲" class="dd-item active"><a href="index.html">康威生命遊戲</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/matching/" title="字串比對" class="dd-item"><a href="../matching/index.html">字串比對</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/knapsack/" title="背包問題" class="dd-item"><a href="../knapsack/index.html">背包問題</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/multi-hanoi/" title="雙色、三色河內塔" class="dd-item"><a href="../multi-hanoi/index.html">雙色、三色河內塔</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/basics/rank/" title="得分排行" class="dd-item"><a href="../rank/index.html">得分排行</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/" title="「數」" class="dd-item"><a href="../../numbers/index.html">| 「數」</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/numbers/guests/" title="最大訪客數" class="dd-item"><a href="../../numbers/guests/index.html">最大訪客數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/prime/" title="Eratosthenes 篩選求質數" class="dd-item"><a href="../../numbers/prime/index.html">Eratosthenes 篩選求質數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/perfect/" title="完全數" class="dd-item"><a href="../../numbers/perfect/index.html">完全數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/narcissistic/" title="阿姆斯壯數" class="dd-item"><a href="../../numbers/narcissistic/index.html">阿姆斯壯數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/bigint/" title="大數運算" class="dd-item"><a href="../../numbers/bigint/index.html">大數運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/numbers/long-pi/" title="指定位數的圓周率" class="dd-item"><a href="../../numbers/long-pi/index.html">指定位數的圓周率</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/randomness/" title="隨機" class="dd-item"><a href="../../randomness/index.html">| 隨機</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/randomness/pi/" title="蒙地卡羅法求 PI" class="dd-item"><a href="../../randomness/pi/index.html">蒙地卡羅法求 PI</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/randomness/shuffle/" title="洗牌" class="dd-item"><a href="../../randomness/shuffle/index.html">洗牌</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/randomness/craps/" title="Craps 賭博遊戲" class="dd-item"><a href="../../randomness/craps/index.html">Craps 賭博遊戲</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/randomness/josephus/" title="約瑟夫問題" class="dd-item"><a href="../../randomness/josephus/index.html">約瑟夫問題</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/" title="組構" class="dd-item"><a href="../../combinatorics/index.html">| 組構</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/permutation/" title="排列" class="dd-item"><a href="../../combinatorics/permutation/index.html">排列</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/graycode/" title="格雷碼" class="dd-item"><a href="../../combinatorics/graycode/index.html">格雷碼</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/subset/" title="子集" class="dd-item"><a href="../../combinatorics/subset/index.html">子集</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/k-combinations/" title="k 組合" class="dd-item"><a href="../../combinatorics/k-combinations/index.html">k 組合</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/factoring/" title="因數分解" class="dd-item"><a href="../../combinatorics/factoring/index.html">因數分解</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/combinatorics/addition-facts/" title="加法因子" class="dd-item"><a href="../../combinatorics/addition-facts/index.html">加法因子</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/" title="排序" class="dd-item"><a href="../../sort/index.html">| 排序</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/sort/abc/" title="選擇、插入、氣泡排序" class="dd-item"><a href="../../sort/abc/index.html">選擇、插入、氣泡排序</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/heap/" title="Heap 排序 - 改良的選擇排序" class="dd-item"><a href="../../sort/heap/index.html">Heap 排序 - 改良的選擇排序</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/shell/" title="Shell 排序 - 改良的插入排序" class="dd-item"><a href="../../sort/shell/index.html">Shell 排序 - 改良的插入排序</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/shaker/" title="Shaker 排序- 改良的氣泡排序" class="dd-item"><a href="../../sort/shaker/index.html">Shaker 排序- 改良的氣泡排序</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/quick/" title="快速排序（一）" class="dd-item"><a href="../../sort/quick/index.html">快速排序（一）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/quick2/" title="快速排序（二）" class="dd-item"><a href="../../sort/quick2/index.html">快速排序（二）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/merge/" title="合併排序" class="dd-item"><a href="../../sort/merge/index.html">合併排序</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/sort/radix/" title="基數排序" class="dd-item"><a href="../../sort/radix/index.html">基數排序</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/search/" title="搜尋" class="dd-item"><a href="../../search/index.html">| 搜尋</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/search/linear/" title="線性搜尋" class="dd-item"><a href="../../search/linear/index.html">線性搜尋</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/search/binary/" title="二分搜尋" class="dd-item"><a href="../../search/binary/index.html">二分搜尋</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/search/interpolation/" title="插補搜尋" class="dd-item"><a href="../../search/interpolation/index.html">插補搜尋</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/search/fibonacci/" title="費氏搜尋" class="dd-item"><a href="../../search/fibonacci/index.html">費氏搜尋</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/" title="矩陣" class="dd-item"><a href="../../matrix/index.html">| 矩陣</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/matrix/sparse/" title="稀疏矩陣" class="dd-item"><a href="../../matrix/sparse/index.html">稀疏矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/dimension-reduction/" title="多維矩陣降維" class="dd-item"><a href="../../matrix/dimension-reduction/index.html">多維矩陣降維</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/triangle-symmetric/" title="上／下三角、對稱矩陣" class="dd-item"><a href="../../matrix/triangle-symmetric/index.html">上／下三角、對稱矩陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/odd-magic/" title="奇數魔方陣" class="dd-item"><a href="../../matrix/odd-magic/index.html">奇數魔方陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/evenly-even-magic/" title="4N 魔方陣" class="dd-item"><a href="../../matrix/evenly-even-magic/index.html">4N 魔方陣</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/matrix/oddly-even-magic/" title="2(2N&#43;1) 魔方陣" class="dd-item"><a href="../../matrix/oddly-even-magic/index.html">2(2N&#43;1) 魔方陣</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/computation/" title="運算" class="dd-item"><a href="../../computation/index.html">| 運算</a><ul>
+          <li data-nav-id="/zh-tw/algorithm/computation/postfix/" title="中序式轉後序式" class="dd-item"><a href="../../computation/postfix/index.html">中序式轉後序式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/computation/postfix-eval/" title="後序式運算" class="dd-item"><a href="../../computation/postfix-eval/index.html">後序式運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/algorithm/computation/quine/" title="Quine" class="dd-item"><a href="../../computation/quine/index.html">Quine</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">常見程式演算</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">老掉牙</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">康威生命遊戲</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#解法思路">解法思路</a></li>
+    <li><a href="index.html#程式實作">程式實作</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/game-of-life/">game of life</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/automata/">automata</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/c/">C</a>
+  <a class="tag-link" href="../../../tags/java/index.html">Java</a>
+  <a class="tag-link" href="../../../tags/python/index.html">Python</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/scala/">Scala</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/ruby/">Ruby</a>
+  <a class="tag-link" href="../../../tags/javascript/index.html">JavaScript</a>
+  <a class="tag-link" href="../../../tags/haskell/index.html">Haskell</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/prolog/">Prolog</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>康威生命遊戲</h1>
+
+ <i class="space fa fa-calendar"> November 30, 2021</i> 
+<p>1970 年 10 月的《Scientific American》的數學遊戲專欄中，John Conway 發表了生命遊戲，他建議你兩種顏色棋子要夠多，以及一個夠大的棋盤，棋盤中各方格的細胞與鄰居形成九宮格，也就是每個細胞的鄰居有八個，一開始各細胞會有個初始狀態，要不就活著要不就死亡。遊戲的規則是這樣的：</p>
+<ol>
+<li>如果細胞的鄰居為二個或三個，該細胞在下一代（generation）的狀態會是存活（穩定）。</li>
+<li>若細胞的鄰居小於一個或在四個以上，下一代將會死亡（孤單死或擁擠死）。</li>
+<li>死亡狀態的細胞若有三個存活狀態的鄰居，下一代將會復活（繁殖）。</li>
+</ol>
+
+<div class="notices info">
+    <div class="label"></div><p>康威生命遊戲是一種<a href="https://zh.wikipedia.org/wiki/%E7%B4%B0%E8%83%9E%E8%87%AA%E5%8B%95%E6%A9%9F">細胞自動機（Cellular automaton）</a>，其他有趣且可構造複雜圖樣的細胞自動機，可以進一步參考<a href="https://zh.m.wikipedia.org/zh-tw/%E5%85%B0%E9%A1%BF%E8%9A%82%E8%9A%81">蘭頓螞蟻</a>或者是〈<a href="https://www.ithome.com.tw/voice/139532">漫談細胞自動機</a>〉。</p>
+
+</div>
+<h2 id="解法思路">解法思路</h2>
+<p>生命遊戲的規則可簡化為某位置有無細胞：</p>
+<ol>
+<li>某位置之細胞鄰居數為 0、1、4、5、6、7、8 時，該位置下次狀態必無細胞存活。</li>
+<li>某位置之細胞鄰居數為 2 時，該位置下次狀態保持不變（有細胞就有細胞，無細胞就無細胞）。</li>
+<li>某位置之細胞鄰居數為 3 時，該位置下次狀態必有細胞存活。</li>
+</ol>
+
+<div class="notices info">
+    <div class="label"></div><p>網路上有許多生命遊戲的模擬程式，例如 <a href="http://golly.sourceforge.net/">Golly</a>，有桌機或行動裝置的版本，下載回來後可用滑鼠點選各位置初始細胞狀態，模擬每一代的狀態變化，你可能會注意到其中首頁的文字跑馬燈，可以在 Golly 的 Life/Guns 找到 golly-ticker，生命遊戲能呈現一些重複模式，最有名的是 Conway 發現的滑行者（glider），以及在 Conway 的 50 英鎊懸賞下，由美國數學家 Bill Gosper 發表的槍（gun），可以不斷地發射出滑行者。</p>
+
+</div>
+<h2 id="程式實作">程式實作</h2>
+
+<div class="tab-panel">
+  <div class="tab-nav">
+    <button
+      data-tab-item="C"
+      data-tab-group="default"
+      class="tab-nav-button btn active"
+      onclick="switchTab('default','C')"
+      ><span>C</span></button>
+    <button
+      data-tab-item="Java"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Java')"
+      ><span>Java</span></button>
+    <button
+      data-tab-item="Python"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Python')"
+      ><span>Python</span></button>
+    <button
+      data-tab-item="Scala"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Scala')"
+      ><span>Scala</span></button>
+    <button
+      data-tab-item="Ruby"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Ruby')"
+      ><span>Ruby</span></button>
+    <button
+      data-tab-item="JavaScript"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','JavaScript')"
+      ><span>JavaScript</span></button>
+    <button
+      data-tab-item="Haskell"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Haskell')"
+      ><span>Haskell</span></button>
+    <button
+      data-tab-item="Prolog"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Prolog')"
+      ><span>Prolog</span></button>
+    <button
+      data-tab-item="Toy"
+      data-tab-group="default"
+      class="tab-nav-button btn "
+      onclick="switchTab('default','Toy')"
+      ><span>Toy</span></button>
+  </div>
+  <div class="tab-content">
+    <div data-tab-item="C" data-tab-group="default" class="tab-item active">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt; </span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define ROW 10 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define COLUMN 10
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">produce</span>(<span style="color:#66d9ef">int</span>[][COLUMN], <span style="color:#66d9ef">int</span>[][COLUMN]);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span>(<span style="color:#66d9ef">int</span>[][COLUMN]);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">copy</span>(<span style="color:#66d9ef">int</span>[][COLUMN], <span style="color:#66d9ef">int</span>[][COLUMN]);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">neighbors</span>(<span style="color:#66d9ef">int</span>[][COLUMN], <span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">isDifferent</span>(<span style="color:#66d9ef">int</span>[][COLUMN], <span style="color:#66d9ef">int</span>[][COLUMN]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() { 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> current[ROW][COLUMN] <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>       {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>}
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> next[ROW][COLUMN] <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(current);
+</span></span><span style="display:flex;"><span>    produce(current, next);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(isDifferent(current, next)) {
+</span></span><span style="display:flex;"><span>        copy(next, current);
+</span></span><span style="display:flex;"><span>        print(current);
+</span></span><span style="display:flex;"><span>        produce(current, next);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>; 
+</span></span><span style="display:flex;"><span>} 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">produce</span>(<span style="color:#66d9ef">int</span> current[][COLUMN], <span style="color:#66d9ef">int</span> next[][COLUMN]) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> row; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> ROW; row<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> column;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(column <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; column <span style="color:#f92672">&lt;</span> COLUMN; column<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">switch</span> (neighbors(current, row, column)) {
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">4</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>                  next[row][column] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#66d9ef">break</span>; 
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> 
+</span></span><span style="display:flex;"><span>                  next[row][column] <span style="color:#f92672">=</span> current[row][column]; <span style="color:#66d9ef">break</span>; 
+</span></span><span style="display:flex;"><span>               <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> 
+</span></span><span style="display:flex;"><span>                  next[row][column] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>            } 
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">neighbors</span>(<span style="color:#66d9ef">int</span> current[][COLUMN], <span style="color:#66d9ef">int</span> row, <span style="color:#66d9ef">int</span> column) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> dirs[<span style="color:#ae81ff">8</span>][<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> {{<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>}, {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>}, {<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>                      {<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>}, {<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>}, {<span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>}, {<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>}};
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> count, i;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">&amp;&amp;</span> count <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> row <span style="color:#f92672">+</span> dirs[i][<span style="color:#ae81ff">0</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> column <span style="color:#f92672">+</span> dirs[i][<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> ROW <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> COLUMN <span style="color:#f92672">&amp;&amp;</span> current[r][c]) {
+</span></span><span style="display:flex;"><span>             count<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> count;
+</span></span><span style="display:flex;"><span>} 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span>(<span style="color:#66d9ef">int</span> current[][COLUMN]) {
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;Status...</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> row;    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> ROW; row<span style="color:#f92672">++</span>) { 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> column;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(column <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; column <span style="color:#f92672">&lt;</span> COLUMN; column<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            putchar(current[row][column] <span style="color:#f92672">?</span> <span style="color:#e6db74">&#39;*&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;~&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        puts(<span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>    } 
+</span></span><span style="display:flex;"><span>} 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">copy</span>(<span style="color:#66d9ef">int</span> from[][COLUMN], <span style="color:#66d9ef">int</span> to[][COLUMN]) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> row;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> ROW; row<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> column;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(column <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; column <span style="color:#f92672">&lt;</span> COLUMN; column<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            to[row][column] <span style="color:#f92672">=</span> from[row][column];
+</span></span><span style="display:flex;"><span>            from[row][column] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">isDifferent</span>(<span style="color:#66d9ef">int</span> current[][COLUMN], <span style="color:#66d9ef">int</span> next[][COLUMN]) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> row;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> ROW; row<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> column;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(column <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; column <span style="color:#f92672">&lt;</span> COLUMN; column<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(current[row][column] <span style="color:#f92672">!=</span> next[row][column]) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}  
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Java" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> cc.openhome<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.*<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.function.Consumer<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> java.lang.System.out<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> Rule <span style="color:#66d9ef">implements</span> Consumer<span style="color:#f92672">&lt;</span>Cell<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Fatal  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            cell<span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Stable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// nope
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">},</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Revivable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            cell<span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> Rule<span style="color:#f92672">&gt;</span> envs <span style="color:#f92672">=</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> Stable<span style="color:#f92672">,</span> 3<span style="color:#f92672">,</span> Revivable<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Rule <span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">,</span> Cell cell<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> dirs <span style="color:#f92672">=</span> <span style="color:#f92672">{{-</span>1<span style="color:#f92672">,</span> 0<span style="color:#f92672">},</span> <span style="color:#f92672">{-</span>1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> 0<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>1<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">},</span> <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">},</span> <span style="color:#f92672">{-</span>1<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">}};</span>
+</span></span><span style="display:flex;"><span>        var count <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 8 <span style="color:#f92672">&amp;&amp;</span> count <span style="color:#f92672">&lt;</span> 4<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            var r <span style="color:#f92672">=</span> cell<span style="color:#f92672">.</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>0<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>            var c <span style="color:#f92672">=</span> cell<span style="color:#f92672">.</span><span style="color:#a6e22e">j</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>1<span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> 
+</span></span><span style="display:flex;"><span>               cells<span style="color:#f92672">[</span>0<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> cells<span style="color:#f92672">[</span>r<span style="color:#f92672">][</span>c<span style="color:#f92672">].</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                count<span style="color:#f92672">++;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Rule<span style="color:#f92672">.</span><span style="color:#a6e22e">envs</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getOrDefault</span><span style="color:#f92672">(</span>count<span style="color:#f92672">,</span> Fatal<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> isAlive<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Cell<span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> j<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> isAlive<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> i<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">j</span> <span style="color:#f92672">=</span> j<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">=</span> isAlive<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextGen</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Rule<span style="color:#f92672">.</span><span style="color:#a6e22e">of</span><span style="color:#f92672">(</span>cells<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">).</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    Cell <span style="color:#a6e22e">copy</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Cell<span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> isAlive<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LifeGame</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Cell<span style="color:#f92672">[][]</span> <span style="color:#a6e22e">cells</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> rawData<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        var cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cell<span style="color:#f92672">[</span>rawData<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">][</span>rawData<span style="color:#f92672">[</span>0<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span><span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> rawData<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var j <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> j <span style="color:#f92672">&lt;</span> rawData<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> j<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                cells<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cell<span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> j<span style="color:#f92672">,</span> rawData<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cells<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Cell<span style="color:#f92672">[][]</span> <span style="color:#a6e22e">copy</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> source<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Cell<span style="color:#f92672">[][]</span> cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cell<span style="color:#f92672">[</span>source<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">][</span>source<span style="color:#f92672">[</span>0<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span><span style="color:#f92672">];</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> source<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var j <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> j <span style="color:#f92672">&lt;</span> source<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> j<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                cells<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> source<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">].</span><span style="color:#a6e22e">copy</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cells<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">nextGen</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Cell<span style="color:#f92672">[][]</span> currentCells <span style="color:#f92672">=</span> copy<span style="color:#f92672">(</span>cells<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var row <span style="color:#f92672">:</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var cell <span style="color:#f92672">:</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                cell<span style="color:#f92672">.</span><span style="color:#a6e22e">nextGen</span><span style="color:#f92672">(</span>currentCells<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>Cell<span style="color:#f92672">[][]</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        out<span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Status...&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var row <span style="color:#f92672">:</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var cell <span style="color:#f92672">:</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                out<span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>cell<span style="color:#f92672">.</span><span style="color:#a6e22e">isAlive</span> <span style="color:#f92672">==</span> 0 <span style="color:#f92672">?</span> <span style="color:#e6db74">&#39;~&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;*&#39;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            out<span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Cell<span style="color:#f92672">[][]</span> cells <span style="color:#f92672">=</span> cells<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">},</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">{</span>0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> 1<span style="color:#f92672">}});</span>
+</span></span><span style="display:flex;"><span>                   
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>var g <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> g <span style="color:#f92672">&lt;</span> 35<span style="color:#f92672">;</span> g<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            print<span style="color:#f92672">(</span>cells<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            nextGen<span style="color:#f92672">(</span>cells<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Python" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, i, j):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>position <span style="color:#f92672">=</span> (i, j)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">seekToSurvive</span>(self, cells):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>isLivable(cells) <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">isLivable</span>(self, cells):
+</span></span><span style="display:flex;"><span>        n <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>neighbors(cells) 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span> <span style="color:#66d9ef">if</span> n <span style="color:#f92672">in</span> [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>] <span style="color:#66d9ef">else</span> (<span style="color:#66d9ef">True</span> <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">else</span> 
+</span></span><span style="display:flex;"><span>                id(self) <span style="color:#f92672">==</span> id(cells[self<span style="color:#f92672">.</span>position[<span style="color:#ae81ff">0</span>]][self<span style="color:#f92672">.</span>position[<span style="color:#ae81ff">1</span>]]))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">neighbors</span>(self, cells):
+</span></span><span style="display:flex;"><span>        dirs  <span style="color:#f92672">=</span> [[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                 [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]]
+</span></span><span style="display:flex;"><span>        count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">8</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> count <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>            r <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>position[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">+</span> dirs[i][<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>position[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">+</span> dirs[i][<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">and</span> r <span style="color:#f92672">&lt;</span> len(cells) <span style="color:#f92672">and</span> c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">and</span> c <span style="color:#f92672">&lt;</span> len(cells[<span style="color:#ae81ff">0</span>]) \
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">and</span> cells[r][c] <span style="color:#f92672">!=</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> count
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __eq__(self, that):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span> <span style="color:#66d9ef">if</span> that <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span> <span style="color:#66d9ef">else</span> self<span style="color:#f92672">.</span>position <span style="color:#f92672">==</span> that<span style="color:#f92672">.</span>position
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __hash__(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> hash(self<span style="color:#f92672">.</span>position)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">asCells</span>(rowData):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [[Cell(i, j) <span style="color:#66d9ef">if</span> rowData[i][j] <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(len(rowData[i]))] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(rowData))]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">getOrNew</span>(cells, i, j):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Cell(i, j) <span style="color:#66d9ef">if</span> cells[i][j] <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span> <span style="color:#66d9ef">else</span> cells[i][j]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">produce</span>(current):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [[getOrNew(current, i, j)<span style="color:#f92672">.</span>seekToSurvive(current) 
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(len(current[i]))] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(current))]
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(cells):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;Status...&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> cells:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> cell <span style="color:#f92672">in</span> row:
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#39;~&#39;</span> <span style="color:#66d9ef">if</span> cell <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;*&#39;</span>, end<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>        print()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>current <span style="color:#f92672">=</span> asCells([[<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                   [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>]])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>draw(current)
+</span></span><span style="display:flex;"><span>next <span style="color:#f92672">=</span> produce(current)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span>(current <span style="color:#f92672">!=</span> next):
+</span></span><span style="display:flex;"><span>    current <span style="color:#f92672">=</span> next
+</span></span><span style="display:flex;"><span>    draw(current);
+</span></span><span style="display:flex;"><span>    next <span style="color:#f92672">=</span> produce(current)
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Scala" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span><span style="color:#f92672">(</span>i<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">,</span> j<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">val</span> dirs <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#a6e22e">List</span><span style="color:#f92672">(-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                       <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">val</span> deathCounts <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">4</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> seekToSurvive<span style="color:#f92672">(</span>cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span> <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isLivable<span style="color:#f92672">(</span>cells<span style="color:#f92672">))</span> <span style="color:#66d9ef">this</span> 
+</span></span><span style="display:flex;"><span>                                                 <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">null</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> isLivable<span style="color:#f92672">(</span>cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">val</span> n <span style="color:#66d9ef">=</span> neighbors<span style="color:#f92672">(</span>cells<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>deathCounts<span style="color:#f92672">.</span>contains<span style="color:#f92672">(</span>n<span style="color:#f92672">))</span> <span style="color:#66d9ef">false</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>n <span style="color:#f92672">==</span> <span style="color:#ae81ff">3</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">true</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">this</span> eq cells<span style="color:#f92672">(</span>i<span style="color:#f92672">)(</span>j<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> increment<span style="color:#f92672">(</span>index<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">,</span> count<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">,</span> cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>index <span style="color:#f92672">==</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">||</span> count <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span><span style="color:#f92672">)</span> count
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">val</span> r <span style="color:#66d9ef">=</span> i <span style="color:#f92672">+</span> dirs<span style="color:#f92672">(</span>index<span style="color:#f92672">)(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">val</span> c <span style="color:#66d9ef">=</span> j <span style="color:#f92672">+</span> dirs<span style="color:#f92672">(</span>index<span style="color:#f92672">)(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">.</span>length <span style="color:#f92672">&amp;&amp;</span> 
+</span></span><span style="display:flex;"><span>               c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">).</span>length <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>               cells<span style="color:#f92672">(</span>r<span style="color:#f92672">)(</span>c<span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> increment<span style="color:#f92672">(</span>index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> count <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> cells<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> increment<span style="color:#f92672">(</span>index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> count<span style="color:#f92672">,</span> cells<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> neighbors<span style="color:#f92672">(</span>cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span> <span style="color:#66d9ef">=</span> increment<span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> cells<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> asCells<span style="color:#f92672">(</span>rowData<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Int</span><span style="color:#f92672">]])</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>i <span style="color:#66d9ef">&lt;-</span> <span style="color:#ae81ff">0</span> until rowData<span style="color:#f92672">.</span>length<span style="color:#f92672">)</span> <span style="color:#66d9ef">yield</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>j <span style="color:#66d9ef">&lt;-</span> <span style="color:#ae81ff">0</span> until rowData<span style="color:#f92672">(</span>i<span style="color:#f92672">).</span>length<span style="color:#f92672">)</span> <span style="color:#66d9ef">yield</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>rowData<span style="color:#f92672">(</span>i<span style="color:#f92672">)(</span>j<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span> <span style="color:#a6e22e">Cell</span><span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> j<span style="color:#f92672">)</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">).</span>toList<span style="color:#f92672">).</span>toList
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> getOrNew<span style="color:#f92672">(</span>cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]],</span> i<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">,</span> j<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cells<span style="color:#f92672">(</span>i<span style="color:#f92672">)(</span>j<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#a6e22e">Cell</span><span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> j<span style="color:#f92672">)</span> <span style="color:#66d9ef">else</span> cells<span style="color:#f92672">(</span>i<span style="color:#f92672">)(</span>j<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> produce<span style="color:#f92672">(</span>current<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>i <span style="color:#66d9ef">&lt;-</span> <span style="color:#ae81ff">0</span> until current<span style="color:#f92672">.</span>length<span style="color:#f92672">)</span> <span style="color:#66d9ef">yield</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>j <span style="color:#66d9ef">&lt;-</span> <span style="color:#ae81ff">0</span> until current<span style="color:#f92672">(</span>i<span style="color:#f92672">).</span>length<span style="color:#f92672">)</span> <span style="color:#66d9ef">yield</span> 
+</span></span><span style="display:flex;"><span>            getOrNew<span style="color:#f92672">(</span>current<span style="color:#f92672">,</span> i<span style="color:#f92672">,</span> j<span style="color:#f92672">).</span>seekToSurvive<span style="color:#f92672">(</span>current<span style="color:#f92672">)).</span>toList<span style="color:#f92672">).</span>toList
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> showUntilSteady<span style="color:#f92672">(</span>cells<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Cell</span><span style="color:#f92672">]])</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Status...&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>row <span style="color:#66d9ef">&lt;-</span> cells<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>cell <span style="color:#66d9ef">&lt;-</span> row<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            print<span style="color:#f92672">(</span><span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cell <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#e6db74">&#39;~&#39;</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;*&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        println
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">val</span> next <span style="color:#66d9ef">=</span> produce<span style="color:#f92672">(</span>cells<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>next <span style="color:#f92672">!=</span> cells<span style="color:#f92672">)</span> showUntilSteady<span style="color:#f92672">(</span>next<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>showUntilSteady<span style="color:#f92672">(</span>asCells<span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Ruby" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ruby" data-lang="ruby"><span style="display:flex;"><span><span style="color:#75715e"># encoding: UTF-8</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(r, c)
+</span></span><span style="display:flex;"><span>        @position <span style="color:#f92672">=</span> {<span style="color:#e6db74">i</span>: r, <span style="color:#e6db74">j</span>: c}
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">seekToSurvive</span>(cells)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> isLivable(cells); self <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">nil</span> <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">isLivable</span>(cells)
+</span></span><span style="display:flex;"><span>        n <span style="color:#f92672">=</span> neighbors(cells) 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span><span style="color:#f92672">].</span>include? n; <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elsif</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">3</span>; <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> self<span style="color:#f92672">.</span>object_id <span style="color:#f92672">==</span> cells<span style="color:#f92672">[</span>@position<span style="color:#f92672">[</span><span style="color:#e6db74">:i</span><span style="color:#f92672">]][</span>@position<span style="color:#f92672">[</span><span style="color:#e6db74">:j</span><span style="color:#f92672">]].</span>object_id
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">neighbors</span>(cells)
+</span></span><span style="display:flex;"><span>        dirs  <span style="color:#f92672">=</span> <span style="color:#f92672">[[-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                 <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>        count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        (<span style="color:#ae81ff">0</span><span style="color:#f92672">...</span><span style="color:#ae81ff">8</span>)<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> count <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>            r <span style="color:#f92672">=</span> @position<span style="color:#f92672">[</span><span style="color:#e6db74">:i</span><span style="color:#f92672">]</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span><span style="color:#ae81ff">0</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> @position<span style="color:#f92672">[</span><span style="color:#e6db74">:j</span><span style="color:#f92672">]</span> <span style="color:#f92672">+</span> dirs<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">.</span>size <span style="color:#f92672">&amp;&amp;</span> 
+</span></span><span style="display:flex;"><span>               c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> cells<span style="color:#f92672">[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">].</span>size <span style="color:#f92672">&amp;&amp;</span> cells<span style="color:#f92672">[</span>r<span style="color:#f92672">][</span>c<span style="color:#f92672">]</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>                count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">end</span>                      
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>        count
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">eq?</span>(that)
+</span></span><span style="display:flex;"><span>        @positon <span style="color:#f92672">==</span> that<span style="color:#f92672">.</span>position
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hash</span>
+</span></span><span style="display:flex;"><span>        @position<span style="color:#f92672">.</span>hash
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">asCells</span>(rowData)
+</span></span><span style="display:flex;"><span>    (<span style="color:#ae81ff">0</span><span style="color:#f92672">...</span>rowData<span style="color:#f92672">.</span>size)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>        (<span style="color:#ae81ff">0</span><span style="color:#f92672">...</span>rowData<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span>size)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>j<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> rowData<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>; <span style="color:#66d9ef">Cell</span><span style="color:#f92672">.</span>new(i, j) <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">nil</span> <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">getOrNew</span>(cells, i, j)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> cells<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>; <span style="color:#66d9ef">Cell</span><span style="color:#f92672">.</span>new(i, j) <span style="color:#66d9ef">else</span> cells<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">produce</span>(current)
+</span></span><span style="display:flex;"><span>    (<span style="color:#ae81ff">0</span><span style="color:#f92672">...</span>current<span style="color:#f92672">.</span>size)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>        (<span style="color:#ae81ff">0</span><span style="color:#f92672">...</span>current<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span>size)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>j<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>            getOrNew(current, i, j)<span style="color:#f92672">.</span>seekToSurvive(current)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(cells)
+</span></span><span style="display:flex;"><span>    puts(<span style="color:#e6db74">&#39;Status...&#39;</span>)
+</span></span><span style="display:flex;"><span>    cells<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>row<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>        row<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>cell<span style="color:#f92672">|</span>
+</span></span><span style="display:flex;"><span>            print(<span style="color:#66d9ef">if</span> cell <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>; <span style="color:#e6db74">&#39;~&#39;</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;*&#39;</span> <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>        puts
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>current <span style="color:#f92672">=</span> asCells(<span style="color:#f92672">[[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>                   <span style="color:#f92672">[</span><span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]]</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>draw(current)
+</span></span><span style="display:flex;"><span>newGen <span style="color:#f92672">=</span> produce(current)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span>(current <span style="color:#f92672">!=</span> newGen)
+</span></span><span style="display:flex;"><span>    current <span style="color:#f92672">=</span> newGen
+</span></span><span style="display:flex;"><span>    draw(current);
+</span></span><span style="display:flex;"><span>    newGen <span style="color:#f92672">=</span> produce(current)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="JavaScript" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">produce</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">range</span>(<span style="color:#a6e22e">start</span>, <span style="color:#a6e22e">end</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">start</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">end</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">i</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">r</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">liveOrDie</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">row</span>, <span style="color:#a6e22e">column</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">switch</span>(<span style="color:#a6e22e">neighbors</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">row</span>, <span style="color:#a6e22e">column</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">current</span>[<span style="color:#a6e22e">row</span>][<span style="color:#a6e22e">column</span>];
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">neighbors</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">row</span>, <span style="color:#a6e22e">column</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">dirs</span> <span style="color:#f92672">=</span> [[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                    [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">count</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">count</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">row</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">dirs</span>[<span style="color:#a6e22e">i</span>][<span style="color:#ae81ff">0</span>];
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">column</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">dirs</span>[<span style="color:#a6e22e">i</span>][<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">r</span> <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">current</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> 
+</span></span><span style="display:flex;"><span>               <span style="color:#a6e22e">c</span> <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">current</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">length</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">current</span>[<span style="color:#a6e22e">r</span>][<span style="color:#a6e22e">c</span>]) {
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">count</span><span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">count</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">current</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">range</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">current</span>.<span style="color:#a6e22e">length</span>).<span style="color:#a6e22e">map</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">row</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">range</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">current</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">length</span>).<span style="color:#a6e22e">map</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">column</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">liveOrDie</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">row</span>, <span style="color:#a6e22e">column</span>);
+</span></span><span style="display:flex;"><span>            });
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>}();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">draw</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">cells</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#39;Status...\n&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">row</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">row</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">cells</span>.<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">row</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">column</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">column</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">cells</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">column</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">print</span>(<span style="color:#a6e22e">cells</span>[<span style="color:#a6e22e">row</span>][<span style="color:#a6e22e">column</span>] <span style="color:#f92672">?</span> <span style="color:#e6db74">&#39;*&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;~&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#39;\n&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">isDifferent</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">next</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">row</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">row</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">current</span>.<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">row</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">column</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">column</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">current</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">column</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">current</span>[<span style="color:#a6e22e">row</span>][<span style="color:#a6e22e">column</span>] <span style="color:#f92672">!==</span> <span style="color:#a6e22e">next</span>[<span style="color:#a6e22e">row</span>][<span style="color:#a6e22e">column</span>]) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">current</span> <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>               [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>]];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">draw</span>(<span style="color:#a6e22e">current</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">produce</span>(<span style="color:#a6e22e">current</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span>(<span style="color:#a6e22e">isDifferent</span>(<span style="color:#a6e22e">current</span>, <span style="color:#a6e22e">next</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">current</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">draw</span>(<span style="color:#a6e22e">current</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">produce</span>(<span style="color:#a6e22e">next</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Haskell" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> Control.Monad
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">produce</span> current <span style="color:#f92672">=</span> [[liveOrDie current row column <span style="color:#f92672">|</span> 
+</span></span><span style="display:flex;"><span>    column <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>columnLength <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>]] <span style="color:#f92672">|</span> row <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>rowLength <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>]]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> rowLength <span style="color:#f92672">=</span> length current
+</span></span><span style="display:flex;"><span>          columnLength <span style="color:#f92672">=</span> length <span style="color:#f92672">$</span> current <span style="color:#f92672">!!</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">liveOrDie</span> current row column <span style="color:#f92672">=</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n `elem` [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>] <span style="color:#66d9ef">then</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">then</span> current <span style="color:#f92672">!!</span> row <span style="color:#f92672">!!</span> column
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">else</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> n <span style="color:#f92672">=</span> neighbors current row column
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">neighbors</span> cells row column <span style="color:#f92672">=</span> increment cells <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> increment cells index count <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">if</span> index <span style="color:#f92672">==</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">||</span> count <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span> <span style="color:#66d9ef">then</span> count
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> r <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> rowLength <span style="color:#f92672">&amp;&amp;</span> 
+</span></span><span style="display:flex;"><span>                      c <span style="color:#f92672">&gt;</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> columnLength <span style="color:#f92672">&amp;&amp;</span> cells <span style="color:#f92672">!!</span> r <span style="color:#f92672">!!</span> c <span style="color:#f92672">/=</span> <span style="color:#ae81ff">0</span> 
+</span></span><span style="display:flex;"><span>                      <span style="color:#66d9ef">then</span> increment cells (index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) (count <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>                   <span style="color:#66d9ef">else</span> increment cells (index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) count
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">where</span> rowLength <span style="color:#f92672">=</span> length cells
+</span></span><span style="display:flex;"><span>                    columnLength <span style="color:#f92672">=</span> length <span style="color:#f92672">$</span> cells <span style="color:#f92672">!!</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>                    dirs <span style="color:#f92672">=</span> [[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>], 
+</span></span><span style="display:flex;"><span>                            [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>], [<span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], [<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]]
+</span></span><span style="display:flex;"><span>                    r <span style="color:#f92672">=</span> row <span style="color:#f92672">+</span> dirs <span style="color:#f92672">!!</span> index <span style="color:#f92672">!!</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>                    c <span style="color:#f92672">=</span> column <span style="color:#f92672">+</span> dirs <span style="color:#f92672">!!</span> index <span style="color:#f92672">!!</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>                    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">showUntilSteady</span> cells <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    putStrLn <span style="color:#e6db74">&#34;Status...&#34;</span>
+</span></span><span style="display:flex;"><span>    forM [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>rowLength <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>] (<span style="color:#a6e22e">\</span>row <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>        forM [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>columnLength <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>] (<span style="color:#a6e22e">\</span>column <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>            putChar (<span style="color:#66d9ef">if</span> cells <span style="color:#f92672">!!</span> row <span style="color:#f92672">!!</span> column <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;~&#39;</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;*&#39;</span>))
+</span></span><span style="display:flex;"><span>        putStrLn <span style="color:#e6db74">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>    when (next <span style="color:#f92672">/=</span> cells) <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>        showUntilSteady next
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> next <span style="color:#f92672">=</span> produce cells
+</span></span><span style="display:flex;"><span>          rowLength <span style="color:#f92672">=</span> length cells
+</span></span><span style="display:flex;"><span>          columnLength <span style="color:#f92672">=</span> length <span style="color:#f92672">$</span> cells <span style="color:#f92672">!!</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> showUntilSteady [[<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>                        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>]]
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Prolog" data-tab-group="default" class="tab-item ">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-prolog" data-lang="prolog"><span style="display:flex;"><span><span style="color:#a6e22e">state</span>(Neighbors, <span style="color:#66d9ef">_</span>, <span style="color:#ae81ff">0</span>) :- <span style="color:#a6e22e">between</span>(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, Neighbors), !.
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">state</span>(Neighbors, <span style="color:#66d9ef">_</span>, <span style="color:#ae81ff">0</span>) :- <span style="color:#a6e22e">between</span>(<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">8</span>, Neighbors), !.
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">state</span>(<span style="color:#ae81ff">2</span>, Value, Value).
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">state</span>(<span style="color:#ae81ff">3</span>, <span style="color:#66d9ef">_</span>, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">block</span>(Blocks, Row, Column, Value) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">nth0</span>(Row, Blocks, Values), <span style="color:#a6e22e">nth0</span>(Column, Values, Value).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">upper_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    Row <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, R <span style="color:#f92672">is</span> Row <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, Column, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">down_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Blocks, ROWS), R <span style="color:#f92672">is</span> Row <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, R <span style="color:#f92672">&lt;</span> ROWS,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, Column, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">left_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    Column <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, C <span style="color:#f92672">is</span> Column <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, Row, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">right_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">nth0</span>(<span style="color:#ae81ff">0</span>, Blocks, Values), 
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Values, Columns), C <span style="color:#f92672">is</span> Column <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, C <span style="color:#f92672">&lt;</span> Columns,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, Row, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">left_upper_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    Row <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, R <span style="color:#f92672">is</span> Row <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    Column <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, C <span style="color:#f92672">is</span> Column <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">left_down_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Blocks, ROWS), R <span style="color:#f92672">is</span> Row <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, R <span style="color:#f92672">&lt;</span> ROWS,
+</span></span><span style="display:flex;"><span>    Column <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, C <span style="color:#f92672">is</span> Column <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">right_upper_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    Row <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>, R <span style="color:#f92672">is</span> Row <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">nth0</span>(<span style="color:#ae81ff">0</span>, Blocks, Values), 
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Values, Columns), C <span style="color:#f92672">is</span> Column <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, C <span style="color:#f92672">&lt;</span> Columns,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">right_down_neighbor</span>(Blocks, Row, Column) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Blocks, ROWS), R <span style="color:#f92672">is</span> Row <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, R <span style="color:#f92672">&lt;</span> ROWS,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">nth0</span>(<span style="color:#ae81ff">0</span>, Blocks, Values), 
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Values, Columns), C <span style="color:#f92672">is</span> Column <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, C <span style="color:#f92672">&lt;</span> Columns,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, R, C, <span style="color:#ae81ff">1</span>).
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">truthes</span>([P|T], N) :- P, !, <span style="color:#a6e22e">truthes</span>(T, Acc), N <span style="color:#f92672">is</span> Acc <span style="color:#f92672">+</span> <span style="color:#ae81ff">1.</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">truthes</span>([<span style="color:#66d9ef">_</span>|T], Acc) :- <span style="color:#a6e22e">truthes</span>(T, Acc).
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">truthes</span>([], <span style="color:#ae81ff">0</span>).
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">neighbors</span>(Blocks, Row, Column, N) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">truthes</span>([
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">upper_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">down_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">left_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">right_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">left_upper_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">left_down_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">right_upper_neighbor</span>(Blocks, Row, Column),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">right_down_neighbor</span>(Blocks, Row, Column)
+</span></span><span style="display:flex;"><span>    ], N).
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">forRow</span>(Row, Blocks) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">length</span>(Blocks, Rows), Row <span style="color:#f92672">&lt;</span> Rows, !,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">forElem</span>(Row, <span style="color:#ae81ff">0</span>, Blocks), NR <span style="color:#f92672">is</span> Row <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">forRow</span>(NR, Blocks).
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">forRow</span>(<span style="color:#66d9ef">_</span>, <span style="color:#66d9ef">_</span>) :- <span style="color:#e6db74">nl</span>.    
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">forElem</span>(Row, Column, Blocks) :-
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">nth0</span>(<span style="color:#ae81ff">0</span>, Blocks, Values), <span style="color:#a6e22e">length</span>(Values, Columns),
+</span></span><span style="display:flex;"><span>    Column <span style="color:#f92672">&lt;</span> Columns, !, 
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">block</span>(Blocks, Row, Column, Value),    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">neighbors</span>(Blocks, Row, Column, N),
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">state</span>(N, Value, ToValue),
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">write</span>(ToValue),
+</span></span><span style="display:flex;"><span>    NC <span style="color:#f92672">is</span> Column <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">forElem</span>(Row, NC, Blocks).
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">forElem</span>(<span style="color:#66d9ef">_</span>, <span style="color:#66d9ef">_</span>, <span style="color:#66d9ef">_</span>) :- <span style="color:#e6db74">nl</span>.
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">_</span>) :- 
+</span></span><span style="display:flex;"><span>    Blocks <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>],
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">forRow</span>(<span style="color:#ae81ff">0</span>, Blocks).
+</span></span></code></pre></div>
+    </div>
+    <div data-tab-item="Toy" data-tab-group="default" class="tab-item ">
+<pre tabindex="0"><code># 我寫的玩具語言 https://github.com/JustinSDK/toy_lang
+
+ROW = 10
+COLUMN = 10
+
+(DIRS = [
+    [-1, 0], [-1, 1], [0, 1],  [1, 1],
+    [1, 0],  [1, -1], [0, -1], [-1, -1]
+])
+
+def produce(current, next) {
+    (iterate(0, ROW).forEach(row -&gt; 
+        iterate(0, COLUMN).forEach(column -&gt; produceRC(row, column, current, next))
+    ))
+}
+
+def produceRC(row, column, current, next) {
+    switch neighbors(current, row, column) {
+        case 0, 1, 4
+            next.get(row).set(column, 0) 
+        case 2
+            next.get(row).set(column, current.get(row).get(column)) 
+        case 3
+            next.get(row).set(column, 1) 
+    }         
+}
+
+def neighbors(current, row, column) {
+    count = 0
+    i = 0
+    while i &lt; 8 and count &lt; 4 {
+        r = row + DIRS.get(i).get(0)
+        c = column + DIRS.get(i).get(1)
+        if r &gt; -1 and r &lt; ROW and c &gt; -1 and c &lt; COLUMN and current.get(r).get(c) {
+            count += 1
+        }
+        i += 1
+    }
+
+    return count
+} 
+
+def copy(from, to) {
+    (iterate(0, ROW).forEach(row -&gt; 
+        iterate(0, COLUMN).forEach(column -&gt; 
+            copyRC(from, to, row, column)
+        )
+    ))
+}  
+
+def copyRC(from, to, row, column) {
+    to.get(row).set(column, from.get(row).get(column))
+    from.get(row).set(column, 0)
+}
+
+def isDifferent(current, next) {
+    (return range(0, ROW)
+              .any(row -&gt; isDiffByRow(current.get(row), next.get(row))))
+}  
+
+def isDiffByRow(currentRow, nextRow) {
+    (return range(0, COLUMN)
+              .any(column -&gt; currentRow.get(column) != nextRow.get(column)))
+}
+
+def printCells(current) {
+    println(&#39;Status...&#39;)
+    current.forEach(printRow)
+    println()
+} 
+
+def printRow(row) {
+    row.forEach(column -&gt; print(&#39;*&#39; if column != 0 else &#39;~&#39;))
+    println()
+} 
+
+(current = [
+    [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
+    [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
+    [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
+    [0, 1, 1, 1, 0, 0, 1, 0, 1, 1],
+    [0, 1, 1, 1, 0, 1, 0, 0, 1, 1],
+    [0, 1, 0, 1, 1, 0, 0, 1, 1, 1],
+    [0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+    [0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
+    [0, 1, 0, 1, 0, 1, 0, 1, 1, 1],
+    [0, 1, 0, 1, 1, 0, 0, 0, 1, 1]
+])
+
+next = range(0, ROW).map(_ -&gt; range(0, COLUMN).fill(0))
+
+printCells(current)
+produce(current, next)
+
+while isDifferent(current, next) {
+    copy(next, current)
+    printCells(current)
+    produce(current, next)
+}
+</code></pre>
+    </div>
+  </div>
+</div>
+
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/algorithm/basics/life/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/algorithm/basics/life/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e5%b8%b8%e8%a6%8b%e7%a8%8b%e5%bc%8f%e6%bc%94%e7%ae%97%3a%3a%e5%ba%b7%e5%a8%81%e7%94%9f%e5%91%bd%e9%81%8a%e6%88%b2&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2falgorithm%2fbasics%2flife%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../coins/index.html" title="八銀幣"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../matching/index.html" title="字串比對"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443672"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443672"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443672"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443672"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443672"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443672"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443672"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443672"></script>
+  </body>
+</html>

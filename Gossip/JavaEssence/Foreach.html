@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果你要走訪陣列中所有元素，通常你會這麼寫：public void go(int[] arr) {&nbsp; &nbsp; for(int i = 0; i &lt; arr.length; i++...">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="神奇的 foreach">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/JavaEssence/Foreach.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果你要走訪陣列中所有元素，通常你會這麼寫：public void go(int[] arr) {&nbsp; &nbsp; for(int i = 0; i &lt; arr.length; i++...">
+    <title>神奇的 foreach</title>
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="../css/caterpillar.css">
+    <script async="" src="../google-code-prettify/run_prettify.js"></script>
+  <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle --> <a href="Foreach.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span> </a>
+      <div id="menu">
+        <div class="pure-menu"> <a class="pure-menu-heading" href="index.html">回 Java Essence</a>
+          <ul class="pure-menu-list">
+            <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br>
+              <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;">
+                <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 2015 新版型 160 x 600 廣告 -->
+                <ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px"
+                  data-ad-client="ca-pub-9750319131714390" data-ad-slot="3747048883"></ins>
+                <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+          </ul>
+        </div>
+      </div>
+      <main id="main">
+        <header class="header">
+          <h1>神奇的 foreach</h1>
+        </header>
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>  如果你要走訪陣列中所有元素，通常你會這麼寫：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;">public void go(int[] arr) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(int i = 0; i &lt; arr.length; i++) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(arr[i]);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span></div>
+          <br>
+          事實上很多時候，從頭到尾走訪一個陣列（或Collection）中所有元素，是很常見的需求，上面的寫法並沒有錯，只不過索引資訊基本上是不需要的，硬要寫是很冗長的事。<br>
+          <br>
+          在J2SE 5.0之後，引進了foreach新語法，上例你可以這麼改寫：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;">public void go(int[] arr) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(int element : arr) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(element);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span></div>
+          <br>
+          這個語法其實不僅限於陣列，還可以用在List、Set等。例如若是List實作物件，可以這麼寫：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;">public void go(List&lt;String&gt; list) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(String element : list) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(element);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span><br>
+            <span style="font-weight: bold;"></span></div>
+          <span style="font-weight: bold;"><br>
+          </span>如果<span style="font-family: Times New Roman,Times,serif;">是Set</span>也是可以的，例如：<span
+            style="font-weight: bold;"></span><br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;"></span><span
+              style="font-weight: bold;">public void go(Set&lt;String&gt; set) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(String element : set) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(element);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span></div>
+          <br>
+          事實上，只要是Collection介面的實作物件，都可以用foreach語法：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;">public void go(Collection&lt;String&gt; collection) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(String element : collection) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(element);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span></div>
+          <br>
+          Java的foreach語法，其實是編譯器給的語法蜜糖。如果foreach要走訪的是陣列，事實上，編譯器會自動展開為以下的程式碼：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public void go(int ai[]) {<br>
+              &nbsp;&nbsp;&nbsp; int ai1[] = ai;<br>
+              &nbsp;&nbsp;&nbsp; int i = ai1.length;<br>
+              &nbsp;&nbsp;&nbsp; for(int j = 0; j &lt; i; j++) {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int k = ai1[j];<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.println(k);<br>
+              &nbsp;&nbsp;&nbsp; }<br>
+              }</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span></div>
+          <br>
+          若foreach運用在Collection的實作物件上，其實編譯器會展開為：<br>
+          <div style="margin-left: 40px;">public void go(Collection collection) {<br>
+            &nbsp;&nbsp;&nbsp; String s;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;for(Iterator iterator = collection.iterator(); <br>
+            &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;iterator.hasNext(); System.out.println(s))<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s = (String)iterator.next();<br>
+            }</div>
+          <br>
+          無論是Collection、List或Set，展開後皆利用iterator()方法傳回Iterator物件，並利用Iterator來移動、傳回下一個物件，這是 <a
+            href="../DesignPattern/IteratorPattern.htm">Iterator
+            模式 </a>的實現。<br>
+          <br>
+          <span style="font-weight: bold;">在J2SE
+            1.4之前，Collection介面上直接定義了iterator()方法必須實作，因此所有Collection實作物件，皆需實作iterator
+            ()。在J2SE
+            5.0之後，引進了Iterable介面，在介面中定義了iterator()方法，該方法必須傳回Iterator物件，而Collection介面繼
+            承了Iterable介面，</span>因此所有Collection實作物件，皆需實作iterator()，因此所有Collection實作物件，都可以搭配使用foreach語法。<br>
+          <br>
+          <span style="font-weight: bold;">然而並非只有Collection介面的實作物件，才可以搭配foreach語法，事實上，由於Iterable介面的引進，使得只要是實作Iterable介面的物件，皆可搭配foreach語法來使用。</span>例如：<br>
+          <div style="margin-left: 40px;"><span style="font-weight: bold;">public void go(Iterable&lt;String&gt; iterable) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; for(String element : iterable) {</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp; System.out.println(element);</span><br>
+            <span style="font-weight: bold;">&nbsp; &nbsp; }</span><br>
+            <span style="font-weight: bold;">}</span><br>
+            <span style="font-weight: bold;"></span></div>
+          <span style="font-weight: bold;"><br>
+          </span>不管你是List、Set還是Collection，只要是Iterable的物件，都可以用這個go，或是直接用foreach語法，像是：<span
+            style="font-weight: bold;"><br>
+          </span>
+          <ul>
+            <li>Some.java</li>
+          </ul>
+          <pre class="prettyprint"><code lang="java">import java.util.Iterator;<br><br>public class IterableString <span
+style="font-weight: bold;">implements Iterable&lt;Character&gt;</span> {<br>    private String original;<br><br>    public IterableString(String original) {<br>        this.original = original;<br>    }<br><br>    public Iterator&lt;Character&gt; iterator() {<br>        return <span
+style="font-weight: bold;">new InnerIterator()</span>;<br>    }<br>	<br>    <span
+style="font-weight: bold;">private class InnerIterator implements Iterator&lt;Character&gt; {</span><br>        <span
+style="font-weight: bold;">private int index;</span><br>        <span style="font-weight: bold;">public boolean hasNext() {</span><br>            <span
+style="font-weight: bold;">return index &lt; original.length();</span><br>        <span
+style="font-weight: bold;">}</span><br><br>        <span style="font-weight: bold;">public Character next() {</span><br>            <span
+style="font-weight: bold;">Character c = original.charAt(index);</span><br>            <span
+style="font-weight: bold;">index++;</span><br>            <span style="font-weight: bold;">return c;</span><br>        <span
+style="font-weight: bold;">}</span><br><br>        <span style="font-weight: bold;">public void remove() {</span><span
+style="font-weight: bold;"></span><span style="font-weight: bold;">}</span><br>    <span
+style="font-weight: bold;">}</span><br>}</code></pre>
+          <br>
+          IterableString類別實作了Iterable介面，因此你可以像以下這麼搭配foreach：<br>
+          <ul>
+            <li>Main.java</li>
+          </ul>
+          <pre class="prettyprint"><code lang="java">public class Main {<br>    public static void main(String[] args) {<br>        IterableString str = new IterableString("Justin");<br>    	for(Character c : str) {<br>            System.out.println(c);<br>        }<br>    }<br>}</code></pre>
+          <br>
+          若你反組譯程式，會發現編譯器作了這些事：<br>
+          <div style="margin-left: 40px;">Character c;<br>
+            for(Iterator iterator = str.iterator(); iterator.hasNext();<br>
+            &nbsp; System.out.println(c))<br>
+            &nbsp;&nbsp;&nbsp; c = (Character)iterator.next();</div>
+          <br>
+          在JDK7之後，有不少API都實作了Iterable，例如NIO2的Path物件等。<br>
+          <br>
+          <br>
+          <br>
+          <div class="ad-2" style="text-align: center;">
+            <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins
+              class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390"
+              data-ad-slot="7104125683" data-ad-format="auto"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+      </main>
+    </div></body>
+    <script src="../js/ui.js"></script>
+    <div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>
+
+</html>

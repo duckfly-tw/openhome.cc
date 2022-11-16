@@ -1,0 +1,159 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 HTTP 協定中，伺服器是個健忘的傢伙，對每次的請求都一視同仁，根據請求中的資訊來執行程式並回應，每個請求對伺服器來說都是新的訪客請求。
+如果你正在製作一個網路問卷，由於問卷內容很長，因此必須分作...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="隱藏欄位">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/HiddenField.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 HTTP 協定中，伺服器是個健忘的傢伙，對每次的請求都一視同仁，根據請求中的資訊來執行程式並回應，每個請求對伺服器來說都是新的訪客請求。
+如果你正在製作一個網路問卷，由於問卷內容很長，因此必須分作...">
+
+    <title>隱藏欄位</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="HiddenField.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>隱藏欄位</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 HTTP 協定中，伺服器是個健忘的傢伙，對每次的請求都一視同仁，根據請求中的資訊來執行程式並回應，每個請求對伺服器來說都是新的訪客請求。</p>
+<p>如果你正在製作一個網路問卷，由於問卷內容很長，因此必須分作幾個頁面，上一頁面作答完後，必須請求伺服器顯示下一個頁面。但是在 HTTP 協定中，伺服器 並不會記得上一次請求的狀態，那上一頁的問卷結果要如何保留（其實伺服器根本不會記得這次請求是之前的瀏覽器發送過來的）？</p>
+<p>既然伺服器不會記得兩次請求間的關係，那就由瀏覽器在每次請求時「主動告知」伺服器多次請求間必要的資訊，伺服器只要單純地處理請求中的相關訊息即可。</p>
+<p>隱藏欄位（Hidden field）就是主動告知伺服器多次請求間必要資訊的方式之一。以問卷作答的範例來說，上一頁的問卷答案，可以用隱藏欄位的方式放在下一頁的表單中，如此發送下一頁表單時，就可以一併發送這些隱藏欄位，每一頁的問卷答案就可以保留下來。</p>
+<p>那麼上一次的結果如何成為下一頁的隱藏欄位呢？在客戶端可以直接在瀏覽器上使用JavaScript製作這個功能，或是將上一頁的結果發送至伺服器，由伺服器將上一頁結果以隱藏欄位的方式再回應給瀏覽器。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/HiddenField-1.JPG" alt="隱藏欄位"  /></div></div></p>
+<p>以下這個範例是個簡單的示範，程式會有兩頁問卷，第一頁的結果會在第二頁成為隱藏欄位，當第二頁發送後，可以看到兩頁問卷的所有答案。</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/questionnaire")
+public class Questionnaire extends HttpServlet {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
+                      throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+        out.println("&lt;!DOCTYPE html&gt;");
+        out.println("&lt;html&gt;");
+        out.println("&lt;head&gt;");
+        out.println("&lt;meta charset='UTF-8'&gt;");
+        out.println("&lt;/head&gt;");
+        out.println("&lt;body&gt;");
+
+        String page = request.getParameter("page");
+        out.println("&lt;form action='questionnaire' method='post'&gt;");
+
+        if("page1".equals(page)) {          // 第一頁問卷
+            out.println("問題一：&lt;input type='text' name='p1q1'&gt;&lt;br&gt;");
+            out.println("問題二：&lt;input type='text' name='p1q2'&gt;&lt;br&gt;");
+            out.println("&lt;input type='submit' name='page' value='page2'&gt;");
+        }
+        else if("page2".equals(page)) {    // 第二頁問卷
+            String p1q1 = request.getParameter("p1q1");
+            String p1q2 = request.getParameter("p1q2");
+            out.println("問題三：&lt;input type='text' name='p2q1'&gt;&lt;br&gt;");
+            out.printf("&lt;input type='hidden' name='p1q1' value='%s'&gt;%n", p1q1);
+            out.printf("&lt;input type='hidden' name='p1q2' value='%s'&gt;%n", p1q2);
+            out.println("&lt;input type='submit' name='page' value='finish'&gt;");
+        }
+        else if("finish".equals(page)) {    // 最後答案收集
+            out.println(request.getParameter("p1q1") + "&lt;br&gt;");
+            out.println(request.getParameter("p1q2") + "&lt;br&gt;");
+            out.println(request.getParameter("p2q1") + "&lt;br&gt;");
+        }
+        out.println("&lt;/form&gt;");
+        out.println("&lt;/body&gt;");
+        out.println("&lt;/html&gt;");
+    } 
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        processRequest(request, response);
+    } 
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        processRequest(request, response);
+    }
+}
+</code></pre>
+<p>由於程式只使用一個 Servlet，所以利用一個 <code>page</code> 請求參數來區別該顯示第幾頁問卷。<code>page</code> 請求參數的值為 <code>"page1"</code> 時，顯示第一頁問卷題目；為 <code>"page2"</code> 時，顯示第二頁問卷題目，並將前一頁的答案以隱藏欄位的方式回應給瀏覽器，以便下一次可以再發送給伺服器；<code>page</code> 請求參數的值為 <code>"finish"</code> 時，應用程式將顯示問卷的所有答案。</p>
+<pre class="prettyprint"><code lang="java">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset='UTF-8'&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;form action='questionnaire' method='post'&gt;
+問題三：&lt;input type='text' name='p2q1'&gt;&lt;br&gt;
+&lt;input type='hidden' name='p1q1' value='測試一'&gt;
+&lt;input type='hidden' name='p1q2' value='測試二'&gt;
+&lt;input type='submit' name='page' value='finish'&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>使用隱藏欄位的方式，顯然地在關掉網頁後，就會遺失先前請求的資訊，所以僅適合用於一些簡單的狀態管理，像是線上問卷。由於在檢視網頁原始碼時，就可以看到隱藏欄位的值，因此這個方法不適合用於隱密性需求高的資料，把信用卡資料或密碼之類的放到隱藏欄位更是不可行的作法。</p>
+<p>隱藏欄位不是 Servlet/JSP 實際管理會話時的機制，在這邊實作隱藏欄位，只是為了說明，由瀏覽器主動告知必要的資訊，為實作 Web 應用程式會話管理的基本原理。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

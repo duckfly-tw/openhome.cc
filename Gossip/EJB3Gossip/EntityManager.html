@@ -1,0 +1,684 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="JPA中要對資料庫進行操作前，必須先取得EntityManager實例，這有點類似JDBC在對資料庫操作之前，必須先取得Connection實例，EntityManager是JPA操作的基礎，它不是設...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="使用 EntityManager">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/EntityManager.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="JPA中要對資料庫進行操作前，必須先取得EntityManager實例，這有點類似JDBC在對資料庫操作之前，必須先取得Connection實例，EntityManager是JPA操作的基礎，它不是設...">
+
+
+    <title>使用 EntityManager</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="EntityManager.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 EntityManager</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            JPA中要對資料庫進行操作前，必須先取得EntityManager實例，這有點類似JDBC在對資料庫操作之前，必須先取得Connection實例，EntityManager是JPA操作的基礎，它不是設計為執行緒安全（Thread-safe）。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+      EntityManager實例基本上是從EntityManagerFactory上呼叫createEntityManager()方法來取得，在 <a href="FirstLocalJPA.html">第一個 JPA（單機客戶端）</a> 中有看到實際的例子，若您使用容器管理，則可以使用@PersistenceContext注入EntityManger，像是 <a href="FirstContainerManagedJPA.html">第一個 JPA（容器管理）</a> 所示範的，或者您可以使用@PersistenceUnit注入EntityManagerFactory，再用它來建立EntityManager，如 <a href="ServletJPA.html">在 Servlet 中直接使用 JPA</a> 所示範的。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+      EntityManager主要在管理Entity實例生命週期，透過EntityManager，您對Entity實例的操作，可以對應至資料庫進行新增、查找、修改、刪除、重清等動作，以下先簡介API的使用，以Application-Managed EntityManager&#29234;例作說明，您必須搭配 <a href="EntityLifeCycle.html">Entity&nbsp;生命週期</a> 以對Entity在EntityManager中的Managed、Detached、Removed狀態獲得更進一步的了解。<br>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+要新增資料，可以使用EntityManager的persist()方法，這也會讓Entity實例處於Managed狀態，例如：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">User user = new User();<br>
+
+
+
+
+
+
+
+
+
+      // 設定 user 相關屬性<br>
+
+
+
+
+
+
+
+
+
+      entityManager.persist(user);<br>
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+若要取得資料表中的資料，使用EntityManager的find()方法，指定主鍵物件與Class實例來取得對應的資料並封裝為物件，查找回的物件會處於Managed的狀態：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">User user = entityManager.find(User.class, id);<br>
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+若資料庫中已有對應資料，則要修改資料有幾種方式：<br>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>若物件是在Managed狀態，例如查找物件之後，直接更新物件，在交易確認之後，物件的更新就會反應至資料表之中：</li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">User user = entityManager.find(User.class, id);<br>
+
+
+
+
+
+
+
+
+
+      user.setName("Justin Lin");<br>
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+
+        <li>若物件屬於生命週期的Detached狀態，您可以使用EntityManager的merge()方法將物件轉至生命周期的Managed狀態，合併物件上之變更：</li>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">// 若 user 狀態有所變動</span><br>
+
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">entityManager.merge(user);<br>
+
+
+
+
+
+
+
+
+      </span></div>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+
+
+        <li>也可以先使用merge()方法將Detached狀態的Entity實例轉至Managed的狀態，再更新物件，在交易確認之後，物件的更新就會反應至資料表之中：</li>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">User user1 = entityManager.merge(user);</span><br>
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;">user1.setName("Justin Lin");</span><br>
+
+
+
+
+
+
+
+
+      <span style="font-family: Courier New,Courier,monospace; font-weight: bold;"></span></div>
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+若要刪除資料表中的資料，則物件必須是在Managed的狀態，例如用EntityManager的find()方法查找物件，以查找到的物件配合remove()方法來移除，或是使用merge(()方法將Entity處於Managed狀態再用remove()移除，移除之後，物件對應不到資料表格中實際的資料，處於Removed狀態：
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">User user = entityManager.find(User.class, id);<br>
+
+
+
+
+
+
+
+
+
+entityManager.remove(user);</div>
+
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+      若在載入某個Entity實例之後，而資料表格因另一個操作而發生變動，您可以使用EntityManager的refresh()方法，將資料表格的更動載入Entity實例中，若Entity先前有了一些更動操作，則會被覆蓋：<br>
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+entityManager.refresh(user);<br>
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+您可以使用EntityManager的flush()方法，強制EntityManager中管理的所有Entity對應的資料表格與Entity的狀態同步：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">entityManager.flush();<br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+EntityManager的clear()方法，可以將EntityManager所管理的Entity實例清除，使Entity處於Detached狀態：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">entityManager.clear();<br>
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+每個EntityManager都與一個<a href="PersistenceContext.html"> Persistence Context</a> 關聯，EntityManager不直接維護Entity，而是將之委托給Persistence Context，Persistence Context中會維護一組Entity實例，每個Entity在Persistence Context為Managed狀態，Entity實例會有Managed、Detached、Removed狀態，這在 <a href="EntityLifeCycle.html">Entity&nbsp;生命週期</a> 中再作進一步的說明。<br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

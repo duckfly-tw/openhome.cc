@@ -1,0 +1,137 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="如果你要傳送二進位資料給瀏覽器，可以使用send_data方法，說是傳遞二進位資料，實際上是提供ASCII-8BIT字串給send_data方法，send_data會取得字串的位元組資料，預設以con...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="send_data 與 send_file">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/SendDataSendFile.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="如果你要傳送二進位資料給瀏覽器，可以使用send_data方法，說是傳遞二進位資料，實際上是提供ASCII-8BIT字串給send_data方法，send_data會取得字串的位元組資料，預設以con...">
+
+
+    <title>send_data 與 send_file</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SendDataSendFile.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>send_data 與 send_file</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>如果你要傳送二進位資料給瀏覽器，可以使用<span class="courier">send_data</span>方法，說是傳遞二進位資料，實際上是提供ASCII-8BIT字串給<span
+
+          class="courier">send_data方法，send_data</span>會取得字串的位元組資料，預設以content-type為application/octet-stream送出。舉例來說，如果想以二進位方式傳送文字資料，並提示客戶端可以儲存為message.txt，可以如下：</p>
+      <p style="margin-left: 40px;"><span style="font-weight: bold;" class="courier">send_data "test", :filename =&gt; "message.txt"</span><br>
+      </p>
+      <p>如果要指定型態，可以使用<span class="courier">:type</span>（預設是application/octet-stream），<span
+
+          class="courier">:disposition</span>可指定inline或attachment（預設），<span
+
+          class="courier">:status</span>可指定狀態碼（預設200）。</p>
+      <p>使用<span class="courier">send_data</span>的一個時機，是使用程式動態產生圖片後，將圖片送給客戶端，以 <a
+
+          href="http://studio.imagemagick.org/RMagick/doc/usage.html#drawing">How to use RMagick 中的一個圖片產生範例</a>（要安裝RMagick，可參考 <a
+
+          href="http://www.imagemagick.org/script/install-source.php">Install ImageMagick From Source</a>），如果要將產生的圖片送回，可以如下：</p>
+      <p class="courier" style="margin-left: 40px;"><span># 記得要在Gemfile後加入gem 'rmagick'，然後執行bundle install<br>
+          require 'RMagick'<br>
+          <br>
+          def logo<br>
+          &nbsp;&nbsp;&nbsp;&nbsp; <strong>send_data image_data, :type =&gt; "image/gif", :disposition =&gt; 'inline'</strong><br>
+          end</span></p>
+      <p class="courier" style="margin-left: 40px;"><span>def image_data<br>
+          &nbsp;&nbsp;&nbsp; canvas = Magick::ImageList.new<br>
+          &nbsp;&nbsp;&nbsp; canvas.new_image(250, 250, Magick::HatchFill.new('white', 'gray90'))<br>
+          &nbsp;&nbsp;&nbsp; circle = Magick::Draw.new<br>
+          &nbsp;&nbsp;&nbsp; circle.stroke('tomato')<br>
+          &nbsp;&nbsp;&nbsp; circle.fill_opacity(0)<br>
+          &nbsp;&nbsp;&nbsp; circle.stroke_opacity(0.75)<br>
+          &nbsp;&nbsp;&nbsp; circle.stroke_width(6)<br>
+          &nbsp;&nbsp;&nbsp; circle.stroke_linecap('round')<br>
+          &nbsp;&nbsp;&nbsp; circle.stroke_linejoin('round')<br>
+          &nbsp;&nbsp;&nbsp; circle.ellipse(canvas.rows/2,canvas.columns/2, 80, 80, 0, 315)<br>
+          &nbsp;&nbsp;&nbsp; circle.polyline(180,70, 173,78, 190,78, 191,62)<br>
+          &nbsp;&nbsp;&nbsp; circle.draw(canvas)<br>
+          &nbsp;&nbsp;&nbsp; <strong>canvas.to_blob {self.format = "gif"} # 以ASCII-8BIT字串傳回</strong><br>
+          end</span><br>
+      </p>
+      <p><span class="courier">實際上send_data使用了render方法來傳送資料：</span></p>
+      <p style="margin-left: 40px;"><span class="courier"><span style="font-weight: bold;"># File actionpack/lib/action_controller/metal/data_streaming.rb, line 104</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">def send_data(data, options = {}) #:doc:</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;"> &nbsp; send_file_headers! options.dup</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">&nbsp; render options.slice(:status, :content_type).merge(:text =&gt; data)</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">end</span><br>
+        </span></p>
+      <p><span class="courier">如果要傳送的是個檔案，則可以使用send_file方法，這個方法接受檔案路徑，會將指定的檔案讀入，並傳送給瀏覽器，send_data支援的選項，send_file也都支援，除此之外，還支援:stream，預設是false，表示將整個檔案載入記憶體，如果檔案很大，可以將之設為true，:buffer_size則用來設定串流暫存空間</span>，預設是4096位元組。</p>
+      <p>例如，以下是驗證密碼正確後，傳送PDF檔案的一個範例：</p>
+      <div style="margin-left: 40px;"><span class="courier"><span style="font-weight: bold;">def download</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp; if params[:passwd] == "123456"</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; send_file "/home/caterpillar/ACL034000.pdf", :type =&gt; "application/pdf"</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp; end</span><br
+
+            style="font-weight: bold;">
+          <span style="font-weight: bold;">end</span><br>
+        
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

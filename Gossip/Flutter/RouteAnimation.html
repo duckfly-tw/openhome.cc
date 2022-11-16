@@ -1,0 +1,322 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈Navigator 與 Route〉中談過「路由代表某個資源的銜接&hellip;銜接的資源除了畫面元件之外，還包含了原生平台相應的轉場動畫的效果」。
+之前已經瞭解了 Flutter 動畫的原理，...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="路由動畫">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Flutter/RouteAnimation.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈Navigator 與 Route〉中談過「路由代表某個資源的銜接&hellip;銜接的資源除了畫面元件之外，還包含了原生平台相應的轉場動畫的效果」。
+之前已經瞭解了 Flutter 動畫的原理，...">
+
+    <title>路由動畫</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RouteAnimation.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Flutter/">回 Flutter</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>路由動畫</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="NavigatorRoute.html">Navigator 與 Route</a>〉中談過「路由代表某個資源的銜接&hellip;銜接的資源除了畫面元件之外，還包含了原生平台相應的轉場動畫的效果」。</p>
+<p>之前已經瞭解了 Flutter 動畫的原理，那麼可否自訂路由動畫呢？這可以透過 <code>PageRouteBuilder</code>，例如，在〈<a href="NavigatorMaterialPageRoute.html">Navigator 與 MaterialPageRoute</a>〉中可以看到，Android 上原生的路由動畫是由下往上，若想要改為由右而左呢？可以如下：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MaterialApp(
+  title: 'Openhome',
+  home: MainPage(),
+));
+
+class MainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('主畫面'),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              // 使用 PageRouteBuilder
+              PageRouteBuilder(
+                  transitionDuration: Duration(milliseconds: 500),
+                  // 指定 pageBuilder
+                  pageBuilder: (_, __, ___)  =&gt; DetailPage('說明'),
+                  // 指定 transitionsBuilder
+                  transitionsBuilder: (_, animation, __, child) {
+                    return SlideTransition(
+                      position: Tween&lt;Offset&gt;(
+                        begin: Offset(-1.0, 0.0),
+                        end: Offset(0.0, 0.0)
+                      ).animate(animation),
+                      child: child
+                    );
+                  }
+              )
+          );
+        },
+        child: Image.asset('images/caterpillar.png'),
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  String title;
+
+  DetailPage(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: GestureDetector(
+        onTap: () =&gt; Navigator.pop(context),
+        child: Center(
+          child: Image.asset('images/caterpillar.png'),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>建立 <code>PageRouteBuilder</code> 時，必須指定 <code>pageBuilder</code>，它接受的三個參數分別是 <code>BuildContext</code>、<code>Animation&lt;double&gt;</code> 與 <code>Animation&lt;double&gt;</code>，如果你不想指定 <code>transitionsBuilder</code>，也可以在  <code>pageBuilder</code> 中組建動畫，這時就會用到 <code>Animation&lt;double&gt;</code>。</p>
+<p>雖然可以在 <code>pageBuilder</code> 中組建動畫，不過建議 <code>pageBuilder</code> 只用來組建路由要銜接的頁面，動畫的部份由 <code>transitionsBuilder</code> 來處理，它接受的四個參數分別是 <code>BuildContext</code>、<code>Animation&lt;double&gt;</code>、<code>Animation&lt;double&gt;</code> 與 <code>Widget</code>，最後一個參數就是 <code>pageBuilder</code> 傳回的 <code>Widget</code>。</p>
+<p>要建立動畫，必須有 <code>Animation</code>，<code>PageRouteBuilder</code> 會自動建立、管理 <code>Animation</code>，並傳入 <code>pageBuilder</code>、<code>transitionsBuilder</code> 中，通常會使用第二個參數的 <code>Animation</code>，第三個參數的 <code>Animation</code> 很少使用，這稍後再來談。</p>
+<p>第二個參數的 <code>Animation</code>，在頁面進場時，其 <code>value</code> 會是 0.0 到 1.0，在頁面離場時會是 1.0 到 0.0，在上例中為了要實現滑入滑出，透過 <code>Tween&lt;Offset&gt;</code> 指定了 <code>begin</code> 與 <code>end</code> 來套接了 <code>Animation</code>，最後完成的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RouteAnimation-1.gif" alt="路由動畫"  /></div></div></p>
+<p>在上例中，剛好兩個頁面都有相同的元件（圖片），這可能是個產品詳細資訊頁面的切換，而在說明中，圖片是置中，這令滑動的效果呈現了不銜接的感覺，在過場動畫中，Flutter 提供了一個有趣的 <code>Hero</code> 元件，先看看它可以達成什麼效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RouteAnimation-2.gif" alt="路由動畫"  /></div></div></p>
+<p>要達到這個效果，只需要為你的「英雄」元件加上「標籤」：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MaterialApp(
+  title: 'Openhome',
+  home: MainPage(),
+));
+
+class MainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('主畫面'),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              PageRouteBuilder(
+                  transitionDuration: Duration(milliseconds: 500),
+                  pageBuilder: (_, animation, __)  =&gt; DetailPage('說明'),
+                  transitionsBuilder: (_, animation, __, child) {
+                    return SlideTransition(
+                      position: Tween&lt;Offset&gt;(
+                        begin: Offset(-1.0, 0.0),
+                        end: Offset(0.0, 0.0)
+                      ).animate(animation),
+                      child: child
+                    );
+                  }
+              )
+          );
+        },
+        // 設定英雄標籤
+        child: Hero(
+          tag: 'caterpillar',
+          child: Image.asset('images/caterpillar.png'),
+        )
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  String title;
+
+  DetailPage(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: GestureDetector(
+        child: Center(
+           // 英雄標籤必須對應
+          child:  Hero(
+            tag: 'caterpillar',
+            child: Image.asset('images/caterpillar.png'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p><code>tag</code> 不一定要字串，可以是任何資料，只要設定相同的 <code>tag</code> 就可以了，設定不同的動畫，會影響的是整個頁面，例如：</p>
+<pre class="prettyprint"><code lang="dart">...略
+
+  PageRouteBuilder(
+      transitionDuration: Duration(milliseconds: 500),
+      pageBuilder: (_, animation, __)  =&gt; DetailPage('說明'),
+      transitionsBuilder: (_, animation, animation2, child) {
+        return ScaleTransition(
+          scale: animation,
+          child: child
+        );
+      }
+  )
+
+...略
+</code></pre>
+<p>會呈現出以下的效果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RouteAnimation-3.gif" alt="路由動畫"  /></div></div></p>
+<p>至於英雄的移動路徑，可以藉由 <code>placeholderBuilder</code>、<code>flightShuttleBuilder</code> 等來控制，有興趣可以自行查看 API 文件研究一下。</p>
+<p>方才談到，<code>PageRouteBuilder</code> 的 <code>pageBuilder</code>、<code>transitionsBuilder</code>，第三個參數還有個 <code>Animation&lt;double&gt;</code>，若目前的 <code>PageRouteBuilder</code> 被堆疊時，它的 <code>value</code> 始終是 0，若其上頭堆疊了新的路由，它的 <code>value</code> 會是 0.0 到 1.0，若目前的 <code>PageRouteBuilder</code> 上方的路由被拿掉時，它的 <code>value</code> 會是 1.0 到 0.0，若目前的 <code>PageRouteBuilder</code> 離開堆疊時，它的 <code>value</code> 始終是 0。</p>
+<p>簡單來說，第三個參數可以用在目前的 <code>PageRouteBuilder</code> 上方被堆疊新路由時的離場動畫，以及其上方堆疊的路由拿掉時的進場動畫，會說它很少使用的原因是，程式寫起來太複雜了，如果真要點程式碼來秀一下，底下是個範例，有興趣就自己研究一下：</p>
+<pre class="prettyprint"><code lang="dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(MaterialApp(
+  title: 'Openhome',
+  home: MainPage(),
+));
+
+class MainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('主畫面'),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              PageRouteBuilder(
+                  transitionDuration: Duration(milliseconds: 500),
+                  pageBuilder: (_, animation, __)  =&gt; DetailPage('說明'),
+                  transitionsBuilder: (_, animation, animation2, child) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: SlideTransition(
+                        position: Tween&lt;Offset&gt;(
+                            begin: Offset(0.0, 0.0),
+                            end: Offset(-1, 0.0)
+                        ).animate(animation2),
+                        child: child,
+                      )
+                    );
+                  }
+              )
+          );
+        },
+        child: Hero(
+          tag: 'caterpillar',
+          child: Image.asset('images/caterpillar.png'),
+        )
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  String title;
+
+  DetailPage(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              PageRouteBuilder(
+                  transitionDuration: Duration(milliseconds: 500),
+                  pageBuilder: (_, animation, __)  =&gt; Scaffold(
+                    appBar:  AppBar(
+                      title: Text('阿散不魯'),
+                    ),
+                    body: Center(
+                      child: Text('更多文字'),
+                    ),
+                  ),
+                  transitionsBuilder: (_, animation, animation2, child) {
+                    return ScaleTransition(
+                        scale: animation,
+                        child: child
+                    );
+                  }
+              )
+          );
+        },
+        child: Center(
+          child:  Hero(
+            tag: 'caterpillar',
+            child: Image.asset('images/caterpillar.png'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>執行的效果如下：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/RouteAnimation-4.gif" alt="路由動畫"  /></div></div></p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

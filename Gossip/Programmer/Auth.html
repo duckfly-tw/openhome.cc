@@ -1,0 +1,101 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="現代應用程式的組成複雜，驗證與授權的流程也隨之繁複，現代框架試圖將這一切隱藏起來，令開發者更難以區別驗證與授權的差異，實際上這是兩件不同的任務，既可以在單一容器中實作，在涉及第三方時，也有 OAuth...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="驗證與授權">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Programmer/Auth.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="現代應用程式的組成複雜，驗證與授權的流程也隨之繁複，現代框架試圖將這一切隱藏起來，令開發者更難以區別驗證與授權的差異，實際上這是兩件不同的任務，既可以在單一容器中實作，在涉及第三方時，也有 OAuth...">
+
+    <title>驗證與授權</title>
+
+    <link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Auth.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/Programmer/">回 程式人目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>驗證與授權</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>現代應用程式的組成複雜，驗證與授權的流程也隨之繁複，現代框架試圖將這一切隱藏起來，令開發者更難以區別驗證與授權的差異，實際上這是兩件不同的任務，既可以在單一容器中實作，在涉及第三方時，也有 OAuth2、OpenID Connect 等協定規範。</p>
+<ul>
+<li>區別驗證與授權</li>
+</ul>
+<p>事情一開始很單純，「caterpillar 才能看到這個訊息」既然如此，應用程式如何驗證你真的是 caterpillar？驗證（Authentication）是套證明身份（identity）的機制，例如，例如 <code>authenticate(name, passwd)</code> 方法，定義如何使用 <code>name</code> 與 <code>passwd</code> 進行驗證，驗證方式不僅是基於名稱及密碼，也有可能基於憑證（Certificate）之類的機制。</p>
+<p>一旦 <code>caterpillar</code> 通過驗證就可以看到訊息，也就是說另外有個機制決定了，訊息資源可否授權觀看，授權（Authorization）定義了身份與資源之間的存取控制規則，例如，<code>if(authorized()) { show("message"); }</code> 這個流程，定義了 <code>"message"</code> 是否可以顯示。</p>
+<p>在最簡單的情境中，驗證與授權可能混雜在一起，例如「caterpillar 才能看到這個訊息」，只要 <code>if(authenticate(name, passwd)) { show("message"); }</code> 就可以實現，這時 <code>authenticate()</code> 與上述的 <code>authorized()</code> 任務就重疊了；然而，應用程式有一定的複雜性之後，驗證與授權的概念就會被分離開來。</p>
+<p>例如在 Web 容器中，使用者驗證通過之後（<code>authenticate()</code> 的實作傳回 <code>true</code>），常見在 Session 物件中放個 Token 代表已驗證，後續資源頁面判斷 Session 中存在 Token（<code>authorized()</code> 傳回 <code>true</code>），就顯示相關的訊息資源，這時 <code>authenticate()</code> 與 <code>authorized()</code> 就是被分離的驗證與授權機制。</p>
+<p>在更複雜的情況下，就必須有更複雜的驗證、授權方式，像是 Java EE 容器安全或 Spring Security 之類的框架，就定義了使用者、角色、資源等名詞，在驗證成功後會以某方式儲存 Token，其中包含角色等資訊，而在存取資源時，憑藉的是角色與資源之間已定義好的對應關係，決定是否授予資源</p>
+<ul>
+<li>OAuth2授權協定</li>
+</ul>
+<p>當應用程式只運行在單一容器時，使用者與資源、驗證與授權只要在單一容器上定義或實作就可以了；然而，若應用程式的資源是分散在多台機器（多個容器），存取每個資源前，若都要進行驗證就是件麻煩事了，若客戶端能夠在驗證一次之後，帶著授權資訊來請求多個資源伺服器，資源伺服器不進行驗證，只認授權資訊來提供資源就好了。</p>
+<p>最簡單的方式之一，就是在驗證通過後，客戶端透過 HTTP 基本驗證的原理，也就是透過 <code>BASIC</code> 標頭來攜帶授權資訊，然而這只適用於簡單的情境，在更複雜的場景中，需要將授權流程獨立出來，在驗證無誤之後，授權伺服器發給客戶端 Access Token，客戶端拿著 Access Token 請求多個資源擁有者，資源擁有者確認 Access Token 合法性之後，才授予受保護的資源。</p>
+<p>為了讓這類被獨立出來的授權流程有一致性，就有了 OAuth 規範，在先前專欄〈從簡單到繁複的 OAuth2〉就談過，依需求的不同，目前 OAuth2 就規範了四種授權類型流程；不過，OAuth2 本身沒有規範 Access Token 應該是什麼樣子，為了增加 Access Token 的安全（像是避免被竄改），以及增加 Token 本身攜帶資訊的能力，可以使用 <a href="https://jwt.io/">JSON Web Tokens</a>，簡稱 JWT，它對 Token 制定了規範，具有對 Token 簽署，資源伺服器可以直接確認 Token 等優點。</p>
+<p>必須區別的是，雖然 OAuth2 在流程中會涉及授權伺服器，授權伺服器在一開始勢必得處理驗證的問題，然而怎麼處理驗證，並不在 OAuth2 的規範之中，在 OAuth2 的官方網站一開始也寫了，它是個用於授權的協定（protocol for authorization）。</p>
+<p>在 OAuth2 結合 JWT 的場景中，Token 中可能會帶有使用者名稱、角色等資訊，有些開發者誤以為這是用於驗證，實際上這些資訊是用於授權，Token 中的資訊是在驗證過後才能取得；另一方面，Token 只提供授權資訊，資源提供者收到 Token 後，如何運用其中資訊來決定資源的提供方式，OAuth2 也不規範這塊。</p>
+<p>簡單來說，OAuth2 只是個協定，規範了如何請求授權資訊、提供授權資訊，然而沒有規範如何實作驗證、如何根據授權資訊提供資源等，這是 Java EE 或 Spring Security 等安全框架的事，OAuth2 與這類安全框架，基本上不存在取代的關係。</p>
+<ul>
+<li>驗證協定OpenID Connect</li>
+</ul>
+<p>OAuth2 是第三方授權的協定規範，那是否有第三方驗證的規範呢？也就是將驗證相關資訊，註冊在可信任的身分提供者（Identity Provider），在依賴方（Relaying Party）需要驗證的場合時，由身分提供者來提供身份資訊，依賴方取得身份後進行驗證，以便進一步使用依賴方的功能，有些社交網站常被用來作為身份提供者，可直接使用社交網站上的帳號登入，因此這類機制常被稱為社交登入（Social login）。</p>
+<p>曾經的 OpenID 1/2 是獨立的協定，也曾經被 Google、Yahoo 等支援，然而後來有些開發者，試著使用 OAuth2 結合 JWT，在 JWT 中放入驗證資訊以實現驗證（而不是授權），進一步地建立了 <a href="https://openid.net/developers/specs/">OpenID Connect（簡稱 OIDC）規範</a>，由於 OIDC 是基於 OAuth2，在認識 OAuth2 的情況下，會比較容易理解 OpenID Connect。</p>
+<p>OIDC 改變了 OAuth2 的部份語意以用於驗證，相對於 OAuth2 取得的 Access Token 是用於授權，OIDC 中 ID Token 是用來驗證使用者是否為其宣稱的身分，其中也包含其他使用者資訊，使用 JWT 來攜帶資訊，OIDC 也規範了取得 ID Token 後如何對其進行驗證。</p>
+<p>簡單來說，在 OAuth2 中，授權伺服器在一開始得處理驗證的問題，然而怎麼處理驗證，並不在 OAuth2 的規範之中，OIDC 補足了這塊，例如，授權伺服器也許一開始用 Spring Security 透過資料庫進行驗證，現在可以實作 <code>AuthenticationProvider</code>，透過 OIDC 從第三方 OpenID 提供者取得 ID Token 進行驗證，不過要注意的是，在驗證通過之後，之後的授權流程等就不關 OIDC 的事了。</p>
+<ul>
+<li>試著從規範來理解</li>
+</ul>
+<p>OAuth2 或 OpenID Connect 規範的細節很多，想瞭解並不容易，現代程式庫或框架隱藏了許多細節，只留下必要的部份給開發者設定或實作，更多時候是第三方應用程式隱藏了更多流程，只留下自己的一套設定給開發者遵守，JWT 其實只是個資訊載體，其中可能包含授權、驗證資訊或兩者皆有，這一切混淆在一起後，就常令開發者往往搞不清楚，現在是在做驗證還是授權。</p>
+<p>若是如此，開發者應該試著從規範來理解整個流程，釐清哪些細節被程式庫、框架或應用程式隱藏了，如此一來，才能認清何時該用 Java EE 容器安全或 Spring Security，哪時該用 OAuth2，哪個地方又該採用 OpenID Connect。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

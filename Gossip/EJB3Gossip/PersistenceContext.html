@@ -1,0 +1,149 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PersistenceContext
+是個由 EntityManager
+管理的集合物件，其管理一堆Entity實例，Entity在PersistenceContext的Persistence
+...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Persistence Context">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/PersistenceContext.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="PersistenceContext
+是個由 EntityManager
+管理的集合物件，其管理一堆Entity實例，Entity在PersistenceContext的Persistence
+...">
+
+
+    <title>Persistence Context</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PersistenceContext.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Persistence Context</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            PersistenceContext
+是個由 <a href="EntityManager.html">EntityManager</a>
+管理的集合物件，其管理一堆Entity實例，Entity在PersistenceContext的Persistence
+scope管理期間為Managed狀態。<br>
+
+      <br>
+
+若為Container-Managed EntityManager，可透過@PersistenceContext
+的type來設定PersistenceContext的存活範圍為以交易為範圍，或是為延伸範圍，若為Application-Managed
+EntityManager，則PersistenceContext存活範圍在EntityManager建立與關閉之間，這
+在 <a href="EntityManagerScope.html">EntityManager&amp;
+nbsp;範圍</a> 有
+說明。<br>
+
+      <br>
+
+PersistenceContext管理的Entity為Managed狀態，基本上此時你對Entity實例的任何屬性變動，
+PersistenceContext都會將之對應至資料庫的變動，不過每次在程式中一旦變動Entity就作資料庫IO會有效能議題，因此實際上對
+Entity的變動，不會馬上反應出資料庫中，而是會等到EntityManager作了flush()之後，在這之前對Entity的變動，會被收集起
+來，再一次進行資料庫的變更。<br>
+
+      <br>
+
+EntityManager的flush()執行時機可能在：<br>
+
+      
+      <ul>
+
+        <li>flush()的FlushModeType預設是AUTO時：</li>
+
+        <ul>
+
+          <li>如果是Transaction-scoped EntityManager，在交
+易確認時會flush()。</li>
+
+          <li>如果是Extended-scoped EntityManager，或者Application-Managed
+EntityManager，則是在EntityManager關閉時flush()。</li>
+
+        </ul>
+
+        <li>如果查詢某個實體前，該實體有變動，則會先flush()再進行查詢。</li>
+
+        <li>主動呼叫EntityManager的flush()方法。<br>
+
+          </li>
+
+      </ul>
+
+      <br>
+
+可以使用EntityManager的setFlushMode()設定FlushModeType，
+預設是FlushModeType.AUTO，
+可以設定為FlushModeType.COMMIT，則只有在您主動確認一個交易，才會進行
+flush()，如果您設定FlushModeType.COMMIT，在查詢資料之前若
+Entity有變動，則您要主動flush()，再進行查詢，才不致查詢到舊資料。<br>
+
+      <br>
+
+由於PersistenceContext的Persistence Scope存活期間會管理Entity，所以在大量儲存物件時，PersistenceContext
+中管理的Entity實例會不斷的增加，甚至最後導致OutOfMemoryError，可
+以主動每隔一段時間使用EntityManager的flush()強制同步Entity與資料庫，再使用clear()清除
+PersistenceContext中管理的Entity實例。<br>
+
+      <br>
+
+      <br>
+
+      <br>
+
+      <br>
+
+      <br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

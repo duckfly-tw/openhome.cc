@@ -1,0 +1,721 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="關於Map的特性，請參考 HashMap、TreeMap
+這兩篇文件。
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+Map的特性是key/value對，容器中的每一個物件都...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Map">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/HibernateGossip/Map.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="關於Map的特性，請參考 HashMap、TreeMap
+這兩篇文件。
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+Map的特性是key/value對，容器中的每一個物件都...">
+
+
+    <title>Map</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Map.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Hibernate 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Map</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             
+關於Map的特性，請參考 <a href="../JavaGossip-V2/HashMap.htm">HashMap</a>、<a href="../JavaGossip-V2/TreeMap.htm">TreeMap</a>
+這兩篇文件。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+Map的特性是key/value對，容器中的每一個物件都有一個key與之對應，所以將Map集合的資料儲存至資料庫時，必須一同儲存它的key資訊。<br>
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+假設您設計了以下的類別：
+
+      <br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+        <li>User.java</li>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import java.util.Map;<br><br>public class User {<br>    private Long id;<br>    private String name;<br>    <span style="font-weight: bold;">private Map items;</span><br><br>    // 必須要有一個預設的建構方法<br>    // 以使得Hibernate可以使用Constructor.newInstance()建立物件<br>    public User() {}<br><br>    public Long getId() {<br>        return id;<br>    }<br><br>    public void setId(Long id) {<br>        this.id = id;<br>    }<br><br>    public String getName() {<br>        return name;<br>    }<br><br>    public void setName(String name) {<br>        this.name = name;<br>    }<br><br>    public Map getItems() {<br>        return items;<br>    }<br><br>    public void setItems(Map items) {<br>        this.items = items;<br>    }<br><br>    public void addItem(String name, String description) {<br>        items.put(name, description);<br>    }<br> <br>    public void removeItem(String name) {<br>        items.remove(name);<br>    }<br>}</code></pre>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      
+您可以建立以下的表格來分別儲存user資訊與當中的items資訊：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">create table item (<br>
+
+
+
+&nbsp;&nbsp;&nbsp; id bigint not null,<br>
+
+
+
+&nbsp;&nbsp;&nbsp; description varchar(255),<br>
+
+
+
+&nbsp;&nbsp;&nbsp; name varchar(255) not null,<br>
+
+
+
+&nbsp;&nbsp;&nbsp; primary key (id, name)<br>
+
+
+
+)<br>
+
+
+
+      <br>
+
+
+
+create table user (<br>
+
+
+
+&nbsp;&nbsp;&nbsp; id bigint not null auto_increment,<br>
+
+
+
+&nbsp;&nbsp;&nbsp; name varchar(255),<br>
+
+
+
+&nbsp;&nbsp;&nbsp; primary key (id)<br>
+
+
+
+)<br>
+
+
+
+      <br>
+
+
+
+alter table item <br>
+
+
+
+&nbsp;&nbsp;&nbsp; add index&nbsp;id (id), <br>
+
+
+
+&nbsp;&nbsp;&nbsp; add constraint&nbsp;id <br>
+
+
+
+&nbsp;&nbsp;&nbsp; foreign key (id) <br>
+
+
+
+&nbsp;&nbsp;&nbsp; references user (id)</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+在映射文件方面，使用&lt;map&gt;標籤來定義Map的映射，如下：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ul>
+
+
+
+
+
+
+        <li>User.hbm.xml</li>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      </ul>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="utf-8"?&gt; <br>&lt;!DOCTYPE hibernate-mapping <br> PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" <br> "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"&gt; <br><br>&lt;hibernate-mapping&gt; <br>    &lt;class name="onlyfun.caterpillar.User" table="user"&gt; <br><br>        &lt;id name="id" column="id"&gt; <br>            &lt;generator class="native"/&gt; <br>        &lt;/id&gt; <br><br>        &lt;property name="name" column="name"/&gt; <br> <br><span style="font-weight: bold;">        &lt;map name="items" table="item"&gt; </span><br><span style="font-weight: bold;">            &lt;key column="id" foreign-key="id"/&gt; </span><br><span style="font-weight: bold;">            &lt;map-key column="name" type="string"/&gt; </span><br><span style="font-weight: bold;">            &lt;element column="description" type="string"/&gt; </span><br><span style="font-weight: bold;">        &lt;/map&gt; </span><br> <br>    &lt;/class&gt; <br><br>&lt;/hibernate-mapping&gt;</code></pre>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+      
+假設您使用以下的程式片段來儲存User實例：<br>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      <div style="margin-left: 40px;">
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user1 = new User();<br>
+
+
+
+
+
+
+
+user1.setItems(new HashMap());<br>
+
+
+
+
+
+
+
+user1.setName("caterpillar");</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user1.addItem("Book",
+"Java Gossip");</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user1.addItem("DC",
+"Caxxx A80");</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">User
+user2 = new User();<br>
+
+
+
+
+
+
+
+user2.setItems(new HashMap());</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user2.setName("momor");</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">user2.addItem("Doll",
+"Snoppy world");&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Session
+session = HibernateUtil.getSessionFactory().openSession();</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Transaction
+tx = session.beginTransaction();</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.save(user2);</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">tx.commit();</span><br>
+
+
+
+
+
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">session.close();</span><br>
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+則資料庫中將儲存以下的資訊：<br>
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <div class="cmd"><span style="color: rgb(255, 255, 255);">mysql&gt; select *
+from user;<br>
+
+
+
+
+
+
+
++----+--------------+<br>
+
+
+
+
+
+
+
+| id &nbsp;&nbsp; | name&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+
+
+
+
+
+
+
++----+--------------+<br>
+
+
+
+
+
+
+
+|&nbsp; 1 &nbsp;&nbsp; | caterpillar&nbsp; |<br>
+
+
+
+
+
+
+
+|&nbsp; 2 &nbsp; &nbsp;|
+momor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>
+
+
+
+
+
+
+
++----+--------------+<br>
+
+
+
+
+
+
+
+2 rows in set (0.00 sec)<br>
+
+
+
+
+
+
+
+            <br>
+
+
+
+
+
+
+
+mysql&gt; select * from item;<br>
+
+
+
+
+
+
+
++----+--------+-------------------+<br>
+
+
+
+
+
+
+
+| id &nbsp;&nbsp; | name&nbsp; | description&nbsp;
+&nbsp; &nbsp; |<br>
+
+
+
+
+
+
+
++----+--------+-------------------+<br>
+
+
+
+
+
+
+
+|&nbsp; 1 &nbsp;&nbsp; | DC&nbsp; &nbsp;&nbsp;
+| Caxxx A80 &nbsp; &nbsp;&nbsp; &nbsp; |<br>
+
+
+
+
+
+
+
+|&nbsp; 1 &nbsp; &nbsp;| Book | Java Gossip &nbsp;
+&nbsp; |<br>
+
+
+
+
+
+
+
+|&nbsp; 2 &nbsp; &nbsp;| Doll &nbsp; | Snoppy world |<br>
+
+
+
+
+
+
+
++----+-------+-------------------+<br>
+
+
+
+
+
+
+
+3 rows in set (0.00 sec)</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+
+
+
+            </span></div>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+      <br>
+
+
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

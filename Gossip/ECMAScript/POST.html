@@ -1,0 +1,189 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTTP 定義 POST 來發送資料給伺服器，POST 適用於非等冪操作，若請求有副作用，多次 POST 請求的結果可以不同，它並非安全操作，可以用在修改資料庫的內容，或在伺服器上儲存檔案等。
+如果要...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="使用 POST 請求">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/POST.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="HTTP 定義 POST 來發送資料給伺服器，POST 適用於非等冪操作，若請求有副作用，多次 POST 請求的結果可以不同，它並非安全操作，可以用在修改資料庫的內容，或在伺服器上儲存檔案等。
+如果要...">
+
+    <title>使用 POST 請求</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="POST.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>使用 POST 請求</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>HTTP 定義 <code>POST</code> 來發送資料給伺服器，<code>POST</code> 適用於非等冪操作，若請求有副作用，多次 <code>POST</code> 請求的結果可以不同，它並非安全操作，可以用在修改資料庫的內容，或在伺服器上儲存檔案等。</p>
+<p>如果要發送 <code>POST</code>，則可以在非同步物件 <code>open</code> 時，將第一個參數設為 <code>'POST'</code>，在這「之後」使用 <code>setRequestHeader</code> 設定內容類型，這是因為 <code>POST</code> 要發送的資料會放在請求的本體中，必須告知發送的資料類型為何，接著在 <code>send</code> 時，將要發送的資料，作為 <code>send</code> 的引數傳入。</p>
+<p>例如，若發送表單類型資料，必須設置請求標頭 <code>'Content-Type'</code> 為 <code>'application/x-www-form-urlencoded'</code>，以下是個示範：</p>
+<pre class="prettyprint"><code lang="javascript">...
+let url = 'somewhere';
+let queryString = 'a=10&amp;b=20';
+xmlHttp.open('POST', url);
+xmlHttp.setRequestHeader('Content-Type',  'application/x-www-form-urlencoded');
+xmlHttp.send(queryString); 
+</code></pre>
+<p>放在 POST 本體中的資料，也有可能是其他格式，例如 XML 或 JSON，你必須設定不同的請求標頭，這在之後還會說明。</p>
+<p>在下面這個例子中，將先前對 <code>XMLHttpRequest</code> 的基本操作進行了簡單的封裝，並使用 <code>POST</code> 來實作〈<a href="GET.html">使用 GET 請求</a>〉 中第二個範例：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    新增書籤：&lt;br&gt;
+    網址：&lt;input id="url" type="text"&gt;
+    &lt;span id="message" style="color:red"&gt;&lt;/span&gt;&lt;br&gt;
+    名稱：&lt;input type="text"&gt;
+
+&lt;script type="text/javascript"&gt;    
+
+    // 組合與編碼請求參數
+    function params(paraObj) {
+        return Object.keys(paraObj)
+                     .map(name =&gt; {
+                         let paraName = encodeURIComponent(name);
+                         let paraValue = encodeURIComponent(paraObj[name]);                         
+                         return `${paraName}=${paraValue}`.replace(/%20/g, '+');
+                     })
+                     .join('&amp;');
+    }
+
+    // 對 XMLHttpRequest 做簡單封裝
+    class XHR {
+        constructor() {
+            let xhr = new XMLHttpRequest();
+
+            // 你還可以加入其他處理器的設置…
+            // 像是 loadstart、progress、abort、error、timeout、loadend 等
+            let handlers = {
+                'readystatechange' : new Set(),
+                'load' : new Set()
+            };
+
+            xhr.onreadystatechange = function(evt) {
+                handlers['readystatechange']
+                    .forEach(handler =&gt; handler.call(xhr, evt));
+            };
+
+            xhr.onload = function(evt) {
+                handlers['load']
+                    .forEach(handler =&gt; handler.call(xhr, evt));
+            };
+
+            this.xhr = xhr;
+            this.handlers = handlers;
+        }
+
+        addEvt(evtType, handler) {
+            this.handlers[evtType].add(handler);
+            return this;
+        }
+
+        removeEvt(evtType, handler) {
+            this.handlers[evtType].delete(handler);
+            return this;
+        }
+
+        open(method, url, paraObj, async = true, username = null, password = null) {
+            let openUrl = paraObj ? `${url}?${params(paraObj)}` : url; 
+            this.xhr.open(method, openUrl, async, username, password);
+            return this;
+        }
+
+        addHeaders(headers) {
+            Object.keys(headers)
+                  .forEach(name =&gt; this.xhr.setRequestHeader(name, headers[name]));
+            return this;
+        }
+
+        send(body = null) {
+            this.xhr.send(body);
+            return this;
+        }
+    }
+
+    document.getElementById('url').onblur = function() {
+        let reqString = params({ 
+            url : document.getElementById('url').value 
+        });
+
+        let xhr = new XHR();
+        xhr.addEvt('load', evt =&gt; {
+            let req = evt.target;
+            if(req.status === 200 &amp;&amp; req.responseText === 'existed') {
+                document.getElementById('message').innerHTML = 'URL 已存在';
+            }            
+        })
+        .open('POST', 'POST-1.php')
+        .addHeaders({'Content-Type' : 'application/x-www-form-urlencoded'})
+        .send(reqString);
+    };
+
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://openhome.cc/Gossip/ECMAScript/samples/POST-1.html">按我觀看結果</a>。</p>
+<p>在事件的處理上，設計了 <code>addEvt</code> 可以加入處理器，以便與先前文件中看到的事件處理封裝具有相同的風格。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

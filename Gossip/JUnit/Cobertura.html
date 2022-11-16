@@ -1,0 +1,114 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在進行測試時，你預期方法呼叫後的傳回值或該有的結果，藉以了解在傳入某參數或物件某狀態下，方法執行的結果是否正確，通常這是你所需要的，在這樣的情況下，執行的測試是接近所謂黑箱（Block box）測試。...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="簡介 Cobertura">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/JUnit/Cobertura.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在進行測試時，你預期方法呼叫後的傳回值或該有的結果，藉以了解在傳入某參數或物件某狀態下，方法執行的結果是否正確，通常這是你所需要的，在這樣的情況下，執行的測試是接近所謂黑箱（Block box）測試。...">
+
+
+    <title>簡介 Cobertura</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Cobertura.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 JUnit 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 Cobertura</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            在進行測試時，你預期方法呼叫後的傳回值或該有的結果，藉以了解在傳入某參數或物件某狀態下，方法執行的結果是否正確，通常這是你所需要的，在這樣的情況下，執行的測試是接近所謂黑箱（Block box）測試。<br>
+      <br>
+然而程式實際撰寫時，並非只有輸入、狀態、傳回值、執行結果，方法的演算中會有其它要考慮的部份，像是分支判斷、例外等，理想的情況下，測試必須涵蓋每條流程、每行程式碼，了解程式碼運行是否正常或正確，這時你進行的，是接近於所謂白箱（White box）測試。<br>
+      <br>
+然而就算你針對演算流程進行了測試，單憑肉眼或腦袋，很難計算出測試覆蓋率（Test coverage），因而有著一些工具，可以協助進行評估。<br>
+      <br>
+      <a href="http://cobertura.sourceforge.net/">Coberture</a> 是個評估測試覆蓋率的工具，它針對.class進行修改，於運行時評估運行的程式碼與次數，提供測試覆蓋率數據，並可產生文件作為參考。<br>
+      <br>
+在這邊先示範文字模式下的指令，了解Coberture的基本操作，這邊以 <a href="DatabaseUnitTest.html">資料庫單元測試</a> 中的例子為對象。假設專案中...<br>
+      
+      <ul>
+        <li>lib：放置jar檔<br>
+        </li>
+        <li>src：放置原始碼</li>
+        <li>bin：放置編譯好的類別</li>
+        <li>instrumented：放置Coberture修改後的類別</li>
+        <li>reports：放置測試報告</li>
+      </ul>
+      <br>
+首先確定你的PATH中包括了Coberture的目錄，接著執行以下的指令：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">cobertura-instrument --destination instrumented bin\cc\openhome</span><br>
+      </div>
+      <br>
+這會將cc\openhome資料夾下包括子資料夾中所有.class讀入修改，修改後的.class會放至instrumented資料夾中，並產生一個<span style="font-weight: bold;">cobertura.ser</span>的檔案，這個檔案記錄了原有類別的一些資訊。接著執行以下指令：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">java -cp lib\mysql-connector-java-5.1.7-bin.jar;lib\junit-4.8.2.jar;</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp; lib\cobertura.jar;instrumented;bin<br>
+&nbsp; -Dnet.sourceforge.cobertura.datafile=cobertura.ser </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; org.junit.runner.JUnitCore test.cc.openhome.BookmarkDAOImplTest</span><br>
+      </div>
+      <br>
+注意，這些指令是連在一起不換行的。這會使用運行測試，並產生報告來更新<span style="font-weight: bold;">cobertura.ser</span>檔案中的資訊，接著可以執行以下的指令產生報表：<br>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">cobertura-report --format html --datafile cobertura.ser --destination reports src</span><br>
+      </div>
+      <br>
+產生的報告如下圖：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" style="border: 1px solid ; width: 665px; height: 221px;" alt="" src="images/Cobertura-1.png" /></div></div><br>
+      <br>
+點選每個類別，可以看到此次測試的每行程式碼執行次數：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" style="border: 1px solid ; width: 526px; height: 497px;" alt="" src="images/Cobertura-2.png" /></div></div><br>
+      <br>
+在Eclipse IDE中，可以安裝 <a href="http://ecobertura.johoop.de/">eCobertura</a> ，接著只要在測試類別時執行「Cover as/JUnit Test」，就會以不同顏色顯示有執行與未執行的程式碼。例如：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" style="border: 1px solid ; width: 636px; height: 697px;" alt="" src="images/Cobertura-3.png" /></div></div><br>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

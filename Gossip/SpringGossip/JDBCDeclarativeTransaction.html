@@ -1,0 +1,293 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Spring
+的宣告式交易管理依賴於它的AOP框架來完成，使用宣告式交易管理的好處是，交易管理不侵入您所開發的組件，具體來說，您的DAO物件不會意識到正在交易
+管理之中，事實上也應當如此，因為交易...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="JDBC 宣告式交易管理">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/JDBCDeclarativeTransaction.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Spring
+的宣告式交易管理依賴於它的AOP框架來完成，使用宣告式交易管理的好處是，交易管理不侵入您所開發的組件，具體來說，您的DAO物件不會意識到正在交易
+管理之中，事實上也應當如此，因為交易...">
+
+
+    <title>JDBC 宣告式交易管理</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JDBCDeclarativeTransaction.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>JDBC 宣告式交易管理</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;">Spring
+的宣告式交易管理依賴於它的AOP框架來完成，使用宣告式交易管理的好處是，交易管理不侵入您所開發的組件，具體來說，您的DAO物件不會意識到正在交易
+管理之中，事實上也應當如此，因為交易管理是屬於系統層面的服務，而不是業務邏輯的一部份，如果您想要改變交易管理策略的話，也只需要在定義檔中重新組態
+即可。<br>
+
+      <br>
+
+舉個例子來說，可以將</span><a href="UseJdbcTemplate.html">使
+用 JdbcTemplate</a> <span style="font-family: &quot;Courier New&quot;,Courier,monospace;">修改一下，在不修改UserDAO類別的情況下，您可以為它加入交易管理的服務，一個簡化的方法是使用TransactionProxyFactoryBean，指定要介入的交易管理對象及其方法，這需要在定義檔案修改，如下所示：<br>
+
+      </span>
+      
+      <ul>
+
+        <li>beans-config.xml</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt; <br>&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" <br>  "http://www.springframework.org/dtd/spring-beans.dtd"&gt; <br><br>&lt;beans&gt; <br>    &lt;bean id="dataSource" <br>          class="org.apache.commons.dbcp.BasicDataSource" <br>          destroy-method="close"&gt; <br>        &lt;property name="driverClassName"&gt;  <br>            &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="url"&gt;   <br>            &lt;value&gt;jdbc:mysql://localhost:3306/demo&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="username"&gt;     <br>            &lt;value&gt;caterpillar&lt;/value&gt; <br>        &lt;/property&gt; <br>        &lt;property name="password"&gt;   <br>            &lt;value&gt;123456&lt;/value&gt; <br>        &lt;/property&gt; <br>    &lt;/bean&gt;<br><br>    &lt;bean id="transactionManager" <br>          class="org.springframework.jdbc.<br>                   &rarr; datasource.DataSourceTransactionManager"&gt; <br>        &lt;property name="dataSource"&gt; <br>            &lt;ref bean="dataSource"/&gt; <br>        &lt;/property&gt;    <br>    &lt;/bean&gt; <br>    <br>    &lt;bean id="userDAO" <br>          class="onlyfun.caterpillar.UserDAO"&gt;<br>        &lt;property name="dataSource"&gt;<br>            &lt;ref bean="dataSource"/&gt;<br>        &lt;/property&gt;<br>    &lt;/bean&gt;<br>    <br>    &lt;bean id="userDAOProxy" <br>          class="org.springframework.transaction.<br>                   &rarr; interceptor.TransactionProxyFactoryBean"&gt; <br>        &lt;property name="proxyInterfaces"&gt; <br>            &lt;list&gt;<br>                &lt;value&gt;onlyfun.caterpillar.IUserDAO&lt;/value&gt;<br>            &lt;/list&gt;<br>        &lt;/property&gt; <br>        &lt;property name="target"&gt; <br>            &lt;ref bean="userDAO"/&gt; <br>        &lt;/property&gt; <br>        &lt;property name="transactionManager"&gt; <br>            &lt;ref bean="transactionManager"/&gt; <br>        &lt;/property&gt; <br>        &lt;property name="transactionAttributes"&gt; <br>            &lt;props&gt; <br>                &lt;prop key="insert*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt; <br>            &lt;/props&gt; <br>        &lt;/property&gt;        <br>    &lt;/bean&gt;    <br>&lt;/beans&gt;</code></pre>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"><br>
+
+TransactionProxyFactoryBean需要一個TransactionManager，由於這邊使用JDBC，所以使用
+DataSourceTransactionManager，TransactionProxyFactoryBean是個代理物件，"target"屬
+性指定要代理的對象，交易管理會自動介入指定的方法前後，這邊是使用"transactionAttributes"屬性指定，insert*表示指定方
+法名稱 insert開頭的都要納入交易管理，您也可以指定方法全名，如果在方法執行過程中發生錯誤，則所有先前的操作自動撤回，否則正常提交。<br>
+
+      <br>
+
+insert*等方法上指定了"PROPAGATION_REQUIRED"，表示在目前的交易中執行操作，如果交易不存在就建立一個新的，相關的常數意
+義都可以在API文件中TransactionDefinition介面中找到。您可以加上多個交易定義，中間使用逗號 ","
+區隔，例如您可以加上唯讀，或者是指定某個例外發生時撤回操作：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">PROPAGATION_REQUIRED,readOnly,-MyCheckedException</span><br>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"></span></div>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"><br>
+
+MyCheckedException前面加上"-"時，表示發生指定例外時撤消操作，如果前面加上"+"，表示發生例外時立即提交。<br>
+
+      <br>
+
+由於userDAO被userDAOProxy代理了，所以要作的是取得userDAOProxy，而不是userDAO，例如：<br>
+
+      </span>
+      
+      <ul>
+
+        <li>SpringAOPDemo.java</li>
+
+      
+      </ul>
+
+      
+      <pre class="prettyprint"><code lang="java">package onlyfun.caterpillar;<br><br>import org.springframework.context.ApplicationContext;<br>import org.springframework.context.<br>              support.FileSystemXmlApplicationContext;<br><br>public class SpringDAODemo {<br>    public static void main(String[] args) {<br>        ApplicationContext context = <br>            new FileSystemXmlApplicationContext(<br>                    "beans-config.xml");<br>        <br>        User user = new User();<br>        <br>        user.setName("caterpillar");<br>        user.setAge(new Integer(30));<br>        <br>        IUserDAO userDAO = <br>            (IUserDAO) context.getBean("userDAOProxy");<br>        <br>        userDAO.insert(user);<br>        <br>        user = userDAO.find(new Integer(1));<br>        <br>        System.out.println("name: " + user.getName());<br>    }<br>} </code></pre>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"><br>
+
+您也可以設定不同的TransactionInterceptor來得到更多的管理細節，例如：<br>
+
+      </span>
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">&lt;?xml version="1.0" encoding="UTF-8"?&gt; </span><br>
+
+      <span style="font-weight: bold;">&lt;!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" </span><br>
+
+      <span style="font-weight: bold;">&nbsp; "http://www.springframework.org/dtd/spring-beans.dtd"&gt; </span><br>
+
+      <br>
+
+      <span style="font-weight: bold;">&lt;beans&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;bean id="dataSource" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="org.apache.commons.dbcp.BasicDataSource" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; destroy-method="close"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="driverClassName"&gt;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt;com.mysql.jdbc.Driver&lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="url"&gt;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt;jdbc:mysql://localhost:3306/demo&lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="username"&gt;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt;caterpillar&lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="password"&gt;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt;123456&lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/bean&gt;</span><br>
+
+      <br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;bean id="transactionManager" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="org.springframework.jdbc.</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&rarr; datasource.DataSourceTransactionManager"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="dataSource"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ref bean="dataSource"/&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt;&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/bean&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;bean id="userDAO" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="onlyfun.caterpillar.UserDAO"&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="dataSource"&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ref bean="dataSource"/&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/bean&gt;</span><br>
+
+      <br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;bean id="transactionInterceptor" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="org.springframework.transaction.</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&rarr; interceptor.TransactionInterceptor"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="transactionManager"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ref bean="transactionManager"/&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="transactionAttributeSource"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; onlyfun.caterpillar.UserDAO.</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&rarr; insert*=PROPAGATION_REQUIRED </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/bean&gt;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;bean id="userDAOProxy" </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="org.springframework.aop.</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&rarr; framework.ProxyFactoryBean"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="proxyInterfaces"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;list&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;onlyfun.caterpillar.IUserDAO&lt;/value&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/list&gt;</span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="target"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ref bean="userDAO"/&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;property name="interceptorNames"&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;value&gt;transactionInterceptor&lt;/value&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/property&gt; </span><br>
+
+      <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &lt;/bean&gt;&nbsp;&nbsp; </span><br>
+
+      <span style="font-weight: bold;">&lt;/beans&gt;</span><br>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"></span></div>
+
+      <span style="font-family: &quot;Courier New&quot;,Courier,monospace;"><br>
+
+即使您後來不再需要交易管理，則直接在Bean定義檔中修改配置即可，而不用修改程式進行重新編譯等動作。<br>
+
+      <br>
+
+宣告式交易管理是利用Spring AOP來達成，所以執行以上的程式時，請記得您的Classpath設定中必須包括spring-aop.jar。<br>
+
+      <br>
+
+      </span>
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

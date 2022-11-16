@@ -1,0 +1,277 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="使用JdbcTemplate進行查詢時，可以使用queryForXXX()等方法，例如下面使用queryForInt()方法傳回user表格中的資料筆數：
+
+      
+      
+   ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="JdbcTemplate - 查詢">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/SpringGossip/JdbcTemplateQuery.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="使用JdbcTemplate進行查詢時，可以使用queryForXXX()等方法，例如下面使用queryForInt()方法傳回user表格中的資料筆數：
+
+      
+      
+   ...">
+
+
+    <title>JdbcTemplate - 查詢</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JdbcTemplateQuery.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>JdbcTemplate - 查詢</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      使用JdbcTemplate進行查詢時，可以使用queryForXXX()等方法，例如下面使用queryForInt()方法傳回user表格中的資料筆數：<br>
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold;">jdbcTemplate.queryForInt("SELECT COUNT(*) FROM user");</span><br>
+
+      </div>
+
+      <br>
+
+也可以使用queryForObject()傳回一個查詢後的結果物件，例如下例傳回一個String物件：<br>
+
+      
+      
+      <div style="margin-left: 40px;">String name = (String) jdbcTemplate.queryForObject(<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT name FROM USER WHERE id = ?",<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new Object[] {id},<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.lang.String.class);<br>
+
+      </div>
+
+      <br>
+
+上面兩個例子傳回的都是單一筆資料，如果傳回多筆資料，則可以使用queryForList()方法，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px;">List rows = jdbcTemplate.queryForList(<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT * FROM user WHERE id=" + id.intValue());<br>
+
+      </div>
+
+      <br>
+
+      <br>
+
+傳回的List中包括的是Map物件，每個Map物件代表查詢結果中的一筆資料，每筆資料包括多個欄位內容，要取得欄位中的值，要使用欄位名稱作為鍵（Key），例如：<br>
+
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+      Iterator it = rows.iterator();<br>
+
+      while(it.hasNext()) {<br>
+
+      &nbsp;&nbsp;&nbsp; Map userMap = (Map) it.next();<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println(userMap.get("id"));<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println(userMap.get("name"));<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println(userMap.get("age"));<br>
+
+      &nbsp;&nbsp;&nbsp; ...<br>
+
+      }<br>
+
+      ...<br>
+
+      </div>
+
+      <br>
+
+您可以實作org.springframework.jdbc.core.RowCallbackHandler介面，在查詢到資料之後先作一些處理再傳回，例如修改一下 <a href="UseJdbcTemplate.html">使用 JdbcTemplate</a> 中UserDAO的find()方法如下：<br>
+
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+      public User find(Integer id) {<br>
+
+      &nbsp;&nbsp;&nbsp; final User user = new User();<br>
+
+      &nbsp;&nbsp;&nbsp; jdbcTemplate.query(<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT * FROM user WHERE id = ?",<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new Object[] {id},<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new RowCallbackHandler() {<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void processRow(ResultSet rs) <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+throws SQLException {<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+user.setId(new Integer(rs.getInt("id")));<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setName(rs.getString("name"));<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+user.setAge(new Integer(rs.getInt("age")));<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br>
+
+      &nbsp;&nbsp;&nbsp; <br>
+
+      &nbsp;&nbsp;&nbsp; return user;<br>
+
+      }<br>
+
+      ...<br>
+
+      </div>
+
+      <br>
+
+如果一次要取回很多查詢結果的物件，則您可以先實作org.springframework.jdbc.core.RowMapper介面，例如：<br>
+
+      
+      
+      <div style="margin-left: 40px;">package onlyfun.caterpillar;<br>
+
+      <br>
+
+      import java.sql.ResultSet;<br>
+
+      import java.sql.SQLException;<br>
+
+      <br>
+
+      import org.springframework.jdbc.core.RowMapper;<br>
+
+      <br>
+
+      public class UserRowMapper implements RowMapper {<br>
+
+      <br>
+
+      &nbsp;&nbsp;&nbsp; public Object mapRow(ResultSet rs,<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int rowNum) throws SQLException {<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User user = new User();<br>
+
+      <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setId(new Integer(rs.getInt("id")));<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setName(rs.getString("name")); <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user.setAge(new Integer(rs.getInt("age")));<br>
+
+      <br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return user;<br>
+
+      &nbsp;&nbsp;&nbsp; }<br>
+
+      }<br>
+
+      </div>
+
+      <br>
+
+接著在查詢時可以使用org.springframework.jdbc.core.RowMapperResultReader這麼設定，
+RowMapperResultReader實作了org.springframework.jdbc.core.ResultReader介面：<br>
+
+      
+      
+      <div style="margin-left: 40px;">...<br>
+
+      List users = jdbcTemplate.query(<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT * FROM user",<br>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new RowMapperResultReader(new UserRowMapper()));<br>
+
+      <br>
+
+      for(int i = 0; i &lt; users.size(); i++) {<br>
+
+      &nbsp;&nbsp;&nbsp; User user = (User) list.get(i);<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println("\tId:\t" + user.getId());<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println("\tName:\t" + next.getName());<br>
+
+      &nbsp;&nbsp;&nbsp; System.out.println("\tAge:\n" + user.getAge());<br>
+
+      }<br>
+
+      ...<br>
+
+      </div>
+
+      <br>
+
+傳回的List物件中，包括了從資料庫中查詢出來的結果，並已封裝為User類別的實例。<br>
+
+      <br>
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

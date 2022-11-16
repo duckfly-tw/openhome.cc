@@ -1,0 +1,116 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果有一組資料，沒有任何分類標記，有辦法對它們進行分群（Clustering）嗎？呃…通靈比較快！想要分群，總得指定某些條件才能分群，分群演算法有不少，入門時常會先接觸到 K-means 分群，因為它...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="K-means 分群（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/KMeans.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果有一組資料，沒有任何分類標記，有辦法對它們進行分群（Clustering）嗎？呃…通靈比較快！想要分群，總得指定某些條件才能分群，分群演算法有不少，入門時常會先接觸到 K-means 分群，因為它...">
+
+    <title>K-means 分群（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="KMeans.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>K-means 分群（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果有一組資料，沒有任何分類標記，有辦法對它們進行分群（Clustering）嗎？呃…通靈比較快！想要分群，總得指定某些條件才能分群，分群演算法有不少，入門時常會先接觸到 K-means 分群，因為它概念上容易理解，實作上也不困難；在機器學習的領域，K-means 演算被歸類在非監督式（unsupervised）學習，意即無需人類標記（標記就是在監督機器，告訴它預測對或不對）也能自動分群。</p>
+<p>當然，從需不需要標記這回事來看，確實 K-means 分群是不需要標記，不過它也不是那麼神，並不是沒有任何假設就能自動分群，當你使用 K-means 分群時，其實就表示你同意「資料之間有距離的概念」、「群心勢力範圍內的資料屬於同一群」，也就是實際上，你還是有告訴機器該怎麼做，簡單來說就是，以距離為勢力依據，尋找勢力均衡。</p>
+<p>K-means 分群容易理解，就是因為有距離的概念，既然如此，就先用平面上各點的座標來說明好了，若有一堆點散落在平面上：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/KMeans-1.JPG" alt="K-means 分群（一）"  /></div></div></p>
+<p>可視化的好處嘛！很簡單就可以用肉眼分辨出點構成了兩群，這其實是因為點與點之間的「距離」構成了視覺上有兩個不同密集度的群，問題在於若要對這些點標記呢？你總不能從圖上逐點找對應的資料，然後標記該資料是哪一群吧！</p>
+<p>方才談到 K-means 的另一個假設是「群心勢力範圍內的資料屬於同一群」，那麼該如何尋找群心呢？例如，上例應該要分為兩群，這兩群各自的群心在哪？總不能窮舉出各點間的組合，逐一計算距離，這可是相當龐大的計算啊！</p>
+<p>實作 K-means 時可以採取最大期望（Expectation-maximization）演算法，先隨機找兩個位置當群心，接著是期望步驟（Expectation step），看其他點離哪個群心近，就將該點劃為與該群心同一群，最後會得到兩群：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/KMeans-2.JPG" alt="K-means 分群（一）"  /></div></div></p>
+<p>接著是最大化步驟（Maximization step），最大化群心與群中各點的距離，針對兩群的資料，各求其<a href="https://zh.wikipedia.org/wiki/%E5%87%A0%E4%BD%95%E4%B8%AD%E5%BF%83">幾何中心</a>，作為新群心，也就是每個座標分量的算術平均值（這也就是為何 K-means 有個 means 字眼的原因了），作為新的群心座標：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/KMeans-3.JPG" alt="K-means 分群（一）"  /></div></div></p>
+<p>如果舊群心與新群心差距太大（未收斂），重複期望步驟與最大化步驟，也就是同樣地看其他點離哪個群心近，就分為屬於該群心的一群，這又會得到兩群，然後求新群心，看看舊群心與新群心的差距…重複以上步驟，直到舊群心與新群心變動不大（在某個差距內），或者是超過迭代次數。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/KMeans-4.JPG" alt="K-means 分群（一）"  /></div></div></p>
+<p>sklearn 提供了 <code>sklearn.cluster.KMeans</code>，可以用來進行 K-means 分群的任務，例如：</p>
+<pre class="prettyprint"><code lang="python">import matplotlib.pyplot as plt 
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+
+X, _ = make_blobs(n_samples = 300, centers = 2, cluster_std = 0.6, random_state = 0)
+
+plt.xlabel('x')
+plt.ylabel('y')
+
+kmeans = KMeans(n_clusters = 2)   # 分兩群
+kmeans.fit(X)                     
+centers = kmeans.cluster_centers_ # 群心
+y_kmeans = kmeans.predict(X)      # 分群
+
+plt.scatter(
+    X[:,0], X[:,1], 
+    c = y_kmeans,         # 指定標記
+    edgecolor = 'none',   # 無邊框
+    alpha = 0.5           # 不透明度
+)
+
+plt.scatter(centers[:, 0], centers[:, 1], marker = 'x')
+plt.show() 
+</code></pre>
+<p>如〈<a href="Datasets.html">sklearn.datasets 資料集</a>〉談過的，make 開頭的函式，可以用來建立一些假資料，在這邊借助了 <code>make_blobs</code> 函式，可以用來建立一些常態分配的資料，預設特徵數量為 2（透過 <code>n_features</code> 指定），<code>n_samples</code> 指定要 300 筆資料，<code>centers</code> 指定要有兩個中心，<code>cluster_std</code> 指定了標準差，越小的話點會越集中，<code>random_state</code> 指定隨機種子，這邊為了要固定的資料以便觀察，因而指定了固定值。</p>
+<p><code>make_blobs</code> 其實會對資料標記，不過這邊不使用，而是透過 <code>KMeans</code> 來進行分群，<code>make_blobs</code> 產生的資料會作為座標，來看看分群後的結果：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/KMeans-5.JPG" alt="K-means 分群（一）"  /></div></div></p>
+<p>依距離分群，是 K-means 最常的應用之一，特別是資料在距離上可以明顯觀察出一群一群的趨勢時，透過 K-means 就非常的方便。</p>
+<p>如果你的資料是座標，很容易瞭解距離遠近是什麼，若是其他資料呢？分數也具有距離的概念，像是各學科分數，例如常聽的，有人文科強、有人理科強，將文科、理科的分數作為資料，可能也會有一群一群的趨勢；另外像是人與人間的年紀差距、學歷差距、年收入差距、子女差距、居住城市發展指標的差距等，都是具有距離遠近的概念。</p>
+<p>只不過，有時候手邊的資料，不見得能夠以可視化的方式來判斷可以分為幾群，或者就算能可視化，也看不出群與群之間的界分為何，這時如何能決定該分為幾群呢？</p>
+<p>這時 K-means 就是作為一種分析資料的工具了，例如，你手中有一組人們的資料，包含了學歷差距、收入差距、年紀、居住縣市（經緯度、離首都的遠近）等，這些資料會不會有某種群聚性呢？分為三個群合理嗎？還是要四個、五個？如果這些資料能夠分群了，那麼這各群又代表什麼意義呢？政治取向？消費習慣嗎？</p>
+<p>這些都是可以透過 K-means 分析、思考的問題，下一篇文件中，會來做一些簡單的討論&hellip;</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

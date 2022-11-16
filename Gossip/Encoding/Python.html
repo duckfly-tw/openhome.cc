@@ -1,0 +1,154 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在Python 2.x，程式中所有字串，其實都是原始位元組集合。如果原始碼中寫了非 ASCII 字元串，必須在第一行放置編碼聲明（encoding declaration）。例如：
+# coding=...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Python 的編碼">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Encoding/Python.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在Python 2.x，程式中所有字串，其實都是原始位元組集合。如果原始碼中寫了非 ASCII 字元串，必須在第一行放置編碼聲明（encoding declaration）。例如：
+# coding=...">
+
+    <title>Python 的編碼</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Python.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Encoding 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Python 的編碼</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在Python 2.x，程式中所有字串，其實都是原始位元組集合。如果原始碼中寫了非 ASCII 字元串，必須在第一行放置編碼聲明（encoding declaration）。例如：</p>
+<pre class="prettyprint"><code># coding=Big5
+text = '測試'
+print len(text) # 顯示 4
+</code></pre>
+<p>程式會顯示 4 而不是 2，因為 Big5 每個中文字佔兩個位元組，而兩個中文字就佔四個位元組，所以上例中，<code>len()</code> 實際上是計算出 <code>'測試'</code> 兩字 Big5 編碼實現下的位元組長度。</p>
+<p>為了支援 Unicode，Python 2.x 提供了 <code>u</code> 前置字來產生 <code>unicode</code> 物件。</p>
+<pre class="prettyprint"><code># coding=Big5
+text = u'測試'
+print type(text) # 顯示 &lt;type 'unicode'&gt;
+print len(text)  # 顯示 2
+</code></pre>
+<p><code>chr()</code> 可取一個數字傳回對應 ASCII 編碼的 <code>str</code> 實例，<code>unichr()</code> 是其 Unicode 對應版本，可傳回對應 Unicode 碼點的 <code>unicode</code> 實例。<code>ord()</code> 可接受 <code>str</code> 或 <code>unicode</code> 實例，分別傳回其 ASCII 編碼或 Unicode 碼點。例如：</p>
+<pre class="prettyprint"><code>&gt;&gt;&gt; chr(65)
+'A'
+&gt;&gt;&gt; unichr(65)
+u'A'
+&gt;&gt;&gt; unichr(28204)
+u'\u6e2c'
+&gt;&gt;&gt; ord('A')
+65
+&gt;&gt;&gt; ord(u'A')
+65
+&gt;&gt;&gt; ord(u'測')
+28204
+&gt;&gt;&gt;
+</code></pre>
+<p>如果有一個 <code>str</code> 實例，可以使用 <code>unicode()</code> 方法並指定實現編碼，或者使用 <code>str</code> 的 <code>decode</code> 方法並指定實現編碼，將之轉換為 <code>unicode</code> 物件。<code>unicode</code> 的 <code>encode()</code> 方法則可指定實現編碼，將之轉為代表位元組實現的 <code>str</code> 實例。例如：</p>
+<pre class="prettyprint"><code>&gt;&gt;&gt; text = u'測試'
+&gt;&gt;&gt; b_str = text.encode('big5')
+&gt;&gt;&gt; type(b_str)
+&lt;type 'str'&gt;
+&gt;&gt;&gt; b_str.decode('big5')
+u'\u6e2c\u8a66'
+&gt;&gt;&gt; unicode(b_str, "big5")
+u'\u6e2c\u8a66'
+&gt;&gt;&gt;
+</code></pre>
+<p>在讀取文字檔案時，進入的資料都以代表位元組的 <code>str</code> 表示，若讀取非 ASCII 的文字檔案，必須自行轉換編碼。例如若有個 UTF-8 的文字檔案 text.txt 中記錄了「測試」兩字，則程式讀取時可如下：</p>
+<pre class="prettyprint"><code>with open('text.txt', 'r') as f:
+    b_str = f.read()
+    print b_str.decode('utf-8')  # 自行判斷標準輸出編碼
+    print b_str.decode('utf-8').encode('big5') # 標準輸出編碼為 big5
+</code></pre>
+<p>以上最後兩句都會在標準輸出顯示「測試」兩字。類似地，如果要將 <code>unicode</code> 寫入文字檔案，必須使用 <code>encode()</code> 轉換為指定編碼實現。例如，以下程式可將「測試」以Big5編碼寫入文字檔案：</p>
+<pre class="prettyprint"><code># coding=utf-8
+text = u'測試'
+b_str = text.encode('big5')
+with open('text.txt', 'w') as f:
+    f.write(b_str)
+</code></pre>
+<p>在 Python 3.x 中，預設 .py 檔案必須是 UTF-8 編碼。如果 .py 檔案想要是 UTF-8 以外的編碼，同樣必須在第一行放置編碼聲明。</p>
+<pre class="prettyprint"><code># coding=Big5
+text = '測試'
+print(len(text)) # 顯示 2
+</code></pre>
+<p>Python 3.x 中的字串都是 Unicode，因此上例最後是顯示 2，表示兩個字元，而不是像 Python 2.x 中，會顯示字串實際的位元組長度。</p>
+<p>在 Python3 中，每個字串都是 Unicode，不使用內部編碼表現，而使用 <code>str</code> 實例作為代表。如果想將字串轉為指定的編碼實作，可以使用 <code>encode()</code> 方法取得一個 <code>bytes</code> 實例，如果有個 <code>bytes</code> 實例，也可以使用 <code>decode()</code> 方法指定編碼取得 <code>str</code> 實例：</p>
+<pre class="prettyprint"><code>&gt;&gt;&gt; '元'.encode('big5')
+b'\xa4\xb8'
+&gt;&gt;&gt; '元'.encode('utf-8')
+b'\xe5\x85\x83'
+&gt;&gt;&gt; '元'.encode('big5').decode('big5')
+'元'
+&gt;&gt;&gt;
+</code></pre>
+<p>如果要將資料寫入檔案或從檔案讀出，可以使用 <code>open()</code> 函式，其中可以指定編碼：</p>
+<pre class="prettyprint"><code>open(file,mode="r",buffering=None,encoding=None,
+     errors=None,newline=None,closefd=True)
+</code></pre>
+<p>例如，若要讀取 UTF-8 文字檔案：</p>
+<pre class="prettyprint"><code>name = input('請輸入檔名：')
+with open(name, 'r', encoding='UTF-8') as file:
+    content = file.read()
+    print(content)
+</code></pre>
+<p>讀入的結果為 <code>str</code> 實例。若要將 <code>str</code> 實例寫入 Big5 編碼文字檔案可如下：</p>
+<pre class="prettyprint"><code>name = input('請輸入檔名：')
+with open(name, 'w', encoding = 'Big5') as file:
+    file.write('test')
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

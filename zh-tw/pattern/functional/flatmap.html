@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="如果函式會傳回 None，為了處理 None，你必須判斷 None，例如： def nickname(username): return { &#39;Justin&#39; : &#39;caterpillar&#39;, &#39;Monica&#39; : &#39;momor&#39;, &#39;Irene&#39; : &#39;mongshou&#39; }.get(username) nick = nickname(&#39;Justin&#39;) if nick == None: print(&#39;Guest&#39;) else: print(nick) 純函式？ nickname 是純函式嗎？也">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="漫談模式::FlatMap" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/flatmap/" />
+    <meta property="og:description" content="如果函式會傳回 None，為了處理 None，你必須判斷 None，例如： def nickname(username): return { &#39;Justin&#39; : &#39;caterpillar&#39;, &#39;Monica&#39; : &#39;momor&#39;, &#39;Irene&#39; : &#39;mongshou&#39; }.get(username) nick = nickname(&#39;Justin&#39;) if nick == None: print(&#39;Guest&#39;) else: print(nick) 純函式？ nickname 是純函式嗎？也" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="漫談模式::FlatMap" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/pattern/functional/flatmap/" />
+    <meta name="twitter:description" content="如果函式會傳回 None，為了處理 None，你必須判斷 None，例如： def nickname(username): return { &#39;Justin&#39; : &#39;caterpillar&#39;, &#39;Monica&#39; : &#39;momor&#39;, &#39;Irene&#39; : &#39;mongshou&#39; }.get(username) nick = nickname(&#39;Justin&#39;) if nick == None: print(&#39;Guest&#39;) else: print(nick) 純函式？ nickname 是純函式嗎？也" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../images/favicon.ico%3F1664443693" type="image/x-icon">
+    <title> 漫談模式  :: FlatMap</title>
+    <link href="../../css/nucleus.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/fontawesome-all.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/featherlight.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/perfect-scrollbar.min.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/auto-complete.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/theme.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/theme-blue.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/variant.css%3F1664443693.css" rel="stylesheet">
+    <link href="../../css/print.css%3F1664443693.css" rel="stylesheet" media="print">
+    <script src="../../js/jquery.min.js%3F1664443693"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/pattern/functional/flatmap/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/pattern/" title="漫談模式" class="dd-item parent"><a href="../index.html">漫談模式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/" title="創建式" class="dd-item"><a href="../creational/index.html">| 創建式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/creational/simple-factory/" title="Simple Factory" class="dd-item"><a href="../creational/simple-factory/index.html">Simple Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/factory-method/" title="Factory Method" class="dd-item"><a href="../creational/factory-method.html">Factory Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/abstract-factory/" title="Abstract Factory" class="dd-item"><a href="../creational/abstract-factory/index.html">Abstract Factory</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-gof/" title="Builder（Gof）" class="dd-item"><a href="../creational/builder-gof/index.html">Builder（Gof）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/builder-effective-java/" title="Builder（Effective Java）" class="dd-item"><a href="../creational/builder-effective-java/index.html">Builder（Effective Java）</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/option-object/" title="Option Object" class="dd-item"><a href="../creational/option-object/index.html">Option Object</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/singleton/" title="Singleton" class="dd-item"><a href="../creational/singleton/index.html">Singleton</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/creational/prototype/" title="Prototype" class="dd-item"><a href="../creational/prototype/index.html">Prototype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/" title="結構式" class="dd-item"><a href="../structural/index.html">| 結構式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/structural/default-adapter/" title="Default Adapter" class="dd-item"><a href="../structural/default-adapter/index.html">Default Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/adapter/" title="Adapter" class="dd-item"><a href="../structural/adapter/index.html">Adapter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/bridge/" title="Bridge" class="dd-item"><a href="../structural/bridge/index.html">Bridge</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/composite/" title="Composite" class="dd-item"><a href="../structural/composite/index.html">Composite</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/decorator/" title="Decorator" class="dd-item"><a href="../structural/decorator.html">Decorator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/facade/" title="Facade" class="dd-item"><a href="../structural/facade/index.html">Facade</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/proxy/" title="Proxy" class="dd-item"><a href="../structural/proxy/index.html">Proxy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/structural/flyweight/" title="Flyweight" class="dd-item"><a href="../structural/flyweight/index.html">Flyweight</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/" title="行為式" class="dd-item"><a href="../behavioral/index.html">| 行為式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/behavioral/template-method/" title="Template Method" class="dd-item"><a href="../behavioral/template-method.html">Template Method</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/chain_of_responsibility/" title="Chain of Responsibility" class="dd-item"><a href="../behavioral/chain_of_responsibility/index.html">Chain of Responsibility</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/command/" title="Command" class="dd-item"><a href="../behavioral/command/index.html">Command</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/iterator/" title="Iterator" class="dd-item"><a href="../behavioral/iterator/index.html">Iterator</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/strategy/" title="Strategy" class="dd-item"><a href="../behavioral/strategy/index.html">Strategy</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/observer/" title="Observer" class="dd-item"><a href="../behavioral/observer/index.html">Observer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/state/" title="State" class="dd-item"><a href="../behavioral/state/index.html">State</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/visitor/" title="Visitor" class="dd-item"><a href="../behavioral/visitor/index.html">Visitor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/interpreter/" title="Interpreter" class="dd-item"><a href="../behavioral/interpreter.html">Interpreter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/memento/" title="Memento" class="dd-item"><a href="../behavioral/memento/index.html">Memento</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/behavioral/mediator/" title="Mediator" class="dd-item"><a href="../behavioral/mediator/index.html">Mediator</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/" title="函數式" class="dd-item parent"><a href="index.html">| 函數式</a><ul>
+          <li data-nav-id="/zh-tw/pattern/functional/immutable/" title="Immutable" class="dd-item"><a href="immutable.html">Immutable</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/pattern-matching/" title="Pattern matching" class="dd-item"><a href="pattern-matching/index.html">Pattern matching</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/map/" title="Map" class="dd-item"><a href="map/index.html">Map</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/filter/" title="Filter" class="dd-item"><a href="filter/index.html">Filter</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/reduce/" title="Reduce" class="dd-item"><a href="reduce/index.html">Reduce</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/functional/flatmap/" title="FlatMap" class="dd-item active"><a href="flatmap.html">FlatMap</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/" title="執行緒" class="dd-item"><a href="../thread/index.html">| 執行緒</a><ul>
+          <li data-nav-id="/zh-tw/pattern/thread/guarded-suspension/" title="Guarded Suspension" class="dd-item"><a href="../thread/guarded-suspension/index.html">Guarded Suspension</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/producer-consumer/" title="Producer Consumer" class="dd-item"><a href="../thread/producer-consumer/index.html">Producer Consumer</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-per-message/" title="Thread-Per-Message" class="dd-item"><a href="../thread/thread-per-message/index.html">Thread-Per-Message</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/worker-thread/" title="Worker Thread" class="dd-item"><a href="../thread/worker-thread/index.html">Worker Thread</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/two-phase-termination/" title="Two-phase Termination" class="dd-item"><a href="../thread/two-phase-termination/index.html">Two-phase Termination</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-pool/" title="Thread Pool" class="dd-item"><a href="../thread/thread-pool/index.html">Thread Pool</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/future/" title="Future" class="dd-item"><a href="../thread/future/index.html">Future</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/read-write-lock/" title="Read-Write-Lock" class="dd-item"><a href="../thread/read-write-lock/index.html">Read-Write-Lock</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/thread/thread-specific-storage/" title="Thread-Specific Storage" class="dd-item"><a href="../thread/thread-specific-storage/index.html">Thread-Specific Storage</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/" title="非同步" class="dd-item"><a href="../async/index.html">| 非同步</a><ul>
+          <li data-nav-id="/zh-tw/pattern/async/callback-cps/" title="Callback/CPS" class="dd-item"><a href="../async/callback-cps/index.html">Callback/CPS</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/promise/" title="Promise" class="dd-item"><a href="../async/promise/index.html">Promise</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/pattern/async/reactive/" title="Reactive" class="dd-item"><a href="../async/reactive/index.html">Reactive</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="flatmap.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../index.html"><span itemprop="name">漫談模式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="index.html"><span itemprop="name">函數式</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="flatmap.html" aria-disabled="true"><span itemprop="name">FlatMap</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="flatmap.html#純函式">純函式？</a></li>
+    <li><a href="flatmap.html#巢狀的運算">巢狀的運算</a></li>
+    <li><a href="flatmap.html#array-的-flatmap">Array 的 flatMap</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../tags/functional-programming/index.html">functional programming</a>
+  <a class="tag-link" href="../../tags/python/index.html">Python</a>
+  <a class="tag-link" href="../../tags/javascript/index.html">JavaScript</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/monad/">Monad</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/continuation-passing-style/">continuation-passing style</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/null-sucks/">Null sucks</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>FlatMap</h1>
+
+ <i class="space fa fa-calendar"> January 23, 2022</i> 
+<p>如果函式會傳回 <code>None</code>，為了處理 <code>None</code>，你必須判斷 <code>None</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">nickname</span>(username):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Justin&#39;</span> : <span style="color:#e6db74">&#39;caterpillar&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Monica&#39;</span> : <span style="color:#e6db74">&#39;momor&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Irene&#39;</span>  : <span style="color:#e6db74">&#39;mongshou&#39;</span>
+</span></span><span style="display:flex;"><span>    }<span style="color:#f92672">.</span>get(username)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>nick <span style="color:#f92672">=</span> nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> nick <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;Guest&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    print(nick)
+</span></span></code></pre></div><h2 id="純函式">純函式？</h2>
+<p><code>nickname</code> 是純函式嗎？也就是說，它接受引數傳回結果嗎？不是！雖然 <code>nickname</code> 沒有對應的暱稱時會傳回 <code>None</code>，不過記得嗎？Python 中函式沒有指定傳回值時，就是傳回 <code>None</code>，也就是說，一個函式就算是明確地 <code>return None</code>，就相當於它沒有傳回值，也就不會是一個純函式。</p>
+<p>無論如何，都要讓函式能傳回值的話，那就來定義一個 <code>Maybe</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Maybe</span>:    
+</span></span><span style="display:flex;"><span>    value: Any
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">isEmpty</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>value <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">isPresent</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">not</span> self<span style="color:#f92672">.</span>isEmpty()
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>value <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#39;Maybe(Nothing)&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>value
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">orElse</span>(self, other):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>value <span style="color:#f92672">==</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> other
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>value
+</span></span></code></pre></div><p><code>Maybe</code> 就像是個盒子，盒子裡可能有或沒有東西，如果函式沒有對應的結果，想要傳回 <code>None</code> 時，為了讓它能是個純函式，乾脆傳回一個盒子，這樣函式一定就有傳回值了。</p>
+<p><code>Maybe</code> 需要判斷有或沒有值，這邊提供了 <code>isPresent</code>、<code>isEmpty</code> 方法，若在沒有值時呼叫 <code>get</code> 會拋出例外，若想在沒有值時使用預設值，提供了 <code>orElse</code> 方法。</p>
+<p>這麼一來，一開始的範例就可以改寫為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">nickname</span>(username):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Maybe({
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Justin&#39;</span> : <span style="color:#e6db74">&#39;caterpillar&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Monica&#39;</span> : <span style="color:#e6db74">&#39;momor&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Irene&#39;</span>  : <span style="color:#e6db74">&#39;mongshou&#39;</span>
+</span></span><span style="display:flex;"><span>    }<span style="color:#f92672">.</span>get(username))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>nick <span style="color:#f92672">=</span> nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> nick<span style="color:#f92672">.</span>isEmpty():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;Guest&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    print(nick<span style="color:#f92672">.</span>get())
+</span></span></code></pre></div><p>當然，既然有 <code>orElse</code>，也可以寫成：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>print(nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)<span style="color:#f92672">.</span>orElse(<span style="color:#e6db74">&#39;Guest&#39;</span>))
+</span></span></code></pre></div><p>你有注意到 <code>Maybe</code> 是個 <code>dataclass</code> 嗎？嗯？它的結構是？「有或沒有值」就是它的結構，既然知道了結構，如〈<a href="pattern-matching/index.html">Pattern matching</a> 中談過的，可以來套用模式比對：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>match nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>):
+</span></span><span style="display:flex;"><span>    case Maybe(<span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;Guest&#39;</span>)
+</span></span><span style="display:flex;"><span>    case Maybe(value):
+</span></span><span style="display:flex;"><span>        print(value)
+</span></span></code></pre></div><h2 id="巢狀的運算">巢狀的運算</h2>
+<p>這邊談到 <code>Maybe</code>，只不過是順便，接下來要談的，才是這篇文件的重點&hellip;</p>
+<p>如果你進一步要用 <code>nick</code> 來呼叫函式，該函式也有可能傳回 <code>None</code> 的話，那就傳回 <code>Maybe</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">avatar</span>(nickname):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Maybe({
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;caterpillar&#39;</span> : <span style="color:#e6db74">&#39;images/caterpillar.jpg&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;momor&#39;</span> : <span style="color:#e6db74">&#39;images/momor.jpg&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;mongshou&#39;</span> : <span style="color:#e6db74">&#39;images/mongshou.jpg&#39;</span>
+</span></span><span style="display:flex;"><span>    }<span style="color:#f92672">.</span>get(nickname))
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>match nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>):
+</span></span><span style="display:flex;"><span>    case Maybe(<span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;images/guest.jpg&#39;</span>)
+</span></span><span style="display:flex;"><span>    case Maybe(value):
+</span></span><span style="display:flex;"><span>        match avatar(value):
+</span></span><span style="display:flex;"><span>            case Maybe(<span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">&#39;images/guest.jpg&#39;</span>)
+</span></span><span style="display:flex;"><span>            case Maybe(value):
+</span></span><span style="display:flex;"><span>                print(value)
+</span></span></code></pre></div><p>以上的 <code>match/case</code>，也能用 <code>if/else</code> 來實現，只不過藉由 <code>match/case</code>，更可以突顯出巢狀層次的問題，如果你還需要更進一步用 <code>avatar</code> 的結果來查詢什麼，那麼巢狀檢查的層次就會更深，造成撰寫與閱讀上的不便。</p>
+<p>仔細看看，每一層 <code>match/case</code>（或 <code>if/else</code>），有哪些流程是類似，可以抽取至函式？如果 <code>Maybe</code> 的 <code>value</code> 不是 <code>None</code>，就取出 <code>value</code>，然後傳給某個函式（上例是 <code>avator</code>），因為要抽取為函式，而且要是個純函式的話，<code>Maybe(None)</code> 沒有能傳回的東西呢！方才說過了，沒有能傳回的東西，那就傳回 <code>Maybe(None)</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">flatMap</span>(maybe, mapper)
+</span></span><span style="display:flex;"><span>    match maybe:
+</span></span><span style="display:flex;"><span>        case Maybe(<span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> maybe
+</span></span><span style="display:flex;"><span>        case Maybe(value):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> mapper(value)
+</span></span></code></pre></div><p>那麼方才的巢狀判斷，就可以改寫為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>nickMaybe <span style="color:#f92672">=</span> nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)
+</span></span><span style="display:flex;"><span>avatorMaybe <span style="color:#f92672">=</span> flatMap(nickMaybe, <span style="color:#66d9ef">lambda</span> nick: avatar(nick))
+</span></span><span style="display:flex;"><span>print(avatorMaybe<span style="color:#f92672">.</span>orElse(<span style="color:#e6db74">&#39;images/guest.jpg&#39;</span>))
+</span></span></code></pre></div><p>流程從巢狀變成循序了！<code>flatMap</code> 首參數接受 <code>Maybe</code>，不如就將之設計為 <code>Maybe</code> 的方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Maybe</span>:    
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>略
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">flatMap</span>(self, mapper):
+</span></span><span style="display:flex;"><span>        match self:
+</span></span><span style="display:flex;"><span>            case Maybe(<span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> self
+</span></span><span style="display:flex;"><span>            case Maybe(value):
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> mapper(value)
+</span></span></code></pre></div><p>那麼方才的範例，就可以寫為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>print(    
+</span></span><span style="display:flex;"><span>    nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>flatMap(avatar)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>orElse(<span style="color:#e6db74">&#39;images/guest.jpg&#39;</span>)
+</span></span><span style="display:flex;"><span>)     
+</span></span></code></pre></div><p>如果你有 <code>ooo</code>、<code>xxx</code> 函式，接受一個值，傳回 <code>Maybe</code>，可以一直 <code>flatMap</code> 下去：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>print(    
+</span></span><span style="display:flex;"><span>    nickname(<span style="color:#e6db74">&#39;Justin&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>flatMap(avatar)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>flatMap(ooo)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>flatMap(xxx)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>orElse(<span style="color:#e6db74">&#39;default value&#39;</span>)
+</span></span><span style="display:flex;"><span>)     
+</span></span></code></pre></div><p>在這個過程中，如果 <code>nickname</code>、<code>avatar</code>、<code>ooo</code>、<code>xxx</code> 函式，有曾經傳回 <code>Maybe(None)</code>，最後就會得到 <code>'default value'</code>，否則就是得到最後的 <code>xxx</code> 函式傳回的 <code>Maybe</code> 之內含值，神奇吧！不！一點也不神奇，簡單來說，就是重用了 <code>match/case</code> 的邏輯罷了！</p>
+
+<div class="notices info">
+    <div class="label"></div><p>在一些命令式語言中，經常使用 flatMap 這種名稱，其實以上的概念，源自於純函數式語言 <a href="https://openhome.cc/zh-tw/tags/monad/">Monad</a> 的概念，在 Haskell 中，如果函式 <code>findOrder</code>、<code>findCustomer</code>、<code>findAddress</code> 可能傳回 <code>Maybe</code>，可以寫成 <code>address = findOrder &quot;X1234&quot; &gt;&gt;= findCustomer &gt;&gt;= findAddress</code>，看來就更直覺了。</p>
+
+</div>
+<p>來想像一下，<code>flatMap</code> 對目前盒子內含值進行運算，結果交給 <code>lambda</code> 轉換至新盒子，以便進入下個運算情境。</p>
+<p>就 <code>Maybe</code> 而言，對 <code>Maybe</code> 內含值進行 <code>None</code> 判斷的運算，有值就套用 <code>lambda</code> 映射，以便進入下個 <code>None</code> 判斷的運算，因此使用者可以只指定感興趣的運算，從而突顯程式碼的意圖，又可流暢地撰寫程式碼，避免巢狀的運算流程。</p>
+<h2 id="array-的-flatmap">Array 的 flatMap</h2>
+<p>除了 <code>Maybe</code> 之類的 API 之外，現代命令式語言，還有不少 API 具有 flatMap，它是個高階抽象，從目前盒子取出值（flat 是平坦化的意思，就相當於把盒子展開，看到其中的值），<code>lambda</code> 指定了值要怎麼轉換並封裝至新盒子。</p>
+<p>flatMap 本身封裝了可重用的運算，就 <code>Maybe</code> 而言，封裝的是判斷盒子中是否有值的運算，無論封裝的流程是什麼，目的都是讓使用者，可以只指定感興趣的運算，從而突顯程式碼的意圖，又可流暢地撰寫程式碼，避免巢狀的流程出現。</p>
+<p>例如，來看看 JavaScript 陣列，先就以下範例來說，如果你想知道最後需要的零件有哪些的話，命令式的寫法會是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">products</span>(<span style="color:#a6e22e">order_id</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">3</span>],  <span style="color:#75715e">// 訂單 0 要的產品號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>],  <span style="color:#75715e">// 訂單 1 要的產品號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>],  <span style="color:#75715e">// 訂單 2 要的產品號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">2</span>],  <span style="color:#75715e">// 訂單 1 要的產品號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ][<span style="color:#a6e22e">order_id</span>];
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">modules</span>(<span style="color:#a6e22e">product_id</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>],  <span style="color:#75715e">// 產品 0 需要的模組號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>],  <span style="color:#75715e">// 產品 1 需要的模組號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>],     <span style="color:#75715e">// 產品 2 需要的模組號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>]      <span style="color:#75715e">// 產品 3 需要的模組號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ][<span style="color:#a6e22e">product_id</span>];
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">parts</span>(<span style="color:#a6e22e">module_id</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 有 0 到 9 個零件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> [
+</span></span><span style="display:flex;"><span>        [<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">7</span>], <span style="color:#75715e">// 模組 0 需要的零件號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">7</span>],  <span style="color:#75715e">// 模組 1 需要的零件號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">7</span>],  <span style="color:#75715e">// 模組 2 需要的零件號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">7</span>], <span style="color:#75715e">// 模組 3 需要的零件號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        [<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">7</span>],  <span style="color:#75715e">// 模組 4 需要的零件號碼
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ][<span style="color:#a6e22e">module_id</span>];
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">order_ids</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>];  <span style="color:#75715e">// 客戶訂單 id
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">collector</span> <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">order_id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">order_ids</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">product_ids</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">products</span>(<span style="color:#a6e22e">order_id</span>);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">product_id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">product_ids</span>) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">module_ids</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">modules</span>(<span style="color:#a6e22e">product_id</span>);
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">module_id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">module_ids</span>) {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">part_ids</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">parts</span>(<span style="color:#a6e22e">module_id</span>);
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">part_id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">part_ids</span>) {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">collector</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">part_id</span>);
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">collector</span>);
+</span></span></code></pre></div><p>喔！四層巢狀迴圈，難寫又難讀&hellip;XD</p>
+<p>從 ES10 以後，提供了 <code>flatMap</code> 方法，你可以改寫成這樣：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">order_ids</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>];
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">order_ids</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">order_id</span> =&gt; <span style="color:#a6e22e">products</span>(<span style="color:#a6e22e">order_id</span>))               <span style="color:#75715e">// 從訂單 id 取得每張訂單的產品 id 清單
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	         .<span style="color:#a6e22e">flatMap</span>(<span style="color:#a6e22e">product_ids</span> =&gt; <span style="color:#a6e22e">product_ids</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">modules</span>))  <span style="color:#75715e">// 把產品 id 清單轉換為模組 id 清單
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			 .<span style="color:#a6e22e">flatMap</span>(<span style="color:#a6e22e">module_ids</span> =&gt; <span style="color:#a6e22e">module_ids</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">parts</span>))      <span style="color:#75715e">// 把模組 id 清單轉換為零件 id 清單
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			 .<span style="color:#a6e22e">flat</span>()                                            <span style="color:#75715e">// 把零件 id 清單展平
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>);
+</span></span></code></pre></div><p>就撰寫與閱讀上，是不是比較省事呢？這邊的 <code>Array</code> 本身就是盒子，<code>flatMap</code> 會逐一取得其中的元素，你只要指定怎麼將元素轉換為另一個盒子就可以了，也就是你只要指定怎麼將元素轉換另一組元素，也就是元素如何映射至新盒子（<code>Array</code>）就可以了。</p>
+<p>至於 <code>flatMap</code> 怎麼迭代新的一組元素，你就不用管了，那些被封裝起來了，在後續的運算中，你只要繼續關注元素如何轉換為另一組元素；可以自行試著重構上面的四層 <code>for</code> 迴圈，看看能不能抽取出共用流程，實現出自己 <code>flatMap</code>，這篇文件已經很長了，我就不示範了&hellip;XD</p>
+<p>flatMap 這種模式，可以用來決巢狀運算變深的問題，基本上就是，若能瞭解 <code>Maybe</code>、<code>Array</code> 的 <code>flatMap</code> 方法，就是指定盒子中的值，該怎麼轉換為另一個盒子，也就是上個運算情境的結果，如何銜接至下個運算情境，那在撰寫與閱讀程式碼時，忽略掉 flatMap 這個名稱，就能比較清楚程式碼的意圖。</p>
+
+<div class="notices info">
+    <div class="label"></div><p>可以 <code>flatMap</code> 的來源可以有 <code>Maybe</code>、<code>list</code> 等類型，<code>flatMap</code> 的概念，可以再抽象化為指定 <code>a -&gt; m b</code> 函式，將 <code>m a</code> 轉換為 <code>m b</code>（這也是 flatMap 名稱由來，<code>m a</code> 會被打平為 <code>a</code>，再套用 <code>a -&gt; m b</code> 進行映射），這種再度抽象化後的概念就是 <a href="https://openhome.cc/zh-tw/tags/monad/">Monad</a> 。</p>
+
+</div>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/pattern/functional/flatmap/" target="_blank"><img src = "../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/pattern/functional/flatmap/" target="_blank"><img src = "../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=%e6%bc%ab%e8%ab%87%e6%a8%a1%e5%bc%8f%3a%3aFlatMap&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fpattern%2ffunctional%2fflatmap%2f" target="_blank"><img src = "../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="reduce/index.html" title="Reduce"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../thread/index.html" title="執行緒"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../js/clipboard.min.js%3F1664443693"></script>
+    <script src="../../js/perfect-scrollbar.min.js%3F1664443693"></script>
+    <script src="../../js/perfect-scrollbar.jquery.min.js%3F1664443693"></script>
+    <script src="../../js/jquery.svg.pan.zoom.js%3F1664443693"></script>
+    <script src="../../js/featherlight.min.js%3F1664443693"></script>
+    <script src="../../js/modernizr.custom-3.6.0.js%3F1664443693"></script>
+    <script src="../../js/mermaid.min.js%3F1664443693"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../js/relearn.js%3F1664443693"></script>
+  </body>
+</html>

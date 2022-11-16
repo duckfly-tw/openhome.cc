@@ -1,0 +1,229 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Before the end of 'Notes: From Imperative to functional (3)', I mentioned about foldRight. I just go...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Notes: Imperative to Functional, Part 4">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/ImperativeToFunctional4.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Before the end of 'Notes: From Imperative to functional (3)', I mentioned about foldRight. I just go...">
+
+
+    <title>Notes: Imperative to Functional, Part 4</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImperativeToFunctional4.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Notes: Imperative to Functional, Part 4</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      <br>
+      Before the end of '<a href="ImperativeToFunctional3.html">Notes: From Imperative to functional (3)</a>', I mentioned about <span
+
+        class="courier">foldRight</span>. I just got a good example casually so it's time to talk about it.<br>
+      <br>
+      Previous articles are using Python code for demonstration so I'll continue to use Python for demonstration. First, think about how to concatenate two <span>list</span>s in Python? Yes,&nbsp; <span
+
+        class="courier">+</span> operator! Such as <span class="courier">[1, 2, 3] + [4, 5, 6]</span>. What if you want to insert an element before a list? You can't use <span
+
+        class="courier">1 + [1, 2, 3]</span>. We're considering an immutable data structure so we don't want to use the <span
+
+        class="courier">insert</span> method of <span class="courier">list</span>. Let's think it again! What data structure should a list be?<br>
+      <br>
+      In Python, there's something similar to an immutable list, a <span
+
+        class="courier">tuple</span>! Let's use it to construct an immutable list. First, an empty immutable list is <span
+
+        class="courier">()</span>. Then, an immutable list with elements is composed of a head element and a tail immutable list. So, an immutable list with an element 1 is <span
+
+        class="courier">(1, ())</span>, an immutable list has the elements 1 and 2 is <span
+
+        class="courier">(1, (2, ()))</span>, the immutable list has the elements 1,2 and 3 is <span
+
+        class="courier">(1, (2, ( 3, ())))</span>,&nbsp; and so on. According to this structure, if you want to put an element before an immutable list, you may define a <span
+
+        class="courier">cons</span> function to do it.<br>
+      <br>
+      <pre class="prettyprint"><code>def cons(elem, lt):
+    return (elem, lt)</code></pre>
+      <br>
+      For convenience, let's define an <span class="courier">lst</span> function to create an immutable list:<br>
+      <br>
+      <pre class="prettyprint"><code>def lst(*elems):
+    return () if elems == () else cons(elems[0], lst(*elems[1:]))</code></pre>
+      <br>
+      Then, to construct an immutable list with elements 1, 2 and 3, just call <span
+
+        class="courier">lst(1, 2, 3)</span> to get it. Get back to the problem just mentioned. We may use <span
+
+        class="courier">cons</span> to put an element before an immutable list but how to concatenate two immutable lists? Python's <span
+
+        class="courier">tuple</span> has a <span class="courier">+</span> operator to do this, but you can't use <span
+
+        class="courier">lst(1, 2, 3) + lst(4, 5, 6)</span>, because it will return <span
+
+        class="courier">(1 (2 (3 ())) , (5, (6, ())))</span>, not the immutable list structure just defined above. The expected result should be <span
+
+        class="courier">(1, (2, (3, (4, (5, (6, ()))))))</span>. According to the definition of the immutable list structure, you must define a new <span
+
+        class="courier">concat</span> function:<br>
+      <br>
+      <pre class="prettyprint"><code>def concat(lt1, lt2):
+    return lt2 if lt1 == () else cons(lt1[0], concat(lt1[1], lt2))</code></pre>
+      <br>
+      So <span class="courier">concat(lst(1, 2, 3), lst(4, 5, 6))</span> will return <span
+
+        class="courier">(1, (2, (3, (4, (5, (6 ()))))))</span>. Well... <span
+
+        class="courier">(1, (2, (3, (4, (5, (6 ()))))))</span> has poor readability so let's write a <span
+
+        class="courier">toStr</span> function:<br>
+      <br>
+      <pre class="prettyprint"><code>def toStr(lt):
+    return '()' if lt == () else str(lt[0]) + ':' + toStr(lt[1])</code></pre>
+      <br>
+      Now, <span class="courier">toStr(lst(1, 2, 3, 4, 5, 6))</span> will return <span
+
+        class="courier">'1:2:3:4:5:6:()'</span>. The symbol <span class="courier">':'</span> is used in functional languages conventionally. That's why we called putting an element before an immutable list is 'cons' but not 'prepend'. As your wish, you can also define a <span
+
+        class="courier">append</span> function to append an element after an immutable list.<br>
+      <br>
+      <pre class="prettyprint"><code>def append(l, elem):
+    return concat(l, lst(elem))</code></pre>
+      <br>
+      So, what's the point? For the immutable list defined above, putting an element before an immutable list is easy. But if you want to concatenate two immutable lists, or append an element after an immutable list, you'll have to iterate all elements of the first list.<br>
+      <br>
+      If you define a <span class="courier">foldLeft</span> function for an immutable list:<br>
+      <br>
+      <pre class="prettyprint"><code>def foldLeft(lt, func, at):
+    return at if lt == () else foldLeft(lt[1], func, func(at, lt[0]))</code></pre>
+      <br>
+      To convert <span class="courier">lst(1, 2, 3)</span> to <span class="courier">lst('1 ', '2', '3 ')</span>, you'll have to:<br>
+      <br>
+      <pre class="prettyprint"><code>foldLeft(lst(1, 2, 3), lambda at, digit: <strong>concat</strong>(at, lst(str(digit))), ())</code></pre>
+      <br>
+      Or:<br>
+      <pre class="prettyprint"><code>foldLeft(lst(1, 2, 3), lambda at, digit: <strong>append</strong>(at, str(digit)), ())</code></pre>
+      <br>
+      However, <span class="courier">append</span> still calls <span class="courier">concat</span>. For this question, you'll have to visit all elements of <span
+
+        class="courier">at</span> if you use <span class="courier">foldLeft</span>. If we define a <span
+
+        class="courier">foldRight</span> function:<br>
+      <pre class="prettyprint"><code>def foldRight(lt, func, at):
+     return at if lt == () else func(foldRight(lt[1], func, at), lt[0])</code></pre>
+      <br>
+      Then, converting <span class="courier">lst(1, 2, 3)</span> to <span
+
+        class="courier">lst('1 ', '2', '3 ')</span> could be done as such:<br>
+      <br>
+      <pre class="prettyprint"><code>foldRight(lst(1, 2, 3), lambda at, digit: <strong>cons</strong>(str(digit), at), ())</code></pre>
+      <br>
+      For this example, you don't have to visit all elements of <span class="courier">at</span> so the performance is better.<br>
+      <br>
+      For problems which left-to-right visiting has no difference from right-to-left visiting,&nbsp; <span
+
+        class="courier">foldLeft</span> or <span class="courier">foldRight</span> doesn't matter, such as <span
+
+        class="courier">foldRight(lst(1, 2, 3), int.__add__, 0)</span> and <span
+
+        class="courier">foldLeft(list(1, 2, 3 ), int.__add__, 0)</span> has no difference. But for the above mapping of <span
+
+        class="courier">lst(1, 2, 3)</span> to <span class="courier">lst('1 ', '2', '3 ')</span>,&nbsp; there will be performance differences.<br>
+      <br>
+      In addition to considerations of <span class="courier">foldLeft</span> or <span
+
+        class="courier">foldRight</span>, if a language supports the above data structure, you can take more thinking while concatenating two lists. Sometimes, you may try 'cons' instead. Let's take a look at a Scala example:<br>
+      <br>
+      <pre class="prettyprint"><code>def eval(expr: String) = {
+    ((Nil:List[Double]) /: toPostfix(expr)) {
+        (stack, c) =&gt; {
+            if("+-*/".contains(c)) {
+                val op1 = stack.init.last
+                val op2 = stack.last
+                stack.init.init ++ List(c match {
+                    case '+' =&gt; op1 + op2
+                    case '-' =&gt; op1 - op2
+                    case '*' =&gt; op1 * op2
+                    case '/' =&gt; op1 / op2
+                })
+            } else stack <strong>++</strong> List(c.toString.toDouble)
+        }
+    }.last
+}</code></pre>
+      <br>
+      Here, we use <span class="courier">++</span> to concatenate lists, it will visit the entire <span
+
+        class="courier">stack</span> every time. If <span class="courier">stack</span> is long, it will have poor performance. The code can be changed to:<br>
+      <br>
+      <pre class="prettyprint"><code>def eval(expr: String) = {
+    ((Nil:List[Double]) /: Infix.toPostfix(expr)) {
+        (stack, c) =&gt; {
+            if("+-*/".contains(c)) {
+                val op1 = stack.tail.head
+                val op2 = stack.head
+                (c match {
+                    case '+' =&gt; op1 + op2
+                    case '-' =&gt; op1 - op2
+                    case '*' =&gt; op1 * op2
+                    case '/' =&gt; op1 / op2
+                }) :: stack.tail.tail
+            } else c.toString.toDouble <strong>::</strong> stack
+        }
+    }.head
+}</code></pre>
+      <br>
+      The return value is the same, but this time without visiting the entire <span
+
+        class="courier">stack</span> every time, the performance is better.<br>
+      <br>
+<div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

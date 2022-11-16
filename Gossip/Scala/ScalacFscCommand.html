@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="你可以在一個純文字檔案中撰寫程式碼，然後使用 scala 指令 直譯為位元組（byte code）後運行於JVM之上。你也可以撰寫程式碼，使用scalac指令將程式碼編譯為.class檔案，而後使用s...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="scalac 與 fsc">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/ScalacFscCommand.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="你可以在一個純文字檔案中撰寫程式碼，然後使用 scala 指令 直譯為位元組（byte code）後運行於JVM之上。你也可以撰寫程式碼，使用scalac指令將程式碼編譯為.class檔案，而後使用s...">
+
+
+    <title>scalac 與 fsc</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ScalacFscCommand.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>scalac 與 fsc</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            你可以在一個純文字檔案中撰寫程式碼，然後使用 <a href="ScalaCommand.html">scala 指令</a> 直譯為位元組（byte code）後運行於JVM之上。你也可以撰寫程式碼，使用<span style="font-weight: bold;">scalac</span>指令將程式碼編譯為.class檔案，而後使用scala指令來執行。如果你要這麼作，則要定義object，並撰寫程式進入點，例如：<br><ul><li>Hello.scala</li></ul><pre class="prettyprint"><code lang="scala">object Hello {<br>    def main(args: Array[String]) {<br>        println("Hello!" + args(0) + "!")<br>    }<br>}</code></pre><br>object在Scala中用來定義單例物件（Singleton object），技術上來說，在程式運行時，Hello名稱實際是參考至Hello\$類別的物件，不過就現階段而言，你還不用深入了解，你只要先記得，<span style="font-weight: bold;">Scala程式要編譯為位元碼後，若要提供JVM執行程式的程式進入點，必須使用以上的形式。</span>def定義了一個main方法，函式中args是個參考名稱，型態是字串陣列（Array[String]），用來收集執行程式時所提供的命令列引數。<br><br>要注意的是，表面上看來，雖然上面這個程式有點像是在Java中定義主類別以及一個static的main程式進入點，不過這並不正確，Scala並沒有static定義的語法。<br><br>程式的檔案名稱可以命名為Hello.scala，不過也可以取其它的名稱，慣例上會使用與object名稱或class名稱相同的檔案名稱，如此別人可以很方便地找到原始碼進行檢視。<br><br>要編譯這個程式碼，可以使用以下的指令：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;scalac Hello.scala</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+
+<br>這會在你的指令執行路徑下產生編譯好的.class檔案，若要執行，則可以使用scala指令，例如：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;scala Hello caterpillar<br>Hello!caterpillar!</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+
+<br>Scala程式碼是編譯為.class，也是運行於JVM之上，所以實際上，你也可以使用JDK的java指令來運行，不過必須在
+Classpath中包括Scala的程式碼scala-library.jar，這是位於Scala安裝目錄lib目錄中，一個執行&#31797;例如下：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;java -cp .;C:\Greenware\scala-2.7.7\lib\scala-library.jar Hello caterpillar<br>Hello!caterpillar!</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div>
+<br>想要知道scalac有哪些選項可以使用，可以使用-help引數，大多數的引數與javac的引數作用是相同的：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;C:\workspace&gt;scalac -help<br>Usage: scalac &lt;options&gt; &lt;source files&gt;<br>where possible standard options include:<br>&nbsp;
+-g:&lt;g&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify level of generated debugging info
+(none,source,line,vars,notailcalls)<br>&nbsp;
+-nowarn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Generate no warnings<br>&nbsp;
+-verbose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Output messages about what the compiler is doing<br>&nbsp;
+-deprecation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Output source locations where deprecated APIs are&nbsp;used<br>&nbsp;
+-unchecked&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Enable detailed unchecked warnings<br>&nbsp; -classpath
+&lt;path&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify where to find user class files<br>&nbsp; -sourcepath
+&lt;path&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify where to find input source files<br>&nbsp; -bootclasspath &lt;path&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Override location of bootstrap class files<br>&nbsp;
+-extdirs
+&lt;dirs&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Override location of installed extensions<br>&nbsp; -d
+&lt;directory&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify where to place generated class files<br>&nbsp; -encoding
+&lt;encoding&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify character encoding used by source files<br>&nbsp;
+-target:&lt;target&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Specify for which target object files should be built
+(jvm-1.5,jvm-1.4,msil)<br>&nbsp;
+-print&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Print program with all Scala-specific features removed<br>&nbsp;
+-optimise&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Generates faster bytecode by applying optimisations to the program<br>&nbsp;
+-explaintypes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Explain type errors in more detail<br>&nbsp;
+-uniqid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Print identifiers with unique names for debugging<br>&nbsp;
+-version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Print product version and exit<br>&nbsp;
+-help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Print a synopsis of standard options<br>&nbsp;
+-X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Print a synopsis of advanced options<br>&nbsp;
+@&lt;file&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A text file containing compiler arguments (options and source files)</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div><br>每次啟動scalac指令，都必須掃描所有使用到的JAR檔案內容，並作一些初始化的動作，接著才是真正編譯程式碼。Scala提供了一個<span style="font-weight: bold;">fsc</span>指令，第一次啟動fsc指令時，會啟動一個本地端<span style="font-weight: bold;">編譯伺服器（Compile server）</span>來進行一些掃描JAR檔案及初始化動作，然後編譯程式碼：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;fsc Hello.scala</span><span style="color: rgb(255, 255, 255);"><br>
+
+
+
+
+            </span></div><br>再次啟動fsc指令時，由於編譯伺服器先前已啟動過了，因此只要將程式碼送到伺服器上編譯就可以了，因此可以較快的速度完成編譯的動作。如果想要關閉編譯伺服器，則可以使用<span style="font-weight: bold;">-shutdown</span>引數：<br><div class="cmd"><span style="color: rgb(255, 255, 255);">&gt;fsc -shutdown<br>[Compile server exited]</span></div><br>在撰寫具程式進入點的object定義時，可以如上的範例定義main()方法，或者你可以使用Application<span style="font-weight: bold;">特徵（Trait）</span>，例如：<br><pre class="prettyprint"><code lang="scala">object Hello extends Application {<br>    println("Hello!Scala!")<br>}</code></pre><br>要使用Application特徵，你使用extends關鍵字，特徵在Scala中可用來定義方法及域（field）成員，以用來混入（mix into）其它類別或物件時擴充其行為，現階段你還不需要深入了解。目前只需要知道，Application特徵宣告了main()方法，你的Hello繼承了這個方法定義（或說是，你的類別繼承了Application的特徵），而你在大括號之間所撰寫的程式碼，其實會是object的主要建構式（Primary constructor），會在物件實例化時執行，<span style="font-weight: bold;">結果就是你只要在extends Application之後，在大括號之間撰寫你的程式就可以了，</span>不過這個方法的限制就是，你無法取得命令列引數，而在一些JVM實作中，沒有最佳化物件的初始化程式碼，因此建議只用在相對簡單的應用程式。<br><br>
+       
+       
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

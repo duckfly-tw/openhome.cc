@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在實作 Tag 介面相關類別時，依不同的時機，要定義不同的 doXxxTag() 方法，並依需求傳回不同的值。 doXxxTag() 方法實際上是分別定義在 Tag 與 IterationTag 介面...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="了解生命週期與架構">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/TagAPILifeCycle.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在實作 Tag 介面相關類別時，依不同的時機，要定義不同的 doXxxTag() 方法，並依需求傳回不同的值。 doXxxTag() 方法實際上是分別定義在 Tag 與 IterationTag 介面...">
+
+    <title>了解生命週期與架構</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TagAPILifeCycle.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>了解生命週期與架構</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在實作 <code>Tag</code> 介面相關類別時，依不同的時機，要定義不同的 <code>doXxxTag()</code> 方法，並依需求傳回不同的值。 <code>doXxxTag()</code> 方法實際上是分別定義在 <code>Tag</code> 與 <code>IterationTag</code> 介面上的方法，它們的繼承與實作架構如下所示：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TagAPILifeCycle-1.JPG" alt="了解生命週期與架構"  /></div></div></p>
+<p>類似 <code>SimpleTag</code> 介面，<code>Tag</code> 介面繼承自 <code>JspTag</code> 介面，它定義了基本的 <code>Tag</code> 行為，像是設定 <code>PageContext</code> 實例的 <code>setPageContext()</code>、設定外層父標籤物件的 <code>setParent()</code> 方法、標籤物件銷毀前呼叫的 <code>release()</code> 方法等。</p>
+<p>單是使用 <code>Tag</code> 介面的話，無法重複執行本體內容，而必須使用子介面 <code>IterationTag</code> 介面的 <code>doAfterBody()</code>（之後會看到如何重複執行本體內容）。<code>TagSupport</code> 類別實作了 <code>IteratorTag</code> 介面，對介面上所有方法作了基本實作，所以只需要在繼承 <code>TagSupport</code> 之後，針對必要的方法重新定義即可。</p>
+<p>當 JSP 中遇到 <code>TagSupport</code> 自訂標籤時，會進行以下的動作：</p>
+<ol>
+<li>嘗試從標籤池（Tag Pool）找到可用的標籤物件，如果找到就直接使用，如果沒找到就建立新的標籤物件。</li>
+<li>呼叫標籤處理器的 <code>setPageContext()</code> 方法設定 <code>PageContext</code> 實例。</li>
+<li>如果是巢狀標籤中的內層標籤，則還會呼叫標籤處理器的 <code>setParent()</code> 方法，並傳入外層標籤處理器的實例。</li>
+<li>設定標籤處理器屬性（例如這邊是呼叫 <code>IfTag</code> 的 <code>setTest()</code> 方法來設定）。</li>
+<li>呼叫標籤處理器的 <code>doStartTag()</code> 方法，並依不同的傳回值決定是否執行本體或呼叫 <code>doAfterBody()</code>、 <code>doEndTag()</code> 方法（之後詳述）。</li>
+<li>將標籤處理器實例置入標籤池中以便再度使用。</li>
+</ol>
+<p>首先注意到第 1 點與第 6 點，沒錯！<code>Tag</code> 實例是可以重複使用的（<code>SimpleTag</code> 實例則是每次請求都建立新物件，用完就銷毀回收），所以自訂 <code>Tag</code> 類別時，要注意物件狀態是否會保留下來，必要的時候，在 <code>doStartTag()</code> 方法中，可以進行狀態重置的動作。別以為可以使用 <code>release()</code> 方法來作狀態重置，因為 <code>release()</code> 方法只會在標籤實例真正被銷毀回收前被呼叫。</p>
+<p>接著來詳細說明第 5 點。JSP 頁面會根據標籤處理器各方法呼叫的不同傳回值，來決定要呼叫哪一個方法或進行哪一個動作，這個直接使用流程圖來說明會比較清楚：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/TagAPILifeCycle-2.JPG" alt="了解生命週期與架構"  /></div></div></p>
+<p><code>doStartTag()</code> 可以回傳 <code>EVAL_BODY_INCLUDE</code> 或 <code>SKIP_BODY</code>。如果傳回 <code>EVAL_BODY_INCLUDE</code> 則會執行本體內容，而後呼叫 <code>doAfterBody()</code>（就相當於 <code>SimpleTag</code> 的 <code>doTag()</code> 中呼叫了 <code>JspFragment</code> 的 <code>invoke()</code> 方法）。如果不想執行本體內容，則可傳回 <code>SKIP_BODY</code>（就相當於 <code>SimpleTag</code> 的 <code>doTag()</code> 不呼叫 <code>JspFragment</code> 的 <code>invoke()</code> 方法），此時就會呼叫 <code>doEndTag()</code> 方法。</p>
+<p>這邊暫時不討論 <code>doAfterBody()</code> 方法的傳回值，因為 <code>doAfterBody()</code> 預設傳回值是 <code>SKIP_BODY</code>，如果不重新定義 <code>doAfterBody()</code> 方法，無論有無執行本體，流程最後都會來到 <code>doEndTag()</code>。在 <code>doEndTag()</code> 中，可傳回 <code>EVAL_PAGE</code> 或 <code>SKIP_PAGE</code>。如果傳回 <code>EVAL_PAGE</code>，則自訂標籤後續的 JSP 頁面才會繼續執行，如果傳回 <code>SKIP_PAGE</code> 就不會執行後續的 JSP 頁面（相當於 <code>SimpleTag</code> 的 <code>doTag()</code> 中丟出 <code>SkipPageException</code> 的作用）。</p>
+<p>實際上，由於 <code>TagSupport</code> 類別對 <code>IterationTag</code> 介面作了基本實作，<code>doStartTag()</code>、<code>doAfterBody()</code> 與 <code>doEndTag()</code> 都有預設的傳回值，依序分別是 <code>SKIP_BODY</code>、<code>SKIP_BODY</code> 及 <code>EVAL_PAGE</code>，也就是預設不處理本體，標籤處理結束後 會執行後續的JSP頁面。</p>
+<p>實際上在 Tomcat 中，如果觀看 JSP 轉譯後的 Servlet 原始碼會發現，只要 <code>doStartTag()</code> 的傳回值不是 <code>SKIP_BODY</code>，就會執行本體內容並呼叫 <code>doAfterBody()</code> 方法。<code>doEndTag()</code> 只要傳回值不是 <code>SKIP_PAGE</code>，就會執行後續的 JSP 頁面。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

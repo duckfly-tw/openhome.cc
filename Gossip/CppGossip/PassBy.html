@@ -1,0 +1,192 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在許多 C++ 文件中都會談到，呼叫函式時會有傳值（Pass by value）、傳參（Pass by reference）之別，不過這兩個名詞並沒有嚴謹的定義，後續有些語言在討論函式呼叫引數與參數之...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="引數與參數">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/PassBy.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在許多 C++ 文件中都會談到，呼叫函式時會有傳值（Pass by value）、傳參（Pass by reference）之別，不過這兩個名詞並沒有嚴謹的定義，後續有些語言在討論函式呼叫引數與參數之...">
+
+    <title>引數與參數</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PassBy.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>引數與參數</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在許多 C++ 文件中都會談到，呼叫函式時會有傳值（Pass by value）、傳參（Pass by reference）之別，不過這兩個名詞並沒有嚴謹的定義，後續有些語言在討論函式呼叫引數與參數之間的關係時，也常不嚴謹或自顧自地使用這兩個名詞，造成了開發者之間的溝通誤會，我個人是不建議使用傳值、傳參來描述引數與參數間的關係。</p>
+<p>在呼叫函式時，提供給函式的資料稱為引數（argument），接受引數的稱為參數（parameter），引數與參數之間的關係，其實就像是指定運算子 <code>=</code> 右側運算式與左側變數之間的關係，變數宣告時可以怎麼宣告，參數基本上就可以怎麼宣告，根據變數的型態而決定如何儲存、參考物件，參數就會有同樣的行為。</p>
+<p>例如以下的範例，參數 <code>n</code> 是 <code>int</code> 型態，呼叫函式時提供 <code>x</code> 作為引數：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int increment(int n) {
+    n = n + 1;
+    return n;
+}
+
+int main() {
+    int x = 10;
+    cout &lt;&lt; increment(x) &lt;&lt; endl;
+    cout &lt;&lt; x &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>可以想成呼叫函式時，執行了 <code>int n = x</code> 這個動作，然後執行函式的內容，當然地，<code>n</code> 雖然作了遞增運算，但是對 <code>x</code> 的儲存值沒有影響，<code>x</code> 最後仍是顯示 10。</p>
+<p>對於底下這個範例：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int increment(int *n) {
+    *n = *n + 1;
+    return *n;
+}
+
+int main() {
+    int x = 10;
+    cout &lt;&lt; increment(&amp;x) &lt;&lt; endl;
+    cout &lt;&lt; x &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>可以想成呼叫函式時，執行了 <code>int *n = &amp;x</code> 這個動作，因此 <code>*n</code> 提取出來的就是 <code>x</code>，對 <code>*n</code> 的設值，就是對 <code>x</code> 的設值，因此程式執行後顯示的就會是 11，這跟之前談指標時的行為是一致的。</p>
+<p>在許多 C++ 文件中，會稱以上兩個範例的函式呼叫在引數傳遞時的行為是傳值，然而，因為名詞本身沒有嚴謹定義，不建議使用這名詞來溝通。</p>
+<p>會想要在參數上使用指標的原因很多，像是基於效率不想傳遞整個物件，考慮傳遞位址比較經濟的情況，或者是要傳遞的引數確實就是指標，例如在〈<a href="https://openhome.cc/Gossip/CppGossip/string1.html">字元陣列與字串</a>〉中談到的 C 風格字串，本質上是字元陣列，透過陣列名稱會取得首元素位址，函式若要接受這類字串，可以使用 <code>char*</code> 型態的參數：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+void foo(char *s) {
+    cout &lt;&lt; s &lt;&lt; endl;
+}
+
+int main() {
+    char name[] = "Justin";
+    foo(name);
+    return 0;
+}
+</code></pre>
+<p>至於底下的範例：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int increment(int &amp;n) {
+    n = n + 1;
+    return n;
+}
+
+int main() {
+    int x = 10;
+    cout &lt;&lt; increment(x) &lt;&lt; endl;
+    cout &lt;&lt; x &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>可以想成呼叫函式時，執行了 <code>int &amp;n = x</code> 這個動作，因此 <code>n</code> 就是 <code>x</code> 的別名，對 <code>n</code> 的設值，就是對 <code>x</code> 的設值，因此程式執行後顯示的就會是 11，這跟之前談參考時的行為是一致的。</p>
+<p>在許多 C++ 文件中，會稱以上的函式呼叫在引數傳遞時的行為是傳參，然而，因為名詞本身沒有嚴謹定義，不建議使用這名詞來溝通。</p>
+<p>會想在參數上使用參考的原因也有許多，通常是基於效率，直接令參數就是物件的別名（連位址都不用傳遞）。</p>
+<p>在這邊要回顧一下〈<a href="RvalueReference.html">rvalue 參考</a>〉中談到的，為何會需要使用 <code>const int &amp;r = 10</code> 這種語法，因為 lvalue 參考不能直接參考字面常量，底下範例會編譯失敗：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int foo(int &amp;n) {
+    return n + 1;
+}
+
+int main() {
+    int x = 10;
+    foo(x);
+    foo(10);   // error: cannot bind non-const lvalue reference of type 'int&amp;' to an rvalue of type 'int'
+    return 0;
+}
+</code></pre>
+<p>若要 <code>foo</code> 呼叫都能通過編譯，<code>foo</code> 的參數必須以 <code>const int &amp;n</code> 來宣告：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+int foo(const int &amp;n) {
+    return n + 1;
+}
+
+int main() {
+    int x = 10;
+    foo(x);
+    foo(10);  // OK
+    return 0;
+}
+</code></pre>
+<p>C++ 11 開始可以使用 rvalue 參考，參數也可以宣告 rvalue 參考，當兩個函式各定義了 rvalue 參考與 const 的 lvalue 參考作為參數，使用常量呼叫時，編譯器會選擇 rvalue 參考的版本：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt; 
+using namespace std; 
+
+void foo(int &amp;&amp;n) {
+   cout &lt;&lt; "rvalue ref" &lt;&lt; endl;
+}
+
+void foo(const int &amp;n) {
+   cout &lt;&lt; "lvalue ref" &lt;&lt; endl;
+}
+
+int main() {
+    foo(10);  // 顯示 rvalue ref
+    return 0;
+}
+</code></pre>
+<p>參數以 rvalue 參考宣告的情況，主要考慮的是效率，在函式內容的實作上往往也就有別於 <code>const</code> 的 lvalue 參考之版本，例如搭配 <code>std::move</code> 來實現移動語義（move semantics），這之後再來討論。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

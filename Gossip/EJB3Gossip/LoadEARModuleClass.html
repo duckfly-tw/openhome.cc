@@ -1,0 +1,124 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一個EAR（Enterprise Archive）是一個標準的JAR（Java Archive）檔案格式，只不過其副檔名為.ear，EAR檔案中包括了部署資訊，以及應用程式所需要的各個模組：
+
+ ...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="EAR 模組及類別載入">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/EJB3Gossip/LoadEARModuleClass.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="一個EAR（Enterprise Archive）是一個標準的JAR（Java Archive）檔案格式，只不過其副檔名為.ear，EAR檔案中包括了部署資訊，以及應用程式所需要的各個模組：
+
+ ...">
+
+
+    <title>EAR 模組及類別載入</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="LoadEARModuleClass.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 EJB3 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>EAR 模組及類別載入</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            一個EAR（Enterprise Archive）是一個標準的JAR（Java Archive）檔案格式，只不過其副檔名為.ear，EAR檔案中包括了部署資訊，以及應用程式所需要的各個模組：<br>
+
+      <br>
+
+      
+      <div style="text-align: center;"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/LoadEARModuleClass-1.jpg" /></div></div><br>
+      </div>
+      
+      <br>
+
+應用程式客戶端模組（Application Client Module）如同在 <a href="InjectEJB.html">使
+用 @EJB 注入 Bean（單機客戶端）</a> 看到的客戶端範例，包括了所有客戶端應用程式所必要的類別檔案與<span style="font-weight: bold;">部署描述檔（application-client.xml）</span>等資訊，封裝後副檔名為<span style="font-weight: bold;">.jar</span>。<br>
+
+      <br>
+
+Web模組（Web Module）為JSP/Servlet應用程式，包括了Web應用程式所需的類別、<span style="font-weight: bold;">部署描述檔（web.xml）</span>等，封裝後的副檔名為<span style="font-weight: bold;">.war</span>檔案，架構內容可以參考 <a href="https://openhome.cc/Gossip/JSPServlet/ServletContainer.htm">關
+於 Servlet 容器</a>。<br>
+
+      <br>
+
+EJB模組（EJB Modlue）為EJB元件，包括了EJB元件所需的類別、<span style="font-weight: bold;">部署描述檔（ejb-jar.xml）</span>等，副檔名為<span style="font-weight: bold;">.jar</span>，可參考 <a href="EJB-JAR.html">封裝 EJB-JAR</a>。<br>
+
+      <br>
+
+資源配接器模組（Resource Adapter Module）包括了所有介面、類別、資源配接器<span style="font-weight: bold;">部署描述檔（ra.xml）</span>，為JAR格式，副檔名為<span style="font-weight: bold;">.rar</span>，實作了特定EIS（Enterprise Information System ）層的連接器架構。<br>
+
+      <br>
+
+      當您使用EAR進行部署時，大致會依以下的流程來判斷模組類型：<br>
+      <br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/LoadEARModuleClass-2.jpg" /></div></div><br>
+
+      <br>
+Java的類別載入機制，您可以先參考一下 <a href="../JavaGossip-V2/IntroduceClassLoader.htm">簡
+介
+ClassLoader</a>
+的內容，現在將之延伸至EAR模組的類別載入，基本上就是再加l應用伺服器（Application
+Server）類別載入器、EJB類別載入器與WAR類別載入器，WAR類別載入器的parent是EJB類別載入器，EJB類別載入器的parent是
+應用伺服器類別載入器，而應用伺服器類別載入器的parent為系統（System）類別載入器，又稱之為應用程式類別載入器（App Class Loader）。<br>
+      <br>
+      
+      <div style="text-align: center;"><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/LoadEARModuleClass-3.jpg" /></div></div><br>
+      </div>
+      
+      <br>
+當尋找某個類別時，一樣的會先委託類別載入器的parent先在其所設定之路徑下尋找，一路委託至最上層，若各層parent找不到才交由child類別載入器來尋找。<br>
+      <br>
+
+      <br>
+
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

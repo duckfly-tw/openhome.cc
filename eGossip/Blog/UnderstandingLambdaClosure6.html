@@ -1,0 +1,292 @@
+<!doctype html><html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A value can be assigned to a variable. A first-class value can be passed into a function or returned...">
+
+<meta property="og:locale" content="en">
+<meta property="og:title" content="Understanding Lambda/Closure, Part 6 - First Class Functions and Lambda Calculus">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/eGossip/Blog/UnderstandingLambdaClosure6.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="A value can be assigned to a variable. A first-class value can be passed into a function or returned...">
+
+
+    <title>Understanding Lambda/Closure, Part 6 - First Class Functions and Lambda Calculus</title>
+
+<link rel="stylesheet" href="../../Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../../Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../../Gossip/css/caterpillar.css">
+     <script async src="../../Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="UnderstandingLambdaClosure6.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">&lt;&lt; Blog Picks</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../Gossip/images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../Gossip/images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Understanding Lambda/Closure, Part 6 - First Class Functions and Lambda Calculus</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      
+      <br>
+      A value can be assigned to a variable. A first-class value can be passed into a function or returned from a function. In most programming languages, primitives or objects are first-class values, but how about functions or expressions? <br>
+      <br>
+      In several languages, functions are first-class citizens (or so-called high order functions). For example, we've seen in <a
+
+        href="UnderstandingLambdaClosure1.html">Understanding Lambda/Closure, Part 1</a> that JavaScript's functions are objects; that is, they are first-class values. They can be assigned to a variable, passed into a function or returned from a function.<br>
+      <br>
+      But, why is a first-class functions also called lambda? Before answering this question, we have to know what <a
+
+        href="http://en.wikipedia.org/wiki/Lambda_calculus">lambda calculus</a> (also written as λ-calculus) is. Simply speaking, a function in λ-calculus is an expression which only takes one parameter. A parameter may also accept a function which takes one parameter. The λ-calculus treats functions "anonymously". For example, the mathematics function <span
+
+        class="courier">f(x) = x * 2</span> can be written in anonymous form as:<br>
+      <br>
+      <div style="margin-left: 40px;"><strong><span class="courier">λ x. x * 2</span></strong><span><br>
+        </span></div>
+      <br>
+      If we use the form which JDK8 finally takes, it can be written as:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span style="font-weight: bold;">x -&gt; x * 2</span><span><br>
+        </span></div>
+      <br>
+      That is, the lambda expression will map <span class="courier">x</span> to <span
+
+        class="courier">x * 2</span>. If we apply <span class="courier">2</span> to <span
+
+        class="courier">x</span>, the mapping process will be:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span style="font-weight: bold;"><span>(x -&gt; x * 2)(2)</span><span><br>
+          </span><span>= 2 * 2</span><span><br>
+          </span><span>= 4</span></span></div>
+      <br>
+      If there's a function <span class="courier">g(y) = y - 1</span> and the function <span
+
+        class="courier">f(x) = x * 2</span> is applied to <span class="courier">y</span>, we'll get a new function <span
+
+        class="courier">h(x) = g(f(x))</span> as follows:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>h(x) </strong></span><span><strong><br>
+          </strong></span><span><strong>= g(f(x)) </strong></span><span><strong><br>
+          </strong></span><span><strong>= f(x) - 1 </strong></span><span><strong><br>
+          </strong></span><span><strong>= x * 2 - 1</strong></span><strong><br>
+        </strong></div>
+      <br>
+      Using lambda expressions to rewrite the above mapping process will get a new lambda expression.<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>(y -&gt; y - 1)(x -&gt; x * 2)</strong></span><span><strong><br>
+          </strong></span><span><strong>= x -&gt; x * 2 - 1</strong></span><strong><br>
+        </strong></div>
+      <br>
+      A function in λ-calculus is an expression, also called a lambda function, which only takes one parameter. Then, how to express a mathematics function that requires two input? <br>
+      <br>
+      Let's think a function <span class="courier">f(x, y) = x * x + y * y</span>. If <span
+
+        class="courier">a</span> is applied to <span class="courier">x</span>, we get a new function <span
+
+        class="courier">f(a, y) = a * a + y * y</span>. We may let <span
+
+        class="courier">g(y) = f(a, y) = a * a + y * y</span>. Applying <span
+
+        class="courier">b</span> to <span class="courier">y</span> will result in <span
+
+        class="courier">g(b) = a * a + b * b = f(a, b)</span>. That is, a function that requires two inputs can be reworked into an equivalent function that accepts a single input and returns another function which accepts a single input. If we write <span
+
+        class="courier">f(x, y) = x * x + y * y</span> in anonymous form, it can be reworked as follows:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>(x, y) -&gt; x * x + y * y</strong></span><span><strong><br>
+          </strong></span><span><strong>= x -&gt; (y -&gt; x * x + y * y)</strong></span><strong><br>
+        </strong></div>
+      <br>
+      Applying <span class="courier">a</span> to <span class="courier">x</span> and in turn <span
+
+        class="courier">b</span> to <span class="courier">y</span> will be:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>(x -&gt; (y -&gt; x * x + y * y))(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= (y -&gt; a * a + y * y)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= a * a + b * b</strong></span><span><strong><br>
+          </strong></span></div>
+      <br>
+      In λ-calculus, any function with more than one parameter can be got by in turn applying multiple functions with one parameter. We can also use lambda expressions to implement flow control functions, such as <span
+
+        class="courier">if</span>, <span class="courier">forEach</span>, etc. Basically, we can use lambda expressions to implement a small general-purpose language. For example, <span
+
+        class="courier">not</span>, <span class="courier">and</span>, <span
+
+        class="courier">or</span>, and <span class="courier">if</span> function can be implemented as follows: <br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>let not =</strong></span><span><strong><br>
+          </strong></span><span><strong>* false -&gt; true</strong></span><span><strong><br>
+          </strong></span><span><strong>* true -&gt; false</strong></span><span><strong><br>
+          </strong></span><span><strong><br>
+          </strong></span><span><strong>let and =</strong></span><span><strong><br>
+          </strong></span><span><strong>* false value -&gt; false</strong></span><span><strong><br>
+          </strong></span><span><strong>* true value -&gt; value</strong></span><span><strong><br>
+          </strong></span><span><strong>* value false -&gt; false</strong></span><span><strong><br>
+          </strong></span><span><strong>* value true -&gt; value</strong></span><span><strong><br>
+          </strong></span><span><strong><br>
+          </strong></span><span><strong>let or =</strong></span><span><strong><br>
+          </strong></span><span><strong>* false value -&gt; value</strong></span><span><strong><br>
+          </strong></span><span><strong>* true value -&gt; true</strong></span><span><strong><br>
+          </strong></span><span><strong>* value false -&gt; value</strong></span><span><strong><br>
+          </strong></span><span><strong>* value true -&gt; true</strong></span><span><strong><br>
+          </strong></span><span><strong><br>
+          </strong></span><span><strong>let if = cond -&gt; tv -&gt; fv -&gt; (cond and tv) or (not cond and fv)</strong></span><strong><br>
+        </strong></div>
+      <br>
+      The above <span class="courier">if</span> function is like an <span
+
+        class="courier">if</span> expression in several languages. It returns the first <span
+
+        class="courier">tv</span> if <span class="courier">cond</span> is <span
+
+        class="courier">true</span>. For example:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>if(true)(a)(b) </strong></span><span><strong><br>
+          </strong></span><span><strong>= ((cond or fv) and (cond and tv))(true)(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>=((true and tv) or (not true and fv))(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>=((true and a) or (not true and fv))(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>=(true and a) or (not true and b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= a or (false and b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= a or false</strong></span><span><strong><br>
+          </strong></span><span><strong>= a</strong></span></div>
+      <br>
+      We can also implement a <span class="courier">unless</span> function. <br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>let unless = cond -&gt; fv -&gt; tv -&gt; (cond or fv) and (cond and tv)</strong></span><strong><br>
+        </strong></div>
+      <br>
+      The <span class="courier">unless</span> function returns the second <span
+
+        class="courier">tv</span> if <span class="courier">cond</span> is <span
+
+        class="courier">true</span>. For example:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>unless(true)(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= ((cond or fv) and (cond and tv))(true)(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= ((true or fv) and (true and tv))(a)(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= ((true or a) and (true and tv))(b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= (true or a) and (true and b)</strong></span><span><strong><br>
+          </strong></span><span><strong>= true and b</strong></span><span><strong><br>
+          </strong></span><span><strong>= b</strong></span><span><strong><br>
+          </strong></span></div>
+      <br>
+      Different languages provide different syntax supports for lambda expressions. For example, the lambda expression <span
+
+        class="courier">(x -&gt; x * 2)</span> can be written in JavaScript as follows:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span>function(<strong>x</strong>) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; return <strong>x * 2</strong>;</span><span><br>
+        </span><span>}<strong></strong>;</span><strong><br>
+        </strong></div>
+      <br>
+      The syntax seems a little verbose. Basically, we only concern that <span
+
+        class="courier">x</span> will be mapped to <span class="courier">x * 2</span>. Maybe we should not be too picky, at least, JavaScript provides first-class functions directly, and it's a dynamically-typed language. If we use a statically-typed language that doesn't support first-class functions, such as Java, what will happen? <br>
+      <br>
+      We've even seen that, in Java, an anonymous class is a similar thing to a lambda function. What should we do if we'd like to express <span
+
+        class="courier">(x -&gt; x * 2)</span>? First, a function with one parameter and a return value can be defined by an interface with a single abstract method. <br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span><strong>public interface Func&lt;P, R&gt; {</strong></span><span><strong><br>
+          </strong></span><span><strong>&nbsp;&nbsp;&nbsp; R apply(P p);</strong></span><span><strong><br>
+          </strong></span><span><strong>}</strong></span><strong><br>
+        </strong></div>
+      <br>
+      Then, we can implement <span class="courier">(x -&gt; x * 2)</span> with an anonymous class, it'll be as follows:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span>new Func&lt;Integer, Integer&gt;() {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; public Integer apply(Integer <strong>x</strong>) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>x * 2</strong>;</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; }</span><span><br>
+        </span><span>}</span><span>;</span><strong><br>
+        </strong></div>
+      <br>
+      Wow, what a big stuff! The syntax of the anonymous class is already an annoying thing. We even have to declare types because Java is a statically-typed language. If we want to do function composition, such as <span
+
+        class="courier">f(g(x))</span>, a method <span class="courier">compose</span> can be written as follows:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span>public static &lt;A, B, C&gt; Func&lt;A, C&gt; compose(final Func&lt;A, B&gt; <span
+
+            style="font-weight: bold;">f</span>, final Func&lt;B, C&gt; <span
+
+            style="font-weight: bold;">g</span>) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; return new Func&lt;A, C&gt;() {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public C apply(A, x) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <strong>g.apply(f.apply(x))</strong>;</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; };</span><span><br>
+        </span><span>}</span></div>
+      <br>
+      Can you figure out what you're concerning with? Basically, you only need <span
+
+        class="courier">g.apply(f.apply(x))</span>, but you'll be strayed from the syntax of the anonymous class. If you use the <span
+
+        class="courier">compose</span> method to do function composition <span
+
+        class="courier">g(f(x))</span>, where <span class="courier">f(x) = x + 2</span> and <span
+
+        class="courier">g(y) = y * 3</span>, you have to write the following code:<br>
+      <br>
+      <div class="courier" style="margin-left: 40px;"><span>compose(</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; new Func&lt;Integer, Integer&gt;() {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Integer apply(Integer <span
+
+            style="font-weight: bold;">x</span>) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <span
+
+            style="font-weight: bold;">x + 2</span>;</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; },</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; new Func&lt;Integer, Integer&gt;() {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Integer apply(Integer <span
+
+            style="font-weight: bold;">y</span>) {</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return <span
+
+            style="font-weight: bold;">y * 3</span>;</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</span><span><br>
+        </span><span>&nbsp;&nbsp;&nbsp; }</span><span><br>
+        </span><span>);</span></div>
+      <br>
+      As mentioned in <a href="UnderstandingLambdaClosure5.html">Understanding Lambda/Closure, Part 5</a>, the argument that Java doesn't need lambda/closure is true. The cost is writing more code. Sometimes, maybe most of the time, we'll hardly figure out what our code wants to express, even the simple function composition <span
+
+        class="courier">g(f(x))</span> mentioned in the above. With the upcoming lambda features in JDK8, can we solve these questions? That's what we'll look at the next article.<br>
+     <div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    
+        </article></main></div></body>
+<script src="../../Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,80 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="繼
+承的目的之一，在於延用父類別已有的程式碼，並重新定義不適合或增加新的定義，然後有些時候，並不適合用繼承來解決問題，尤其在單一繼承的語言中，例如在
+Scala中，一次只能繼承自一個類別，多重繼承...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="作為規範介面的特徵">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/TraitAsInterface.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="繼
+承的目的之一，在於延用父類別已有的程式碼，並重新定義不適合或增加新的定義，然後有些時候，並不適合用繼承來解決問題，尤其在單一繼承的語言中，例如在
+Scala中，一次只能繼承自一個類別，多重繼承...">
+
+
+    <title>作為規範介面的特徵</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="TraitAsInterface.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>作為規範介面的特徵</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            繼
+承的目的之一，在於延用父類別已有的程式碼，並重新定義不適合或增加新的定義，然後有些時候，並不適合用繼承來解決問題，尤其在單一繼承的語言中，例如在
+Scala中，一次只能繼承自一個類別，多重繼承在Scala中是不允許的，這使得「是一種」（is
+a）的關係在繼承時更為加強，例如，你繼承自鳥類，就必然「是一種」鳥。<br><br>舉個例子來說，鳥會飛，超人也會飛，但超人不會是一種鳥（如果你硬要說鳥人也是超人，那我投降），如果你只是為了飛行這個行為，讓超人去繼承鳥就不適當。<br><br>在Scala中，你可以定義<span style="font-weight: bold;">特徵（Trait）</span>，類別可以<span style="font-weight: bold;">繼承（extends）</span>特徵：<br><pre class="prettyprint"><code lang="scala"><span style="font-weight: bold;">trait Flyer {</span><br><span style="font-weight: bold;">    def fly(): Unit</span><br><span style="font-weight: bold;">}</span><br><br>class Bird <span style="font-weight: bold;">extends Flyer</span> {<br>    def fly() = println("使用翅膀")<br>}<br><br>class Superman <span style="font-weight: bold;">extends Flyer</span> {<br>    def fly() = println("使用超人披風")<br>}<br><br>def doFly(<span style="font-weight: bold;">flyer: Flyer</span>) {<br>    flyer.fly()<br>}<br><br>val bird = new Bird<br>val man = new Superman<br>doFly(bird)     // 顯示使用翅膀<br>doFly(man)      // 顯示使用超人披風</code></pre><br>你使用<span style="font-weight: bold;">trait</span>關鍵字來定義特徵，<span style="font-weight: bold;">特徵的作用之一，就是規範必須實作的介面</span>，也就是特徵中僅定義無任何實作程式碼的抽象方法，如果定義的是無實作的抽象方法，則繼承特徵的類別必須實作（如同Java的interface）。<br><br>若類別本身沒有繼承自別的父類別，則可以直接繼承特徵，也就是直接使用<span style="font-weight: bold;">extends</span>關鍵字。上例中，iamFly()函式可接受具Flyer特徵的物件進行多型操作。<br><br>類別亦可繼承自某個父類別，並<span style="font-weight: bold;">具有（with）</span>指定的特徵，例如：<br><pre class="prettyprint"><code lang="scala">trait Flyer {<br>    def fly(): Unit<br>}<br><br>class Animal<br><br>class Bird extends Animal <span style="font-weight: bold;">with</span> Flyer {<br>    def fly() = println("使用翅膀")<br>}<br><br>val bird = new Bird<br>bird.fly()            // 顯示使用翅膀</code></pre><br>一個類別可以具有多個特徵，例如：<br><pre class="prettyprint"><code lang="scala">trait Flyer {<br>    def fly(): Unit<br>}<br><br>trait Sailer {<br>    def cruise(): Unit<br>}<br><br>class Vehicle<br><br>class SeaPlane extends Vehicle<span style="font-weight: bold;"> with</span> Flyer <span style="font-weight: bold;">with</span> Sailer {<br>    def fly() = println("使用螺旋槳")<br>    def cruise() = println("航行")<br>}</code></pre><br>特徵可以繼承自另一個特徵，例如：<br><pre class="prettyprint"><code lang="scala">trait Sailer {<br>    def cruise(): Unit<br>}<br><br>trait Diver extends Sailer {<br>    def dive(): Unit<br>}<br><br>class Submarine extends Diver {<br>    def cruise() = println("航行")<br>    def dive() = println("潛水")<br>}</code></pre><br>如果要繼承多個特徵，則特徵之間亦使用with結合，例如：<br><pre class="prettyprint"><code lang="scala">trait A<br>trait B<br>trait C extends A with B</code></pre><br>
+
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

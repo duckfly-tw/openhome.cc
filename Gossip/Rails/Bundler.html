@@ -1,0 +1,190 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RubyGem 是包裝、散佈Ruby程式庫的標準方式，相關文件可以參考 RubyGems Guides 的說明，或是 簡介 plugins 中的第二個例子。在使用rails new建立新專案時，會執行...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="簡介 Bundler">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/Bundler.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="RubyGem 是包裝、散佈Ruby程式庫的標準方式，相關文件可以參考 RubyGems Guides 的說明，或是 簡介 plugins 中的第二個例子。在使用rails new建立新專案時，會執行...">
+
+
+    <title>簡介 Bundler</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Bundler.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>簡介 Bundler</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p><a href="http://rubygems.org/">RubyGem</a> 是包裝、散佈Ruby程式庫的標準方式，相關文件可以參考 <a
+
+          href="http://guides.rubygems.org/">RubyGems Guides</a> 的說明，或是 <a
+
+          href="Plugins.html">簡介 plugins</a> 中的第二個例子。在使用rails new建立新專案時，會執行bundle install安裝應用程式使用到的Gem，例如在 <a
+
+          href="Installation.html">安裝 Rails</a> 中看到的例子：</p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <div class="cmd">~\$ rails new hello<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; <br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; README<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; Rakefile<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; config.ru<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; .gitignore<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; Gemfile<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; app<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; app/assets/images/rails.png<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; app/assets/javascripts/application.js<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...略<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create&nbsp; vendor/plugins/.gitkeep<br>
+              <span style="font-weight: bold;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run&nbsp; bundle install</span><br>
+              Fetching source index for http://rubygems.org/<br>
+              Using rake (0.9.2.2) <br>
+              Using multi_json (1.0.4) <br>
+              Using activesupport (3.1.3) <br>
+              ...略<br>
+              Installing turn (0.8.2) <br>
+              Installing uglifier (1.1.0) <br>
+              Your bundle is complete! Use `bundle show [gemname]` to see where a bundled gem is installed.<br>
+              <br>
+            </div>
+      <p></p>
+      <p><a href="http://gembundler.com/">Bundler</a> 是管理Gem相依性的工具，執行bundle install時，會根據應用程式目錄中Gemfile的設定，檢查指定的Gem與相依套件是否已安裝，如果已安裝了Gem，就會顯示Using，如果是新下載安裝的Gem，就會顯示Installing，想知道已安裝的Gem裝到哪，可以使用bundle show gemname來得知。</p>
+      <p>預設Gem會安裝至Ruby安裝目錄中gems目錄中，例如在我的Ubuntu中是安裝至/usr/local/lib/ruby/gems/1.9.1/gem中，如果有設置BUNDLE_PATH環境變數，則會將Gem安裝至指定的目錄中。</p>
+      <p>bundle install會連至伺服器檢查Gem相依性，預設是連線http://rubygems.org，如果有缺少的Gem，會自動下載安裝，然而每次執行bundle install都要連線會耗費時間，如果你需要的Gem先前都下載安裝過了，在執行rails new建立新專案時，可以先略過連線：</p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <div class="cmd">~\$ rails new gossip --skip-bundle<br>
+            </div>
+      <p></p>
+      <a href="http://gembundler.com/"></a>
+      <p>之後執行bundle install時指定--local選項：</p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <p> </p>
+      <div class="cmd">~gossip\$ bundle install --local<br>
+            </div>
+      <p></p>
+      <a href="http://gembundler.com/"></a>
+      <p>加上--local選項就不會連至 Server，只會檢查本地端有無安裝，但如果有缺少的Gem，不會自動下載安裝。<br>
+      </p>
+      <p>要注意的是，在Rails 3中使用Gemfile來管理Gem，應用程式會使用的Gem，一定要在Gemfile中設定，不然即使本地端有安裝，應用程式也無法使用，一個新建的專案中，預設的Gemfile如下：</p>
+      <ul>
+        <li>Gemfile</li>
+      </ul>
+      <pre class="prettyprint"><code lang="ruby">source 'http://rubygems.org'
+
+gem 'rails', '3.1.3'
+
+# Bundle edge Rails instead:
+# gem 'rails',     :git =&gt; 'git://github.com/rails/rails.git'
+
+gem 'sqlite3'
+
+
+# Gems used only for assets and not required
+# in production environments by default.
+group :assets do
+  gem 'sass-rails',   '~&gt; 3.1.5'
+  gem 'coffee-rails', '~&gt; 3.1.1'
+  gem 'uglifier', '&gt;= 1.0.3'
+end
+
+gem 'jquery-rails'
+
+# To use ActiveModel has_secure_password
+# gem 'bcrypt-ruby', '~&gt; 3.0.0'
+
+# Use unicorn as the web server
+# gem 'unicorn'
+
+# Deploy with Capistrano
+# gem 'capistrano'
+
+# To use debugger
+# gem 'ruby-debug19', :require =&gt; 'ruby-debug'
+
+group :test do
+  # Pretty printed test output
+  gem 'turn', '0.8.2', :require =&gt; false
+end<br></code></pre>
+      <br>
+      第一行<span class="createlink courier">source</span>指定了連線的伺服器，<span class="courier">gem</span>後的第一個參數指定Gem的名稱，第二個參數指定版本，如果不指定版本，會安裝最新的穩定版本，Gem名稱與版本，可至<a
+
+        href="http://rubygems.org/">http://rubygems.org</a>搜尋確認，版本還可以指定大於等於某個版本，例如<span
+
+        class="courier">'&gt;=3.1.3'</span>，或是指定'~&gt;x.y.z'，x是主（major）版本號，通常在API發生重大變動時才會更改、y是次（minor）版本號，通常是在新增功能時修改，z是小（tiny）版本號，通常在修正bug後修改，這種指定表示版本號x.y不變，但可以大於等於z。<br>
+      <br>
+      預設Gem名稱就會是<span class="courier">require的名稱，如果不同，可以使用:require指定要require的名稱</span>。如果你的Gem不在預設gems目錄中，<span
+
+        class="courier">也可以使用:path指定，也可以使用:git指定Git作為來源。group</span>則可以指定特定環境載入執求的Gem，例如上例中<span
+
+        class="courier">:test</span>指定測試環境使用turn這個Gem。<br>
+      <br>
+      執行bundle install連線伺服器，會檢查Gem更新與相依性，必要時下載安裝，最後應用程式使用了哪些Gem與版本，會記錄在Gemfile.lock之中，如果Gemfile有變動，執行bundle install會查看Gemfile.lock，瞭解已安裝了哪些Gem，僅安裝更新的Gem，並將新使用到的Gem資訊記錄至Gemfile.lock<span
+
+        style="font-weight: bold;"></span><strong><span style="font-weight: bold;"></span></strong>。可以執行bundle update gemname指定更新Gem，如果僅執行bundle update，就會重新確認Gem更新與相依性，重新產生Gemfile.lock。<br>
+      <p> </p>
+      <p></p>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul>
+    
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

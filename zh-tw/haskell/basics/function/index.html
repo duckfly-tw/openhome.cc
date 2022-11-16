@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在〈初探變數與函式〉中談過如何定義函式，也談過 Haskell 鼓勵定義函式的型態，有留意到我的用語是「定義函式的型態」嗎？ 一級函式 函式會有型態？這表示 Haskell 的">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::無所不在的函式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/basics/function/" />
+    <meta property="og:description" content="在〈初探變數與函式〉中談過如何定義函式，也談過 Haskell 鼓勵定義函式的型態，有留意到我的用語是「定義函式的型態」嗎？ 一級函式 函式會有型態？這表示 Haskell 的" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::無所不在的函式" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/basics/function/" />
+    <meta name="twitter:description" content="在〈初探變數與函式〉中談過如何定義函式，也談過 Haskell 鼓勵定義函式的型態，有留意到我的用語是「定義函式的型態」嗎？ 一級函式 函式會有型態？這表示 Haskell 的" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443680" type="image/x-icon">
+    <title> Haskell  :: 無所不在的函式</title>
+    <link href="../../../css/nucleus.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443680.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443680"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/basics/function/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item parent"><a href="../index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item active"><a href="index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item"><a href="../../advanced-typeclass/index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../../advanced-typeclass/functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../../advanced-typeclass/applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../../advanced-typeclass/monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../../advanced-typeclass/do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../../advanced-typeclass/composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">起步走</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">無所不在的函式</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#一級函式">一級函式</a></li>
+    <li><a href="index.html#最低優先權的--函數">最低優先權的 $ 函數</a></li>
+    <li><a href="index.html#中序形式">中序形式</a></li>
+    <li><a href="index.html#多參數函式">多參數函式</a></li>
+    <li><a href="index.html#部份套用">部份套用</a></li>
+    <li><a href="index.html#高階函式">高階函式</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/first-class-function/">first-class function</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/high-order-function/">high-order function</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/point-free/">point free</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/infix/">infix</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>無所不在的函式</h1>
+
+ <i class="space fa fa-calendar"> January 30, 2022</i> 
+<p>在〈<a href="../variable-function.html">初探變數與函式</a>〉中談過如何定義函式，也談過 Haskell 鼓勵定義函式的型態，有留意到我的用語是「定義函式的型態」嗎？</p>
+<h2 id="一級函式">一級函式</h2>
+<p>函式會有型態？這表示 Haskell 的函式是個值？是的！或許該拜 JavaScript 熱潮之賜，函式作為一級（First-class）值的概念，不少開發者都很熟悉了，也就是說，跟 <code>1</code>、<code>3.14</code>、<code>&quot;Justin&quot;</code> 這些值一樣，函式也可以當作值，指定給另一個變數或作為引數傳遞，例如，將 <code>doubleMe</code> 函式指定給 <code>doubleThis</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> x <span style="color:#f92672">=</span> x <span style="color:#f92672">+</span> x
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> doubleThis <span style="color:#f92672">=</span> doubleMe
+</span></span><span style="display:flex;"><span>    putStrLn (show (doubleMe <span style="color:#ae81ff">3.14</span>))   <span style="color:#75715e">-- 顯示 6.28</span>
+</span></span><span style="display:flex;"><span>    putStrLn (show (doubleThis <span style="color:#ae81ff">3.14</span>)) <span style="color:#75715e">-- 顯示 6.28</span>
+</span></span></code></pre></div><p>這邊也可以看到，若要撰寫註解，在 Haskell 可使用 <code>--</code>。程式中呼叫了 <code>doubleMe</code> 或 <code>doubleThis</code> 的作用是一樣的；<code>putStrLn</code> 只接受 <code>String</code>，如果你直接將 <code>Num</code> 傳給 <code>putStrLn</code> 會發生編譯錯誤。<code>show</code> 函式的型態是 <code>show :: Show a =&gt; a -&gt; String</code>，也就是如果傳入具有 <code>Show</code> 行為的值，它會傳回 <code>String</code>，因此，在這邊將 <code>doubleMe 3.14</code> 的結果傳給 <code>show</code>，然後才能用 <code>putStrLn</code> 顯示結果。</p>
+<h2 id="最低優先權的--函數">最低優先權的 $ 函數</h2>
+<p>上頭看到了 <code>putStrLn (show (doubleMe 3.14))</code> 的寫法，括號可以用來定義運算式的優先順序，如果直接寫 <code>putStrLn show doubleMe 3.14</code> 的話會有問題，Haskell 會從左往右執行，<code>putStrLn</code> 看到 <code>show</code>，會將 <code>show</code> 這個函式當作引數，不過，<code>show</code> 並不接受函式作為引數，因此會編譯錯誤。</p>
+<p>只是，像這樣使用括號，形成了巢狀的結果並不好閱讀，你可以試著使用 <code>$</code> 函式來改善可讀性。<code>$</code> 是個接受兩個引數的函式，第一個引數是個單參數函式，第二個引數可以是任意值，<code>$</code> 就像 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 這些函式一樣是中序形式，表面上看來，就像是用右邊的值來呼叫左邊的函式。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; putStrLn $ &#34;Justin&#34;
+</span></span><span style="display:flex;"><span>Justin
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>用右邊的值來呼叫左邊的函式？這算什麼？還不如直接寫 <code>putStrLn &quot;Justin&quot;</code> 就好了！中序形式的函式是作為運算子使用，既然是中序，就會有結合律與優先權的問題，例如，<code>*</code> 的優先權高於 <code>+</code>，因此 <code>1 + 2 * 3</code> 結果是 <code>7</code> 而不是 <code>9</code>。</p>
+<p>撰寫 <code>putStrLn $ show (1 + 2)</code> 時，<code>$</code> 左右會是其引數，然而 <code>$</code> 是右結合，優先權為 0，因為執行順序最低，不會先取 <code>putStrLn</code> 與 <code>show</code> 來執行，而是先處理 <code>show (1 + 2)</code>。</p>
+<p>如果不想寫 <code>putStrLn $ show (1 + 2)</code>，進一步地，可以寫 <code>putStr $ show $ 1 + 2</code>，因為 <code>$</code> 是右結合，<code>1 + 2</code> 會先處理，然後是 <code>show 3</code>，結果再丟給 <code>putStrLn</code>，<code>putStr $ show $ 1 + 2</code> 看來好寫、好讀一些，就結果而言，執行順序變成從右往左了。</p>
+<p>因此，<code>putStrLn (show (doubleMe 3.14))</code>，可以先在最外層右邊括號旁放上一個 <code>$</code>、拿掉括號變成 <code>putStrLn $ show (doubleMe 3.14)</code>，再來同樣在右邊括號旁放上一個 <code>$</code>、拿掉括號變成 <code>putStrLn $ show $ doubleMe 3.14</code>，最後，上頭的 <code>main</code> 可以改為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">doubleMe</span> x <span style="color:#f92672">=</span> x <span style="color:#f92672">+</span> x
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> doubleThis <span style="color:#f92672">=</span> doubleMe
+</span></span><span style="display:flex;"><span>    putStrLn <span style="color:#f92672">$</span> show <span style="color:#f92672">$</span> doubleMe <span style="color:#ae81ff">3.14</span>   <span style="color:#75715e">-- 顯示 6.28</span>
+</span></span><span style="display:flex;"><span>    putStrLn <span style="color:#f92672">$</span> show <span style="color:#f92672">$</span> doubleThis <span style="color:#ae81ff">3.14</span> <span style="color:#75715e">-- 顯示 6.28</span>
+</span></span></code></pre></div><p>不過，也不是用了 <code>$</code> 可讀性就會變好，<strong>而要要適當地搭配 <code>$</code> 與括號，找到可讀性的平衡點</strong>。</p>
+<h2 id="中序形式">中序形式</h2>
+<p>之前一直談到，Haskell 的 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 都是函式，都是接受兩個引數，可以使用中序形式呼叫的函式，自定義的函式也可以使用中序形式呼叫，只要用 ` 來括住函式，例如定義一個兩數相加的函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; plus a b = a + b
+</span></span><span style="display:flex;"><span>ghci&gt; plus 10 5
+</span></span><span style="display:flex;"><span>15
+</span></span><span style="display:flex;"><span>ghci&gt; 10 `plus` 5
+</span></span><span style="display:flex;"><span>15
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>如果在自定義函式時，也想使用中序形式定義，若函式名稱是字母組成，可以使用 ` 來括住函式，呼叫時也是使用 ` 來括住函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; a `plus` b = a + b
+</span></span><span style="display:flex;"><span>ghci&gt; 10 `plus` 20
+</span></span><span style="display:flex;"><span>30
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>如果是函式名稱是由符號組成，定義函式或呼叫時，可以直接使用中序形式，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; a % b = a `mod` b
+</span></span><span style="display:flex;"><span>ghci&gt; 10 % 3
+</span></span><span style="display:flex;"><span>1
+</span></span><span style="display:flex;"><span>ghci&gt; :info %
+</span></span><span style="display:flex;"><span>(%) :: Integral a =&gt; a -&gt; a -&gt; a        -- Defined at &lt;interactive&gt;:19:3
+</span></span><span style="display:flex;"><span>infixl 9 %
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>由符號組成的中序函式，是用來定義中序運算子，既然如此，就會有結合律的問題，若沒有指定，預設會是左結合，優先權為 9，如果需要改變優先權，可以使用 <code>infixl</code>、<code>infix</code>、<code>infixr</code>，分別用來設定左結合、無結合、右結合優先權。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#66d9ef">infixr</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">@</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">x</span> <span style="color:#f92672">@</span> <span style="color:#66d9ef">[]</span> <span style="color:#f92672">=</span> x<span style="color:#66d9ef">:[]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">x</span> <span style="color:#f92672">@</span> xs <span style="color:#f92672">=</span> x<span style="color:#66d9ef">:</span>xs
+</span></span></code></pre></div><p>如果將 <code>infixr 0 @</code> 拿掉，預設會是左結合，就必須使用括號來表明順序，例如 <code>3 (@ 2 @ (1 @ []))</code>，若有設定 <code>infixr 0 @</code> 表示右結合，就可以直接寫 <code>3 @ 2 @ 1 @ []</code>。</p>
+<h2 id="多參數函式">多參數函式</h2>
+<p>方才定義的 <code>plus</code> 函式省略了函式宣告，Haskell 會試著推斷出合適的型態，它是什麼形態？</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t plus
+</span></span><span style="display:flex;"><span>plus :: Num a =&gt; a -&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>可以看到 <code>plus</code> 的形態是 <code>Num a =&gt; a -&gt; a -&gt; a</code>，嗯？<code>a -&gt; a -&gt; a</code> 是什麼？</p>
+<p>稍後才會談到，Haskell 的函式可以部份套用（partially applied），現在可以先知道的是，最後一個是傳回型態，之前的就是參數型態了，因此 <code>Num a =&gt; a -&gt; a -&gt; a</code> 表示會有兩個參數與一個傳回值。而且都是具 <code>Num</code> 行為的型態。</p>
+<p>根據以上說明，可以來檢驗一下 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 各函式的型態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t (+)
+</span></span><span style="display:flex;"><span>(+) :: Num a =&gt; a -&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; :t (-)
+</span></span><span style="display:flex;"><span>(-) :: Num a =&gt; a -&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; :t (*)
+</span></span><span style="display:flex;"><span>(*) :: Num a =&gt; a -&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; :t (/)
+</span></span><span style="display:flex;"><span>(/) :: Fractional a =&gt; a -&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>對於自訂定義的函式，可以使用 ` 轉為中序形式，相對地，對於 Haskell 既有的中序形式函式，可以使用 <code>()</code> 取得，這也用來將中序形式轉為前序形式。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (+) 1 2
+</span></span><span style="display:flex;"><span>3
+</span></span><span style="display:flex;"><span>ghci&gt; (-) 4 4
+</span></span><span style="display:flex;"><span>0
+</span></span><span style="display:flex;"><span>ghci&gt; (*) 5 6
+</span></span><span style="display:flex;"><span>30
+</span></span><span style="display:flex;"><span>ghci&gt; (/) 7 8
+</span></span><span style="display:flex;"><span>0.875
+</span></span></code></pre></div><h2 id="部份套用">部份套用</h2>
+<p>多參數函式其實是由多個單參數函式組成，這到底是什麼意思？舉例來說，如果如下定義了函式：</p>
+<pre tabindex="0"><code>plus :: Num a =&gt; a -&gt; a -&gt; a
+plus x y = x + y
+</code></pre><p>使用 <code>plus 10 20</code> 呼叫結果會是 <code>30</code>，使用 <code>(add 10) 20</code> 的方式呼叫，結果也是 <code>30</code>，幹嘛多此一舉地使用括號？你也可以如下方式來呼叫：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let plus10 = (plus 10)
+</span></span><span style="display:flex;"><span>ghci&gt; plus10 20
+</span></span><span style="display:flex;"><span>30
+</span></span><span style="display:flex;"><span>ghci&gt; :t plus10
+</span></span><span style="display:flex;"><span>plus10 :: Num a =&gt; a -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>範例中 <code>(plus 10)</code> 看似沒有提供 <code>plus</code> 完整的引數，然而有傳回東西，你令 <code>plus10</code> 為 <code>(plus 10)</code> 的傳回值，這個傳回值顯然是個函式，因為可以使用 <code>plus10 20</code> 來呼叫，使用 <code>:t</code> 來檢驗 <code>plus10</code>，確實是個可接受 <code>Num</code> 並傳回 <code>Num</code> 的函式。</p>
+<p>這種沒有對多參數函式套用全部引數而取回的函式，稱為部份套用函式，對於 <code>plus</code> 而言，可以將型態 <code>a -&gt; a -&gt; a</code> 看成或寫成是 <code>a -&gt; (a -&gt; a)</code>，也就是接受一個引數，然後傳回一個 <code>a -&gt; a</code> 的函式，這也就是為何使用 <code>:t</code> 檢驗 <code>plus10</code> 時，結果會是 <code>Num a =&gt; a -&gt; a</code> 的原因，<code>plus10</code> 的效果其實相當於：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">plus10</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Num</span> a <span style="color:#f92672">=&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">plus10</span> y <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> y
+</span></span></code></pre></div>
+<div class="notices info">
+    <div class="label"></div><p>有些語言的函式，需要特定的語法或程式庫處理，才能將多參數函式轉換為多個單參數函式組合而成的函式，這類轉換被稱為 currying。</p>
+
+</div>
+<p>Haskell 的函式是由多個單參數函式組合而成，因此可以隨時依需求從既有函式產生新函式，例如，因為 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 等都是函式，想要有個 <code>plus10</code>，只要如下進行就可以了，因為 <code>(+ 10)</code> 傳回一個函式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let plus10 = (+ 10)
+</span></span><span style="display:flex;"><span>ghci&gt; plus10 20
+</span></span><span style="display:flex;"><span>30
+</span></span></code></pre></div><p>對於 <code>+</code>、<code>*</code>、<code>/</code> 等運算，都可以使用 <code>(+ 10)</code> 這樣的方式來得到新函式，<code>-</code> 是個例外，因為 <code>(- 10)</code> 會被 Haskell 當成負 <code>10</code>，可以使用 <code>((-) 10)</code>，或者 <code>subtract 10</code> 得到一個減 <code>10</code> 的函式。</p>
+<h2 id="高階函式">高階函式</h2>
+<p>如果函式可以接受函式作為引數，或者是傳回函式，或者兩者皆有，這種函式被稱為<strong>高階函式（High-order function）</strong>，因此，任何 Haskell 任何多參數函式，都是高階函式了，在其他語言中層級高一層的高階函式，在 Haskell 其實很普通。</p>
+<p>不過，高階函式真正重要的是其應用方式，例如，有些執行流程經常重複，因而將共用流程抽取出來，不能共用的部份，可以指定傳入函式。</p>
+<p>舉例而言，想對一個數字清單，過濾出超過 <code>3</code> 的清單，你會走訪各元素，然後對各數字比對是否大於 <code>3</code>，是的話收集到新的清單中，在另一個需求中，也會想對一個數字清單，比對出是否小於 <code>5</code>，你會走訪各元素，然後對各數字比對是否小於 <code>5</code>，是的話收集到新的清單中 &hellip;</p>
+<p>單是在上頭的描述中，就會察覺得重複的文字描述了，實際上，我也只是複製然後改改幾個字，就完成第二個需求描述，也就是只將「大於 <code>3</code>」改為「小於 <code>5</code>」罷了，如果這個運算是可以傳遞的那麼「你也會想對一個數字清單，比對出是否 ???，你會走訪各元素，然後對各數字比對是否 ???，是的話收集到新的清單中 」就可以封裝為一個函式了。</p>
+<p>在 Haskell 中，已經有這個函式，叫做 <code>filter</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; filter (&gt; 3) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
+</span></span><span style="display:flex;"><span>[4,5,6,7,8,9,10]
+</span></span><span style="display:flex;"><span>ghci&gt; filter (&lt; 5) [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
+</span></span><span style="display:flex;"><span>[1,2,3,4]
+</span></span><span style="display:flex;"><span>ghci&gt; :t filter
+</span></span><span style="display:flex;"><span>filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>&gt;</code>、<code>&lt;</code> 等也都是函式，<code>(&gt; 3)</code> 建立了一個函式，<code>(&lt; 5)</code> 也建立了一個函式，<code>filter</code> 的第二個參數接受函式，第三個函式接受一個清單，Haskell 中可以使用 <code>[]</code> 來建立清單，<code>filter</code> 封裝了走訪各元素的流程，這樣你就可以只指定比對條件。</p>
+<p><code>filter</code> 是個高階函式，<code>(a -&gt; Bool)</code> 是第一個參數接受的型態，也就是一個函式，第二個參數接受 <code>[a]</code> 清單，傳回值也是 <code>[a]</code> 清單。</p>
+<p>如果只是想要一個可以比對大於 <code>3</code> 的函式，那該怎麼辦呢？可以如下定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">biggerThanThree</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Ord</span> a, <span style="color:#66d9ef">Num</span> a) <span style="color:#f92672">=&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">biggerThanThree</span> xs <span style="color:#f92672">=</span> filter (<span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">3</span>) xs
+</span></span></code></pre></div><p>在函式的形態定義部份，<code>[a]</code> 表示一個清單，元素都要是 <code>a</code> 形態，<code>a</code> 必須具備 <code>Num</code> 的行為，而且 <code>a</code> 也要有 <code>Ord</code> 的行為，因為 <code>Ord</code> 定義了順序比較的行為，為什麼需要這個呢？因為 <code>&gt;</code> 就是要比較順序！</p>
+<p>初學 Haskell 時，如果不知道怎麼定義函式的型態，可以試著先不用定義：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">biggerThanThree</span> xs <span style="color:#f92672">=</span> filter (<span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">3</span>) xs
+</span></span></code></pre></div><p>若以上撰寫在 util.hs，在 <code>ghci</code> 載入模組，使用 <code>:t</code> 測試一下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :l test
+</span></span><span style="display:flex;"><span>[1 of 1] Compiling Main             ( test.hs, interpreted )
+</span></span><span style="display:flex;"><span>Ok, one module loaded.
+</span></span><span style="display:flex;"><span>ghci&gt; :t biggerThanThree
+</span></span><span style="display:flex;"><span>biggerThanThree :: (Ord a, Num a) =&gt; [a] -&gt; [a]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>可以透過這個方式，使用 Haskell 推斷出的形態作為你定義函式型態時的參考。</p>
+<p>實際上，此時 <code>xs</code> 可以省略，直接令 <code>biggerThanThree</code> 為 <code>filter (&gt; 3)</code> 就可以了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">biggerThanThree</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Ord</span> a, <span style="color:#66d9ef">Num</span> a) <span style="color:#f92672">=&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">biggerThanThree</span> <span style="color:#f92672">=</span> filter (<span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">3</span>)
+</span></span></code></pre></div><p>這稱為 <strong>Point free</strong> 或 <strong>Pointless</strong> 風格，這類風格想強調的，是在面對這類需求時，可以思考如何組合既有函式產生新函式來滿足需求。</p>
+<p>舉例來說，Haskell 中有個 <code>map</code>，如果有個清單 <code>[10, 20, 30, 40, 50]</code>，想對每個都加上 <code>5</code> 後傳回新清單，那就 <code>map (+ 5) [10, 20, 30, 40, 50]</code>，傳回結果就是 <code>[15, 25, 35, 45, 55]</code>；如果只是要個可以對清單全部加 <code>5</code> 的函式呢？那就是組合 <code>map</code> 與 <code>(+ 5)</code> 了，<code>map (+ 5)</code> 就是你想要的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let plusFiveTo = map (+ 5) 
+</span></span><span style="display:flex;"><span>ghci&gt; plusFiveTo [1, 2, 3, 4, 5]
+</span></span><span style="display:flex;"><span>[6,7,8,9,10]
+</span></span><span style="display:flex;"><span>ghci&gt; plusFiveTo [10, 20, 30, 40, 50]
+</span></span><span style="display:flex;"><span>[15,25,35,45,55]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div>
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/basics/function/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/basics/function/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e7%84%a1%e6%89%80%e4%b8%8d%e5%9c%a8%e7%9a%84%e5%87%bd%e5%bc%8f&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fbasics%2ffunction%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../variable-function.html" title="初探變數與函式"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../list/index.html" title="初探 list 操作"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443680"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443680"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443680"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443680"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443680"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443680"></script>
+  </body>
+</html>

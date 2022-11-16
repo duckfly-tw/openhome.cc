@@ -1,0 +1,319 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="與 Session 相關的傾聽器有五個：HttpSessionListener、HttpSessionAttributeListener、HttpSessionBindingListener、Http...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Session 事件、傾聽器">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/SessionEventListener.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="與 Session 相關的傾聽器有五個：HttpSessionListener、HttpSessionAttributeListener、HttpSessionBindingListener、Http...">
+
+    <title>Session 事件、傾聽器</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SessionEventListener.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Session 事件、傾聽器</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>與 Session 相關的傾聽器有五個：<code>HttpSessionListener</code>、<code>HttpSessionAttributeListener</code>、<code>HttpSessionBindingListener</code>、<code>HttpSessionActivationListener</code> 與 Servlet 3.1 新增的 <code>HttpSessionIdListener</code>。</p>
+<p>如果想要在 <code>HttpSession</code> 物件建立或結束時，作些相對應動作，則可以實作 <code>HttpSessionListener</code>。</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet.http;
+
+import java.util.EventListener;
+
+public interface HttpSessionListener extends EventListener {
+    public default void sessionCreated(HttpSessionEvent se) {}
+    public default void sessionDestroyed(HttpSessionEvent se) {}
+}
+</code></pre>
+<p>在 <code>HttpSession</code> 物件初始化或結束前，會分別呼叫 <code>sessionCreated()</code> 與 <code>sessionDestroyed()</code> 方法，你可以透過傳入的 <code>HttpSessionEvent</code> 來取得 <code>HttpSession</code>，以針對會話物件作出相對應的建立或結束處理動作，Servlet 4.0 中，兩個方法都定義為預設方法，因此只要對感興趣的方法實作就可以了。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+...
+@WebListener()
+public class SomeSessionListener implements HttpSessionListener {
+
+    @Override
+    public void sessionCreated(HttpSessionEvent se) {
+        // ...
+    }
+
+    @Override
+    public void sessionDestroyed(HttpSessionEvent se) {
+        // ...
+    }
+}
+</code></pre>
+<p>如果在實作 <code>HttpSessionListener</code> 的類別上標註 <code>@WebListener</code>，則容器在部署 應用程式時，會實例化該類別並註冊給應用程式。另一個方式是在 web.xml 如下設定：</p>
+<pre class="prettyprint"><code lang="java">&lt;web-app...&gt;
+    ...
+    &lt;listener&gt;
+        &lt;listener-class&gt;cc.openhome.SomeSessionListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+   ...
+&lt;web-app&gt;
+</code></pre>
+<p>來寫個 <code>HttpSessionListener</code> 的應用實例。假設你有個應用程式在使用者登入後會使用 <code>HttpSession</code> 物件來進行會話管理。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet(
+    urlPatterns = {"/login"},
+    initParams = {
+        @WebInitParam(name = "SUCCESS", value = "user"),
+        @WebInitParam(name = "ERROR", value = "login.html")
+    }
+)
+public class Login extends HttpServlet {
+    private String SUCCESS_VIEW;
+    private String ERROR_VIEW;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        SUCCESS_VIEW = this.getInitParameter("SUCCESS");
+        ERROR_VIEW = this.getInitParameter("ERROR");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                      throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String passwd = request.getParameter("passwd");
+        if("caterpillar".equals(name) &amp;&amp; "123456".equals(passwd)) {
+            request.changeSessionId();
+            request.getSession().setAttribute("login", name);
+            response.sendRedirect(SUCCESS_VIEW);
+        }
+        else {
+            response.sendRedirect(ERROR_VIEW);
+        }
+    }
+} 
+</code></pre>
+<p>這個 Servlet 在使用者驗證通過後，會取得 <code>HttpSession</code> 實例並設定屬性。如果你想要應用程式中，加上顯示目前已登入線上人數的功能，則可以實作 <code>HttpSessionListener</code> 介面。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.annotation.WebListener;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+
+@WebListener()
+public class LoginSessionListener implements HttpSessionListener {
+    private static int count;
+
+    public static int getCount() {
+        return count;
+    }
+
+    @Override
+    public void sessionCreated(HttpSessionEvent se) {
+        LoginSessionListener.count++;
+    }
+
+    @Override
+    public void sessionDestroyed(HttpSessionEvent se) {
+        LoginSessionListener.count--;
+    }
+}
+</code></pre>
+<p><code>LoginSessionListener</code> 中有個靜態（<code>static</code>）變數，在每一次 <code>HttpSession</code> 建立時會遞增，而銷毀 <code>HttpSession</code> 時會遞減，也就是藉由統計 <code>HttpSession</code> 的實例，來作登入使用者的計數功能。你只要在想要顯示線上人數的頁面，使用 <code>LoginSessionListner.getCount()</code>，就可以取得目前的線上人數並顯示。</p>
+<p>與會話物件相關 的傾聽器還有 <code>HttpSessionAttributeListener</code>，顧名思義，當在會話物件中加入屬性、移除屬性或替換屬性時，相對應的 <code>attributeAdded()</code>、<code>attributeRemoved()</code> 與 <code>attributeReplaced()</code> 方法就會被呼叫，並分別傳入 <code>HttpSessionBindingEvent</code>，在 Servlet 4.0 中，三個方法都被標示 <code>default</code>。</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet.http;
+
+import java.util.EventListener;
+
+public interface HttpSessionAttributeListener extends EventListener {
+    public default void attributeAdded(HttpSessionBindingEvent se) {}
+    public default void attributeRemoved(HttpSessionBindingEvent se) {}
+    public default void attributeReplaced(HttpSessionBindingEvent se) {}
+}
+</code></pre>
+<p><code>HttpSessionBindingEvent</code> 有個 <code>getName()</code> 方法，可以取得屬性設定或移除時指定的名稱，而 <code>getValue()</code> 可以取得屬性設定或移除時的物件。</p>
+<p>如果希望容器在部署應用程式時，實例化實作 <code>HttpSessionAttributeListener</code> 的類別並註冊給應用程式，則同樣也是在實作類別上標註 <code>@WebListener</code>：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+...
+@WebListener()
+public class HttpSessionAttrListener implements HttpSessionAttributeListener {
+    @Override
+    public void attributeAdded(HttpSessionBindingEvent event) {
+        //...
+    }
+
+    @Override
+    public void attributeRemoved(HttpSessionBindingEvent event) {
+        //...
+    }
+
+    @Override
+    public void attributeReplaced(HttpSessionBindingEvent event) {
+        //...
+    }
+}
+</code></pre>
+<p>另一個方式是在 web.xml 如下設定：</p>
+<pre class="prettyprint"><code lang="java">&lt;web-app...&gt;
+    ...
+    &lt;listener&gt;
+        &lt;listener-class&gt;cc.openhome.HttpSessionAttrListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+   ...
+&lt;web-app&gt;
+</code></pre>
+<p>如果有個即將加入 <code>HttpSession</code> 的屬性物件，希望在設定給 <code>HttpSession</code> 成為屬性或從 <code>HttpSession</code> 中移除時，可以收到 <code>HttpSession</code> 的通知，則可以讓該物件實作 <code>HttpSessionBindingListener</code> 介面。</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet.http;
+
+import java.util.EventListener;
+
+public interface HttpSessionBindingListener extends EventListener {
+    public default void valueBound(HttpSessionBindingEvent event) {}
+    public default void valueUnbound(HttpSessionBindingEvent event) {}
+}
+</code></pre>
+<p>這個介面是讓即將加入 <code>HttpSession</code> 的屬性物件實作，不需註釋或在 web.xml 中設定，當屬性物件被加入 <code>HttpSession</code> 或從中移除時，就會呼叫對應的 <code>valueBound()</code> 與 <code>valueUnbound()</code> 方法，並傳入 <code>HttpSessionBindingEvent</code> 物件，可以透過該物件的 <code>getSession()</code> 取得 <code>HttpSession</code> 物件。</p>
+<p>來介紹這個介面使用的一個範例。同樣地，你有個登入程式如下：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet(
+    urlPatterns = {"/login"},
+    initParams = {
+        @WebInitParam(name = "SUCCESS", value = "user"),
+        @WebInitParam(name = "ERROR", value = "login.html")
+    }
+)
+public class Login extends HttpServlet {
+    private String SUCCESS_VIEW;
+    private String ERROR_VIEW;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        SUCCESS_VIEW = this.getInitParameter("SUCCESS");
+        ERROR_VIEW = this.getInitParameter("ERROR");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                      throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String passwd = request.getParameter("passwd");
+        if("caterpillar".equals(name) &amp;&amp; "123456".equals(passwd)) {
+            request.changeSessionId();
+            request.getSession().setAttribute("user", new User(name));
+            response.sendRedirect(SUCCESS_VIEW);
+        }
+        else {
+            response.sendRedirect(ERROR_VIEW);
+        }
+    }
+} 
+</code></pre>
+<p>當使用者輸入正確名稱與密碼時，首先會以使用者名稱來建立 <code>User</code> 實例，而後加入 <code>HttpSession</code> 中作為屬性。你希望 <code>User</code> 實例被加入成為 <code>HttpSession</code> 屬性時，可以自動從資料庫中載入使用者的其他資料，像是位址、照片等，並在日誌中記錄使用者登入的訊息，而當 <code>HttpSession</code> 失效，或者因使用者登出而 <code>User</code> 實例從 <code>HttpSession</code> 中移除時，在日誌中記錄使用者登出的訊息。你可以讓 <code>User</code> 類別實作 <code>HttpSessionBindingListener</code> 介面。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+...
+public class User implements HttpSessionBindingListener {
+    private String name;
+    private String other;
+
+    public User(String name) {
+        this.name = name;
+    }
+
+    public void valueBound(HttpSessionBindingEvent event) {
+        this.other = name + ": query data from database...";
+        Logger.getLogger(User.class.getName())
+                        .log(Level.INFO, this.name + " login..", event);
+    }
+    public void valueUnbound(HttpSessionBindingEvent event) {
+        Logger.getLogger(User.class.getName())
+                        .log(Level.INFO, this.name + "logout..", event);
+    }
+    // 以下為一些Getter、Setter...
+}
+</code></pre>
+<p>在 <code>valueBound()</code> 中，可以實作查詢資料庫的功能（也許是委託給一個負責查詢資料庫的服務物件），並補齊 <code>User</code> 物件中的相關資料，並且可以在 日誌中記錄使用者登入訊息。當 <code>HttpSession</code> 失效前會先移除屬性，或者你主動移除屬性時，則 <code>valueUnbound()</code> 方法會被呼叫，此時在日誌中留下使用者登出的訊息。</p>
+<p><code>HttpSessionActivationListener</code> 則定義了兩個方法 <code>sessionWillPassivate()</code> 與 <code>sessionDidActivate()</code>。</p>
+<pre class="prettyprint"><code lang="java">package javax.servlet.http;
+
+import java.util.EventListener;
+
+public interface HttpSessionActivationListener extends EventListener {
+    public default void sessionWillPassivate(HttpSessionEvent se) {}
+    public default void sessionDidActivate(HttpSessionEvent se) {}
+}
+</code></pre>
+<p>絕大部份的情況下，幾乎不會使用到 <code>HttpSessionActivationListener</code>。在使用到分散式環境，應用程式的物件可能分散在多個 JVM 之中。當 <code>HttpSession</code> 要從一個 JVM 遷移至另一個 JVM 時，必須先在原本的 JVM 上序列化（Serialize）所有的屬性物件，在這之前若你的屬性物件有實作 <code>HttpSessionActivationListener</code>，就會呼叫 <code>sessionWillPassivate()</code> 方法，而 <code>HttpSession</code> 遷移至另一個 JVM 後，就會對所有屬性物件作反序列化，此時會呼叫 <code>sessionDidActivate()</code> 方法。</p>
+<p>如果知道如何作物件的序列化，應該也知道，要可以序列化的物件必須實作 <code>Serializable</code> 介面。如果你的 <code>HttpSession</code> 屬性物件中，有些類別成員無法作序列化，則可以在 <code>sessionWillPassivate()</code> 方法中作些替代處理來保存該成員狀態，而在 <code>sessionDidActivate()</code> 方法中作些恢復該成員狀態的動作。</p>
+<p>Servlet 3.1 新增 <code>HttpSessionIdListener</code>，只有一個方法 <code>void sessionIdChanged(HttpSessionEvent event, String oldSessionId)</code> 需要實作，實作類別可以標註 <code>@WebListener</code>，或者是在 web.xml 中設定，在 <code>HttpSession</code> 的 Session ID 發生變化時，會呼叫 <code>sessionIdChanged()</code> 方法。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

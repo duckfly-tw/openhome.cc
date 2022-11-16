@@ -1,0 +1,85 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="特徵（Trait）可以讓你定義沒有實作的抽象方法，也可以讓你定義有實作的具體方法，事實上，抽象類別可以作的事，特徵幾乎都可以作（特徵也可以定義資料成員以持有狀態），你可能會想，特徵跟抽象類別有何不同？...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="堆疊修飾（Stackable modification）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Scala/StackableModification.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="特徵（Trait）可以讓你定義沒有實作的抽象方法，也可以讓你定義有實作的具體方法，事實上，抽象類別可以作的事，特徵幾乎都可以作（特徵也可以定義資料成員以持有狀態），你可能會想，特徵跟抽象類別有何不同？...">
+
+
+    <title>堆疊修飾（Stackable modification）</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="StackableModification.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/Scala/">回 Scala 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>堆疊修飾（Stackable modification）</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            特徵（Trait）可以讓你定義沒有實作的抽象方法，也可以讓你定義有實作的具體方法，事實上，抽象類別可以作的事，特徵幾乎都可以作（特徵也可以定義資料成員以持有狀態），你可能會想，特徵跟抽象類別有何不同？<br><br>就語法上來看，除了<span style="font-weight: bold;">類別可以繼承或具有多個特徵</span>，但只能繼承一個抽象類別之外，特徵與抽象類別間的不同點，就是<span style="font-weight: bold;">特徵不能定義主要建構式的參數</span>，還有就是<span style="font-weight: bold;">特徵中定義方法時，super呼叫是動態綁定的</span>（類別中的super是靜態綁定的，也就是你在類別中寫下super.somMethod()時，你知道所呼叫的是哪個類別的方法）。<br><br>特
+徵中定義方法時，super呼叫是動態綁定的，也就是當你在特徵的方法中寫下super.someMethod()時，你並不知道真正呼叫的是哪個類別的
+方法，只有在某個類別具有該特徵時，才能決定super.someMethod()所呼叫的是哪個類別的方法，也由於這個特性，在類別具有這類特徵時，得以在呼
+叫super.someMethod()方法前後作些處理，執行所謂<span style="font-weight: bold;">堆疊修飾（Stackable modification）</span>的功能。<br><br>舉個例子來說，你打算設計一個點餐程式，目前主餐有炸雞、漢堡，你打算讓點了主餐的客入選擇附餐時可以有優惠，如果您使用繼承的方式來達到這個目的，例如：<br><div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">class FriedChicken {<br>&nbsp; &nbsp; def content = "不黑心炸雞"<br>&nbsp; &nbsp; def price = 49.0<br>}<br><br>class SideDishOne extends FriedChicken {<br>&nbsp; &nbsp; override def content = super.content + " | 可樂 | 薯條"<br>&nbsp; &nbsp; override def price = super.price + 30.0<br>}</span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br></div><br>這個需求直接使用繼承並不適當，你繼承父類別之後，只是取得父類別的price結果再進一步加以處理，另一方面，如果漢堡也想要搭配附餐一，目前的SideDishOne顯然無法給漢堡重用，你還得為漢堡建立有附餐一的子類別。<br><br>為了讓附餐設計可以重複使用，你可以將附餐的行為特徵抽出：<br><pre class="prettyprint"><code lang="scala">trait Meal {<br>    def content: String<br>    def price: Double<br>}<br><br>trait SideDishOne extends Meal { // 附餐一<br><span style="font-weight: bold;">    abstract override</span> def content = <span style="font-weight: bold;">super.content</span> + " | 可樂 | 薯條"<br><span style="font-weight: bold;">    abstract override</span> def price = <span style="font-weight: bold;">super.price</span> + 30.0<br>}<br><br>trait SideDishTwo extends Meal {  // 附餐二<br><span style="font-weight: bold;">    abstract override</span> def content = <span style="font-weight: bold;">super.content</span> + " | 玉米濃湯 | 咖啡"<br><span style="font-weight: bold;">    abstract override</span> def price = <span style="font-weight: bold;">super.price</span> + 50.0<br>}<br><br>class FriedChicken extends Meal {<br>    def content = "不黑心炸雞"<br>    def price = 49.0<br>}</code></pre><br>附
+餐也是一種餐點，所以抽出Meal特徵規範共同的介面content與price，而附餐一與附餐二重新定義了content與price，也就是原來特
+徵定義是抽象方法，現有定義為有實作內容的方法，不過由於其中用到了super呼叫，目前並無法知道這個呼叫到底是呼叫哪個方法，因此加上了
+abstract關鍵字。<br><br>現在如何搭配附餐呢？為了詳細示範，先中規中矩地寫的話，可以這麼用：<br><pre class="prettyprint"><code lang="scala">class FriedChickenSideDishOne extends FriedChicken with SideDishOne<br>val meal = new FriedChickenSideDishOne<br>println(meal.content)   // 顯示 不黑心炸雞 | 可樂 | 薯條<br>println(meal.price)     // 顯示 79.0</code></pre><br>你的類別繼承FriedChicken類別並具有SideDishOne特徵，FriedChickenSideDishOne類別中，SideDishOne特徵的content
+與price方法重新定義了FriedChicken類別中content與price方法，你呼叫meal.content時，根據特徵中的定義，就是
+先呼叫父類別FriedChicken的content取得結果，再附加上字串後傳回，呼叫meal.price時也是同樣的道理。<br><br>實際上，你可以這麼使用：<br><pre class="prettyprint"><code lang="scala">val meal1 = new FriedChicken with SideDishOne<br>println(meal1.content)    // 顯示 不黑心炸雞 | 可樂 | 薯條<br>println(meal1.price)      // 顯示 79.0</code></pre><br>第一行其實是匿名類別的寫法，你打算建立一個物件，該物件實例化自一個類別繼承自FriedChicken類別並具有SideDishOne特徵，不過你沒有定義出類別的名稱。<br><br>你可以隨意地組合套餐：<br><pre class="prettyprint"><code lang="scala">val meal1 = new FriedChicken with SideDishOne<br>val meal2 = new FriedChicken with SideDishTwo<br>val meal3 = new FriedChicken with SideDishOne with SideDishTwo<br>val meal4 = new FriedChicken with SideDishTwo with SideDishOne<br>println(meal1.content)   // 不黑心炸雞 | 可樂 | 薯條<br>println(meal1.price)     // 79.0<br>println(meal2.content)   // 不黑心炸雞 | 玉米濃湯 | 咖啡<br>println(meal2.price)     // 99.0<br>println(meal3.content)   // 不黑心炸雞 | 可樂 | 薯條 | 玉米濃湯 | 咖啡<br>println(meal3.price)     // 129.0<br>println(meal4.content)   // 不黑心炸雞 | 玉米濃湯 | 咖啡 | 可樂 | 薯條<br>println(meal4.price)     // 129.0</code></pre><br>注
+意meal3與meal4，這也是為什麼這個特性被稱為堆疊修飾的原因，你讓物件具有兩個以上的特徵時，最右邊的特徵若使用super.content呼叫，其
+實是在呼叫左邊特徵的content方法，而左邊特徵的super.content則呼叫父類別的content，呼叫的結果就像是將最左邊的類別看作是
+堆疊底部，最右邊的特徵看作是堆疊頂端。<br><br>同時也注意到，meal3是先繼承SideDishOne特徵再具有SideDishTwo，而meal4則是先繼承SideDishTwo再具有SideDishOne，具有特徵的順序不同，則呼叫的順序不同，則結果就有所不同。<br><br>事實上，這是Scala版本的 <a href="../DesignPattern/DecoratorPattern.htm">Decorator
+模式</a> 之實現，雖然語法不同，不過其在不改變被修飾物件功能的情況下，動態地為物件的操作結果作修飾，這樣的精神是相同的。<br><br><br>
+      
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+
+  </article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

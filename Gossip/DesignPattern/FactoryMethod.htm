@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh-tw">
+<head><meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/DesignPattern/'https://openhome.cc/zh-tw/pattern/creational/factory-method/'">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Factory
+Method模式在一個抽象類別中留下某個建立元件的抽象方法沒有實作，其它與元件操作相關聯的方法都先依賴於元件所定義的介面，而不是依賴於元件的實
+現，
+當您的成品中有一個或多個元件...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="Factory Method 模式">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/DesignPattern/FactoryMethod.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="Factory
+Method模式在一個抽象類別中留下某個建立元件的抽象方法沒有實作，其它與元件操作相關聯的方法都先依賴於元件所定義的介面，而不是依賴於元件的實
+現，
+當您的成品中有一個或多個元件...">
+
+
+    <title>Factory Method 模式</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="FactoryMethod.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/DesignPattern/index.html">回設計模式</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Factory Method 模式</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      Factory
+Method模式在一個抽象類別中留下某個建立元件的抽象方法沒有實作，其它與元件操作相關聯的方法都先依賴於元件所定義的介面，而不是依賴於元件的實
+現，
+當您的成品中有一個或多個元件無法確定時，您先確定與這些元件的操作介面，然後用元件的抽象操作介面先完成其它的工作，元件的實作（實現）則推遲至實現元
+件介面的子類完成，一旦元件加入，即可完成您的成品。<br>
+      <br>
+簡單地說，如果您希望如何建立父類別中用到的物件這件事，是由子類別來決定，可以使用
+Factory Method。<br>
+      <br>
+舉一個例子，假設您要完成一個文件編輯器，您希望這個編輯器可以適用於所有類型的檔案編輯，例如RTF、DOC、TXT等等，儘管這些文件有著不同的格
+式，您先確定的是這些文件必然具備的一些操作介面，例如儲存、開啟、關閉等，您用一個Document類型來進行操作，這麼一來這個框架就無需考慮實
+際的儲存、開啟等細節是如何進行的。
+      <pre class="prettyprint"><code>import java.util.*;<br><br>abstract class Document {<br>    private String title;<br>    String getTitle() {<br>        return title;<br>    }<br>    void setTitle(String title) {<br>        this.title = title;<br>    }<br>    abstract void open();<br>    abstract void save();<br>    abstract void close();<br>}<br><br>abstract class Editor {<br>    private List&lt;Document&gt; docs = new ArrayList&lt;Document&gt;();<br>    <br>    void open(String file) {<br>        Document doc = createDocument();<br>        doc.setTitle(file);<br>        doc.open();<br>        docs.add(doc);<br>    }<br>   <br>    void save(Document doc) {<br>        doc.save();<br>    }<br>    <br>    void close(Document doc) {<br>        doc.close();<br>        docs.remove(doc);<br>    }<br>    <br>    void close() {<br>        for(Document doc : docs) {<br>            close(doc);<br>        }<br>    }<br>    <br>    // ... 其它的方法定義<br>    abstract Document createDocument(); // Factory method<br>}</code></pre>
+       <br>
+雖然這邊先以Java實作，但Document為abstract
+class或interface定義並不重要，重要的是Editor中，流程中所操作的都是Document的公開方法，實際上如何建立具體的
+Document，則由子類別來完成，例如：<br>
+      
+      <pre class="prettyprint"><code>class TextEditor extends Editor {<br>    Document createDocument() {<br>        return new Document() {<br>            void open() {<br>                System.out.println("開啟文字檔案 " + this.getTitle());<br>            }<br>            void save() {<br>                System.out.println("儲存文字檔案 " + this.getTitle());<br>            }<br>            void close() {<br>                System.out.println("關閉文字檔案 " + this.getTitle());<br>            }            <br>        };<br>    }<br>}<br><br>public class Main {<br>    public static void main(String[] args) {<br>        Editor editor = new TextEditor();<br>        editor.open("Main.java");<br>        editor.open("Editor.java");<br>        editor.close();<br>    }<br>}<br></code></pre>
+      <br>
+      以UML圖來表示Factory method類別結構如下所示：<br>
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/FactoryMethod-1.jpg" /></div></div><br>
+      <br>
+      圖中Product指的是，物件必須具有Product所定義之公開協定，而
+非專指Java中的interface定義。對於靜態語言來說，例如Java，必須使用型態來宣告變數，因此根據需求，可
+以使用interfact或abstract class來定義Product所定義之公開協定。對於動態語言來說，例如
+Python，真正的型態資訊是在物件之上（而非變數），因此要求的是物件必須具有Product之公開方法（無論是「哪
+一種」物件），例如以下是Python的實現範例：<br>
+      <pre class="prettyprint"><code>class Editor:<br>    def __init__(self):<br>        self.docs = []<br>    def open(self, file):<br>        doc = self.createDocument()<br>        doc.title = file<br>        doc.open()<br>        self.docs.append(doc)<br>    def save(self, doc):<br>        doc.save()<br>    def close(self, doc=None):<br>        if doc:<br>            doc.close()<br>            self.docs.remove(doc)<br>        else:<br>            for doc in self.docs:<br>                self.close(doc)<br><br>class TextDoc:<br>    def open(self):<br>        print("開啟文字檔案 " + self.title)<br>    def save(self):<br>        print("儲存文字檔案 " + self.title)<br>    def close(self):<br>        print("關閉文字檔案 " + self.title)<br> <br>class TextEditor(Editor):<br>    def createDocument(self):<br>        doc = TextDoc()<br>        # ...<br>        return doc<br><br>editor = TextEditor()<br>editor.open("app.py")<br>editor.open("editor.py")<br>editor.close()</code></pre>
+      <br><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'G-QVQQYFSC8J', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</div>

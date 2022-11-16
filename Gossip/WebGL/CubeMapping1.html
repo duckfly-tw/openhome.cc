@@ -1,0 +1,176 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果打算在立方體上貼圖，WebGL 有立方體映射（Cube mapping）方案，可以不用處理貼圖座標與頂點的對應問題，而且可以有更多的應用。
+立方體映射簡單來說，由 WebGL 來組織立方體六個面的...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="立方體映射">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/CubeMapping1.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果打算在立方體上貼圖，WebGL 有立方體映射（Cube mapping）方案，可以不用處理貼圖座標與頂點的對應問題，而且可以有更多的應用。
+立方體映射簡單來說，由 WebGL 來組織立方體六個面的...">
+
+    <title>立方體映射</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CubeMapping1.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>立方體映射</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果打算在立方體上貼圖，WebGL 有立方體映射（Cube mapping）方案，可以不用處理貼圖座標與頂點的對應問題，而且可以有更多的應用。</p>
+<p>立方體映射簡單來說，由 WebGL 來組織立方體六個面的貼圖，在為像素取樣著色時的依據則是方向向量，方向向量的原點為裁剪空間的 (0, 0, 0)，例如在下圖中，黑色虛線表示被指定的方向向量，WebGL 依此方向向量的指向，確認出取樣的位置會是在 +X 面上的像素：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CubeMapping-1.JPG" alt="立方體映射"  /></div></div></p>
+<p>因此在貼圖的安排上，也就必須制訂出 +X、-X、+Y、-Y、+Z、-Z 六個面，例如：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CubeMapping-2.JPG" alt="立方體映射"  /></div></div></p>
+<p>乍看你可能會以為我標示錯誤了，+Z 的右邊怎麼會是 -X？別忘了，方向向量是從原點開始，貼圖六個面會包住原點，也就是你會是位於原點，往外看六個面的圖，因此你看到的這個貼圖圖集，不是貼在立方體外圍，而是貼在立方體內側，就像在房間內貼壁紙的概念。</p>
+<p>來看看 WebGL 實際上怎麼撰寫程式碼來做立方體映射，首先著色器會是：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    uniform float aspect;
+
+    attribute vec3 cubeMapPositon;
+    attribute vec3 vertexPosition;
+
+    varying vec3 normal;
+
+    void main(void) {
+        gl_Position = vec4(vertexPosition.x, vertexPosition.y * aspect, vertexPosition.z, 1.0);
+        normal = cubeMapPositon;
+    }
+&lt;/script&gt;          
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+
+    uniform samplerCube sampler;
+
+    varying vec3 normal;
+
+    void main(void) {
+        gl_FragColor = textureCube(sampler, normal);
+    }
+&lt;/script&gt;
+</code></pre>
+<p>在頂點著色器中，<code>vertexPosition</code> 接受的值來自於轉動後的一組立方體頂點，然而 <code>cubeMapPositon</code> 接受的值來自於一組固定不變的立方體頂點，這組頂點會傳給片段著色器的 <code>normal</code> 作為計算方向向量之用，因為這組立方體頂點固定不變，每個面上取得的各個像素顏色也就會固定，也就是不管立方體怎麼轉動，轉動後看到的六個面，圖案都會是固定的。</p>
+<p>想要使用立方體映射，取樣器必須是 <code>samplerCube</code>，實際的顏色可以使用 <code>textureCube</code> 函式來計算，它接受一個 <code>samplerCube</code>，以及一個向量，你指定的向量會被規範為各分量為 0 ~ 1，作為取樣的依據。</p>
+<p>接下來就可以撰寫 JavaScript 來下載貼圖了，你可以使用貼圖圖集，或者是將六個面分開下載，〈<a href="TextureAtlas.html">貼圖圖集</a>〉中使用 <a href="http://www.humus.name/index.php?page=Textures&amp;ID=19">Humus 的 Earth</a>，實際上提供的是六張圖，檔名都標示了是哪個面使用，這邊為了簡化範例，也就直接使用這六張圖，分開下載後再進行設定。</p>
+<p>WebGL 必須在一個 <code>WebGLTexture</code> 指定完六面貼圖後，才能呼叫 <code>generateMipmap</code> 來產生立方體映射，因此這邊修改一下 <code>asyncDownloadTexture</code>，僅下載圖片並指定圖片基本資訊：</p>
+<pre class="prettyprint"><code lang="javascript">function asyncDownloadTexture(src, target) {
+    const image = new Image();
+    return new Promise(resolve =&gt; {
+        image.addEventListener('load', () =&gt; {
+            gl.texImage2D(target, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+            resolve(image);
+        });
+        image.src = src;
+    });
+}
+</code></pre>
+<p>然後在建立、綁定 <code>WebGLTexture</code> 後，下載貼圖圖片，指定各個面要使用哪個貼圖，最後呼叫 <code>generateMipmap</code> 來產生立方體映射，留意一下使用 <code>gl.TEXTURE_CUBE_MAP</code> 的地方：</p>
+<pre class="prettyprint"><code lang="javascript">const texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+await asyncDownloadTexture('images/cube_earth_posz.jpg', gl.TEXTURE_CUBE_MAP_POSITIVE_Z); 
+await asyncDownloadTexture('images/cube_earth_negz.jpg', gl.TEXTURE_CUBE_MAP_NEGATIVE_Z);    
+await asyncDownloadTexture('images/cube_earth_posy.jpg', gl.TEXTURE_CUBE_MAP_POSITIVE_Y); 
+await asyncDownloadTexture('images/cube_earth_negy.jpg', gl.TEXTURE_CUBE_MAP_NEGATIVE_Y); 
+await asyncDownloadTexture('images/cube_earth_posx.jpg', gl.TEXTURE_CUBE_MAP_POSITIVE_X); 
+await asyncDownloadTexture('images/cube_earth_negx.jpg', gl.TEXTURE_CUBE_MAP_NEGATIVE_X); 
+
+gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+</code></pre>
+<p>接下來就是設定頂點了：</p>
+<pre class="prettyprint"><code lang="javascript">const n = 0.2;
+const verteices = [
+    // 前
+    -n, n,  -n,
+    -n, -n,  -n,
+    n,  -n, -n,
+    n,  n, -n,
+    // 後
+    n, n, n,
+    n, -n, n,
+    -n, -n, n,
+    -n, n, n,
+    // 上
+    -n, n, n,
+    -n, n, -n,
+    n,  n,  -n,
+    n,  n, n,
+    // 下
+    -n, -n, -n,
+    -n, -n, n,
+    n, -n, n,
+    n, -n, -n,
+    // 右
+    n, n, -n,
+    n, -n, -n,
+    n, -n, n,
+    n, n, n,
+    // 左
+    -n, n, n,
+    -n, -n, n,
+    -n, -n, -n,
+    -n, n, -n
+];
+
+enableBufferOfAttr(gl, prog, 'cubeMapPositon', 3, verteices, gl.STATIC_DRAW);
+
+rotateXY(verteices, -Math.PI / 3, Math.PI / 3);
+
+const vertBuffer = enableBufferOfAttr(gl, prog, 'vertexPosition', 3, verteices, gl.DYNAMIC_DRAW);
+</code></pre>
+<p>轉動後的頂點，才是指定給 <code>vertexPosition</code>，一開始指定的 <code>cubeMapPosition</code> 始終沒有變動，因此就立方體來說，每個面就是固定了，你可以<a href="https://openhome.cc/Gossip/WebGL/samples/CubeMapping-1.html">看看範例網頁</a>的效果，基本上跟〈<a href="TextureAtlas.html">貼圖圖集</a>〉中的效果是相同的。</p>
+<p>實際上，立方體映射的效果，不單只是為了這個目的，它還可以用來做動態反射（Dynamic reflection），讓任何模型的表面，呈現鏡面反射週遭景物的效果，也可以用來製作天空盒（Skybox），也就是如同身入其境的環境貼圖。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,104 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在控制器的動作中處理完請求之後，接下來要準備對客戶端呈現回應，先前例子中，如果執行了xxx動作，接下來預設就會使用xxx.html.erb來呈現回應。
+      實際上，Rails會在動作完成之後...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="render 與 redirect_to">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Rails/RenderRedirect.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="在控制器的動作中處理完請求之後，接下來要準備對客戶端呈現回應，先前例子中，如果執行了xxx動作，接下來預設就會使用xxx.html.erb來呈現回應。
+      實際上，Rails會在動作完成之後...">
+
+
+    <title>render 與 redirect_to</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="RenderRedirect.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Rails 目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>render 與 redirect_to</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+      <p>在控制器的動作中處理完請求之後，接下來要準備對客戶端呈現回應，先前例子中，如果執行了<span class="courier">xxx</span>動作，接下來預設就會使用xxx.html.erb來呈現回應。</p>
+      <p>實際上，Rails會在動作完成之後（甚至控制器中沒有對應的動作），以預設方式呼叫<span class="courier">render</span>方法，也就是以預設的xxx.html.erb作為樣版回應，你也可以自行在動作中執行<span
+
+          class="courier">render</span>方法（會將回應以字串作為方法的傳回值，通常作為檢視回應之用），如果自行呼叫過<span
+
+          class="courier">render</span>方法，Rails後續就不會再呼叫<span class="courier">render</span>方法，一個請求/回應週期內，只能呼叫過一次<span
+
+          class="courier">render</span>方法，否則會發生<span class="courier">AbstractController::DoubleRenderError</span>錯誤。<br>
+      </p>
+      <p><span class="courier">呼叫render方法後，會將呈現回應給客戶端，如果只是想檢視目前回應內容，可以呼叫render_to_string，這僅會就目前回應資訊，將呈現以字串傳回，而不會回應給客戶端</span>。<br>
+      </p>
+      <p>如果不想使用樣版檔案回應，可以在呼叫<span class="courier">render</span>時給予參數。例如回應空白內容：</p>
+      <p style="margin-left: 40px; font-weight: bold;"><span class="courier">render :nothing =&gt; true</span></p>
+      <p>這會傳送HTTP狀態碼200以及相關標頭給客戶端，但沒有任何回應本體內容，你可以使用<span class="courier">:text、:xml或:json</span>傳回純文字、XML或是JSON格式。例如：</p>
+      <p style="margin-left: 40px;"><span style="font-weight: bold;" class="courier">render :text =&gt; "This is a test!"</span><br>
+      </p>
+      <p>傳回的content-type是text/html; charset=utf-8，內容為指定的純文字。如果：<br>
+      </p>
+      <p style="margin-left: 40px;"><strong><span class="courier">render :xml =&gt; @page</span></strong></p>
+      <p>傳回的content-type是application/xml; charset=utf-8，內容為指定的XML，可以指定字串，如果指定為物件，會嘗試呼叫物件的<span
+
+          class="courier">to_xml</span>方法取得XML內容。上例中，假設<span class="courier">to_xml</span>是產生的模型所定義的方法，則內容會是：</p>
+      <div style="margin-left: 40px;"><span class="courier" style="font-weight: bold;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+          &lt;page&gt;<br>
+          &nbsp; &lt;id type="integer"&gt;1&lt;/id&gt;<br>
+          &nbsp; &lt;title&gt;Openhome&lt;/title&gt;<br>
+          &nbsp; &lt;url&gt;https://openhome.cc&lt;/url&gt;<br>
+          &nbsp; &lt;description&gt;Orzxxxxxxx&lt;/description&gt;<br>
+          &nbsp; &lt;created-at type="datetime"&gt;2011-12-16T08:07:28Z&lt;/created-at&gt;<br>
+          &nbsp; &lt;updated-at type="datetime"&gt;2011-12-18T09:17:43Z&lt;/updated-at&gt;<br>
+          &lt;/page&gt;</span><br>
+      
+
+
+
+
+<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

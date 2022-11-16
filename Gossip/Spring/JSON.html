@@ -1,0 +1,195 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="現在前端工程當道，為了實現前後端技術分離，Web 應用程式可以提供中性的資料格式，與前端進行溝通，其中最受歡迎的格式之一就是 JSON。
+Spring MVC 可以自動剖析物件傳回 JSON，為此，你...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="回應與接收 JSON">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/Spring/JSON.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="現在前端工程當道，為了實現前後端技術分離，Web 應用程式可以提供中性的資料格式，與前端進行溝通，其中最受歡迎的格式之一就是 JSON。
+Spring MVC 可以自動剖析物件傳回 JSON，為此，你...">
+
+    <title>回應與接收 JSON</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="JSON.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Spring</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>回應與接收 JSON</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>現在前端工程當道，為了實現前後端技術分離，Web 應用程式可以提供中性的資料格式，與前端進行溝通，其中最受歡迎的格式之一就是 <a href="../ECMAScript/JSON.html">JSON</a>。</p>
+<p>Spring MVC 可以自動剖析物件傳回 JSON，為此，你需要有個轉換器，對 Spring MVC 來說，只需要在類別路徑中找得到轉換器的類別就可以了，你可以在 build.gradle 中加入：</p>
+<pre class="prettyprint"><code lang="java">compile 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
+</code></pre>
+<p>直接來看看簡單的範例，就可以知道怎麼回應 JSON：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cc.openhome.model.Account;
+
+@Controller
+@RequestMapping("api")
+public class Api {
+    @GetMapping("test")
+    @ResponseBody
+    public Map&lt;String, Object&gt; test() {
+        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+        data.put("a", "10");
+        data.put("b", 20);
+        data.put("c", new String[] {"foo", "orz"});
+        data.put("d", new Date());
+        return data;
+    }
+
+    @GetMapping("test2")
+    @ResponseBody
+    public Account test2() {
+        return new Account("1", "2", "3", "4");
+    }
+
+    @PostMapping("test3")
+    @ResponseBody
+    public Account test3(@RequestBody Account account) {
+        return new Account(
+            account.getName().toUpperCase(), 
+            account.getEmail().toUpperCase(), 
+            account.getPassword(),
+            account.getSalt()
+        );
+    }
+}
+</code></pre>
+<p>若請求 /api/test，會自動加上 <code>Content-Type: application/json;charset=UTF-8</code> 回應標頭，而傳回的 JSON 會是：</p>
+<pre class="prettyprint"><code lang="java">{"a":"10","b":20,"c":["foo","orz"],"d":1543820089201}
+</code></pre>
+<p>若請求 /api/test2，傳回的 JSON 會是：</p>
+<pre class="prettyprint"><code lang="java">{"name":"1","email":"2","password":"3","salt":"4"}
+</code></pre>
+<p>如果要能接收 JSON，並轉換為指定的型態的話，該型態必須有無參建構式，而要設定的屬性必須有對應的 Setter，然後，只要在處理器參數上標示 <code>@RequestBody</code> 就可以了。</p>
+<p>例如，可以將底下的片段，置於某個 HTML 之中，使用瀏覽器請求網站上的 HTML，就可以看到轉換為大寫後傳回的資料：</p>
+<pre class="prettyprint"><code lang="java">&lt;div id="console"&gt;&lt;/div&gt;
+&lt;script&gt;
+fetch('api/test3', {
+    method : 'POST',
+    headers : {
+        'Content-Type' : 'application/json;charset=UTF-8'
+    },
+    body : JSON.stringify({
+        name  : 'caterpillar',
+        email : 'caterpillar@openhome.cc',
+        password : '12345678',
+        salt : '123352453253'
+    })
+})
+.then(resp =&gt; resp.json())
+.then(acct =&gt;  document.getElementById('console').innerHTML = `${acct.name}, ${acct.email}`);
+&lt;/script&gt;
+</code></pre>
+<p>如果實際上，控制器中的處理器都會標註 <code>@ResponseBody</code>，那麼可以改在控制器上標註 <code>@RestController</code>，省去個別標註 <code>@ResponseBody</code> 的麻煩，例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import cc.openhome.model.Account;
+
+@RestController
+@RequestMapping("api")
+public class Api {
+    @GetMapping("test")
+    public Map&lt;String, Object&gt; test() {
+        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();
+        data.put("a", "10");
+        data.put("b", 20);
+        data.put("c", new String[] {"foo", "orz"});
+        data.put("d", new Date());
+        return data;
+    }
+
+    @GetMapping("test2")
+    public Account test2() {
+        return new Account("1", "2", "3", "4");
+    }
+
+    @PostMapping("test3")
+    public Account test3(@RequestBody Account account) {
+        return new Account(
+            account.getName().toUpperCase(), 
+            account.getEmail().toUpperCase(), 
+            account.getPassword(),
+            account.getSalt()
+        );
+    }
+}
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

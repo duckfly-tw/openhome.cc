@@ -1,0 +1,230 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果要設計的自訂標籤是放置在某個標籤之中，而且必須與外層標籤作溝通，例如 JSTL 中的 &lt;c:when&gt;、 &lt;c:otherwise&gt; 必須放在 &lt;c:choose&g...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="與父標籤溝通">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/SimpleTagParentTag.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果要設計的自訂標籤是放置在某個標籤之中，而且必須與外層標籤作溝通，例如 JSTL 中的 &lt;c:when&gt;、 &lt;c:otherwise&gt; 必須放在 &lt;c:choose&g...">
+
+    <title>與父標籤溝通</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="SimpleTagParentTag.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>與父標籤溝通</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果要設計的自訂標籤是放置在某個標籤之中，而且必須與外層標籤作溝通，例如 JSTL 中的 <code>&lt;c:when&gt;</code>、 <code>&lt;c:otherwise&gt;</code> 必須放在 <code>&lt;c:choose&gt;</code> 中，且 <code>&lt;c:when&gt;</code> 或 <code>&lt;c:otherwise&gt;</code> 必須得知先前的 <code>&lt;c:when&gt;</code> 是否已經測試通過並執行本體內容，如果是的話就不再執行測試。</p>
+<p>了解生命週期與架構 中談過，當JSP中包括自訂標籤時，會建立自訂標籤處理器的實例，呼叫 <code>setJspContext()</code> 設定 <code>PageContext</code> 實例，再來若是巢狀標籤中的內層標籤，則還會呼叫標籤處理器的 <code>setParent()</code> 方法，並傳入外層標籤處理器的實例，這就是你與外層標籤接觸的機會。</p>
+<p>接下來將以模彷 JSTL 的 <code>&lt;c:choose&gt;</code>、<code>&lt;c:when&gt;</code>、<code>&lt;c:otherwise&gt;</code> 標籤為例，製作自訂的 <code>&lt;f: choose&gt;</code>、<code>&lt;f:when&gt;</code>、<code>&lt;f:otherwise&gt;</code> 標籤，了解內層標籤如何與外層標籤溝通。首先來看看  <code>&lt;f:choose&gt;</code> 的標籤處理器如何撰寫：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.SimpleTagSupport;
+
+public class ChooseTag extends SimpleTagSupport {
+    private boolean matched;
+
+    @Override
+    public void doTag() throws JspException {
+        try {
+            this.getJspBody().invoke(null);
+        } catch (java.io.IOException ex) {
+            throw new JspException("ChooseTag 執行錯誤", ex);
+        }
+    }
+
+    public boolean isMatched() {
+        return matched;
+    }
+
+    public void setMatched(boolean matched) {
+        this.matched = matched;
+    }
+} 
+</code></pre>
+<p><code>ChooseTag</code> 基本上沒什麼事，只是內含一個 <code>boolean</code> 型態的成員 <code>matched</code>，預設是 <code>false</code>。一旦內部的 <code>&lt;f:when&gt;</code> 有測試成功的情況，會 將 <code>matched</code> 設定為 <code>true</code>。<code>ChooseTag</code> 的 <code>doTag()</code> 只需要作一件事，取得 <code>JspFragment</code> 並呼叫 <code>invoke(null)</code> 執行標籤本體內容。</p>
+<p>再來看看 <code>&lt;f:when&gt;</code> 的標籤處理器實作：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.JspTag;
+import javax.servlet.jsp.tagext.SimpleTagSupport;
+
+public class WhenTag extends SimpleTagSupport {
+    private boolean test;
+
+    @Override
+    public void doTag() throws JspException {
+        JspTag parent = null;
+        if (!((parent = getParent()) instanceof ChooseTag)) {
+            throw new JspTagException("必須置於choose標籤中");
+        }
+
+        if (((ChooseTag) parent).isMatched()) {
+            return;
+        }
+
+        if (test) {
+            ((ChooseTag) parent).setMatched(true);
+            try {
+                this.getJspBody().invoke(null);
+            } catch (java.io.IOException ex) {
+                throw new JspException("WhenTag 執行錯誤", ex);
+            }
+        }
+    }
+
+    public void setTest(boolean test) {
+        this.test = test;
+    }
+}
+</code></pre>
+<p><code>&lt;f:when&gt;</code> 可以設定 <code>test</code> 屬性來看看是否執行本體內容。在測試開始前，必須先嘗試取得 <code>parent</code>，如果無法取得（也就是為 <code>null</code> 的情況），表示不在任何標籤之中；或是 <code>parent</code> 不為 <code>ChooseTag</code> 型態時，表示不是置於 <code>&lt;f:choose&gt;</code> 之中，這是個錯誤的使用方式，所以必須丟出例外。</p>
+<p>如果確實是置於 <code>&lt;f:choose&gt;</code> 標籤之中，接著嘗試取得 <code>parent</code> 的 <code>matched</code> 狀態，如果已經被設定為 <code>true</code>，表示先前有 <code>&lt;f:when&gt;</code> 已經通過測試並執行了其本體內容，那麼目前這個 <code>&lt;f:when&gt;</code> 就不用再作測試了。如果是置於 <code>&lt;f:choose&gt;</code> 之中，而且先前沒有 <code>&lt;f:when&gt;</code> 通過測試，接著就可以進行目前這個 <code>&lt;f:when&gt;</code> 的測試，如果測試成功，則設定 <code>parent</code> 的 <code>matched</code> 為 <code>true</code>，並執行標籤本體。</p>
+<p>接著來看 <code>&lt;f:otherwise&gt;</code> 的標籤處理器如何撰寫：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.JspTag;
+import javax.servlet.jsp.tagext.SimpleTagSupport;
+
+public class OtherwiseTag extends SimpleTagSupport {
+    @Override
+    public void doTag() throws JspException {
+        JspTag parent = null;
+        if (!((parent = getParent()) instanceof ChooseTag)) {
+            throw new JspTagException("WHEN_OUTSIDE_CHOOSE");
+        }
+
+        if (((ChooseTag) parent).isMatched()) {
+            return;
+        }
+
+        try {
+            this.getJspBody().invoke(null);
+        } catch (java.io.IOException ex) {
+            throw new JspException("Error in OtherwiseTag tag", ex);
+        }
+    }
+}
+</code></pre>
+<p><code>&lt;f:otherwise&gt;</code> 標籤的處理基本上與 <code>&lt;c:when&gt;</code> 類似，必須確認是否置於 <code>&lt;f:choose&gt;</code> 標籤之 中；必須確認先前是否有 <code>&lt;c:when&gt;</code> 測試成功，如果先前沒有 <code>&lt;c:when&gt;</code> 測試成功的話，就直接執行標籤本體內容。</p>
+<p>接著記得定義 TLD 檔，在當中加入自訂標籤定義：</p>
+<h4>f.tld</h4>
+<pre class="prettyprint"><code lang="java">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;taglib version="2.`" xmlns="http://java.sun.com/xml/ns/j2ee"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  
+    web-jsptaglibrary_2_1.xsd"&gt;
+    &lt;tlib-version&gt;1.0&lt;/tlib-version&gt;
+    &lt;short-name&gt;f&lt;/short-name&gt;
+    &lt;uri&gt;https://openhome.cc/jstl/fake&lt;/uri&gt;
+    // 略...
+    &lt;tag&gt;
+        &lt;name&gt;choose&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.ChooseTag&lt;/tag-class&gt;
+        &lt;body-content&gt;scriptless&lt;/body-content&gt;
+    &lt;/tag&gt;
+    &lt;tag&gt;
+        &lt;name&gt;when&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.WhenTag&lt;/tag-class&gt;
+        &lt;body-content&gt;scriptless&lt;/body-content&gt;
+        &lt;attribute&gt;
+            &lt;name&gt;test&lt;/name&gt;
+            &lt;required&gt;true&lt;/required&gt;
+            &lt;rtexprvalue&gt;true&lt;/rtexprvalue&gt;
+            &lt;type&gt;boolean&lt;/type&gt;
+        &lt;/attribute&gt;
+    &lt;/tag&gt;
+    &lt;tag&gt;
+        &lt;name&gt;otherwise&lt;/name&gt;
+        &lt;tag-class&gt;cc.openhome.OtherwiseTag&lt;/tag-class&gt;
+        &lt;body-content&gt;scriptless&lt;/body-content&gt;
+    &lt;/tag&gt;
+&lt;/taglib&gt; 
+</code></pre>
+<p>接下來使用自訂的 <code>&lt;f:choose&gt;</code>、<code>&lt;f:when&gt;</code>、<code>&lt;f:otherwise&gt;</code> 標籤改寫〈<a href="FlowTag.html">流程處理標籤</a>〉中的例子：</p>
+<pre class="prettyprint"><code lang="java">&lt;%@page contentType="text/html" pageEncoding="UTF-8"%&gt;
+&lt;%@taglib prefix="f" uri="https://openhome.cc/jstl/fake"%&gt;
+&lt;jsp:useBean id="user" class="cc.openhome.User"  /&gt;
+&lt;jsp:setProperty name="user" property="*" /&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;title&gt;登入頁面&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;f:choose&gt;
+            &lt;f:when test="${user.valid}"&gt;
+                &lt;h1&gt;${user.name}登入成功&lt;/h1&gt;
+            &lt;/f:when&gt;
+            &lt;f:otherwise&gt;
+                 &lt;h1&gt;登入失敗&lt;/h1&gt;
+            &lt;/f:otherwise&gt;
+        &lt;/f:choose&gt;
+    &lt;/body&gt;
+&lt;/html&gt; 
+</code></pre>
+<p>你可以使用 <code>getParent()</code> 取得 <code>parent</code> 標籤，也就是目前標籤的上一層標籤。如果在一個數個巢狀的標籤中，想要直接取得某個指定類型的外層標籤，則可以透過 <code>SimpleTagSupport</code> 的 <code>findAncestorWithClass()</code> 靜態方法。例如：</p>
+<pre class="prettyprint"><code lang="java">SomeTag ancestor = (SomeTag) findAncestorWithClass(this, SomeTag.class);
+</code></pre>
+<p><code>findAncestorWithClass()</code> 方法會在目前標籤的外層標籤中尋找，直到找到指定的類型之外層標籤物件後傳回。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

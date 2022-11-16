@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="任何數值都是記憶體中的一組位元，型態賦予這組位元意義，這樣開發者才能知道如何對待這組位元，因此學習任何一門語言，首先要認識該語言的型態系統。">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::型態系統入門" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/basics/type-system/" />
+    <meta property="og:description" content="任何數值都是記憶體中的一組位元，型態賦予這組位元意義，這樣開發者才能知道如何對待這組位元，因此學習任何一門語言，首先要認識該語言的型態系統。" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::型態系統入門" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/basics/type-system/" />
+    <meta name="twitter:description" content="任何數值都是記憶體中的一組位元，型態賦予這組位元意義，這樣開發者才能知道如何對待這組位元，因此學習任何一門語言，首先要認識該語言的型態系統。" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443680" type="image/x-icon">
+    <title> Haskell  :: 型態系統入門</title>
+    <link href="../../../css/nucleus.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443680.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443680.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443680"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/basics/type-system/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item parent"><a href="../index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item active"><a href="index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item"><a href="../../abstraction/index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../../abstraction/map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../../abstraction/lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../../abstraction/comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item"><a href="../../abstraction/pattern-matching-guard/index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../../abstraction/lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item"><a href="../../advanced-typeclass/index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../../advanced-typeclass/functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../../advanced-typeclass/applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../../advanced-typeclass/monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../../advanced-typeclass/do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../../advanced-typeclass/composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">起步走</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">型態系統入門</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#data-型態型態類別">data 型態、型態類別</a></li>
+    <li><a href="index.html#靜態定型">靜態定型</a></li>
+    <li><a href="index.html#型態轉換">型態轉換</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/type-system/">type system</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/built-in-type/">built-in type</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>型態系統入門</h1>
+
+ <i class="space fa fa-calendar"> January 27, 2022</i> 
+<p>任何數值都是記憶體中的一組位元，型態賦予這組位元意義，這樣開發者才能知道如何對待這組位元，因此學習任何一門語言，首先要認識該語言的型態系統。</p>
+<p>有些語言對型態定義的比較鬆散，這類語言讓開發者入門時，可以用較抽象的概念、較接近人類的觀點看待型態，例如數字、布林、字元、字串，因而往往較易入門，然而在面對需要認真看待型態的場合時，初期對型態系統的輕忽性，就會造成維護上的負擔。</p>
+<p>有些語言型態定義的較為嚴謹，這類語言讓開發者入門時，往往就得面對 <code>int</code>、<code>long</code>、<code>float</code>、<code>double</code> 等（以 Java 為例）語言定義的、較接近機器觀點的型態，這類語言入門會比較麻煩，然而面對需要認真看待型態的場合時，初期對型態系統的麻煩性就會成為一道防線，減少因型態錯誤而可能產生的臭蟲。</p>
+<p>Haskell 屬於後者，而且是對型態方面處理極為嚴謹！</p>
+<h2 id="data-型態型態類別">data 型態、型態類別</h2>
+<p>你在 Haskell 中寫下一個值，會是什麼型態呢？在 <code>ghci</code> 中想檢驗型態，可以使用 <code>:t</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>hci&gt; :t 10
+</span></span><span style="display:flex;"><span>10 :: Num a =&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; :t 3.14
+</span></span><span style="display:flex;"><span>3.14 :: Fractional a =&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt; :t True
+</span></span><span style="display:flex;"><span>True :: Bool
+</span></span><span style="display:flex;"><span>ghci&gt; :t &#39;h&#39; 
+</span></span><span style="display:flex;"><span>&#39;h&#39; :: Char
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>:t</code> 顯示的結果中，<code>::</code> 前是你指定的值，<code>::</code> 後表示值的型態，<code>'h'</code> 是個 <code>Char</code>，<code>True</code> 是 <code>Bool</code>，這比較好理解，那麼 <code>Fractional a =&gt; a</code>、<code>Num a =&gt; a</code> 是指？</p>
+<p><code>Char</code>、<code>Bool</code> 是 Haskell 的 <code>data</code> 型態，一個 <code>data</code> 型態單純哪一類（category）的值具有特定「結構」，例如 <code>Int</code> 是整數，<code>Float</code> 是具有小數的浮點數等，來看幾個常見的 <code>data</code> 型態：</p>
+<ul>
+<li><code>Int</code>：有界整數，如果是 64 位元系統，上下界會分別是 <code>-9223372036854775808</code>、<code>9223372036854775807</code>。</li>
+<li><code>Integer</code>：無界整數，效率比較慢，不過可以儲存大整數。</li>
+<li><code>Float</code> 與 <code>Double</code>：分別代表單精度浮點數與倍精度浮點數。</li>
+<li><code>Bool</code>：<code>True</code> 與 <code>False</code> 兩個布林值的型態。</li>
+<li><code>Char</code>：字元型態。</li>
+</ul>
+<p>你會說，方才 10 的型態檢驗結果不是 <code>Int</code>，3.14 的型態檢驗結果也不是 <code>Float</code> 或 <code>Double</code> 啊？是的！你可以在值的後方接上 <code>::</code> 標註值的型態：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; :t 10::Int     
+</span></span><span style="display:flex;"><span>10::Int :: Int
+</span></span><span style="display:flex;"><span>ghci&gt; :t 3.14::Double
+</span></span><span style="display:flex;"><span>3.14::Double :: Double
+</span></span></code></pre></div><p>大多數的情況下，不建議標註值的型態，建議讓 Haskell 編譯器根據程式的前後文，推斷出值（或是運算式）的合適型態，在可行的情況下，編譯器會試著從前後文推斷出，值需要有什麼行為，找出對應的型態類別（Typeclass），用來定義值的型態。</p>
+<p>例如方才看到的 <code>Num</code> 或 <code>Fractional</code>，它們就是型態類別，這邊的「類別」並不是指物件導向中的類別，而是指「這一類的型態（class of types）」，這就是為何被稱型態類別的原因，型態類別是用來定義一組行為，因此可以將型態類別理解為「行為」的分類，之後的文件會看到，在 Haskell 中，可以使用型態類別規範行為。</p>
+<p>也就是說，Haskell 看待型態的方式有兩種，哪一類（category）的值具有特定「結構」，哪一類（class）的型態具有特定「行為」的型態，<code>data</code> 用來定義結構，型態類別用來定義行為，而 <code>data</code> 型態可以定義為型態類別的實例（instance），實作型態類別規範的行為。</p>
+<p>例如，可以定義 <code>Comp</code> 型態類別，必須具有比較兩個運算元的行為，然後定義 <code>Int</code>、<code>Float</code> 等為 <code>Comp</code> 的實例，實作兩個運算元的比較。</p>
+<p><code>:t 10</code> 的結果顯示型態為 <code>Num a =&gt; a</code>，這表示 <code>a</code> 可以是實現 <code>Num</code> 行為的任何 <code>data</code> 型態，也就是說 <code>a</code> 的型態不一定，或許是 <code>Int</code>，也可以是 <code>Float</code>，然而受到 <code>Num</code> 的約束，在 Haskell 中，稱 <code>a</code> 為型態變數（Type variable）；類似地，<code>:t 3.14</code> 的顯示型態為 <code>Fractional a =&gt; a</code>，這表示 <code>a</code> 具有 <code>Fractional</code> 的行為。</p>
+<p>來看看幾個跟數字有關的型態類別：</p>
+<ul>
+<li><code>Num</code>：規範數字應有的行為，實例為 <code>Float</code>、<code>Double</code>、<code>Int</code>、<code>Integer</code>。</li>
+<li><code>Fractional</code>：規範分數應有的行為，實例為 <code>Float</code>、<code>Double</code>。</li>
+<li><code>Floating</code>：規範浮點數應有的行為，實例為 <code>Float</code>、<code>Double</code>。</li>
+<li><code>Integral</code>：規範整數應有的行為，實例為 <code>Int</code>、<code>Integer</code>。</li>
+</ul>
+<p>顯然地，<code>Num</code> 最抽象，基本上就是說「這是一個數字」的概念，<code>Num</code> 的行為衍生出 <code>Fractional</code> 的行為，<code>Fractional</code> 衍生出 <code>Floating</code>，至於 <code>Integral</code>，基本上也具有 <code>Num</code> 的行為（也有實現了其他型態類別的行為），然而不會有小數，至於實際上這些型態類別，真正規範了哪些行為，要等後續談如何自訂型態類別時，再來細究會比較好。</p>
+<h2 id="靜態定型">靜態定型</h2>
+<p>方才說到，大多數的情況下，不建議直接標註值的型態，因為 Haskell 編譯器能根據程式的前後文，推斷出值（或是運算式）的合適型態，可以的情況下，會儘量推斷出行為上的型態，這在你處理數字的 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 等運算時會比較方便。例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; 10 + 3.14
+</span></span><span style="display:flex;"><span>13.14
+</span></span><span style="display:flex;"><span>ghci&gt; (10::Int) + 3.14
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>&lt;interactive&gt;:51:13: error:
+</span></span><span style="display:flex;"><span>    ‧ No instance for (Fractional Int) arising from the literal ‘3.14’
+</span></span><span style="display:flex;"><span>    ‧ In the second argument of ‘(+)’, namely ‘3.14’
+</span></span><span style="display:flex;"><span>      In the expression: (10 :: Int) + 3.14
+</span></span><span style="display:flex;"><span>      In an equation for ‘it’: it = (10 :: Int) + 3.14
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>目前可以先知道的是，<code>+</code> 在 Haskell 是個函式，它接受的兩個引數必須有相同型態，<code>10 + 3.14</code> 可以運算，是因為編譯器可以為 10 與 3.14 推斷出相同的型態 <code>Fractional</code>；然而 <code>(10::Int) + 3.14</code> 無法運算，因為你直接標註 10 為 <code>Int</code> 型態，3.14 再怎樣，都無法是個 <code>Int</code> 型態，兩者也就無法運算而發生編譯錯誤了。</p>
+<p>就程式語言的分類來說，Haskell 是屬於靜態定型（Statically typed），編譯時期就可以確定值（運算式的型態），若發現不正確的型態資訊，就會發生編譯錯誤。</p>
+<p>方才談過，<code>+</code> 的兩個引數必須具有相同的型態，因此以下可以執行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (10::Double) + 3.14   
+</span></span><span style="display:flex;"><span>13.14
+</span></span><span style="display:flex;"><span>ghci&gt; :t (10::Double) + 3.14
+</span></span><span style="display:flex;"><span>(10::Double) + 3.14 :: Double
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>編譯器根據前後文，可以將 3.14 推斷為 <code>Double</code>，然後與 <code>Double</code> 的 10 運算，不過，結果型態也會是 <code>Double</code>，值的型態不是根據行為推斷出來的話，在後續能運算的情境會被限縮，也容易導致需要自行標註型態的機會變多，甚至需要進行型態轉換。</p>
+<p>順便一提的是，你也可以直接以行為標註型態，只是一般不會這麼做就是了，例如標註 10 要有 <code>Fractional</code> 的行為：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; (10::(Fractional a =&gt; a)) + 3.14
+</span></span><span style="display:flex;"><span>13.14
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><h2 id="型態轉換">型態轉換</h2>
+<p>來看看型態轉換的一個例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let x = 10::Integer 
+</span></span><span style="display:flex;"><span>ghci&gt; let y = 3.14::Double
+</span></span><span style="display:flex;"><span>ghci&gt; x + y
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>&lt;interactive&gt;:62:5: error:
+</span></span><span style="display:flex;"><span>    ‧ Couldn&#39;t match expected type ‘Integer’ with actual type ‘Double’
+</span></span><span style="display:flex;"><span>    ‧ In the second argument of ‘(+)’, namely ‘y’
+</span></span><span style="display:flex;"><span>      In the expression: x + y
+</span></span><span style="display:flex;"><span>      In an equation for ‘it’: it = x + y
+</span></span><span style="display:flex;"><span>ghci&gt; fromInteger x + y
+</span></span><span style="display:flex;"><span>13.14
+</span></span><span style="display:flex;"><span>ghci&gt; :t fromInteger
+</span></span><span style="display:flex;"><span>fromInteger :: Num a =&gt; Integer -&gt; a
+</span></span><span style="display:flex;"><span>ghci&gt;:t fromInteger x + y
+</span></span><span style="display:flex;"><span>fromInteger x + y :: Double
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p><code>let</code> 用來建立變數，<code>let x = 10::Integer</code> 就是「令 x 為 10（Integer）」的意思，在上面的範例中，<code>x</code> 與 <code>y</code> 型態不同，也就直接無法透過 <code>+</code> 來運算。</p>
+<p><code>fromInteger</code> 的型態是 <code>Num a =&gt; Integer -&gt; a</code>，這表示接受 <code>Integer</code> 傳回 <code>a</code>，而 <code>a</code> 會有 <code>Num</code> 的行為，編譯器從 <code>fromInteger x</code> 得到 <code>Num</code>，接著推斷為 <code>Double</code>，兩個都是 <code>Double</code> 了，就可以做運算，結果也會是 <code>Double</code>。</p>
+<p><code>fromInteger</code> 的型態是 <code>Num a =&gt; Integer -&gt; a</code>，因此想處理 <code>Int</code> 的話是不行的，這時要使用 <code>fromIntegral</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let x = 10::Int     
+</span></span><span style="display:flex;"><span>ghci&gt; let y = 3.14::Double
+</span></span><span style="display:flex;"><span>ghci&gt; fromInteger x + y
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>&lt;interactive&gt;:69:13: error:
+</span></span><span style="display:flex;"><span>    ‧ Couldn&#39;t match expected type ‘Integer’ with actual type ‘Int’
+</span></span><span style="display:flex;"><span>    ‧ In the first argument of ‘fromInteger’, namely ‘x’
+</span></span><span style="display:flex;"><span>      In the first argument of ‘(+)’, namely ‘fromInteger x’
+</span></span><span style="display:flex;"><span>      In the expression: fromInteger x + y
+</span></span><span style="display:flex;"><span>ghci&gt; fromIntegral x + y
+</span></span><span style="display:flex;"><span>13.14
+</span></span><span style="display:flex;"><span>ghci&gt; :t fromIntegral
+</span></span><span style="display:flex;"><span>fromIntegral :: (Integral a, Num b) =&gt; a -&gt; b
+</span></span><span style="display:flex;"><span>ghci&gt;                   
+</span></span></code></pre></div><p><code>fromIntegral</code> 的型態是 <code>(Integral a, Num b) =&gt; a -&gt; b</code>，這表示它接受 <code>a</code> 傳回 <code>b</code>，<code>a</code> 必須有 <code>Integral</code> 的行為，而 <code>b</code> 會有 <code>Num</code> 的行為。</p>
+<p>如果需要自行標註型態，或者使用到 <code>fromInteger</code>、<code>fromIntegral</code> 之類的函式，可能就代表著不好的訊號，你可能對型態考量的不夠周詳，才會導致需要轉換型態，以符合編譯器的要求。</p>
+<p>在 Haskell 中，使用函數式風格或許不是最難的，<strong>使用正確型態通過編譯才是最難的</strong>，因為開發者對型態的考量，往往不夠周詳，使得 Haskell 要通過編譯本身就是件難事，因此有「It Compiles! Let&rsquo;s ship it!」的笑話。</p>
+<p>然而換取而來的代價是，不少因型態方面的錯誤，都會被編譯器抓出來，很多時候確實是如此，我以為已經謹慎思考過型態了，編譯器卻總會抓出我沒想到的部份！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/basics/type-system/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/basics/type-system/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e5%9e%8b%e6%85%8b%e7%b3%bb%e7%b5%b1%e5%85%a5%e9%96%80&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fbasics%2ftype-system%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../hello/index.html" title="Hello, Haskell"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../variable-function.html" title="初探變數與函式"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443680"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443680"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443680"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443680"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443680"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443680"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443680"></script>
+  </body>
+</html>

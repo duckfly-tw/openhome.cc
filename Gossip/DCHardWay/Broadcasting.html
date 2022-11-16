@@ -1,0 +1,146 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 NumPy 在處理資料時，可以將資料看成一個整體進行運算，例如，可以對一組數字全部加 1：
+import numpy as np
+
+nums1 = np.array([1, 2, 3])
+num...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="NumPy 擴張機制（一）">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/DCHardWay/Broadcasting.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="使用 NumPy 在處理資料時，可以將資料看成一個整體進行運算，例如，可以對一組數字全部加 1：
+import numpy as np
+
+nums1 = np.array([1, 2, 3])
+num...">
+
+    <title>NumPy 擴張機制（一）</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Broadcasting.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Python 資料科學</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>NumPy 擴張機制（一）</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>使用 NumPy 在處理資料時，可以將資料看成一個整體進行運算，例如，可以對一組數字全部加 1：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+
+nums1 = np.array([1, 2, 3])
+nums2 = nums1 + 10
+</code></pre>
+<p>從程式設計者的角度來看，<code>nums</code> 是一組數字，怎麼可以直接加上一個純量呢？然而，換個角度來想，
+<br  />你是要對這組數字進行相同的操作，直接加 10，在表達上不是就夠了？</p>
+<p>好吧！以上的說明文字，是從〈<a href="ArrayProgramming.html">陣列程式設計</a>〉中複製過來的，當時純綷是從程式碼的表述來談，那麼你有沒有想過，為什麼 NumPy 可以這麼做？</p>
+<p>你可能會從純量計算的角度來看這件事，例如：</p>
+<pre class="prettyprint"><code lang="python">nums1 = [1, 2, 3]
+nums2 = [n + 10 for n in nums1]
+</code></pre>
+<p>然而，NumPy 也可以將不同維度的陣列進行運算：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+
+a = np.arange(4).reshape(2, 2)
+print(a + 10)
+print(a + np.array([1, 3]))
+print(a + np.array([[2, 4], [6, 8]]))
+print(a + np.array([[10, 20]]))
+print(a + np.array([[100]]))
+print(a + np.array([200]))
+</code></pre>
+<p>想想看以上的計算各會什麼結果呢？而且並非各種維度都能混在一起計算，底下就會出錯：</p>
+<pre class="prettyprint"><code lang="python">import numpy as np
+
+a = np.arange(4).reshape(2, 2)
+print(a + np.array([1, 2, 3]))
+</code></pre>
+<p>錯誤訊息會是：</p>
+<pre class="prettyprint"><code lang="python">ValueError: operands could not be broadcast together with shapes (2,2) (3,)
+</code></pre>
+<p>從訊息中可以看到 broadcast 這個字眼，對於不同維度的資料，NumPy 有一套複雜的運算機制，稱為 Broadcasting，中文常翻為擴張，在〈<a href="https://numpy.org/doc/stable/reference/ufuncs.html#broadcasting">Broadcasting</a>〉可以看到擴張的四個規則，以及輸入陣列可擴張的（broadcastable）三個條件…呃…我相信第一次看的人，都會冒出一個念頭「這啥鬼？」</p>
+<p>你有沒有注意到，〈<a href="https://numpy.org/doc/stable/reference/ufuncs.html#broadcasting">Broadcasting</a>〉的說明文件，是〈<a href="https://numpy.org/doc/stable/reference/ufuncs.html">Universal functions</a>〉的一部份呢？Universal functions 文件的一開頭就寫到：</p>
+<pre class="prettyprint"><code lang="python">A universal function (or ufunc for short) is a function that operates on ndarrays in an element-by-element fashion, supporting array broadcasting, type casting, and several other standard features.
+</code></pre>
+<p>理解擴張的出發點，其實就在 <strong><em>operates on ndarrays in an element-by-element fashion</em></strong> 這段，無論是幾維，形狀為何，Universal 函式底層關心的，都是單一元素如何處理，在〈<a href="Universal.html">NumPy 的 Universal 函式</a>〉中，透過 <code>frompyfunc</code> 包裹普通的 Python 函式時，你指定的普通 Python 函式就是這麼做的。</p>
+<p>先從簡單的開始好了，對於 <code>a = np.array([1, 2, 3])</code> 與 <code>b = np.array([4, 5, 6])</code>，若透過 <code>np.add</code> 相加（也就是相當於 <code>a + b</code>），<code>np.add</code> 這個 Universal 函式，會一對一地處理元素相加，這沒有問題！</p>
+<p>如果是 <code>a = np.array([1, 2, 3])</code> 與 <code>b = 1</code> 呢？兩者維度不同，<code>np.add</code> 找出維度較大的陣列 <code>a</code>，讓 <code>b</code> 的維度與之相同，你可以想像 <code>b</code> 被視為 <code>np.array([1])</code> 了。</p>
+<p>現在維度相同了，而形狀不同，一個是 <code>(3, )</code>，一個是 <code>(1, )</code>，還無法讓 <code>np.add</code> 可以一對一處理，為了能一對一處理，只好在每取出 <code>a</code> 的一個元素時，<code>b</code> 的 <code>1</code> 就用一次，你可以想像 <code>b</code> 被視為 <code>np.array([1, 1, 1])</code> 了。</p>
+<p>就方才的說明，<code>a</code> 的維度是 1，形狀為 <code>(3, )</code>，<code>b</code> 原本維度是 0，形狀為 <code>()</code>（純量 <code>n</code> 可視為 <code>np.array(n)</code>），計算過程就像是在低維度的陣列增加維度，形狀上從 <code>()</code> 變為 <code>(1, )</code>，然後改變形狀為 <code>(3, )</code>，就使用者的角度來看，就像是 <code>b</code> 被擴充了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-1.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>不過這邊只說了「你可以想像 <code>b</code> 被視為&hellip;」，是因為實際上不會真的擴充為陣列，只是就使用者的角度來看會如上圖罷了。</p>
+<p>如果是 <code>a = np.array([1, 2, 3])</code> 與 <code>b = np.array([1])</code> 呢？兩者維度相同，<code>np.add</code> 想要一對一處理時發現形狀不同，只好在每取出 <code>a</code> 的一個元素時，<code>b</code> 中唯一的元素 <code>1</code> 就用一次，你可以想像 <code>b</code> 被視為 <code>np.array([1, 1, 1])</code> 了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-2.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>就方才的說明，<code>a</code> 的維度是 1，形狀為 <code>(3, )</code>，<code>b</code> 原本維度是 1，形狀為 <code>(1, )</code>，然後改變形狀為 <code>(3, )</code>。</p>
+<p>接著使用二維陣列 <code>a = np.array([[1, 2, 3], [4, 5, 6]])</code>，而 <code>b = np.array([1])</code>，為了便於說明，就都用「想像」後的結果來討論了。首先，兩者維度不同，先增加 <code>b</code> 的維度，也就是視 <code>b</code> 相當於 <code>np.array([[1]])</code>，就形狀而言，<code>b</code> 相當於從 <code>(1, )</code>，變成了 <code>(1, 1)</code>，也就是新維度的軸（axis 0）先設 1（下圖加上陰影表示二維陣列）：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-3.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>維度相同了，<code>np.add</code> 接著想逐一處理元素，然而形狀一個是 <code>(2, 3)</code>，一個是 <code>(1, 1)</code>，首先處理 axis 0，令其成為 <code>(2, 1)</code>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-4.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>接著處理 axis 1，形狀成為 <code>(2, 3)</code>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-5.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>如果是 <code>a = np.array([[1, 2, 3], [4, 5, 6]])</code>，而 <code>b = np.array([[7, 8, 9]])</code> 呢？首先，兩者維度相同，然而形狀一個是 <code>(2, 3)</code>，一個是 <code>(1, 3)</code>，首先處理 axis 0，令其成為 <code>(2, 3)</code>：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-6.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>接著就可以逐一運算元素了，可以發現，在形狀不同時，都是依 axis 0、axis 1 這樣的順序來處理。</p>
+<p>如果是 <code>a = np.array([[1, 2, 3], [4, 5, 6]])</code>，而 <code>b = np.array([[7], [8]])</code> 呢？首先，兩者維度相同，然而形狀一個是 <code>(2, 3)</code>，一個是 <code>(2, 1)</code>，axis 0 相同，因此處理 axis 1：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-7.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>如果是 <code>a = np.array([[1, 2, 3], [4, 5, 6]])</code>，而 <code>b = np.array([[7], [8], [9]])</code> 呢？兩者維度相同，然而形狀一個是 <code>(2, 3)</code>，一個是 <code>(3, 1)</code>，從 axis 0 開始，NumPy 就不知道怎麼調整為相同的形狀，這時你就會看到 could not be broadcast 的錯誤了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Broadcasting-8.JPG" alt="NumPy 擴張機制（一）"  /></div></div></p>
+<p>簡單來說，從低維度的軸開始調整形狀時，若不是 1，或相同大小，擴張機制就無法運作，這樣的概念可以擴充至更多維度，記得，理解擴張的出發點，其實就在〈<a href="https://numpy.org/doc/stable/reference/ufuncs.html">Universal functions</a>〉中的 <strong><em>operates on ndarrays in an element-by-element fashion</em></strong> 這段，而〈<a href="https://numpy.org/doc/stable/reference/ufuncs.html#broadcasting">Broadcasting</a>〉中談到的規則，可以說是歸納後的結論。</p>
+<p>來歸納一下我自己覺得容易判斷的方式：</p>
+<ul>
+<li>記得 Universal 函式是逐元素處理</li>
+<li>將低維度的陣列維度增加（形狀前加 1，直到維度相同）</li>
+<li>從低維度的軸開始調整形狀，必須是 1 或相同大小</li>
+</ul>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

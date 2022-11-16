@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="doGet()、doPost()&hellip;
+HTTP 定義了 GET、POST、PUT、DELETE、HEAD、OPTIONS、TRACE 等請求方式，如果要使用 Servlet 處理對應的請求...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="只有 doGet()、doPost()？">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/DoGetDoPost.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="只有 doGet()、doPost()？
+HTTP 定義了 GET、POST、PUT、DELETE、HEAD、OPTIONS、TRACE 等請求方式，如果要使用 Servlet 處理對應的請求...">
+
+    <title>只有 doGet()、doPost()？</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DoGetDoPost.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>只有 doGet()、doPost()？</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>
+<br  />HTTP 定義了 <code>GET</code>、<code>POST</code>、<code>PUT</code>、<code>DELETE</code>、<code>HEAD</code>、<code>OPTIONS</code>、<code>TRACE</code> 等請求方式，如果要使用 Servlet 處理對應的請求，則要在繼承 <code>HttpServlet</code> 之後，重新定義對應的 <code>doXXX()</code> 方法：</p>
+<ul>
+<li><code>doGet()</code> 處理 HTTP <code>GET</code> 請求</li>
+<li><code>doPost()</code> 處理 HTTP <code>POST</code> 請求</li>
+<li><code>doPut()</code> 處理 HTTP <code>PUT</code> 請求</li>
+<li><code>doDelete()</code> 處理 HTTP <code>DELETE</code> 請求</li>
+<li><code>doHead()</code> 處理 HTTP <code>HEAD</code> 請求</li>
+<li><code>doOptions()</code> 處理 HTTP <code>OPTIONS</code> 請求</li>
+<li><code>doTrace()</code> 處理 HTTP <code>TRACE</code> 請求</li>
+</ul>
+<p>當請求來到容器之後，容器會剖析請求，產生 <code>HttpServletRequest</code>、<code>HttpServletResponse</code>，分別代表該次求在 JVM 中的請求物件與回應物件，之後呼叫 <code>Servlet</code> 的 <code>service()</code> 方法，將 <code>HttpServletRequest</code>、<code>HttpServletResponse</code> 物件傳入，而 <code>HttpServlet</code> 的 <code>service()</code> 方法實作是（以 Tomcat 9 為例）：</p>
+<pre class="prettyprint"><code lang="java">protected void service(HttpServletRequest req, HttpServletResponse resp)
+    throws ServletException, IOException {
+
+    String method = req.getMethod();
+
+    if (method.equals(METHOD_GET)) {
+        long lastModified = getLastModified(req);
+        if (lastModified == -1) {
+            // servlet doesn't support if-modified-since, no reason
+            // to go through further expensive logic
+            doGet(req, resp);
+        } else {
+            long ifModifiedSince;
+            try {
+                ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
+            } catch (IllegalArgumentException iae) {
+                // Invalid date header - proceed as if none was set
+                ifModifiedSince = -1;
+            }
+            if (ifModifiedSince &lt; (lastModified / 1000 * 1000)) {
+                // If the servlet mod time is later, call doGet()
+                // Round down to the nearest second for a proper compare
+                // A ifModifiedSince of -1 will always be less
+                maybeSetLastModified(resp, lastModified);
+                doGet(req, resp);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            }
+        }
+
+    } else if (method.equals(METHOD_HEAD)) {
+        long lastModified = getLastModified(req);
+        maybeSetLastModified(resp, lastModified);
+        doHead(req, resp);
+
+    } else if (method.equals(METHOD_POST)) {
+        doPost(req, resp);
+
+    } else if (method.equals(METHOD_PUT)) {
+        … 略
+}
+</code></pre>
+<p>這也是為何你在繼承 <code>HttpServlet</code> 之後，必須實作與 HTTP 方法對應的 <code>doXXX()</code> 方法來處理請求（這是 〈<a href="../DesignPattern/TemplateMethod.htm">Template Method 模式</a>〉的實現）。如果客戶端發出了你沒有實作的請求又會如何？這必須看 <code>HttpServlet</code> 的 <code>doXXX()</code> 方法如何實作。例如，<code>HttpServlet</code> 的 <code>doXXX()</code> 等方法僅實作以下內容（以 <code>doGet()</code> 為例）：</p>
+<pre class="prettyprint"><code lang="java">protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    throws ServletException, IOException
+{
+    String protocol = req.getProtocol();
+    String msg = lStrings.getString("http.method_get_not_supported");
+    if (protocol.endsWith("1.1")) {
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+    } else {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
+    }
+}
+</code></pre>
+<p>舉例來說，如果你在繼承 <code>HttpServlet</code> 之後，沒有重新定義 <code>doGet()</code> 方法，而客戶端對該 Servlet 發出了 <code>GET</code> 請求，則會收到錯誤訊息。</p>
+<p>而在上面 <code>HttpServlet</code> 的 <code>service()</code> 方法中，你可以看到，對於 <code>GET</code> 請求，你可以實作 <code>getLastModified()</code> 方法（預設傳回 <code>-1</code>，也就是預設不支援 <code>if-modified-since</code> 標頭），來決定是否呼叫 <code>doGet()</code> 方法，<code>getLastModified()</code> 方法傳回自1970年1月1日午夜至資源最後一次更新期間所經過的毫秒數。</p>
+<p>在 JavaScript 尚未興起，前端工程還未當道的那個年代，Web 應用程式多只需處理 <code>GET</code> 與 <code>POST</code> 請求，這是因為過去發送客戶端請求，主要以 HTML 表單發送為主，而 HTML 的 <code>&lt;form&gt;</code> 在 <code>method</code> 屬性上，只支援 <code>get</code> 與 <code>post</code>。</p>
+<p>不過，在 JavaScript 興起以及前端工程當道之後，因為可以透過 JavaScript 來發出各種請求方法，也就不再侷促於 <code>GET</code> 與 <code>POST</code> 了，想知道應該選用哪個 HTTP 方法，最好的方式，就是對 HTTP 的各個方法規範有進一步的認識：</p>
+<ul>
+<li><p>敏感資訊</p>
+<p>就 HTTP/1.1 對 <code>GET</code> 的規範來說，是從指定的 URI「取得」想要的資訊，指定的 URI 包括了請求查詢（Query）部份，例如 <code>GET /?id=0093</code>。瀏覽器會將指定的 URI 顯示在網址列上。</p>
+<p>因此，像是密碼、會話 ID 等敏感資訊，就不適合使用 <code>GET</code> 發送，除了可能被鄰近之人偷窺，或者是被現代瀏覽器過於方便的網址自動補齊記錄下來之外，另一個問題在於 HTTP 的 <code>Referer</code> 標頭，這是用來表示從哪兒連結到目前的網頁，如果你的網址列出現了敏感資訊，之後連接到另一個網站，該網址就有可能透過 <code>Referer</code> 標頭得到敏感資訊。</p>
+<p>HTTP/1.1 對 <code>POST</code> 的規範，是要求指定的 URI「接受」請求中附上的實體（Entity），像是儲存為檔案、新增為資料庫中的一筆資料等。由於要求伺服器接受的資訊是附在請求本體（Body）而不是在 URI，瀏覽器網址列不會顯示附上的資訊，傳統上敏感資訊也因此常透過 <code>POST</code> 發送。</p>
+</li>
+<li><p>發送的資料長度</p>
+<p>雖然 HTTP 標準中沒有限制 URI 長度，然而各家瀏覽器對網址列的長度限制不一，伺服器對 URI 長度也有限制，因此資料長度過長的話，就不適用 <code>GET</code> 請求。</p>
+<p><code>POST</code> 的資料是附在請求本體（Body）而不是在 URI，不會受到網址列長度限制，因而 <code>POST</code> 在過去常被用來發送檔案等大量資訊。</p>
+</li>
+<li><p>書籤設置考量</p>
+<p>由於瀏覽器書籤功能是針對網址列，因此想讓使用者可以針對查詢結果設定書籤的話，可以使用 <code>GET</code>。<code>POST</code> 後新增的資源不一定會有個 URI 作為識別，基本上無法讓使用者設定書籤。</p>
+</li>
+<li><p>瀏覽器快取（Cache）</p>
+<p>只要符合 HTTP/1.1 第 13 節對快取的要求，<code>GET</code> 的回應是可以被快取的，最基本的就是指定的 URI 沒有變化時，許多瀏覽器會從快取中取得資料，不過，伺服端可以指定適當的 <code>Cache-Control</code> 標頭來避免 <code>GET</code> 回應被快取的問題。</p>
+<p>至於 <code>POST</code> 的回應，許多瀏覽器（但不是全部）並不會快取，不過 HTTP/1.1 中規範，如果伺服端指定適當的 <code>Cache-Control</code> 或 <code>Expires</code> 標頭，仍可以對 <code>POST</code> 的回應進行快取。</p>
+</li>
+<li><p>安全與等冪</p>
+<p>由於傳統上發送敏感資訊時，並不會透過 <code>GET</code>，因而會有人誤解為 <code>GET</code> 不安全，這其實是個誤會，或者說對安全的定義不同，就 HTTP 而言，在 HTTP/1.1 第 9 節對 <code>HTTP</code> 方法的定義中，有區分了安全方法（Safe methods）與等冪方法（Idempotent methods）。</p>
+<p>安全方法是指在實作應用程式時，使用者採取的動作必須避免有他們非預期的結果。慣例上，<code>GET</code> 與 <code>HEAD</code>（與 <code>GET</code> 同為取得資訊，不過僅取得回應標頭）對使用者來說就是「取得」資訊，不應該被用來「修改」與使用者相關的資訊，像是進行轉帳之類的動作，它們是安全方法，這與傳統印象中 <code>GET</code> 比較不安全相反。</p>
+<p>相對之下，<code>POST</code>、<code>PUT</code> 與 <code>DELETE</code> 等其他方法就語義上來說，代表著對使用者來說可能會產生不安全的操作，像是刪除使用者的資料等。</p>
+<p>安全與否並不是指方法對伺服端是否產生副作用（Side effect），而是指對使用者來說該動作是否安全， <code>GET</code> 也有可能在伺服端產生副作用。</p>
+<p>對於副作用的進一步規範是在方法的等冪特性，<code>GET</code>、<code>HEAD</code>、<code>PUT</code>、<code>DELETE</code> 是等冪方法，也就是單一請求產生的副作用，與同樣請求進行多次的副作用必須是相同的，舉例來說，若使用 <code>DELETE</code> 的副作用就是某筆資料被刪除，相同請求再執行多次的結果就是該筆資料不存在，而不是造成更多的資料被刪除。 <code>OPTIONS</code> 與 <code>TRACE</code> 本身就不該有副作用，所以他們也是等冪方法。</p>
+<p>HTTP/1.1 中的方法去除掉上述的等冪方法之後，換言之，只有 <code>POST</code> 不具有等冪特性。</p>
+<p>這是使得它與 <code>PUT</code> 有所區別的特性之一，在 HTTP/1.1 規範中，<code>PUT</code> 方法要求將附加的實體儲存於指定的 URI，如果指定的 URI 下已存在資源，則附加的實體是用來進行資源的更新，如果資源不存在，則將實體儲存下來並使用指定的 URI 來代表它，這亦符合等冪特性，例如用 <code>PUT</code> 來更新使用者基本資料，只要附加於請求的資訊相同，一次或多次請求的副作用都會是相同，也就是使用者資訊保持為指定的最新狀態。</p>
+</li>
+<li><p>REST 風格</p>
+<p>現在不少 Web 服務或框架支援 REST 風格的架構，REST 全名 REpresentational State Transfer，REST 架構由客戶端／伺服端組成，兩者間通訊機制是無狀態的（Stateless），在許多概念上，與 HTTP 規範不謀而合（REST 架構基於 HTTP 1.0，與 HTTP1.1 平行發展，但不限於HTTP）。</p>
+<p>符合 REST 架構原則的系統稱其為 RESTful，以基於 HTTP 的基本書籤程式來說，<code>POST /bookmarks</code> 是用來新增一筆資料，<code>GET /bookmarks/1</code> 用來取得 ID 為 1 的書籤，<code>PUT /bookmarks/1</code> 用來更新 ID 為 <code>1</code> 的書籤資料，而 <code>DELETE /bookmarks/1</code> 用來刪除 ID 為 <code>1</code> 的書籤資料。</p>
+<p>然而注意到以上的描述，並不是說 <code>PUT</code> 只能用於更新資源，也沒有說要新增資源只能用 <code>POST</code>。先前在等冪性時談過，<code>PUT</code> 在指定的URI下不存在資源時，也會新建請求中附上的資源。等冪性是在選用 <code>POST</code> 或 <code>PUT</code> 時考量的要素之一。</p>
+<p>另一個重要的考量要性，在 HTTP/1.1 中也有規範，也就是請求時指定的 URI 之作用。<code>POST</code> 中請求的 URI，是要求其背後資源必須處理附加的實體，而不是代表處理後實體的 URI；然而 <code>PUT</code> 時請求的 URI，就代表請求中附加實體的 URI，無論是更新或是新增實體。</p>
+</li>
+</ul>
+<p>單純就學習 Servlet/JSP 而言，為了避免範例的複雜度，基本上主要還是利用 <code>GET</code> 與 <code>POST</code> 發送請求，不過記得，你還有其他方法可以使用，實際的應用程式中，不會只是 <code>doGet()</code> 或 <code>doPost()</code>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

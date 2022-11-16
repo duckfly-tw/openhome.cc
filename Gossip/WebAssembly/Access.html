@@ -1,0 +1,165 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="存取記憶體的指令基本上區分為 load 系列與、store 系列。對於整數的 load 指令，都會從堆疊中取出一個 i32 數值作為位元組偏移量（也就是定址之用），名稱上可以識別從記憶體取出的位元長度...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="存取記憶體">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Access.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="存取記憶體的指令基本上區分為 load 系列與、store 系列。對於整數的 load 指令，都會從堆疊中取出一個 i32 數值作為位元組偏移量（也就是定址之用），名稱上可以識別從記憶體取出的位元長度...">
+
+    <title>存取記憶體</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Access.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>存取記憶體</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>存取記憶體的指令基本上區分為 <code>load</code> 系列與、<code>store</code> 系列。對於整數的 <code>load</code> 指令，都會從堆疊中取出一個 <code>i32</code> 數值作為位元組偏移量（也就是定址之用），名稱上可以識別從記憶體取出的位元長度，以及擴充方式，無論是整數或浮點數，若只有 load 字樣，依指令前的型態決定位元長度，取出的數值會置入堆疊。</p>
+<ul>
+<li><code>i32.load8_s</code>：載入 8 個位元，視為有號整數擴充為 <code>i32</code>。</li>
+<li><code>i32.load8_u</code>：載入 8 個位元，視為無號整數擴充為 <code>i32</code>（左邊補 0）。</li>
+<li><code>i32.load16_s</code>：載入 16 個位元，視為有號整數擴充為 <code>i32</code>。</li>
+<li><code>i32.load16_u</code>：載入 16 個位元，視為無號整數擴充為 <code>i32</code>（左邊補 0）。</li>
+<li><code>i32.load</code>：載入 32 個位元，以 <code>i32</code> 放入堆疊。</li>
+<li><code>i64.load8_s</code>：載入 8 個位元，視為有號整數擴充為 <code>i64</code>。</li>
+<li><code>i64.load8_u</code>：載入 8 個位元，視為無號整數擴充為 <code>i64</code>（左邊補 0）。</li>
+<li><code>i64.load16_s</code>：載入 16 個位元，視為有號整數擴充為 <code>i64</code>。</li>
+<li><code>i64.load16_u</code>：載入 16 個位元，視為無號整數擴充為 <code>i64</code>（左邊補 0）。</li>
+<li><code>i64.load32_s</code>：載入 32 個位元，視為有號整數擴充為 <code>i64</code>。</li>
+<li><code>i64.load32_u</code>：載入 32 個位元，視為無號整數擴充為 <code>i64</code>（左邊補 0）。</li>
+<li><code>i64.load</code>：載入 64 個位元，以 <code>i64</code> 放入堆疊。</li>
+<li><code>f32.load</code>：載入 32 個位元，以 <code>f32</code> 放入堆疊。</li>
+<li><code>f64.load</code>：載入 64 個位元，以 <code>f64</code> 放入堆疊。</li>
+</ul>
+<p>底下這個模組，使用 <code>i32.load8_s</code> 每次讀取 8 個位元，共讀取五次：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (memory (data "Hello"))
+    (func $main
+        (local $i i32)
+        loop
+            (i32.load8_s (get_local $i))
+            call $log
+            (set_local $i 
+                (i32.add
+                    (get_local $i)
+                    (i32.const 1)
+                )
+            )
+            (br_if 0 
+                (i32.ne
+                    (get_local $i)
+                    (i32.const 5)
+                ) 
+            )  
+        end
+    )
+    (start $main)
+)
+</code></pre>
+<p>匯入的 <code>$log</code> 函式，會依指定的數值以 <code>String.fromCharCode</code> 轉為字串，因此會顯示 Hello：</p>
+<pre class="prettyprint"><code lang="wat">const importObj = {
+    env: {
+        log(n) {
+            console.log(String.fromCharCode(n));
+        }
+    }
+};
+
+WebAssembly.instantiateStreaming(fetch('program.wasm'), importObj);
+</code></pre>
+<p>指定位元組偏移量若超出了記憶體的位元組長度，會發生超出邊界的錯誤！</p>
+<p>在儲存方面，對於整數的 <code>store</code> 指令，名稱上可以識別要儲存的位元長度，它會從堆疊中取出一個數值，接著再從堆疊中取得一個 <code>i32</code> 作為位元組偏移量，例如從記憶體開頭讀寫 72 這個數值：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (memory 1)
+    (func $main
+        i32.const 0   ;; 先指定偏移量
+        i32.const 72  ;; 再指定要存放的數值
+        i32.store8
+        i32.const 0
+        i32.load8_s
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>這樣看來很不直覺，不過，若寫成以下就容易閱讀了：</p>
+<pre class="prettyprint"><code lang="wat">(module
+    (import "env" "log" (func $log (param i32)))
+    (memory 1)
+    (func $main
+        (i32.store8 (i32.const 0) (i32.const 72))
+        (i32.load8_s (i32.const 0))
+        call $log
+    )
+    (start $main)
+)
+</code></pre>
+<p>可以使用的儲存指令有：</p>
+<ul>
+<li><code>i32.store8</code>：將 <code>i32</code> 數值取 8 位元存入，多的位元捨去。</li>
+<li><code>i32.store16</code>：將 <code>i32</code> 數值取 16 位元存入，多的位元捨去。</li>
+<li><code>i32.store</code>：（不轉換）將 <code>i32</code> 數值的位元存入。</li>
+<li><code>i64.store8</code>：將 <code>i64</code> 數值取 8 位元存入，多的位元捨去。</li>
+<li><code>i64.store16</code>：將 <code>i32</code> 數值取 16 位元存入，多的位元捨去。</li>
+<li><code>i64.store32</code>：將 <code>i32</code> 數值取 32 位元存入，多的位元捨去。</li>
+<li><code>i64.store</code>：（不轉換）將 <code>i64</code> 數值的位元存入。</li>
+<li><code>f32.store</code>：（不轉換）將 <code>f32</code> 數值的位元存入。</li>
+<li><code>f64.store</code>：（不轉換）將 <code>f64</code> 數值的位元存入。</li>
+</ul>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

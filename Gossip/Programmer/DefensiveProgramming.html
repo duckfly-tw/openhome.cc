@@ -1,0 +1,124 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="iThome 網站首載：避免隱藏錯誤的防禦性設計
+      
+      在我的前一篇專欄〈函數式風格錯誤處理〉，談到了避免檢查null而應實現速錯（Fail fast）的概念，對null的檢查...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="避免隱藏錯誤的防禦性設計">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/Programmer/DefensiveProgramming.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="iThome 網站首載：避免隱藏錯誤的防禦性設計
+      
+      在我的前一篇專欄〈函數式風格錯誤處理〉，談到了避免檢查null而應實現速錯（Fail fast）的概念，對null的檢查...">
+
+
+    <title>避免隱藏錯誤的防禦性設計</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DefensiveProgramming.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回程式人目錄</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>避免隱藏錯誤的防禦性設計</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             iThome 網站首載：<a href="http://www.ithome.com.tw/itadm/article.php?c=81659"><span
+
+          style="color: #444444;"><span style="font-weight: bold;">避免隱藏錯誤的防禦性設計</span></span></a><br>
+      <br>
+      在我的前一篇專欄〈函數式風格錯誤處理〉，談到了避免檢查<code>null</code>而應實現速錯（Fail fast）的概念，對<code>null</code>的檢查範例經常出現在反對防禦性程式設計（Defensive Programming）的討論中，似乎使用了防禦性設計就是罪惡一般，然而程式設計不是理想國，防禦性的檢查仍有其必要，只是防禦的時機不應模糊，防禦的做法也不應隱藏已發生的錯誤。<br>
+      <br>
+      <dl>
+        <dt>防禦性程式設計的問題</dt>
+      </dl>
+      <br>
+      防禦性程式設計一詞，被廣泛地套用在各種防止程式出錯的措施，包括了前置條件檢查、錯誤處理與後置狀態確認等，在這邊狹義地針對前置條件檢查做探討，也就是在呼叫函式前檢查引數，或者在函式一開頭檢查參數值，這也是多數開發者有所爭議之處，是否該檢查函式的輸入，在輸入錯誤時盡可能做妥善處理，以避免程式功能上的失常或系統崩潰（Crash）？反對防禦性設計的理由在於，很多時候開發者難以選擇處理錯誤輸入的方案，因而產生種種可能的問題。<br>
+      <br>
+      防禦性設計會發生問題的原因之一，在於不適當地修正前置條件。以函式設計為例，開發者在撰寫函式之時，無論有意無意，其實都假設了函式流程執行前應滿足的某些前置條件，只有在滿足這些條件下，函式定義的流程以能順利進行；在發現客戶端呼叫函式的引數不符合前置條件而造成錯誤時，開發者採取的防禦措施之一是「修正它」，像是在檢查到參數值為null時，就不假思索地提供預設值，然而預設值可能是不適當或是隱含地，呼叫函式的客戶端可能對這個隱含行為一無所知。<br>
+      <br>
+      防禦性設計的問題之二是容易產生令人困惑的結果，有些開發者在發現參數值不符合前置條件而造成錯誤後，會以條件判斷限定在參數值符合前置條件下，方可執行原先函式定義的流程，然而忽略了不符合的情況，這令客戶端在呼叫函式的引數不符前置條件時就靜悄悄地結束了，困惑地誤以為函式執行沒有效果。<br>
+      <br>
+      防禦性設計的問題根源在於不相信客戶端的輸入，或者一開始沒有明確定義函式執行的前置條件，因而徑自安插前置條件的檢查程式碼，由於函式會繼續呼叫其他函式，因此錯誤輸入會不斷傳播，因而檢查前置條件的程式碼會蔓延，使得可讀性降低，重複地對相同的前置條件做檢查，也會造成程式效率低落。<br>
+      <br>
+      <dl>
+        <dt>前置條件不足時如何處理？</dt>
+      </dl>
+      <br>
+      大多數反對防禦性設計的討論，最終都指向它試圖隱藏前置條件不足時該呈現的錯誤，因此解決方式就是思考如何明確地提供前置條件不足時的解決方案。如果函式的參數確實可有預設值，可重載（Overload）另一函式以預設值來呼叫原函式，客戶端呼叫函式時就可明確選擇是否使用有預設值的重載版本，必要時，甚至參數也可是〈函數式風格錯誤處理〉中談到的<code>Option</code>型態，明確地提示客戶端在<code>Option</code>沒有實際包含值時，函式中會有預設值來替代。預設值必須明確載明在文件中，在不支援重載機制的語言中，像是動態語言，檢查前置條件不足下提供預設值無可避免，更有賴於明確的文件聲明。<br>
+      <br>
+      即便定義了重載函式，或者明確地在文件中載明預設值，客戶端仍可能以錯誤引數呼叫了不正確的函式，此時可思考參數值不正確時，是否引發語言內建的例外拋出。舉例來說，如果客戶端呼叫函式時傳入整數索引，而這個索引在函式流程中會因存取陣列引發<code>ArrayIndexOutOfBoundsException</code>，那可以不要檢查；如果客戶端傳入的引數錯誤不會引發任何例外，但會使得程式流程進入不正常狀態或結果，那可以進行參數值檢查，在參數值不正確時拋出<code>IllegalArgumentException</code>，也就是防禦性設計下仍可實現速錯概念，防禦性設計不隱藏錯誤的發生。<br>
+      <br>
+      防禦性設計有時可從可讀性觀點思考，舉例來說，如果呼叫函式時傳入<code>null</code>，而後續函式流程會因此而拋出<code>NullPointerException</code>，許多反對防禦性設計的討論會說在這種情況下不要檢查<code>null</code>，任其拋出例外；然而，實際上函式中拋出<code>NullPointerException</code>，到底是因為參數為<code>null</code>而引發，或者是函式中其它變數為<code>null</code>所引發呢？為了使語義明確，在檢查到參數為<code>null</code>時，撰寫程式拋出<code>IllegalArgumentException</code>，反倒是個明確的做法。<br>
+      <br>
+      <dl>
+        <dt>誰該檢查前置條件？</dt>
+      </dl>
+      <br>
+      防禦性設計本身並非不良，而是防禦性設計本身不能是隱含的，也就是不可私自地修正前置條件，也不可隱藏錯誤。那麼誰該進行前置條件檢查？如果開發者撰寫的函式在參數值不符合前置條件下，仍可以執行並進入錯誤流程或產生錯誤結果，那麼就可以進行檢查並拋出適當例外，如此呼叫函式的客戶端，就會知道有錯誤發生。<br>
+      <br>
+      那麼客戶端是否該於呼叫函式前進行檢查，以避免函式拋出例外？若是為了語義明確，在檢查前置條件不符下，可主動拋出更明確的例外，這建議用於將參數值直接傳給後續函式的時候；如果是函式流程中計算出的中間值用以呼叫函式，則建議以<code>try-catch</code>處理，在<code>catch</code>中重新包裝為更明確語義的例外。主動檢查前置條件是屬於事先預防錯誤，如果必要，可以將檢查流程封裝為獨立函式，增加程式的可讀性。如果不是為了主動拋出更明確的例外，則不建議檢查前置條件，任憑例外向上傳播，在適當的系統邊界再加以處理，避免重複性的前置條件檢查或不必要的<code>try-catch</code>處理。<br>
+      <br>
+      實際上在防禦性設計時討論到速錯，與討論例外處理時有些例外不應處理，而應任其向上傳播，有著相同的概念，那就是這種情況下都是因為程式有臭蟲（Bug）存在，在解決掉臭蟲前，任何預防或事後補救都是不建議的。如果臭蟲（Bug）的根源來自客戶端不正確的輸入，那麼在客戶端可接觸到的邊界統一進行檢查，或者是呈現出客戶端可理解的錯誤，才是正確的做法。<br>
+      <br>
+      JDK1.4新增了<code>assert</code>關鍵字，其運用的場合之一就是前置條件檢查，當使用<code>assert</code>進行斷言而條件不成立時，會拋出<code>AssertError</code>，<code>Error</code>表示開發者不應該試圖補救，而應該檢查哪邊出現了臭蟲。有些語言也有assert的類似功能，而且通常也可以設定為停用，在確認系統不用再擔心不正確輸入時，可關閉斷言功能，以避免不必要的檢查影響了效率。<br>
+      <br>
+      <dl>
+        <dt>防禦性思考、溝通與建立規範</dt>
+      </dl>
+      <br>
+      在一些場合中，像是考慮到安全的場合，因為惡意使用者會特意製造不正確的輸入，讓程式依舊運行，但產生開發者非預期的結果，此時防禦性程式設計有絕對的必要性。類似地，有時客戶端並非故意地傳遞了不正確的引數，程式仍可能持續運行但產生不正確結果，採取防禦性設計主動拋出錯誤反倒是必要的；會出現不適當的防禦性設計，追根究底都是由於沒有適當規範，加上開發者間溝通不良所造成，因為防禦性設計的出發點就是不信任客戶端。<br>
+      <br>
+      防禦性地思考本身並非不好，防患未然是件好事，在設計函式時多思考一些前置條件，以及誰該負責前置條件的滿足等問題，有助於開發者認清手中函式該負責的職責；如果檢查的職責無法釐清時，應多加溝通並建立規範，而不是徑自採取處理錯誤輸入的方案。某些程度來說，防禦性設計與例外處理是類似的，一個是事先預防，一個是事後補救，如果沒有良好的溝通與一致的規範，開發者採取各自的預防或補救方案，非但無法解決問題，兩者最後都會是隱藏了錯誤而使得系統難以除錯。<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <p></p>
+      <p></p>
+      <ul>
+      </ul><br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

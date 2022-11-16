@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Varying</title>      
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }        
+            #glCanvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }    
+        </style>
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            uniform float aspect;
+            attribute vec3 position;
+            attribute vec4 color;
+
+            varying vec4 fColor;
+    
+            void main(void) {
+                gl_Position = vec4(position.x, position.y * aspect, position.z, 1.0);
+                gl_PointSize = 5.0;
+                fColor = color;
+            }
+        </script>          
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            varying vec4 fColor;
+
+            void main(void) {
+                gl_FragColor = fColor;
+            }
+        </script>        
+    </head>
+    <body>
+        <canvas id="glCanvas">
+
+        <script type="module">
+            import {getGLContext, shaderSourceById, installProgram} from './js/gl-comm-1.js';
+
+            const gl = getGLContext(document.getElementById('glCanvas'));
+            const prog = installProgram(gl, 
+                shaderSourceById('vertex-shader'), 
+                shaderSourceById('fragment-shader')
+            );
+
+            // 頂點數
+            const n = 20;
+            
+            const verteices = [];
+            for(let i = 0; i < 3 * n; i += 3) {
+                verteices[i] = Math.random() - 0.5;      // x
+                verteices[i + 1] = Math.random() - 0.5;  // y
+                verteices[i + 2] = Math.random() - 0.5;  // z
+            }
+
+            // 頂點 Buffer
+            const vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);            
+
+            const colors = [];
+            for(let i = 0; i < 4 * n; i += 4) {
+                colors[i] = Math.random();       // R
+                colors[i + 1] = Math.random();   // G
+                colors[i + 2] = Math.random();   // B
+                colors[i + 3] = Math.random();   // Alpha
+            }
+
+            // 顏色 Buffer
+            const colorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+            // 指定給各 attribute
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            const attr_position = gl.getAttribLocation(prog, 'position');
+            gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+            gl.enableVertexAttribArray(attr_position);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            const attr_color = gl.getAttribLocation(prog, 'color');
+            gl.vertexAttribPointer(attr_color, 4, gl.FLOAT, false, 0 , 0);
+            gl.enableVertexAttribArray(attr_color);
+
+            gl.uniform1f(
+                gl.getUniformLocation(prog, 'aspect'),
+                gl.canvas.clientWidth / gl.canvas.clientHeight
+            );
+
+            // 繪製
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.LINES, 0, 20);
+            
+        </script>
+    </body>
+</html>

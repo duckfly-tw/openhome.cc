@@ -1,0 +1,247 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="自動生成迷宮是個迷人的主題，在起點與終點間充滿各種路徑，起點與終點又必須能連通，乍看之下很神秘；然而嚴格來說，迷宮演算法不難理解，網路上也找得到各種迷宮演算法，實作時更多時候需要的只是細心。
+單元的連...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="手動迷宮">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/ManualMaze.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="自動生成迷宮是個迷人的主題，在起點與終點間充滿各種路徑，起點與終點又必須能連通，乍看之下很神秘；然而嚴格來說，迷宮演算法不難理解，網路上也找得到各種迷宮演算法，實作時更多時候需要的只是細心。
+單元的連...">
+
+    <title>手動迷宮</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ManualMaze.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>手動迷宮</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>自動生成迷宮是個迷人的主題，在起點與終點間充滿各種路徑，起點與終點又必須能連通，乍看之下很神秘；然而嚴格來說，迷宮演算法不難理解，網路上也找得到各種迷宮演算法，實作時更多時候需要的只是細心。</p>
+<h1>單元的連通</h1>
+<p>迷宮設計的起點是，雖然起點與終點間充滿各種路徑，不過迷宮說穿了，並不是路徑的問題，而是迷宮中某單元與鄰居單元間如何連通的問題，具體而言，就是哪個鄰接單元可以連到我這個單元，而我這個單元可以連到哪一個鄰接單元，也就是從來哪，往哪去。</p>
+<p>以方形迷宮為例，每個單元就是一個細胞（cell），一開始彼此都是不通的：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-1.JPG" alt="手動迷宮"  /></div></div></p>
+<p>你可能會想，每個單元應該都是長這樣：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-2.JPG" alt="手動迷宮"  /></div></div></p>
+<p>這樣確實也是彼此不通，不過，可以更簡單些，每一格如下也是彼此不通：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-3.JPG" alt="手動迷宮"  /></div></div></p>
+<p>當然，真的排列出來會像是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-4.JPG" alt="手動迷宮"  /></div></div></p>
+<p>這樣左邊與下面不就沒有牆了嗎？那是繪圖時的問題，繪圖時補上兩條線就可以了，就資料上的關係來說，一個細胞只要有上牆與右牆，彼此排列後就是互不相通了。</p>
+<p>在這樣的資料結構下，如果要能通往右邊的細胞，表示沒有右牆，如果可以通往上面的細胞，表示沒有上牆，如果可以往左走，表示左邊的細胞沒有右牆，如果可以往下走，表示下面的細胞沒有上牆。</p>
+<p>因此，如果迷宮的每個細胞牆面狀況如下：</p>
+<pre class="prettyprint"><code lang="javascript">上牆,   上牆,   上牆, 上右牆 
+右牆, 上右牆,   上牆,   右牆 
+無牆,   右牆,   右牆,   右牆 
+上牆,   上牆,   右牆,   右牆
+</code></pre>
+<p>你就可以畫出底下的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-5.JPG" alt="手動迷宮"  /></div></div></p>
+<p>如果左上角為入口，右下角為出口，補上兩條線，就是迷宮了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/ManualMaze-6.JPG" alt="手動迷宮"  /></div></div></p>
+<p>不同的迷宮演算法，就是自動產生細胞時採用的方式不同，不過在探討這些演算法之前，會先來手動設置這些細胞，並根據這些細胞畫出迷宮，這是為了先實作一些基礎程式碼。</p>
+<h1>迷宮的資料結構</h1>
+<p>每個單元在這邊稱為一個細胞，包含了它的位置以及牆面類型：</p>
+<pre class="prettyprint"><code lang="javascript">function cell(x, y, wallType) {
+    return {x, y, wallType};
+}
+</code></pre>
+<p>接著是迷宮，因為將實作方形迷宮，要指定它有幾列（row）幾行（column）：</p>
+<pre class="prettyprint"><code lang="javascript">class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        // 先手動設置
+        this.cells = [
+            cell(0, 0, Maze.TOP_WALL),   cell(1, 0, Maze.TOP_WALL),       cell(2, 0, Maze.TOP_WALL),   cell(3, 0, Maze.TOP_RIGHT_WALL), 
+            cell(0, 1, Maze.RIGHT_WALL), cell(1, 1, Maze.TOP_RIGHT_WALL), cell(2, 1, Maze.TOP_WALL),   cell(3, 1, Maze.RIGHT_WALL), 
+            cell(0, 2, Maze.NO_WALL),    cell(1, 2, Maze.RIGHT_WALL),     cell(2, 2, Maze.RIGHT_WALL), cell(3, 2, Maze.RIGHT_WALL), 
+            cell(0, 3, Maze.TOP_WALL),   cell(1, 3, Maze.TOP_WALL),       cell(2, 3, Maze.RIGHT_WALL), cell(3, 3, Maze.RIGHT_WALL)
+        ];
+    }
+}
+
+Maze.NO_WALL = 'no_wall';
+Maze.TOP_WALL = 'top_wall';
+Maze.RIGHT_WALL = 'right_wall';
+Maze.TOP_RIGHT_WALL = 'top_right_wall';
+</code></pre>
+<p>可以看到這邊定義了一些常數，可用來設置細胞的牆面類型，這邊先手動設置了每個細胞，後續的文件會自動產生這些細胞。</p>
+<p>你可能會想，為什麼這邊使用一維陣列呢？以二維陣列來實作，這樣可以使用列、行指定陣列索引不是比較方便嗎？也是可以！只不過我想要更有彈性一些，這種寫法其實可以不受限於只能用來實作方形迷宮，另一方面，後續在實作自動產生細胞時，產生的順序就是加入一維陣列的順序，不必額外增加程式碼來記錄順序，就可以拿來實作出動畫顯示迷宮生成的過程。</p>
+<h1>繪製迷宮</h1>
+<p>迷宮既然是由細胞組成，要能繪製迷宮，總要先能繪製細胞吧！</p>
+<pre class="prettyprint"><code lang="javascript">function drawCell(wallType, cellWidth) {
+    if(wallType === Maze.TOP_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(0, 0, cellWidth, 0);
+    }
+
+    if(wallType === Maze.RIGHT_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(cellWidth, 0, cellWidth, cellWidth);
+    }    
+}
+</code></pre>
+<p>這邊單純就是用線段來代表牆面，繪製出平面迷宮，這邊也可以看到，我將迷宮的資料結構與繪製分開的好處，如果你要繪製更漂亮的牆，或是斜角地圖迷宮，甚至是 3D 迷宮，都是可以的！</p>
+<p>接著來繪製整個迷宮：</p>
+<pre class="prettyprint"><code lang="javascript">function drawMaze(maze, cellWidth, sx = 0, sy = 0, ex = maze.columns - 1, ey = maze.rows - 1) {
+    // 根據細胞繪製
+    maze.cells.forEach(cell =&gt; {
+        push();
+
+        translate(cell.x * cellWidth, cell.y * cellWidth);
+        drawCell(cell.wallType, cellWidth);
+
+        pop();
+    });
+
+    // 迷宮外牆
+    const totalWidth = cellWidth * maze.columns;
+    const totalHeight = cellWidth * maze.rows;
+
+    line(0, 0, 0, totalHeight);  
+    line(0, totalHeight, totalWidth, totalHeight);
+    line(totalWidth, totalHeight, totalWidth, 0);  
+    line(totalWidth, 0, 0, 0);  
+
+    // 起點、終點
+    const halfWidth = cellWidth / 2;
+    push();
+        textSize(cellWidth / 2);
+        textAlign(CENTER, CENTER);
+        text('S', sx * cellWidth + halfWidth, sy * cellWidth + halfWidth);
+        text('E', ex * cellWidth + halfWidth, ey * cellWidth + halfWidth);
+    pop();
+}
+</code></pre>
+<p>接下來就只要在 p5.js 中設置一下就可以了：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    noLoop();
+}
+
+function draw() {
+    background(220);
+
+    const maze = new Maze(4, 4);
+    const cellWidth = 50;
+
+    strokeWeight(5);
+    translate(width / 2 - maze.columns / 2 * cellWidth, height / 2 - maze.rows / 2 * cellWidth);
+    drawMaze(maze, cellWidth);
+}
+
+function cell(x, y, wallType) {
+    return {x, y, wallType};
+}
+
+class Maze {
+    constructor(rows, columns) {
+        this.rows = rows;
+        this.columns = columns;
+        this.cells = [
+            cell(0, 0, Maze.TOP_WALL),   cell(1, 0, Maze.TOP_WALL),       cell(2, 0, Maze.TOP_WALL),   cell(3, 0, Maze.TOP_RIGHT_WALL), 
+            cell(0, 1, Maze.RIGHT_WALL), cell(1, 1, Maze.TOP_RIGHT_WALL), cell(2, 1, Maze.TOP_WALL),   cell(3, 1, Maze.RIGHT_WALL), 
+            cell(0, 2, Maze.NO_WALL),    cell(1, 2, Maze.RIGHT_WALL),     cell(2, 2, Maze.RIGHT_WALL), cell(3, 2, Maze.RIGHT_WALL), 
+            cell(0, 3, Maze.TOP_WALL),   cell(1, 3, Maze.TOP_WALL),       cell(2, 3, Maze.RIGHT_WALL), cell(3, 3, Maze.RIGHT_WALL)
+        ];
+    }
+}
+
+Maze.NO_WALL = 'no_wall';
+Maze.TOP_WALL = 'top_wall';
+Maze.RIGHT_WALL = 'right_wall';
+Maze.TOP_RIGHT_WALL = 'top_right_wall';
+
+function drawCell(wallType, cellWidth) {
+    if(wallType === Maze.TOP_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(0, 0, cellWidth, 0);
+    }
+
+    if(wallType === Maze.RIGHT_WALL || wallType === Maze.TOP_RIGHT_WALL) {
+        line(cellWidth, 0, cellWidth, cellWidth);
+    }    
+}
+
+function drawMaze(maze, cellWidth, sx = 0, sy = 0, ex = maze.columns - 1, ey = maze.rows - 1) {
+    maze.cells.forEach(cell => {
+        push();
+
+        translate(cell.x * cellWidth, cell.y * cellWidth);
+        drawCell(cell.wallType, cellWidth);
+
+        pop();
+    });
+
+    const totalWidth = cellWidth * maze.columns;
+    const totalHeight = cellWidth * maze.rows;
+
+    line(0, 0, 0, totalHeight);  
+    line(0, totalHeight, totalWidth, totalHeight);
+    line(totalWidth, totalHeight, totalWidth, 0);  
+    line(totalWidth, 0, 0, 0);  
+
+    const halfWidth = cellWidth / 2;
+    push();
+        textSize(halfWidth);
+        textAlign(CENTER, CENTER);
+        text('S', sx * cellWidth + halfWidth, sy * cellWidth + halfWidth);
+        text('E', ex * cellWidth + halfWidth, ey * cellWidth + halfWidth);
+    pop();
+}
+</script>
+<p>後續不會更動繪圖的部份了，因為要來專注如何自動產生細胞，也如何自動產生 <code>Maze</code> 中的 <code>cells</code> 陣列元素了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

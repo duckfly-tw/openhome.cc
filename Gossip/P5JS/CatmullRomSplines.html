@@ -1,0 +1,225 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈貝茲曲線〉可以看到，貝茲曲線會以第一個控制點作為起點，最後一個控制點作為終點，其他的控制點不在曲線上，對於如果起點與終點確定，想調整這兩點間的曲線時，是貝茲曲線的應用場合。
+然而有時候，我們想在某...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Catmull-Rom 樣條">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/CatmullRomSplines.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈貝茲曲線〉可以看到，貝茲曲線會以第一個控制點作為起點，最後一個控制點作為終點，其他的控制點不在曲線上，對於如果起點與終點確定，想調整這兩點間的曲線時，是貝茲曲線的應用場合。
+然而有時候，我們想在某...">
+
+    <title>Catmull-Rom 樣條</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="CatmullRomSplines.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Catmull-Rom 樣條</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="BezierCurve.html">貝茲曲線</a>〉可以看到，貝茲曲線會以第一個控制點作為起點，最後一個控制點作為終點，其他的控制點不在曲線上，對於如果起點與終點確定，想調整這兩點間的曲線時，是貝茲曲線的應用場合。</p>
+<p>然而有時候，我們想在某個形狀的輪廓上點選取樣，取樣點不連續，這時希望有種曲線，可以通過這些取樣點，這時貝茲曲線就不適用。</p>
+<p>對於這個需求，p5.js 提供了 <code>curve</code>，必須提供四個控制點給它，<code>curve</code> 會畫出以第二個控制點為起點、第三個控制點為終點的曲線，例如：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    noFill();
+    noLoop();
+}
+
+const pts = [
+    pt(280, 20), pt(20, 20), pt(280, 280), pt(20, 280)
+];
+
+const dotD = 10;
+function draw() {
+    background(220);
+
+    // 控制點
+    stroke(255, 102, 0);
+    strokeWeight(dotD);
+    pts.forEach(p => {
+        point(p.x, p.y);
+    });
+
+    // 點的號碼
+    strokeWeight(1);
+    pts.forEach((p, i) => {
+        text(i, p.x, p.y + 15);
+    });
+
+    // 曲線
+    stroke(0);
+    strokeWeight(4);
+    curve(
+        pts[0].x, pts[0].y, 
+        pts[1].x, pts[1].y, 
+        pts[2].x, pts[2].y, 
+        pts[3].x, pts[3].y
+    ); 
+}
+
+function pt(x, y) {
+    return {x, y, selected: false};
+}
+</script>
+<p>乍看有點不明就理，然而這就是 <code>curve</code> 的特性，保證曲線必然以第二個控制點為起點、第三個控制點為終點；既然如此，若有更多的點，每四點用 <code>curve</code> 繪製一次，不就可以保證這曲線，必然通過第一點與終點之外的其他點嗎？</p>
+<p>下圖是使用 6 個控制點，配合 <code>curve</code> 畫出曲線，並顯示了控制點，你可以操作這些控制點，無論如何操作，畫出的曲線都會通過中間的控制點：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    noFill();
+}
+
+const pts = [
+    pt(280, 20), pt(150, 80), pt(20, 140), pt(280, 140), pt(150, 210), pt(20, 280)
+];
+
+const dotD = 10;
+function draw() {
+    background(220);
+
+    ctrlPoints();
+    drawCurve();
+}
+
+function ctrlPoints() {
+    // 控制點
+    stroke(255, 102, 0);
+    strokeWeight(dotD);
+    pts.forEach(p => {
+        point(p.x, p.y);
+    });
+
+    // 點的號碼
+    strokeWeight(1);
+    pts.forEach((p, i) => {
+        text(i, p.x, p.y + 15);
+    });
+
+    // 連接控制點
+    for(let i = 0; i < pts.length - 1; i++) {
+        line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+    }
+}
+
+function drawCurve() {
+    stroke(0);
+    strokeWeight(4);
+    for(let i = 0; i < pts.length - 3; i++) {
+        curve(
+            pts[i].x, pts[i].y, 
+            pts[i + 1].x, pts[i + 1].y, 
+            pts[i + 2].x, pts[i + 2].y, 
+            pts[i + 3].x, pts[i + 3].y
+        );      
+    }
+}
+
+function pt(x, y) {
+    return {x, y, selected: false};
+}
+
+// 設定選取點
+function mousePressed() {
+    const r = dotD / 2;
+    for(let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const pv = createVector(p.x, p.y);
+        const mv = createVector(mouseX, mouseY);
+        if(pv.sub(mv).mag() < r) {
+            p.selected = true;
+            break;
+        }
+    }
+}
+
+// 拖曳選取點
+function mouseDragged() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+          pts[i].x = mouseX;
+          pts[i].y = mouseY;
+          break;
+        }
+    }
+}
+
+// 取消選取點
+function mouseReleased() {
+    for(let i = 0; i < pts.length; i++) {
+        if(pts[i].selected) {
+            pts[i].selected = false;
+            break;
+        }
+    }
+}
+</script>
+<p>那麼 <code>curve</code> 的原理是？想想看貝茲曲線的特性，曲線會通過起點與終點，如果你在某個形狀的輪廓上點選取樣，有沒有可能自動生成一條貝茲曲線，是以兩個鄰接的取樣點作起點與終點？這就是 <code>curve</code> 的原理 Catmull-Rom 樣條（splines）的出發點。</p>
+<p>假設 P0、P1、P2、P3 是指定的控制點，先連接 P0 與 P2，再連接 P1 與 P3：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CatmullRomSplines-1.JPG" alt="Catmull-Rom 樣條"  /></div></div></p>
+<p>接著在 P1 求得一條與紅線平行的線段，在 P2 求得一條與綠線平行的線段：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CatmullRomSplines-2.JPG" alt="Catmull-Rom 樣條"  /></div></div></p>
+<p>平行的線段要多長，是可以自訂的參數，如上圖看到的，兩條平行線段各可以求得 P1'、P2'，現在你有了 P1、P1'、P2'、P2 四個點了，不就可以用來求得貝茲曲線？因為是貝茲曲線，就一定通過起點 P1 與終點 P2，這就是我們想要的。</p>
+<p>這也就是為什麼，<code>curve</code> 畫出的曲線，只會通過中間兩個控制點，而方才談到，平行的線段要多長，是可以自訂的，就上圖來看，平行的線段越長，曲線就越鬆弛，平行的線段越短，曲線就越緊繃。</p>
+<p>在 p5.js 中，這可以透過 <code>curveTightness</code> 來控制，0 為預設的緊繃程度，設為 1 的話是完全緊繃，也就是拉緊為一直線，如果沒什麼特別的需求，通常只要在 0 到 1 之間選個值就可以了。</p>
+<p>不過，緊繃程度 0 到 1 只是一個便於理解的方式，<code>curveTightness</code> 其實可以接受大於 1 的值，也可以是負值，這是因為 p5.js 將平行的線段設為參考來源線段的四分之一，將該點的緊繃值設為 0，往控制點的方向是正方向，抵達控制點時的緊繃值為 1，遠離控制點的方向是負方向，以 P1 與 P1' 為例：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CatmullRomSplines-3.JPG" alt="Catmull-Rom 樣條"  /></div></div></p>
+<p>P2、P2' 的關係也是同理，從上圖來看，緊繃程度設為 1 時，P1 與 P1' 就重合，P2 與 P2' 也重合，這時就是直線了，緊繃程度越小於 0，上圖的曲線就越上彎曲，緊繃程度大於 1 的話，曲線就扭轉了：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CatmullRomSplines-4.JPG" alt="Catmull-Rom 樣條"  /></div></div></p>
+<p>你可以試著將上面可用滑鼠操作控制點的範例，改為四個控制點，適當的拖曳控制點，緊繃度設為 2 來驗證：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/CatmullRomSplines-5.JPG" alt="Catmull-Rom 樣條"  /></div></div></p>
+<p>與 <code>curve</code> 搭配使用的函式，還有 <code>curveDetail</code>、<code>curvePoint</code> 與 <code>curveTangent</code>，它們與〈<a href="BezierCurve.html">貝茲曲線</a>〉中談到的 <code>bezierDetail</code>、<code>bezierPoint</code> 與 <code>bezierTangent</code> 作用相同，用來控制 <code>curve</code> 畫出來的貝茲曲線，就不再贅述了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

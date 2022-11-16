@@ -1,0 +1,181 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在 Web 應用程式中，有時需要多個 Servlet 來完成請求，像是將另一個 Servlet 的回應包括進來，或將請求轉發給別的 Servlet 處理。例如，在〈關於 MVC/Model 2〉曾經看...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="調派請求">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ServletJSP/DispatchRequest.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在 Web 應用程式中，有時需要多個 Servlet 來完成請求，像是將另一個 Servlet 的回應包括進來，或將請求轉發給別的 Servlet 處理。例如，在〈關於 MVC/Model 2〉曾經看...">
+
+    <title>調派請求</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="DispatchRequest.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 Servlet/JSP</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>調派請求</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在 Web 應用程式中，有時需要多個 Servlet 來完成請求，像是將另一個 Servlet 的回應包括進來，或將請求轉發給別的 Servlet 處理。例如，在〈<a href="Model2.html">關於 MVC/Model 2</a>〉曾經看過範例中出現這段程式碼：</p>
+<pre class="prettyprint"><code lang="java">request.getRequestDispatcher("hello.jsp").forward(request, response);
+</code></pre>
+<p>透過 <code>HttpServletRequest</code> 的 <code>getRequestDispatcher()</code> 取得的是一個實作了 <code>RequestDispatcher</code> 介面的物件，呼叫 <code>HttpServletRequest</code> 的 <code>getRequestDispatcher()</code> 時需要傳入一個相對於目前請求 URL 的路徑資訊。</p>
+<p>（你還有另外兩個方式，可以取得 <code>RequestDispatcher</code> 的方式還有兩個，即透過 <code>ServletContext</code> 的 <code>getRequestDispatcher()</code> 或 <code>getNamedDispatcher()</code> ，之後談到 <code>ServletContext</code> 時會再介紹。）</p>
+<p><code>RequestDispatcher</code> 上有個 <code>include()</code> 方法，可以讓你將另一個 <code>Servlet</code> 回應包括至目前的回應之中。例如：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/some")
+public class Some extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        out.println("Some do one...");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("other");
+        dispatcher.include(request, response);
+        out.println("Some do two...");
+    } 
+}
+</code></pre>
+<p><code>other</code> 實際上會循 URL 模式取得對應的 Servlet。呼叫 <code>include()</code> 時，必須分別傳入實作 <code>HttpServletRequest</code>、<code>HttpServletResponse</code> 介面的物件，這可以是 <code>service()</code> 方法上傳入的物件，或者是自定義的物件或包裹器（Wrapper）。如果被 <code>include()</code> 的 Servlet 是這麼撰寫的：</p>
+<pre class="prettyprint"><code lang="java">package cc.openhome;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
+
+@WebServlet("/other")
+public class Other extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.getWriter().println("Other do one...");
+    }
+}
+</code></pre>
+<p>則網頁上見到的順序是：</p>
+<pre class="prettyprint"><code lang="java">Some do one... Other do one... Some do two... 
+</code></pre>
+<p>在取得 <code>RequestDispatcher</code> 時，也可以包括查詢字串，這會在被包括（Include）或轉發（Forward，透過 <code>forward()</code> 方法）的 Servlet 中取得。例如：</p>
+<pre class="prettyprint"><code lang="java">request.getRequestDispatcher("other?data=123456").include(request, response);
+</code></pre>
+<p>則被包括的 Servlet，可以使用 <code>requset.getParameter("data")</code> 來取得請求參數值。</p>
+<p>Servlet 實例之前彼此獨立，在調派請求的過程中，如果有必須共用的物件，必須透過容器來做溝通，方式之一是設定給請求物件成為屬性，稱之為請求範圍屬性（Request Scope Attribute）。<code>HttpServletRequest</code> 上與請求範圍屬性有關的幾個方法是：</p>
+<ul>
+<li><code>getAttribute()</code></li>
+<li><code>getAttributeNames()</code></li>
+<li><code>setAttribute()</code></li>
+<li><code>removeAttribute()</code></li>
+</ul>
+<p>例如有個 Servlet 會根據某些條件查詢資料：</p>
+<pre class="prettyprint"><code lang="java">List&lt;Book&gt; books = bookDAO.query("some books");
+request.setAttribute("books", books); 
+request.getRequestDispatcher("result").include(request, response); 
+</code></pre>
+<p>假設 <code>result</code> 這個 URL 是個負責回應的 Servlet 實例，則它可以利用 <code>HttpServletRequest</code> 物件的 <code>getAttribute()</code> 取得查詢結果：</p>
+<pre class="prettyprint"><code lang="java">List&lt;Book&gt; books = (List&lt;Book&gt;) request.getAttribute("books");
+</code></pre>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/DispatchRequest-1.JPG" alt="調派請求"  /></div></div></p>
+<p>由於請求物件僅在此次請求週期內有效，在請求/回應之後，請求物件會被銷毀回收資源，設定在請求物件中的屬性自然也就消失了，所以透過 <code>setAttribute()</code> 設定的屬性才稱之為請求範圍屬性。</p>
+<p>在設定請求範圍屬性時，需注意屬性名稱由 <code>java.</code> 或 <code>javax.</code> 開頭的名稱通常保留給規格書中某些特定意義之屬性。例如：</p>
+<ul>
+<li><code>javax.servlet.include.request_uri</code></li>
+<li><code>javax.servlet.include.context_path</code></li>
+<li><code>javax.servlet.include.servlet_path</code></li>
+<li><code>javax.servlet.include.path_info</code></li>
+<li><code>javax.servlet.include.query_string</code></li>
+<li><code>javax.servlet.include.mapping</code>（Servlet 4.0 新增）</li>
+</ul>
+<p>以上的屬性名稱在被包括的 Servlet 中，分別表示被包含的 Servlet 的 Request URI、Context path、Servlet path、Path info 與取得 <code>RequestDispatcher</code> 時給定的請求參數，如果被包括的 Servlet 還有包括其他的Servlet，則這些屬性名稱的對應值也會被代換。</p>
+<p>之所以會需要這些請求屬性名稱，是因為在 <code>RequestDispatcher</code> 執行 <code>include()</code> 時，必須傳入 <code>request</code>、<code>response</code> 物件，而這兩個物件來自於最前端的 Servlet，後續的 Servlet 若使用 <code>request</code>、<code>response</code> 物件，也就會是一開始最前端 Servlet 收到的兩個物件，此時嘗試在後續的 Servlet 中使用 <code>request</code> 物件的 <code>getRequestURI()</code> 等方法，得到的資訊跟第一個 Servlet 中執行<code>getRequestURI()</code> 等方法是相同的。</p>
+<p>然而，有時必須取得 <code>include()</code> 時傳入的路徑資訊，而不是第一個 Servlet 的路徑資訊，這時候就必須透過方才的幾個屬性名稱來取得，你不用記憶那些屬性名稱，可以透過 <code>RequestDispatcher</code> 定義的常數來取得：</p>
+<ul>
+<li><code>RequestDispatcher.INCLUDE_REQUEST_URI</code></li>
+<li><code>RequestDispatcher.INCLUDE_CONTEXT_PATH</code></li>
+<li><code>RequestDispatcher.INCLUDE_SERVLET_PATH</code></li>
+<li><code>RequestDispatcher.INCLUDE_PATH_INFO</code></li>
+<li><code>RequestDispatcher.INCLUDE_QUERY_STRING</code></li>
+<li><code>RequestDispatcher.INCLUDE_MAPPING</code>（Servlet 4.0 新增）</li>
+</ul>
+<p>前五個取得屬性都是字串，而 <code>RequestDispatcher.INCLUDE_MAPPING</code> 取得的屬性會是 <code>HttpServletMapping</code> 實例，因此可以透過它的 <code>getMappingMatch()</code> 等方法取得相關的 URL 匹配資訊（詳見〈<a href="URLPattern.html">URL 模式</a>〉）。</p>
+<p>在使用 <code>include()</code> 時，被包括的 Servlet 中可以使用 <code>getSession()</code> 方法取得 <code>HttpSession</code> 物件（之後會介紹，預設會在回應中加個一個 <code>Cookie</code> 請求標頭），除了這個之外，在被包括的 Servlet 中任何對請求標頭的設定都會被忽略。</p>
+<p><code>RequestDispatcher</code> 有個 <code>forward()</code> 方法，呼叫時同樣必須傳入請求與回應物件，這表示你要將請求處理轉發給別的 Servlet，回應亦轉發給另一個 Servlet，因此要呼叫 <code>forward()</code> 方法的話，目前的 Servlet 不能有任何回應確認（Commit），如果在目前的 Servlet 的有透過回應物件設定了一些回應但未確認（回應緩衝區未滿或未呼叫任何出清方法），則所有回應設定會被忽略，如果已經有回應確認且呼叫了 <code>forward()</code> 方法，則會丟出 <code>IllegalStateException</code>。</p>
+<p>在被轉發請求的 Servlet 中，亦可透過以下的請求範圍屬性名稱取得對應資訊：</p>
+<ul>
+<li><code>javax.servlet.forward.request_uri</code></li>
+<li><code>javax.servlet.forward.context_path</code></li>
+<li><code>javax.servlet.forward.servlet_path</code></li>
+<li><code>javax.servlet.forward.path_info</code></li>
+<li><code>javax.servlet.forward.query_string</code></li>
+<li><code>javax.servlet.forward.mapping</code>（Servlet 4.0 新增）</li>
+</ul>
+<p>同樣地，會需要這些請求屬性的原因在於，在 <code>RequestDispatcher</code> 執行 <code>forward()</code> 時，必須傳入 <code>request</code>、<code>response</code> 物件，而這兩個物件來自於最前端的 Servlet，後續的 Servlet 若使用 <code>request</code>、<code>response</code> 物件，也就會是一開始最前端 Servlet 收到的兩個物件，此時嘗試在後續的 Servlet 中使用 <code>request</code> 物件的 <code>getRequestURI()</code> 等方法，得到的資訊跟第一個 Servlet 中執行<code>getRequestURI()</code> 等方法是相同的。</p>
+<p>然而，有時必須取得 <code>forward()</code> 時傳入的路徑資訊，而不是第一個 Servlet 的路徑資訊，這時候就必須透過方才的幾個屬性名稱來取得，你不用記憶那些屬性名稱，可以透過 <code>RequestDispatcher</code> 定義的常數來取得：</p>
+<ul>
+<li><code>RequestDispatcher.FORWARD_REQUEST_URI</code></li>
+<li><code>RequestDispatcher.FORWARD_CONTEXT_PATH</code></li>
+<li><code>RequestDispatcher.FORWARD_SERVLET_PATH</code></li>
+<li><code>RequestDispatcher.FORWARD_PATH_INFO</code></li>
+<li><code>RequestDispatcher.FORWARD_QUERY_STRING</code></li>
+<li><code>RequestDispatcher.FORWARD_MAPPING</code>（Servlet 4.0 新增）</li>
+</ul>
+<p>由於請求的 <code>include()</code> 或 <code>forward()</code>，是屬於容器內部流程的調派，而不是在回應中要求瀏覽器重新請求某些 URL，因此瀏覽器不會知道實際的流程調派，也就是說，瀏覽器的網址列上也就不會有任何變化。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,131 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebAssembly 是二進位格式，然而，提供了文字格式，便於人類撰寫與閱讀，在〈從 C 到 WebAssembly〉中看過 C 編譯為 WebAssembly，後者對應的文字格式，如果接觸過 Li...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="從 Wat 到 WebAssembly">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebAssembly/Wat2Wasm.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="WebAssembly 是二進位格式，然而，提供了文字格式，便於人類撰寫與閱讀，在〈從 C 到 WebAssembly〉中看過 C 編譯為 WebAssembly，後者對應的文字格式，如果接觸過 Li...">
+
+    <title>從 Wat 到 WebAssembly</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Wat2Wasm.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html"><< WebAssembly</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>從 Wat 到 WebAssembly</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>WebAssembly 是二進位格式，然而，提供了文字格式，便於人類撰寫與閱讀，在〈<a href="C2Wasm.html">從 C 到 WebAssembly</a>〉中看過 C 編譯為 WebAssembly，後者對應的文字格式，如果接觸過 Lisp，可能會覺得有點熟悉，因為 WebAssembly 是基於 S-expression，每個文字格式檔案，就是一個巨大的 S-expression。</p>
+<p>在線上工具部份，<a href="https://wasdk.github.io/WasmFiddle/">WasmFiddle</a> 可以將 C 編譯為 WebAssembly，而且會顯示對應的文字格式，然而沒辦法編輯文字格式，另一個線上工具 <a href="http://mbebenita.github.io/WasmExplorer/">WasmExplorer</a>，可以編輯 C，也可以編輯 WebAssembly 文字格式（然而只提供編譯結果下載，沒有線上編寫 JavaScript 的介面）。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Wat2Wasm-1.JPG" alt="從 Wat 到 WebAssembly"  /></div></div></p>
+<p>在上圖中，Wat 窗格是編寫 WebAssembly 文字格式的地方，WebAssembly 文字格式的副檔名是 .wat，因此常簡稱為 Wat，之後的文件就也這麼稱呼好了。</p>
+<p>在 Wat 窗格編寫完程式，按下「ASSEMBLE」按鈕，就可以編譯為二進位格式，按下「DOWNLOAD」可以下載 .wasm 檔案（至於最右邊的窗格，來自於 Firefox 的 WebAssembly 引擎產生的 .x86 檔案，為WebAssembly 反組譯後的輸出）。</p>
+<p>雖然還沒正式談過 Wat 的撰寫，不過，從 <code>module</code>、<code>func</code>、<code>param</code>、<code>result</code>、<code>export</code> 等關鍵字，大致上可以看出來，上圖 Wat 窗格中撰寫的程式碼中，定義了一個模組，一個 <code>add</code> 函式並將之匯出：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (func $add (param $lhs i32) (param $rhs i32) (result i32)
+    get_local $lhs
+    get_local $rhs
+    i32.add)
+  (export "add" (func $add))
+)
+</code></pre>
+<p><code>get_local</code> 取得指定參數的值，並放至堆疊之中，因為要進行加法，因此先取得左運算元（<code>$lhs</code> 表示 Left Hand Side）置入堆疊，取得右運算元（<code>$rhs</code> 表示 Right Hand Side）置入堆疊，它們都是 <code>i32</code>，也就是 32 位整數，因此進行 <code>i32.add</code>，也就是 32 位元整數加法，這會從堆疊頂端分別取出兩個值，相加後的結果置回堆疊，作為函式的呼叫結果。</p>
+<p>下載 .wasm 檔案之後，想要呼叫這個模組匯出的 <code>add</code> 函式，可以使用〈<a href="C2Wasm.html">從 C 到 WebAssembly</a>〉第一個 HTML 中撰寫的 JavaScript：</p>
+<pre class="prettyprint"><code lang="wat">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;script&gt;    
+    WebAssembly.instantiateStreaming(fetch('program.wasm'))
+               .then(prog =&gt; {
+                   console.log(prog.instance.exports.add(1, 2)); 
+               });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>如果不想要在線上撰寫、編譯 Wat，可以使用 <a href="https://github.com/WebAssembly/wabt">The WebAssembly Binary Toolkit</a>，簡稱 wabt，依其中文件完成編譯之後，基本使用方式是，使用 <code>wat2wasm</code> 將 Wat 編譯為 .wasm，或者使用 <code>wasm2wat</code> 將 .wasm 反編譯為 .wat。</p>
+<p>如果你使用 <a href="https://code.visualstudio.com/">Visual Studio Code</a>，可以安裝 Dmitriy Tsvettsikh 的 <a href="https://marketplace.visualstudio.com/items?itemName=dtsvet.vscode-wasm">WebAssembly Toolkit for VSCode</a> 外掛，它提供了編輯器語法著色，可以在 .wat 上按右鍵另存 .wasm 檔案，或者在 .wasm 上按右鍵，另存或顯示文字格式。</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Wat2Wasm-2.JPG" alt="從 Wat 到 WebAssembly"  /></div></div></p>
+<p>上圖中，我使用的是 Node.js 並配合簡單的 <code>http-server</code>。</p>
+<p>如果要在 WebAssembly 文字格式中，匯入、呼叫 JavaScript 環境匯入之函式，可以使用 <code>import</code>。例如，底下是個等效於〈<a href="C2Wasm.html">從 C 到 WebAssembly</a>〉中，匯入 <code>log</code> 的 Wat 寫法：</p>
+<pre class="prettyprint"><code lang="wat">(module
+  (import "env" "log" (func $log (param i32)))
+  (func $add (param $lhs i32) (param $rhs i32) (result i32)
+    (local $result i32)
+    get_local $lhs
+    get_local $rhs
+    i32.add
+    tee_local $result
+    call $log
+    get_local $result)
+  (export "add" (func $add))
+)
+</code></pre>
+<p>這當中包含了更多 Wat 的細節，之後會再依序說明。</p>
+<p>談到 Node.js，它現在也支援 WebAssembly，以 LTS v8.11.4 為例，可以撰寫以下的 .js：</p>
+<pre class="prettyprint"><code lang="wat">const fs = require('fs');
+const buffer = fs.readFileSync(('program.wasm'));
+
+WebAssembly.instantiate(buffer)
+.then(prog =&gt; {
+    console.log(prog.instance.exports.add(1, 2)); 
+});
+</code></pre>
+<p>然後執行這個 .js 檔案就會看到 3 的結果輸出。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

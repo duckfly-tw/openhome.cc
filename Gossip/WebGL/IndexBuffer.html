@@ -1,0 +1,173 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在〈使用 Buffer〉中談到，可以在 Buffer 中指定頂點資料，透過 gl.TRIANGLE_STRIP 等模式，以 drawArrays 來繪製頂點，這是無索引頂點的實現。
+當然，對於複雜的結...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="索引 Buffer">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/WebGL/IndexBuffer.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在〈使用 Buffer〉中談到，可以在 Buffer 中指定頂點資料，透過 gl.TRIANGLE_STRIP 等模式，以 drawArrays 來繪製頂點，這是無索引頂點的實現。
+當然，對於複雜的結...">
+
+    <title>索引 Buffer</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="IndexBuffer.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 WebGL</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>索引 Buffer</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在〈<a href="https://openhome.cc/Gossip/WebGL/L/Buffer.html">使用 Buffer</a>〉中談到，可以在 Buffer 中指定頂點資料，透過 <code>gl.TRIANGLE_STRIP</code> 等模式，以 <code>drawArrays</code> 來繪製頂點，這是<a href="../ComputerGraphics/NoIndexVetexArray.htm">無索引頂點</a>的實現。</p>
+<p>當然，對於複雜的結構，有序的頂點並不適合，這時可以採用<a href="../ComputerGraphics/VetexArray.htm">頂點索引</a>，搭配指定的 <code>gl.TRIANGLE_STRIP</code> 等模式，使用另一個陣列來列出頂點順序，並使用 <code>drawElements</code> 來繪圖。</p>
+<p>舉例來說，〈<a href="https://openhome.cc/Gossip/WebGL/L/Buffer.html">使用 Buffer</a>〉中曾經以 <code>gl.TRIANGLE_STRIP</code> 繪製出平行四邊形：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/Buffer-2.JPG" alt="索引 Buffer"  /></div></div></p>
+<p>同樣的頂點，若以不同頂點順序繪製，就可以分別得到不同的圖案：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/IndexBuffer-1.JPG" alt="索引 Buffer"  /></div></div></p>
+<p>以左上圖為例，可以使用底下的方式來設置：</p>
+<pre class="prettyprint"><code lang="javascript">const verteices = [
+     0.25, 0.0, 0.0,
+     0.0, 0.433, 0.0,                 
+    -0.25, 0.0, 0.0,
+    -0.5, 0.433, 0.0
+];
+
+// 頂點 Buffer
+const vertexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verteices), gl.STATIC_DRAW);
+
+// 索引 Buffer
+const indexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+    // 索引陣列
+    new Uint8Array([
+      0, 3, 2, 
+      0, 1, 2
+    ]), 
+    gl.STATIC_DRAW
+);
+
+const attr_position = gl.getAttribLocation(prog, 'position');
+gl.vertexAttribPointer(attr_position, 3, gl.FLOAT, false, 0 , 0);
+gl.enableVertexAttribArray(attr_position);
+
+gl.uniform1f(
+    gl.getUniformLocation(prog, 'aspect'),
+    gl.canvas.clientWidth / gl.canvas.clientHeight
+);
+
+// 繪製
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+</code></pre>
+<p>主要就是在設置了頂點 Buffer 之後，進行索引 Buffer 的設置，最後使用 <code>drawElements</code> 方法，第一個參數決定了取用索引 Buffer 的方式，以 <code>gl.TRIANGLES</code> 的設置來說，就是每次取三個索引來繪製三角形，第二個參數決定了總共要繪製幾個頂點，第三個參數是索引 Buffer 中的元素型態，由於是索引 Buffer 是 <code>Uint8Array</code>，因此這邊使用 <code>gl.UNSIGNED_BYTE</code>，第四個參數是位元組偏移量，表示從哪個位元組開始讀取。</p>
+<p>這邊進一步來做個可以按下滑鼠後，切換上圖中兩個圖案的範例，這時因為索引 Buffer 會經常變動，在呼叫 <code>bufferData</code> 時，可以提示 <code>gl.DYNAMIC_DRAW</code>：</p>
+<pre class="prettyprint"><code lang="javascript">// 索引 Buffer
+const indexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indexes), gl.DYNAMIC_DRAW);
+</code></pre>
+<p>這麼一來，之後若想變動 Buffer 內容，可以使用 <code>bufferSubData</code> 方法，這個方法會更新最後一次被 <code>bindBuffer</code> 的 Buffer，例如：</p>
+<pre class="prettyprint"><code lang="javascript">let vi = 0;
+gl.canvas.addEventListener('mousedown', () =&gt; {
+    vi = (vi === 0 ? 1 : 0);
+    indexes_for_swapping[vi].forEach((elem, i) =&gt; {
+        indexes[i] = elem;
+    });
+
+    // 使用 bufferSubData
+    gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, new Uint8Array(indexes));
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+});
+</code></pre>
+<p>你可以<a href="https://openhome.cc/Gossip/WebGL/samples/IndexBuffer-1.html">試試看範例網頁</a>來看看效果，順便看看其中完整的原始碼。</p>
+<p>方才談到，索引陣列的取用方式，是由 <code>gl.TRIANGLE_STRIP</code> 等類型來決定，例如，想要畫出個立方體線框的話：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/IndexBuffer-2.JPG" alt="索引 Buffer"  /></div></div></p>
+<p>頂點索引陣列會有許多方式組成，因為只是要畫線框，一個簡單的索引方式是：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/IndexBuffer-3.JPG" alt="索引 Buffer"  /></div></div></p>
+<p>這樣就每個邊就都畫到了，這顯然可以使用 <code>gl.LINE_STRIP</code>，因此索引陣列可以這麼編：</p>
+<pre class="prettyprint"><code lang="javascript">// 立方體八個頂點
+const n = 0.25;
+const verteices = [
+     n, n, -n,
+     n, -n, -n,
+     n, -n, n,
+     n, n, n,
+     -n, n, n,
+     -n, -n, n,
+     -n, -n, -n,
+     -n, n, -n
+];
+
+const indexes = [
+    0, 1, 2, 3,
+    7, 0, 3, 4,
+    6, 7, 4, 5,
+    1, 6, 5, 2
+];
+</code></pre>
+<p>如果索引 Buffer 使用 <code>Uint8Array</code>，在使用 <code>drawElements</code> 繪製時，最後一個參數可以如下指定：</p>
+<pre class="prettyprint"><code lang="javascript">for(let i = 0; i &lt; 4; i++) {
+    gl.drawElements(gl.LINE_STRIP, 4, gl.UNSIGNED_BYTE, 4 * i);
+}
+</code></pre>
+<p>也就是每繪製四個點，就偏移 4 個位元組，作為下一組索引的存取起點，<a href="https://openhome.cc/Gossip/WebGL/samples/IndexBuffer-2.html">這邊有個範例網頁</a>，可以使用滑鼠左鍵控制是否轉動立方體，為了能看出是個立方體，將立方體進行了旋轉，公式可以參考<a href="../ComputerGraphics/Rotate3Dimension.htm">三維直角座標之繞軸旋轉</a>，實際上，有程式庫可以輔助 WebGL 進行這類任務，像是 <a href="http://glmatrix.net/">glMatrix</a>，這之後再來談。</p>
+<p>因為只畫了線框，這就發生了個有趣的現象，你看到的立方體是順時針還是逆時針旋轉呢（順逆是指 Y 軸正方向往下看的話）？可以用大腦控制它的轉動嗎？</p>
+<p>真正的答案是順時針轉動，不過你也許會覺得困惑，因為函式是依<a href="../ComputerGraphics/Rotate3Dimension.htm">三維直角座標之繞軸旋轉</a>中的公式實作出來的，然而該文件中是基於逆時針而導出公式的，怎麼在這邊變成了順時針？這是因為該文件中的 Z 軸正方向，與裁剪空間的 Z 軸正方向是相反的，如果你使用該文件中的公式，實際上旋轉動效果都正好相反，也就是效果都會是順時針了。</p>
+<p>在動畫處理的部份，使用了 <code>requestAnimationFrame</code>（而不是使用 <code>setInterval</code>、<code>setTimeout</code> 等），這個方法會通知瀏覽器，在更新畫面時呼叫指定的函式，好處是瀏覽器可以最佳化，像是綜合考量 CSS 漸變等其他設定來更新畫面，在切換網頁而看不到動畫頁面，自動停止動畫等，詳細實作的方式就直接參考範例網頁內容了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

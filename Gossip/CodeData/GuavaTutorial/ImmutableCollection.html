@@ -1,0 +1,207 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="【Guava 教學】（5）程式 90% 比率在管理與處理錯誤&nbsp;&lt;&lt; 前情
+      不可變（Immutability）是函數式程式設計（Functional programm...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="【Guava 教學】（6）不可變群集">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/CodeData/GuavaTutorial/ImmutableCollection.html">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="【Guava 教學】（5）程式 90% 比率在管理與處理錯誤&nbsp;&lt;&lt; 前情
+      不可變（Immutability）是函數式程式設計（Functional programm...">
+
+
+    <title>【Guava 教學】（6）不可變群集</title>
+
+<link rel="stylesheet" href="http://openhome.cc/Gossip/css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://openhome.cc/Gossip/css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="http://openhome.cc/Gossip/css/caterpillar.css">
+     <script async src="http://openhome.cc/Gossip/google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="ImmutableCollection.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="http://openhome.cc/Gossip/CodeData/GuavaTutorial/">回 Guava Tutorial</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>【Guava 教學】（6）不可變群集</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+             <br>
+      不可變（Immutability）是函數式程式設計（Functional programming）的基本特性之一。有不少說法是這麼描述：純函數式語言中的變數（Variable）是不可變（Immutable）。是這樣的嗎？基本上沒錯，不過嚴格來說，這樣的說法，是從計算機科學來解釋「變數」這個詞，就如同維基百科上&nbsp;<a
+
+        href="https://zh.wikipedia.org/wiki/%E8%AE%8A%E6%95%B8#.E8.A8.88.E7.AE.97.E6.A9.9F.E7.A7.91.E5.AD.B8.E4.B8.8A">計算機科學上對變數</a> 的條目說明是：
+      <p style="padding-left: 30px;"><strong>可視為在電腦記憶體裏可修改的、存在值的命名空間。</strong></p>
+      然而，在純函數式語言中對「變數」這個詞，要從數學上來解釋，就如同維基百科上 <a href="https://zh.wikipedia.org/wiki/%E8%AE%8A%E6%95%B8#.E6.95.B8.E5.AD.B8.E4.B8.8A">數學上對變數</a>的修目說明是：
+      <p style="padding-left: 30px;"><strong>用於開放句子，表示尚未清楚的值（即未知數），或一個可代入的值。</strong></p>
+      在純函數式語言中，當你說 <code>x = 1</code>，那麼說 <code>x</code> 就是 <code>1</code>，不會再是別的，從計算機科學角度來看，就像是不可變的變數，以 Java 為例的話，就像是變數被加上 <code>final</code> 修飾。<br>
+      如果變數不可變，那設計出來的函數或物件方法就不會有副作用（Side effect），若物件的方法不會有副作用，那麼物件狀態也會是不可變，不可變物件（Immutable object）有許多好處，像是在並行（Concurrent）程式設計時，就不用擔心那些執行緒共用競爭的問題；在面對資料處理問題若需要一些群集（Collection）物件，像是有序的清單（List）、收集不重複物件的集合（Set）等，如果這些群集物件不可變，那麼就有可能共用資料結構，達到節省時間及空間之目的。<br>
+      Java 在設計群集框架時，並沒有為不可變群集物件設計專用型態，看看 <code>Collection</code> 介面就知道了，那些 <code>add</code>、<code>remove</code> 等方法就直接定義在上頭。有趣的是，在 <a
+
+        href="http://docs.oracle.com/javase/7/docs/technotes/guides/collections/overview.html">Collections Framework Overview</a> 中談到了，有些方法操作都是選用的（Optional），如果不打算提供實作的方法，可以丟出 <code>UnsupportedOperationException</code>，實作物件必須在文件上指明，支援哪些操作。<br>
+      在這樣的聲明下，如果你原本有個群集已收集了一些物件，現在打算傳遞這個群集，而且不希望拿到這個群集的任何一方對它做出修改（Modify）操作，那麼可以使用 <code>Collections</code> 上提供的 <code>unmodifiableXXX</code> 方法，那些方法會將群集包裹，對於查詢方法，會委託原群集，對於會修改群集的 <code>add</code>、<code>remove</code> 等方法，則丟出 <code>UnsupportedOperationException</code>。例如 <code>unmodifiableCollection</code> 方法的實作是這樣的：
+      <pre class="prettyprint"><code lang="java">...
+    public static  Collection unmodifiableCollection(Collection&lt;? extends T&gt; c) {
+        return new UnmodifiableCollection&lt;&gt;(c);
+    }
+    static class UnmodifiableCollection implements Collection, Serializable {
+        private static final long serialVersionUID = 1820017752578914078L;
+
+        final Collection&lt;? extends E&gt; c;
+
+        UnmodifiableCollection(Collection&lt;? extends E&gt; c) {
+            if (c==null)
+                throw new NullPointerException();
+            this.c = c;
+        }
+
+        public int size()                   {return c.size();}
+        public boolean isEmpty()            {return c.isEmpty();}
+        public boolean contains(Object o)   {return c.contains(o);}
+        public Object[] toArray()           {return c.toArray();}
+        public  T[] toArray(T[] a)       {return c.toArray(a);}
+        public String toString()            {return c.toString();}
+
+        public Iterator iterator() {
+            return new Iterator() {
+                private final Iterator&lt;? extends E&gt; i = c.iterator();
+
+                public boolean hasNext() {return i.hasNext();}
+                public E next()          {return i.next();}
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+
+        public boolean add(E e) {
+            throw new UnsupportedOperationException();
+        }
+        public boolean remove(Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean containsAll(Collection&lt;?&gt; coll) {
+            return c.containsAll(coll);
+        }
+
+        public boolean addAll(Collection&lt;? extends E&gt; coll) {
+            throw new UnsupportedOperationException();
+        }
+        public boolean removeAll(Collection&lt;?&gt; coll) {
+            throw new UnsupportedOperationException();
+        }
+        public boolean retainAll(Collection&lt;?&gt; coll) {
+            throw new UnsupportedOperationException();
+        }
+        public void clear() {
+            throw new UnsupportedOperationException();
+        }
+    }
+...</code></pre>
+      那麼，透過&nbsp;<code>unmodifiableXXX</code>&nbsp;方法傳回的群集是不可變嗎？不是！傳回的物件只是無法修改（Unmodifiable），也就是僅僅不支援修改操作罷了，在&nbsp;<a
+
+        href="http://docs.oracle.com/javase/7/docs/technotes/guides/collections/overview.html">Collections Framework Overview</a>&nbsp;中就講了：
+      <p style="padding-left: 30px;"><em><strong>Collections that do not support modification operations (such as add, remove and clear) are referred to as <span
+
+              style="color: #ff0000;">unmodifiable</span>.&nbsp;</strong></em></p>
+      這是什麼意思？簡單來說，如果你有個 <code>List</code> 的實作物件被 <code>list</code> 參考的話，那麼 <code>Collections.unmodifiableList(list)</code> 傳回的物件是無法修改，但卻是可變的（Muttable）！嗯？怎麼變？透過 <code>list.add(...)</code> 等修改操作就可變了！，在&nbsp;<a
+
+        href="http://docs.oracle.com/javase/7/docs/technotes/guides/collections/overview.html">Collections Framework Overview</a>&nbsp;中也講了：
+      <p style="padding-left: 30px;"><em><strong>Collections that additionally guarantee that no change in the Collection object will be visible are referred to as <span
+
+              style="color: #ff0000;">immutable</span>.&nbsp;</strong></em></p>
+      &nbsp;所以，不可變從來也沒在 <code>Collections</code> 上那些&nbsp;&nbsp;<code>unmodifiableXXX</code>&nbsp;方法的保證中，畢竟名稱上也指出了，傳回的物件是 <strong>unmodifiable</strong>，不是 <strong>immutable</strong>。無論這是不是在玩文字遊戲，如果你要的是不可變群集，那麼就不能使用&nbsp;&nbsp;<code>Collections</code>&nbsp;上那些&nbsp;&nbsp;<code>unmodifiableXXX</code>&nbsp;方法。<br>
+      Guava 對 JDK 的 <code>Collection</code>、<code>List</code>、<code>Set</code> 等，分別提供了&nbsp;<code>ImmutableCollection</code>、<code>ImmutableList</code>、<code>ImmutableSet</code> 等實作類別，這些類別的實例是不可變。建立它們的方式之一使透過 <code>static</code> 的 <code>of</code> 方法。例如：
+      <pre class="prettyprint"><code lang="java">List&lt;String&gt; nameList = ImmutableList.of("Duke", "Java", "Oracle");
+Set&lt;String&gt; nameSet = ImmutableSet.of("Duke", "Java", "Oracle");</code></pre>
+      上例傳回的實例分別會是 <code>ImmutableList</code> 及 <code>ImmutableSet</code> 的實例，有趣的是，<code>ImmutableSet</code> 會保留 <code>of</code> 方法傳入的引數順序。對於 <code>Map</code>，Guava 也有 <code>ImmutableMap</code>。例如以下會建立 <code>ImmutableMap</code> 的實例：
+      <pre class="prettyprint"><code lang="java">Map&lt;String, Integer&gt; userDB = ImmutableMap.of("Duke", 123, "Java", 456);</code></pre>
+      如果你需要收集資料，最後取得一個 <code>ImmutableXXX</code>，那麼可以使用 <code>builder</code> 方法取得 <code>ImmutableCollection.Builder</code> 實例，由它來收集物件，最後呼叫其 <code>build</code> 方法建造出不可變群集。例如：
+      <pre class="prettyprint"><code lang="java">ImmutableList.Builder&lt;Integer&gt; builder = ImmutableList.builder();
+for(String arg : args) {
+    builder.add(Integer.parseInt(arg));
+}
+List&lt;Integer&gt; numbers = builder.build();</code></pre>
+      如果你已經有陣列、<code>Iterable</code>、<code>Iterator</code> 或 <code>Collection</code> 實例，想要用他們來得到不可變群集，則可以使用 <code>copyOf</code> 方法。例如：
+      <pre class="prettyprint"><code lang="java">public static void doSome(Collection&lt;String&gt; names) {
+    List&lt;String&gt; immutableNames = ImmutableList.copyOf(names);
+    ...
+}</code></pre>
+      正如 <code>copyOf</code> 名稱指出的，他會將物件從來源（淺層）複製出來，而不是單純的包裹來源，因此你對來源加以變動，並不會影響 <code>copyOf</code> 傳回的物件。不過對於參數型態為 <code>Collection</code> 的 <code>copyOf</code> 方法來說，如果實際上傳入的是子類型的 <code>ImmutableXXX</code>，那麼不一定會發生複製，因為群集不可變，所以實際上會有許多共用資料結構的機會。<br>
+      舉例而言，如果將 <code>ImmutableCollection</code> 傳入 <code>ImmutableList.copyOf</code>，方法內部會呼叫其 <code>asList</code> 方法，如果傳入的物件實際上是 <code>ImmutableList</code>，其 <code>asList</code> 的實作只是直接 <code>return this</code> 罷了；如果傳入的實際上是 <code>ImmutableSet</code>，<code>asList</code> 傳回的 <code>ImmutableList</code>，實際上會與&nbsp;<code>ImmutableSet</code> 共用一組陣列。<br>
+      <code>ImmutableCollection</code>&nbsp;既然定義了 <code>asList</code> 方法，其傳回 <code>ImmutableList</code> 實例，這也就表示，即使是 <code>ImmutableSet</code>，也可以透過來以 <code>List</code> 的方式檢視。<br>
+      那麼 <code>ImmutableList</code> 實際上內部是什麼資料結構實作呢？既然它是不可變，那麼陣列自然是最理想的結構，畢竟陣列是記憶體的連續空間結構，索引存取是常數時間。<br>
+      <code>ImmutableList</code> 有 <code>SingletonImmutableList</code>、<code>RegularImmutableList</code> 與 <code>RegularImmutableAsList&nbsp;</code>等子類別。空的以及兩個元素以上的 <code>ImmutableList</code> 都會是 <code>RegularImmutableList</code>；<code>asList</code> 傳回的則是 <code>RegularImmutableAsList</code>，這兩個類別內部都使用陣列元素；而單一元素的 <code>ImmutableList</code> 則會是 <code>SingletonImmutableList</code>，這個類別內部直接包裹該元素，不使用陣列，呼叫 <code>get</code> 時，就只是傳回包裹的單一元素而已：
+      <pre class="prettyprint"><code lang="java">...
+final class SingletonImmutableList&lt;E&gt; extends ImmutableList&lt;E&gt; {
+
+  final transient E element;
+
+  SingletonImmutableList(E element) {
+    this.element = checkNotNull(element);
+  }
+
+  @Override
+  public E get(int index) {
+    Preconditions.checkElementIndex(index, 1);
+    return element;
+  }
+  ...
+}</code></pre>
+      至於 <code>ImmutableSet</code> 也有&nbsp;<code>RegularImmutableSet</code>、<code>SingletonImmutableSet</code> 等子類別，實際上 <code>RegularImmutableSet</code> 內部實作也是使用陣列保存元素，這也就是為什麼 <code>ImmutableSet</code> 可以保有元素順序的原因，先前提到，如果 <code>ImmutableList.copyOf</code> 方法傳入的實際上是 <code>ImmutableSet</code>，<code>asList</code> 傳回的 <code>ImmutableList</code>，實際上會與&nbsp;<code>ImmutableSet</code> 共用一組陣列，指的就是 <code>RegularImmutableSet</code> 中的陣列，不過在呼叫 <code>contains</code> 方法時，並不會因此而成為線性時間，<code>RegularImmutableSet</code> 還保存有另一個陣列，可根據物件的 <code>hashCode</code> 方法傳回值來查找物件，這可從 <code>RegularImmutableSet</code> 的 <code>contains</code> 原始碼略知一二：
+      <pre class="prettyprint"><code lang="java">...
+  @Override public boolean contains(Object target) {
+    if (target == null) {
+      return false;
+    }
+    for (int i = Hashing.smear(target.hashCode()); true; i++) {
+      Object candidate = table[i &amp; mask];
+      if (candidate == null) {
+        return false;
+      }
+      if (candidate.equals(target)) {
+        return true;
+      }
+    }
+  }
+...</code></pre>
+      這些原始碼的探討，其實在回應本文一開始談到的，群集物件若是不可變，那麼就有可能共用資料結構，達到節省時間及空間之目的。不可變特性並非僅存於函數式程式設計的世界，在命令式程式設計（Imperative programming）世界中，在某些場合若可善用不可變特性，就可避免因狀態可變而帶來的問題。<br>
+      Guava 並不特別強調函數式的概念，不過實際上它提出不可變群集程式庫，並非只是單純地令群集不可變，在實作上也確實善用了不可變的益處，你可以查找更多 Guava 不可變群集的相關程式碼，藉此就可以看到更多有趣的設計與概念。<br><br><br><div class="ad336-280" style="text-align: center;"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="http://openhome.cc/Gossip/js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

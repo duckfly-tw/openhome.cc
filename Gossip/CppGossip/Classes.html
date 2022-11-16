@@ -1,0 +1,218 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在類別中可以再定義類別，稱為巢狀類別或內部類別，應用的場景之一是實作 IntLinkedList 時，內部節點可用 IntNode 來定義：
+#include &lt;iostream&gt;
+usi...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="巢狀、區域、匿名類別">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Classes.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在類別中可以再定義類別，稱為巢狀類別或內部類別，應用的場景之一是實作 IntLinkedList 時，內部節點可用 IntNode 來定義：
+#include &lt;iostream&gt;
+usi...">
+
+    <title>巢狀、區域、匿名類別</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Classes.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>巢狀、區域、匿名類別</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在類別中可以再定義類別，稱為巢狀類別或內部類別，應用的場景之一是實作 <code>IntLinkedList</code> 時，內部節點可用 <code>IntNode</code> 來定義：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+class IntLinkedList {
+    class IntNode {
+    public:
+        IntNode(int value, IntNode *next) : value(value), next(next) {}
+        int value;
+        IntNode *next;
+    };
+
+    IntNode *first = nullptr;
+
+public:
+    IntLinkedList&amp; append(int value);
+    int get(int i);
+};
+
+IntLinkedList&amp; IntLinkedList::append(int value) {
+    IntNode *node = new IntNode(value, nullptr);
+    if(first == nullptr) {
+        this-&gt;first = node; 
+    }
+    else {
+        IntNode *last = this-&gt;first;
+        while(last-&gt;next != nullptr) {
+            last = last-&gt;next;
+        }
+        last-&gt;next = node;
+    }
+    return *this;
+}
+
+int IntLinkedList::get(int i) {
+    IntNode *last = this-&gt;first;
+    int count = 0;
+    while(true) {
+        if(count == i) {
+            return last-&gt;value;
+        }
+        last = last-&gt;next;
+        count++;
+    }
+}
+
+int main() {
+    IntLinkedList lt;
+
+    lt.append(1).append(2).append(3);
+    cout &lt;&lt; lt.get(1) &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>範例中 <code>append</code> 以 <code>new</code> 的方式建構了 <code>IntNode</code> 實例，應該要有個解構式，在不需要 <code>IntLinkedList</code> 時，將這些動態建立的 <code>IntNode</code> 清除，這在之後的文件再來詳加探討，目前暫時忽略這個議題。</p>
+<p>內部類別也可以獨立於外部類別定義，例如：</p>
+<pre class="prettyprint"><code lang="c++">class IntLinkedList {
+    class IntNode;
+    IntNode *first = nullptr;
+
+public:
+    IntLinkedList&amp; append(int value);
+    int get(int i);
+};
+
+class IntLinkedList::IntNode {
+public:
+    IntNode(int value, IntNode *next) : value(value), next(next) {}
+    int value;
+    IntNode *next;
+};
+</code></pre>
+<p>在範例中，<code>IntNode</code> 的值域是 <code>public</code>，這是為了便於給外部類別取用 <code>IntNode</code> 的值域，因為內部類別中若有 <code>private</code> 成員，外部類別預設也是不可存取的。</p>
+<p><code>IntLinkedList</code> 的使用者不需要知道 <code>IntNode</code> 的存在，因此 <code>IntNode</code> 被設定為 <code>IntLinkedList</code> 的 <code>private</code> 成員，這將直接將 <code>IntNode</code> 的值域設為 <code>public</code>，也只有 <code>IntLinkedList</code> 可以存取。</p>
+<p>然而有時候，內部類別會是 <code>public</code>，你又不想公開某些值域，又想允許外部類別存取內部類別的 <code>private</code> 值域，怎麼辦呢？可以宣告外部類別是內部類別的朋友，例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class Screen {
+public:
+    class Pixel {
+        int x;
+        int y;
+        friend Screen;  // 朋友類別
+    public:
+        Pixel(int x, int y) : x(x), y(y) {}
+    };
+
+    string info(Pixel px) {
+        return "Pixel(" + to_string(px.x) + ", " + to_string(px.y) + ")";
+    }
+};
+
+int main() {
+    Screen screen;
+    Screen::Pixel px(10, 10);
+    cout &lt;&lt; screen.info(px) &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>被 <code>friend</code> 修飾的對象並不是類別成員的一部份，單純是種存取控制，在這個範例中，<code>Screen::Pixel</code> 的值域不希望被公開存取，然而，允許 <code>Screen</code> 存取，當然，允許存取 <code>private</code> 成員，表示之間有強烈的耦合關係，就範例來說，螢幕包含像素資訊，這邊設計為這種的耦合關係是可以允許的。</p>
+<p>被 <code>friend</code> 修飾的對象可以是類別、函式或者是另一類別的方法，例如重載運算子時，若選擇以非成員函式實作，就有可能需要將非成員函式設為 <code>friend</code>，在〈<a href="OverloadOperator.html">運算子重載</a>〉中就有個例子；然而要記得，允許存取 <code>private</code> 成員，表示之間有強烈的耦合關係，只有在有充分理由之下，才定義哪些該設定為朋友。</p>
+<p>類別也可以在定義在函式之中，也就是區域類別，主要用來臨時封裝一組資料，然而，不可以存取函式中的區域變數：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    class Point {
+    public:
+        Point(int x, int y) : x(x), y(y) {}
+        int x;
+        int y;
+    };
+
+    Point p1(10, 10);
+    Point p2(20, 20);
+
+    return 0;
+}
+</code></pre>
+<p>必要時，區域類別也可以匿名，也就是匿名類別：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    const int dx = 10;
+    const int dy = 20;
+
+    class {
+    public:
+        int x = dx;
+        int y = dy;
+    } p;
+
+    cout &lt;&lt; p.x &lt;&lt; endl;
+
+    return 0;
+}
+</code></pre>
+<p>範例中的 <code>const</code> 是必要的，因為類別中出現的 <code>dx</code>、<code>dy</code> 實際上並不是外部的 <code>dx</code>、<code>dy</code>，編譯器在類別中建立了新的 <code>dx</code>、<code>dy</code>，將外部 <code>dx</code>、<code>dy</code> 的值複製，為了避免類別中試圖參考或取址後進行變更，誤以為外部的 <code>dx</code>、<code>dy</code> 取值時也會隨之變化，故要求加上 <code>const</code>，這麼一來類別中試圖參考或取址也得加上 <code>const</code>，這樣就沒有變更的問題了。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

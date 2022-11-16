@@ -1,0 +1,195 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="如果想產生一條隨機的曲線，最基本的想法是利用 random 函式，在每個 x 處產生一個隨機的 y 值吧！不過，這樣的線連接起來後，比較像個折線：
+function setup() {
+    cre...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Perlin 雜訊">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/P5JS/PerlinNoise.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="如果想產生一條隨機的曲線，最基本的想法是利用 random 函式，在每個 x 處產生一個隨機的 y 值吧！不過，這樣的線連接起來後，比較像個折線：
+function setup() {
+    cre...">
+
+    <title>Perlin 雜訊</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PerlinNoise.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 p5.js</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>Perlin 雜訊</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>如果想產生一條隨機的曲線，最基本的想法是利用 <code>random</code> 函式，在每個 x 處產生一個隨機的 y 值吧！不過，這樣的線連接起來後，比較像個折線，不連續而且無規律：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    fill(255);
+    noLoop();
+}
+
+function draw() {
+    background(125);
+    beginShape();          // 開始繪製多邊形
+    vertex(0, height);     // 設定多邊形頂點
+    for(let x = 0; x <= width; x++) {
+        let y = random(height / 2, height);
+        vertex(x, y);        
+    }
+    vertex(width, height);  
+    endShape();            // 結束繪製多邊形
+}
+</script>
+<p>這邊介紹一下 <code>beginShape</code>、<code>vertex</code>、<code>endShape</code>，這三個函式配合起來，可用來繪製多邊形，只不過這邊將其中三個邊貼在畫布的邊緣，看來就像是繪製多線段，然而又可以有不同於背景的填滿效果，<code>beginShape</code>、<code>vertex</code>、<code>endShape</code> 也可以用來繪製多線段，這之後再來談。</p>
+<p><code>random</code> 產生的值不會是連續的，想想看，自然界有許多看似隨機，然而卻又連續的現象，例如岳崚起伏，看似不規則，然而高低之間又有一定的連續性，如果想要在程式中模擬這種隨機又連續的現象，可以考慮 Perlin 雜訊。</p>
+<p>來看看一維 Perlin 雜訊的基本原理，你可以在每個整數 x 點產生一個隨機值，然而這個隨機值並不作為 y 值，而是作為穿越該點的一條線之斜率，而該線是曲線在該點的切線：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PerlinNoise-1.JPG" alt="Perlin 雜訊"  /></div></div></p>
+<p>兩個 x 點間的 y 值，透過 Ken Perlin 設計的內插函式計算而得，如果你使用 p5.js，知道這些就夠了，因為 p5.js 的 <code>noise</code> 函式就實現了 Perlin 雜訊，若對如何插值有興趣，可以參考〈<a href="http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf">Simplex noise demystified</a>〉，上圖其實也是從該文件中取得。</p>
+<p>p5.js 的 <code>noise</code>，會產生 0 到 1 的值，記得，為了得到和緩的曲線，可以使用整數間的小數來計算，來看看怎麼使用：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+  createCanvas(300, 300);
+  fill(255);
+  noLoop();
+}
+
+
+function draw() {
+    background(125);
+    beginShape();          
+    vertex(0, height);     
+    for(let x = 0; x <= width; x++) {
+      let nx = map(x, 0, width, 0, width / 100); // 縮為百分之一
+      let y = noise(nx) * height / 2;            // 放大 y 值
+      vertex(x, y);        
+    }
+    vertex(width, height);  
+    endShape(); 
+}
+</script>
+<p>這邊透過 <code>map</code> 函式轉換，將 <code>x</code> 的範圍 0 到 <code>width</code>，對應至 0 到 <code>width / 100</code>，這樣就會取得小數，簡單來說，你會提供 0.01、0.02 &hellip; 3 的值給 <code>noise</code> 函式，雖然說這邊直接寫 <code>let nx = x / 100</code> 也可以，不過順便認識個新函式也不錯，若你的起始範圍對應不為 0 時，使用 <code>map</code> 會比較方便。</p>
+<p>一維的 Perlin 雜訊通常可以作為 <code>y</code> 值，二維的 Perlin 雜訊，通常可作為高度、灰階度或彩度，例如營造雲霧效果：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(300, 300);
+    noStroke();
+    noLoop();
+}
+
+function draw() {
+    for(let x = 0; x < width; x++) {
+        for(let y = 0; y < height; y++) {
+            const c = 255 * noise(x / 100, y / 100);
+            fill(c);
+            rect(x, y, 1, 1);
+        }       
+    }
+}
+</script>
+<p>如果用來 3D 建模，可以建立用來建立自然地形（下圖為我用自己寫的二維 Perlin 雜訊在 OpenSCAD 建模的效果）：</p>
+<p><div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" src="images/PerlinNoise-2.JPG" alt="Perlin 雜訊"  /></div></div></p>
+<p>p5.js 官方的範例文件中，有個 <a href="https://p5js.org/examples/math-noise-wave.html">Noise Wave</a>，運用了二維的 Perlin 雜訊，創造出海浪不斷變化的感覺，來稍加整理一下該範例的程式碼：</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+    createCanvas(710, 400);
+}
+
+let yoff = 0.0;
+function draw() {
+    background(51);
+
+    fill(255);
+
+    beginShape();
+
+    let xoff = 0; 
+    for (let x = 0; x <= width; x += 10) {
+        let y = map(noise(xoff, yoff), 0, 1, 200, 300);
+        vertex(x, y);
+        xoff += 0.05;
+    }     
+    yoff += 0.01;
+
+    vertex(width, height);
+    vertex(0, height);
+    endShape(CLOSE);
+}
+</script>
+<p>範例中的 <code>xoff</code> 與 <code>yoff</code> 變化令人好奇，其實 <code>xoff</code>、<code>yoff</code> 建立了一個平面範圍，如果你將這個範圍表現為 3D 地形圖，效果就如方才 OpenSCAD 中的地形圖，只不過這邊在 <code>yoff</code> 處切下一刀，然後畫在 2D 的畫布上，才會有海浪不斷變化的感覺。</p>
+<p>三維的 Perlin 雜訊呢？三維指定了 (x, y, z) 產生的雜訊值可以應用在哪？通常可以視為透明度，或者是密度，例如在 Minecraft 中，運用了三維 Perlin 雜訊，在雜訊值大於某個值時才產生方塊，這就創造出自然洞穴的效果。</p>
+<p>如果是用來作為透明度，想像有個掃描平面，由低往高掃描，將每個透明度值轉為彩度值會如何呢？</p>
+<script type="text/p5" data-p5-version="1.1.9" data-height="400" data-preview-width="400">function setup() {
+  createCanvas(300, 300);
+  noStroke();
+}
+
+let zoff = 0.0; 
+function draw() {
+  background(124);
+
+  let xoff = 0; 
+  for(let x = 0; x <= width; x += 5) {
+    let yoff = 0;
+    for(let y = 0; y <= height; y += 5) {
+        let z = map(noise(xoff, yoff, zoff), 0, 1, 0, 255);
+        fill(z, 0, 0);
+        square(x, y, 5);
+        yoff += 0.05;
+    }
+    xoff += 0.05;
+  }
+
+  zoff += 0.01;
+}
+</script>
+<p>這只是 Perlin 雜訊的一些應用，想怎麼運用這些雜訊，就看你有多少創意了！</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="https://toolness.github.io/p5.js-widget/p5-widget.js"></script>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

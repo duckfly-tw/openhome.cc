@@ -1,0 +1,175 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="繼承本身就會令事情複雜化，多重繼承更是會令複雜度加劇，〈虛擬繼承〉中看到的不過是部份情況。
+同名的方法或值域若在子類中可見，就必須處理名稱重疊時的相關議題（在子類中不可見的值域或方法，程式碼撰寫上本來...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="多重繼承的複雜">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/CppGossip/Conflict.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="繼承本身就會令事情複雜化，多重繼承更是會令複雜度加劇，〈虛擬繼承〉中看到的不過是部份情況。
+同名的方法或值域若在子類中可見，就必須處理名稱重疊時的相關議題（在子類中不可見的值域或方法，程式碼撰寫上本來...">
+
+    <title>多重繼承的複雜</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="Conflict.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回 C++ 目錄</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a></div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>多重繼承的複雜</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>繼承本身就會令事情複雜化，多重繼承更是會令複雜度加劇，〈<a href="virtualInheritance.html">虛擬繼承</a>〉中看到的不過是部份情況。</p>
+<p>同名的方法或值域若在子類中可見，就必須處理名稱重疊時的相關議題（在子類中不可見的值域或方法，程式碼撰寫上本來就不能存取，也就不會有名稱重疊的判斷問題）。例如，如果繼承的父類有實作方法，而另一父類有同名的純 <code>virtual</code> 函式，從父類繼承的實作方法並不被視為實作了純 <code>virtual</code> 函式。例如：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+class P1 {
+public:
+    void foo() {
+        cout &lt;&lt; "foo" &lt;&lt; endl;
+    }
+};
+
+class P2 {
+public:
+    virtual void foo() = 0;
+};
+
+class C : public P1, public P2 {
+
+};
+
+int main() { 
+    C c; // error: cannot declare variable 'c' to be of abstract type 'C'
+
+    return 0;
+}
+</code></pre>
+<p><code>C</code> 仍被視為抽象類別，<code>C</code> 必須重新定義 <code>foo</code>，才可用來建立實例。</p>
+<p>如果繼承的父類具有同名的實作方法，會造成實例呼叫的方法版本模棱兩可：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+class P1 {
+public:
+    virtual void foo() {
+        cout &lt;&lt; "P1:foo" &lt;&lt; endl;
+    }
+};
+
+class P2 {
+public:
+    virtual void foo() {
+        cout &lt;&lt; "P2:foo" &lt;&lt; endl;
+    }
+};
+
+class C : public P1, public P2 {
+
+};
+
+int main() { 
+    C c;
+
+    c.foo();   // error: request for member 'foo' is ambiguous
+
+    return 0;
+}
+</code></pre>
+<p>如果 <code>C</code> 只想保留其中一個版本，那就在 <code>C</code> 中重新定義 <code>foo</code>，並以 <code>::</code> 指明會呼叫哪個父類的版本，如果不想重新定義 <code>foo</code>，那就必須明確指定給 <code>P1</code> 或 <code>P2</code> 型態：</p>
+<pre class="prettyprint"><code lang="c++">C c;
+
+P1 &amp;p1 = c;
+p1.foo();    // 顯示 P1:foo
+
+P2 &amp;p2 = c;
+p2.foo();    // 顯示 P2:foo
+</code></pre>
+<p>若從兩個父類繼承了同名且可見的值域，也會有類似問題：</p>
+<pre class="prettyprint"><code lang="c++">#include &lt;iostream&gt;
+using namespace std;
+
+class P1 {
+public:
+    int x = 10;
+};
+
+class P2 {
+public:
+    int x = 20;
+};
+
+class C : public P1, public P2 {
+
+};
+
+int main() { 
+    C c;
+
+    int x = c.x; // error: request for member 'x' is ambiguous
+
+    return 0;
+}
+</code></pre>
+<p><code>C</code> 實例其實會有兩份 <code>x</code>，藉由 <code>this</code> 位址的不同來存取，上例若要能存取，必須明確指定給 <code>P1</code> 或 <code>P2</code> 型態：</p>
+<pre class="prettyprint"><code lang="c++">C c;
+
+P1 &amp;p1 = c;
+cout &lt;&lt; p1.x &lt;&lt; endl;  // 10
+
+P2 &amp;p2 = c;
+cout &lt;&lt; p2.x &lt;&lt; endl;  // 20
+</code></pre>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

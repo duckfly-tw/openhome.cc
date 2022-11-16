@@ -1,0 +1,245 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta http-equiv="refresh" content="0; URL=https://openhome.cc/Gossip/ECMAScript/'https://openhome.cc/zh-tw/javascript/dom/event/'">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在事件發生時，會有個 Event 實例收集事件的相關資訊，在遵守標準的瀏覽器上，Event 實例會作為事件處理器的的第一個參數，若要取得操作的目標物件，可以透過 Event 實例的 target 特性...">
+
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="事件傳播">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://openhome.cc/Gossip/ECMAScript/EventPropagation.html">
+    <meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+    <meta property="og:site_name" content="OPENHOME.CC">
+    <meta property="og:description" content="在事件發生時，會有個 Event 實例收集事件的相關資訊，在遵守標準的瀏覽器上，Event 實例會作為事件處理器的的第一個參數，若要取得操作的目標物件，可以透過 Event 實例的 target 特性...">
+
+    <title>事件傳播</title>
+
+    <link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+     <!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="EventPropagation.html#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="https://openhome.cc/Gossip/ECMAScript/">回 JavaScript</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br> <div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>事件傳播</h1>
+        </header>
+
+        <article class="content">
+            <br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+            <p>在事件發生時，會有個 <code>Event</code> 實例收集事件的相關資訊，在遵守標準的瀏覽器上，<code>Event</code> 實例會作為事件處理器的的第一個參數，若要取得操作的目標物件，可以透過 <code>Event</code> 實例的 <code>target</code> 特性。</p>
+<p>那麼操作的目標物件是指什麼呢？如果在按鈕上點選，那麼按鈕就是操作的目標物件，在〈<a href="BasicEventModel.html">基本事件模型</a>〉中有說明過，觸發事件時，事件處理器的 <code>this</code> 會設定為當時的元素，那麼為何還要有特性指出操作目標物件？</p>
+<p>事實上，在〈<a href="BasicEventModel.html">基本事件模型</a>〉中，操作時若發生事件，並事件不僅停於操作的元素，還會從操作的元素往外傳播，若外層元素亦有設定對應的事件處理器，亦會呼叫事件處理器，這可以用下面的範例來示範：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body id="bodyId"&gt;
+
+    &lt;div id="divId"&gt;
+        &lt;button id="btnId"&gt;按我&lt;/button&gt;            
+    &lt;/div&gt;
+    &lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script type="text/javascript"&gt;
+      function handler(event) {
+          let target = event.target;
+          document.getElementById('console').innerHTML += 
+             `&lt;br&gt;&lt;b&gt;this.id:&lt;/b&gt; ${this.id}, &lt;b&gt;target.id:&lt;/b&gt; ${target.id}`;
+      }
+
+      document.getElementById('bodyId').onclick = handler;
+      document.getElementById('divId').onclick = handler;
+      document.getElementById('btnId').onclick = handler;
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/jegezip">按我觀看結果</a>。</p>
+<p>在上例中，按鈕是包括在 <code>&lt;div&gt;</code> 中，而 <code>&lt;body&gt;</code> 是 <code>&lt;div&gt;</code> 的外層元素，三者都設定了事件處理器。如果試著按下按鈕，則會看到結果如下：</p>
+<pre class="prettyprint"><code lang="javascript">this.id: btnId, target.id: btnId
+this.id: divId, target.id: btnId
+this.id: bodyId, target.id: btnId 
+</code></pre>
+<p>不僅按鈕的事件處理器被呼叫，外層 <code>&lt;div&gt;</code> 與 <code>&lt;body&gt;</code> 也依序被呼叫，這樣的行為叫作事件氣泡傳播（Event Bubbling），事件傳播至元素並呼叫事件處理器時，<code>this</code> 就設定為該元素，這可以從 <code>this.id</code> 的顯示結果觀察到，並注意到，由於操作時按下的是按鈕，所以操作目標元素就是按鈕，這可以由 <code>target.id</code> 觀察到。</p>
+<p>事件氣泡傳播可以善用。例如在〈<a href="ModifyNodes.html">修改文件</a>〉中動態新增圖片的例子，每建立一個新的 <code>&lt;img&gt;</code>，就設定該 <code>&lt;img&gt;</code> 的 <code>click</code> 事件處理器，以便在點選圖片時自動移除圖片。若利用事件氣泡傳播，可以只在 <code>&lt;div&gt;</code> 上設定一次事件處理器，完成相同的結果。例如：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;input id="src" type="text"&gt;&lt;button id="add"&gt;新增圖片&lt;/button&gt;
+    &lt;div id="images"&gt;&lt;/div&gt;
+
+&lt;script type="text/javascript"&gt;
+    let images = document.getElementById('images');
+    images.onclick = function(event) {
+        this.removeChild(event.target);
+    };
+    document.getElementById('add').onclick = function() {
+        let img = document.createElement('img');
+        img.src = document.getElementById('src').value;
+        images.appendChild(img);
+    };
+&lt;/script&gt;  
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/xahati">按我觀看結果</a>。</p>
+<p>如果想要停止事件傳播，在遵守標準的瀏覽器上，必須呼叫 <code>Event</code> 的 <code>stopPropagation()</code> 方法。例如要將第一個範例停止目標元素外的事件傳播，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body id="bodyId"&gt;
+
+    &lt;div id="divId"&gt;
+        &lt;button id="btnId"&gt;按我&lt;/button&gt;            
+    &lt;/div&gt;
+    &lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script type="text/javascript"&gt;
+      function handler(event) {
+          let target = event.target;
+          document.getElementById('console').innerHTML += 
+             `&lt;br&gt;&lt;b&gt;this.id:&lt;/b&gt; ${this.id}, &lt;b&gt;target.id:&lt;/b&gt; ${target.id}`;
+          event.stopPropagation();
+      }
+
+      document.getElementById('bodyId').onclick = handler;
+      document.getElementById('divId').onclick = handler;
+      document.getElementById('btnId').onclick = handler;
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/mozova">按我觀看結果</a>。</p>
+<p>在〈<a href="DOML2EventModel.html">DOM Level 2 事件模型</a>〉中，事件會歷經兩個傳播階段，當事件發生時，會先從 <code>document</code> 往內傳播至操作目標元素，這個階段稱之為捕捉階段（Capturing phase），接著事件再從操作目標元素往外傳播至 <code>document</code>，這個階段稱之為氣泡階段（Bubbling phase）。</p>
+<p><code>addEventListener</code> 方法的第三個參數若為 <code>true</code>，表示事件處理器將作為捕捉階段處理器，若為 <code>false</code> 則為氣泡階段處理器。</p>
+<p>例如，可改寫第一個範例，同時設定兩個階段的處理器來觀察事件：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body id="bodyId"&gt;
+    &lt;div id="divId"&gt;
+        &lt;button id="btnId"&gt;按我&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script type="text/javascript"&gt;
+
+      function handler(event) {
+          let currentTarget = event.currentTarget;
+          let target = event.target;
+          document.getElementById('console').innerHTML += 
+              `&lt;br&gt;&lt;b&gt;currentTarget.id:&lt;/b&gt; ${currentTarget.id}, &lt;b&gt;target.id:&lt;/b&gt; ${target.id}`;
+      }
+
+      document.getElementById('bodyId').addEventListener('click', handler, true);
+      document.getElementById('bodyId').addEventListener('click', handler, false);
+
+      document.getElementById('divId').addEventListener('click', handler, true);
+      document.getElementById('divId').addEventListener('click', handler, false);
+
+      document.getElementById('btnId').addEventListener('click', handler, true);
+      document.getElementById('btnId').addEventListener('click', handler, false);
+
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/keximab">按我觀看結果</a>。</p>
+<p>操作的目標元素，可以使用 <code>Event</code> 的 <code>target</code> 特性取得。如果按下按鈕，會發現以下的結果，可發現事件先從外往內，再從內往外傳播：</p>
+<pre class="prettyprint"><code lang="javascript">currentTarget.id: bodyId, target.id: btnId
+currentTarget.id: divId, target.id: btnId
+currentTarget.id: btnId, target.id: btnId
+currentTarget.id: btnId, target.id: btnId
+currentTarget.id: divId, target.id: btnId
+currentTarget.id: bodyId, target.id: btnId
+</code></pre>
+<p>如果想要停止事件傳播，也是呼叫 <code>Event</code> 的 <code>stopPropagation</code> 方法。例如上一個範例若僅註冊浮昇處理器，要停止目標元素外的事件傳播，可以如下：</p>
+<pre class="prettyprint"><code lang="javascript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width"&gt;
+&lt;/head&gt;
+&lt;body id="bodyId"&gt;
+    &lt;div id="divId"&gt;
+        &lt;button id="btnId"&gt;按我&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;span id="console"&gt;&lt;/span&gt;
+
+&lt;script type="text/javascript"&gt;
+
+      function handler(event) {
+          let currentTarget = event.currentTarget;
+          let target = event.target;
+          document.getElementById('console').innerHTML += 
+              `&lt;br&gt;&lt;b&gt;currentTarget.id:&lt;/b&gt; ${currentTarget.id}, &lt;b&gt;target.id:&lt;/b&gt; ${target.id}`;
+          event.stopPropagation();
+      }
+
+      document.getElementById('bodyId').addEventListener('click', handler, false);
+      document.getElementById('divId').addEventListener('click', handler, false);
+      document.getElementById('btnId').addEventListener('click', handler, false);
+
+&lt;/script&gt;  
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="http://jsbin.com/cetimos">按我觀看結果</a>。</p>
+
+            
+           <br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+        </article>
+    </main>
+</div></body>
+</html>
+<script src="../js/ui.js"></script>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

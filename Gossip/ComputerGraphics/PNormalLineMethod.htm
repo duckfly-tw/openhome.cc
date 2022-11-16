@@ -1,0 +1,491 @@
+<!doctype html><html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="法線向量判定法適用於無凹陷的凸多面體，例如正多面體或水晶球，其原理為求出每個面的法線向量，如果法線向量的Z 分量大於0（即面朝向我們），則該面為可視，如果法線向量的Z分量小於0，則看不到那個面，則這是...">
+
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="平面法線判定法">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://openhome.cc/Gossip/ComputerGraphics/PNormalLineMethod.htm">
+<meta property="og:image" content="https://openhome.cc/Gossip/images/caterpillar_small.jpg">
+<meta property="og:site_name" content="OPENHOME.CC">
+<meta property="og:description" content="法線向量判定法適用於無凹陷的凸多面體，例如正多面體或水晶球，其原理為求出每個面的法線向量，如果法線向量的Z 分量大於0（即面朝向我們），則該面為可視，如果法線向量的Z分量小於0，則看不到那個面，則這是...">
+
+
+    <title>平面法線判定法</title>
+
+<link rel="stylesheet" href="../css/pure-0.6.0/pure-min.css">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="../css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="../css/layouts/side-menu.css">
+    <!--<![endif]-->
+  
+
+     <link rel="stylesheet" href="../css/caterpillar.css">
+     <script async src="../google-code-prettify/run_prettify.js"></script>
+<!-- 網頁層級廣告 --><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle =window.adsbygoogle || []).push({google_ad_client: "ca-pub-9750319131714390",enable_page_level_ads: true });</script></head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="PNormalLineMethod.htm#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon --><span></span>
+        
+    </a>
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="index.html">回電腦圖學</a>
+            <ul class="pure-menu-list">
+                <br><div class="social" style="text-align: center;"><a href="http://twitter.com/caterpillar"><img title="Twitter" alt="Twitter" src="../images/twitter.png"></a> <a href="http://www.facebook.com/openhome.cc"><img title="Facebook" alt="Facebook" src="../images/facebook.png"></a> </div><br><div id="search box"><script>(function() {var cx = 'partner-pub-9750319131714390:3926766884';var gcse = document.createElement('script');gcse.type = 'text/javascript';gcse.async = true;gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(gcse, s);})();</script><gcse:searchbox-only></gcse:searchbox-only></div><br><div class="ad" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 2015 新版型 160 x 600 廣告 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="3747048883"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
+            </ul>
+        </div>
+    </div>
+
+    <main id="main">
+        <header class="header">
+            <h1>平面法線判定法</h1>
+        </header>
+
+        <article class="content"><br><div class="ad-3" style="text-align: center;"><script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型回應式廣告 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="7104125683" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div> 
+            
+
+
+
+
+
+
+
+
+法線向量判定法適用於無凹陷的凸多面體，例如正多面體或水晶球，其原理為求出每個面的法線向量，如果法線向量的Z 分量大於0（即面朝向我們），則該面為可視，如果法線向量的Z分量小於0，則看不到那個面，則這是個隱藏面，所以無需繪製。 <br>
+
+
+      <div class="pure-g"><div class="pure-u-1"><img class="pure-img-responsive" alt="" src="images/pNormalLineMethod-1.jpg" /></div></div><br>
+
+
+      <br>
+
+
+      <br>
+
+
+
+
+
+
+
+
+
+法線向量的選擇是由面上的三個頂點來判定，三個頂點的選擇是依面的逆時針方向的來選出，然後求出這三個頂點所成的兩向量之外積即為法線向量，通常我們取單位法線向量（normalize後的外積），下面這個程式片段可以作為外積計算的參考：<br>
+
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">/* Java */<br>
+// 取得外積 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public static Point op(Point p0, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point p1, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point p2) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.x = p1.x - p0.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.y = p1.y - p0.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.z = p1.z - p0.z; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.x = p2.x - p0.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.y = p2.y - p0.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.z = p2.z - p0.z; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; double x = p1.y * p2.z - p1.z * p2.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; double y = p1.z * p2.x - p1.x * p2.z; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; double z = p1.x * p2.y - p1.y * p2.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return new Point(x, y, z); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 計算單位向量 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public static Point ev(Point p) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; double d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if(d &gt; 0.0) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new Point(p.x / d, p.y / d, p.z / d); <br>
+&nbsp;&nbsp;&nbsp; }<br>
+</span>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return p; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 取得nomalize後的外積 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">public static Point nop(Point p0, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point p1, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point p2) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return ev(op(p0, p1, p2)); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+      </div>&nbsp;
+
+      
+      <br>
+
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">/* JavaScript */</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;// 取得外積 <br>
+function op(p0, p1, p2) {<br>
+      </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.x = p1.x - p0.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.y = p1.y - p0.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p1.z = p1.z - p0.z; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.x = p2.x - p0.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.y = p2.y - p0.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; p2.z = p2.z - p0.z; </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; var x = p1.y * p2.z - p1.z * p2.y; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; var y = p1.z * p2.x - p1.x * p2.z; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; var z = p1.x * p2.y - p1.y * p2.x; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return new Point(x, y, z); </span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}<br>
+      </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 計算單位向量 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">function ev(p) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; var d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if(d &gt; 0.0) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new Point(p.x / d, p.y / d, p.z / d); <br>
+&nbsp;&nbsp;&nbsp; }<br>
+</span>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;"></span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return p; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 取得nomalize後的外積 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">function nop(p0, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">p1, </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">p2) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; return ev(op(p0, p1, p2)); </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+      </div>
+&nbsp;
+
+      
+      <br>
+      
+
+
+      <br>
+
+
+配合外積，可以利用下面這個程式片段進行隱藏面的判斷與非隱藏面的繪製，其中vet[]是頂點陣列，NFC表示凸面體的平面數量，NVT表示一個平面上的頂點數 ，ord[][]表示頂點索引陣列：<br>
+
+
+      
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">/* Java */<br>
+int N = 0; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point[][] pvt = new Point[NFC][NVT]; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">int[] n = new int[NVT]; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">Point np; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(int i = 0; i &lt; NFC; i++) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; for(int j = 0; j &lt; NVT; j++) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 取同一個平面的頂點</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n[j] = ord[i][j];<br>
+&nbsp;&nbsp;&nbsp; }<br>
+</span>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 計算nomalize後的外積 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; np = nop(vet[n[0]], vet[n[1]], vet[n[2]]);&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 如果非隱藏面 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if(np.z &gt; 0) { </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 儲存頂點 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvt[N][j] = new Point(vet[n[j]].x, vet[n[j]].y);&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 可繪製的面+1 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N++;&nbsp; </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+
+
+      <br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 畫實心多邊形 </span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(int i = 0; i &lt; N; i++) {</span><br>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; fillPolygon(pvt[i], NVT); // 繪製填充多邊型，配合繪圖程式庫<br>
+}<br>
+</span>
+
+
+      </div>
+
+      
+&nbsp;<br>
+
+
+
+      
+      <div style="margin-left: 40px;"><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">/* JavaScript */</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">var N = 0; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">var pvt = [];<br>
+for(var i = 0; i &lt; NFC, i++) {<br>
+&nbsp;&nbsp;&nbsp; pvt[i] = [];<br>
+}<br>
+</span>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">var n = []; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">var np; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;</span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(var i = 0; i &lt; NFC; i++) { </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; for(var j = 0; j &lt; NVT; j++) {</span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 取同一個平面的頂點</span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n[j] = ord[i][j];&nbsp; <br>
+&nbsp;&nbsp;&nbsp; }<br>
+      <br>
+</span>
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 計算nomalize後的外積 </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; np = nop(vet[n[0]], vet[n[1]], vet[n[2]]);&nbsp; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;</span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; // 如果非隱藏面 </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if(np.z &gt; 0) { </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 儲存頂點 </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvt[N][j] = new Point(vet[n[j]].x, vet[n[j]].y);&nbsp; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 可繪製的面+1 </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N++;&nbsp; </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; } </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">} </span><br>
+      
+
+
+      <br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 畫實心多邊形 </span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">for(var i = 0; i &lt; N; i++) {</span><br>
+      
+
+
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; fillPolygon(pvt[i], NVT);&nbsp; </span><span style="font-weight: bold; font-family: Courier New,Courier,monospace;">// 繪製填充多邊型，配合繪圖程式庫</span><br>
+      <span style="font-weight: bold; font-family: Courier New,Courier,monospace;">
+}</span><br>
+      </div>
+      <br>
+上面這個程式只是個演算的參考，實作時得依您所使用的語言與API作調整。<br><br><div class="ad336-280" style="text-align: center;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 2015 新版型廣告 336 x 280 --><ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-9750319131714390" data-ad-slot="9976409681"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div><br><div class="recommend" style="text-align: center;"><hr><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><!-- 自動大小回應相符內容 --><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9750319131714390" data-ad-slot="4953478487" data-ad-format="autorelaxed"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></article></main></div></body>
+<script src="../js/ui.js"></script>
+</html>
+<div class="analytics"><script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-QVQQYFSC8J');</script></div>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-tw" class="js csstransforms3d">
+  <head>
+    
+
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QVQQYFSC8J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QVQQYFSC8J');
+    </script>
+
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+     
+    
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.100.1" />
+    <meta name="description" content="在處理過一陣子 list 之後，會發現常有個固定模式，就是取「頭」取「尾」，這表示你面對的問題，經常會以循序處理，例如〈map/filter/fold">
+    <meta name="author" content="Justin Lin">
+
+
+    <meta property="og:site_name" content="OPENHOME" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Haskell::模式比對／Guard 運算" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/abstraction/pattern-matching-guard/" />
+    <meta property="og:description" content="在處理過一陣子 list 之後，會發現常有個固定模式，就是取「頭」取「尾」，這表示你面對的問題，經常會以循序處理，例如〈map/filter/fold" />
+    <meta property="og:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+    <meta property="og:image:url" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@caterpillar" />
+    <meta name="twitter:creator:id" content="caterpillar" />
+    <meta name="twitter:title" content="Haskell::模式比對／Guard 運算" />
+    <meta property="og:url" content="https://openhome.cc/zh-tw/haskell/abstraction/pattern-matching-guard/" />
+    <meta name="twitter:description" content="在處理過一陣子 list 之後，會發現常有個固定模式，就是取「頭」取「尾」，這表示你面對的問題，經常會以循序處理，例如〈map/filter/fold" />
+    <meta name="twitter:image" content="https://openhome.cc/zh-tw/images/caterpillar.png" />
+
+
+    
+<link rel="icon" href="../../../images/favicon.ico%3F1664443679" type="image/x-icon">
+    <title> Haskell  :: 模式比對／Guard 運算</title>
+    <link href="../../../css/nucleus.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/fontawesome-all.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/featherlight.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/perfect-scrollbar.min.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/auto-complete.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/theme-blue.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/variant.css%3F1664443679.css" rel="stylesheet">
+    <link href="../../../css/print.css%3F1664443679.css" rel="stylesheet" media="print">
+    <script src="../../../js/jquery.min.js%3F1664443679"></script>
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+        display:none !important;
+      }
+      :not(pre) > code.copy-to-clipboard-inline + span.copy-to-clipboard {
+          display: none;
+      }
+      :not(pre) > code.copy-to-clipboard-inline {
+          border-bottom-right-radius: 2px;
+          border-top-right-radius: 2px;
+          border-right-width: 1px;
+      }
+  
+      table {
+	      margin-top: 0rem; 
+		  margin-bottom: 0rem;
+	  }
+	  
+      td.gsc-input, td.gsc-search-button, td.gsc-clear-button {
+	      padding: 0rem;
+		  border: 0rem;
+	  }
+	  
+    </style>
+  </head>
+  <body class="" data-url="/zh-tw/haskell/abstraction/pattern-matching-guard/">
+    <script>
+      var index_url="/zh-tw/index.json";
+      var root_url="/";
+      var baseUri=root_url.replace(/\/$/, '');
+    </script>
+    <nav id="sidebar" class="">
+      <div id="header-wrapper">
+	    <div id="header">          <a id="logo"
+            href="../../../index.html"
+            style="
+              color: #FFFFFF;
+              font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+              font-size: 20px;
+              font-weight: 300;
+              margin-top: -2px;
+              text-transform: uppercase;
+            ">
+			<img src="../../../images/caterpillar.png"> OPENHOME.CC
+          </a></div>
+		<p></p>
+ 
+    <div>
+		<script>
+		  (function() {
+			var cx = 'partner-pub-9750319131714390:3926766884';
+			var gcse = document.createElement('script');
+			gcse.type = 'text/javascript';
+			gcse.async = true;
+			gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+				'//www.google.com/cse/cse.js?cx=' + cx;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(gcse, s);
+		  })();
+		</script><gcse:searchbox-only></gcse:searchbox-only></div>
+    </div>
+	  
+      </div>
+      <div class="highlightable">
+
+        <ul class="topics">
+          <li data-nav-id="/zh-tw/haskell/" title="Haskell" class="dd-item parent"><a href="../../index.html">Haskell</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/" title="起步走" class="dd-item"><a href="../../basics/index.html">| 起步走</a><ul>
+          <li data-nav-id="/zh-tw/haskell/basics/hello/" title="Hello, Haskell" class="dd-item"><a href="../../basics/hello/index.html">Hello, Haskell</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/type-system/" title="型態系統入門" class="dd-item"><a href="../../basics/type-system/index.html">型態系統入門</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/variable-function/" title="初探變數與函式" class="dd-item"><a href="../../basics/variable-function.html">初探變數與函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/function/" title="無所不在的函式" class="dd-item"><a href="../../basics/function/index.html">無所不在的函式</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/basics/list/" title="初探 list 操作" class="dd-item"><a href="../../basics/list/index.html">初探 list 操作</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/" title="流程抽象" class="dd-item parent"><a href="../index.html">| 流程抽象</a><ul>
+          <li data-nav-id="/zh-tw/haskell/abstraction/map-filter-fold/" title="map/filter/fold" class="dd-item"><a href="../map-filter-fold/index.html">map/filter/fold</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lazy-evaluation/" title="惰性求值" class="dd-item"><a href="../lazy-evaluation/index.html">惰性求值</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/comprehension/" title="Comprehension 表示" class="dd-item"><a href="../comprehension/index.html">Comprehension 表示</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/pattern-matching-guard/" title="模式比對／Guard 運算" class="dd-item active"><a href="index.html">模式比對／Guard 運算</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/abstraction/lambda-composition/" title="從 lambda 到函式合成" class="dd-item"><a href="../lambda-composition/index.html">從 lambda 到函式合成</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/" title="代數資料型態" class="dd-item"><a href="../../algebraic-data-type/index.html">| 代數資料型態</a><ul>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/tuple-product/" title="從 tuple 到 product 型態" class="dd-item"><a href="../../algebraic-data-type/tuple-product/index.html">從 tuple 到 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/sum-product/" title="結合 sum 與 product 型態" class="dd-item"><a href="../../algebraic-data-type/sum-product/index.html">結合 sum 與 product 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-variable/" title="減輕型態負擔的型態參數" class="dd-item"><a href="../../algebraic-data-type/type-variable/index.html">減輕型態負擔的型態參數</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/maybe-either/" title="Maybe 有無、Either 對錯" class="dd-item"><a href="../../algebraic-data-type/maybe-either/index.html">Maybe 有無、Either 對錯</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/typeclass/" title="型態類別定義、實作與衍生" class="dd-item"><a href="../../algebraic-data-type/typeclass/index.html">型態類別定義、實作與衍生</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/record/" title="揭露欄位名稱的 record" class="dd-item"><a href="../../algebraic-data-type/record/index.html">揭露欄位名稱的 record</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/algebraic-data-type/type-newtype/" title="type 與 newtype" class="dd-item"><a href="../../algebraic-data-type/type-newtype/index.html">type 與 newtype</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/" title="模組" class="dd-item"><a href="../../module/index.html">| 模組</a><ul>
+          <li data-nav-id="/zh-tw/haskell/module/export-import/" title="定義與使用模組" class="dd-item"><a href="../../module/export-import/index.html">定義與使用模組</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/module/list-set-map/" title="Data.List/Set/Map 模組" class="dd-item"><a href="../../module/list-set-map/index.html">Data.List/Set/Map 模組</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/" title="不純的世界" class="dd-item"><a href="../../impurity/index.html">| 不純的世界</a><ul>
+          <li data-nav-id="/zh-tw/haskell/impurity/io/" title="初探 IO 型態" class="dd-item"><a href="../../impurity/io/index.html">初探 IO 型態</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/loop/" title="來寫些迴圈吧！？" class="dd-item"><a href="../../impurity/loop/index.html">來寫些迴圈吧！？</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/try-catch-finally/" title="try/catch/finally" class="dd-item"><a href="../../impurity/try-catch-finally/index.html">try/catch/finally</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/impurity/throw/" title="拋出與自訂例外" class="dd-item"><a href="../../impurity/throw/index.html">拋出與自訂例外</a><ul></ul></li></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/" title="高階行為" class="dd-item"><a href="../../advanced-typeclass/index.html">| 高階行為</a><ul>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/functor/" title="可以映射的 Functor" class="dd-item"><a href="../../advanced-typeclass/functor/index.html">可以映射的 Functor</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/applicative/" title="可以套用函式的 Applicative" class="dd-item"><a href="../../advanced-typeclass/applicative/index.html">可以套用函式的 Applicative</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/monad/" title="解決巢狀運算的 Monad" class="dd-item"><a href="../../advanced-typeclass/monad/index.html">解決巢狀運算的 Monad</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/do-block/" title="do 區塊與 &lt;- 綁定" class="dd-item"><a href="../../advanced-typeclass/do-block/index.html">do 區塊與 &lt;- 綁定</a><ul></ul></li>
+          <li data-nav-id="/zh-tw/haskell/advanced-typeclass/composability/" title="發掘具有組合性的行為" class="dd-item"><a href="../../advanced-typeclass/composability/index.html">發掘具有組合性的行為</a><ul></ul></li></ul></li></ul></li>
+        </ul>
+        <div id="shortcuts">
+          <div class="nav-title"></div>
+          <ul>
+            <li><a class="padding" href="https://github.com/JustinSDK"><i class='fab fa-fw fa-github'></i> GitHub</a></li>
+            <li><a class="padding" href="https://twitter.com/caterpillar"><i class='fab fa-fw fa-twitter'></i> Twitter</a></li>
+            <li><a class="padding" href="http://www.facebook.com/openhome.cc"><i class='fab fa-fw fa-facebook'></i> Facebook</a></li>
+            <li><a class="padding" href="http://www.linkedin.com/in/caterpillar"><i class='fab fa-fw fa-linkedin'></i> LinkedIn</a></li>
+            <li><a class="padding" href="https://openprocessing.org/user/332926"><i class='fas fa-fw fa-spinner'></i> 2D Designs</a></li>
+            <li><a class="padding" href="https://www.thingiverse.com/justinsdk"><i class='fas fa-fw fa-cubes'></i> 3D Designs</a></li>
+            <li><a class="padding" href="../../../tags.html"><i class='fas fa-tags'></i> Tags</a></li>
+          </ul>
+        </div>
+        <div id="footer">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+        </div>
+      </div>
+    </nav>
+    <div id="body">
+      <div id="overlay"></div>
+      <div class="padding highlightable">
+        <div id="top-bar">
+          <div id="breadcrumbs">
+            <span id="sidebar-toggle-span">
+              <a href="index.html#" id="sidebar-toggle" data-sidebar-toggle="">
+                <i class="fas fa-bars"></i>
+              </a>
+            </span>
+            <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+            <ol class="links" itemscope itemtype="http://schema.org/BreadcrumbList">
+              <meta itemprop="itemListOrder" content="Descending" />
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="4" /><a itemprop="item" href="../../../index.html"><span itemprop="name">HOME</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="3" /><a itemprop="item" href="../../index.html"><span itemprop="name">Haskell</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="2" /><a itemprop="item" href="../index.html"><span itemprop="name">流程抽象</span></a> > </li>
+                <li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><meta itemprop="position" content="1" /><a itemprop="item" href="index.html" aria-disabled="true"><span itemprop="name">模式比對／Guard 運算</span></a></li>
+            </ol>
+          </div>
+            <div class="progress">
+              <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="index.html#list-的結構">list 的結構</a></li>
+    <li><a href="index.html#模式比對">模式比對</a></li>
+    <li><a href="index.html#caseofwhere-與-let">case/of、where 與 let</a></li>
+    <li><a href="index.html#guard-運算">Guard 運算</a></li>
+  </ul>
+</nav>
+              </div>
+            </div>
+        </div>
+        <div id="head-tags">
+<div class="tags">
+  <a class="tag-link" href="../../../tags/pattern/index.html">pattern</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/pattern-matching/">pattern matching</a>
+  <a class="tag-link" href="https://openhome.cc/zh-tw/tags/fibonacci-number/">Fibonacci number</a>
+</div>
+        </div>
+        <main id="body-inner">
+          <h1>模式比對／Guard 運算</h1>
+
+ <i class="space fa fa-calendar"> February 3, 2022</i> 
+<p>在處理過一陣子 list 之後，會發現常有個固定模式，就是取「頭」取「尾」，這表示你面對的問題，經常會以循序處理，例如〈<a href="../map-filter-fold/index.html">map/filter/fold</a>〉可以處理的問題。</p>
+<h2 id="list-的結構">list 的結構</h2>
+<p>list 是個有序結構，而且經常會以循序處理，Haskell 最初在定義 list 時，就是考量了這點來定義結構，以〈<a href="../map-filter-fold/index.html">map/filter/fold</a>〉中實作的 <code>map'</code> 為例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> mapper lt <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> null lt <span style="color:#66d9ef">then</span> lt
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> (mapper <span style="color:#f92672">$</span> head lt) <span style="color:#66d9ef">:</span> (map&#39; mapper <span style="color:#f92672">$</span> tail lt)
+</span></span></code></pre></div><p><code>null lt</code> 檢查表示處理資料時，list 在結構會有 <code>[]</code> 的可能性，當你只有一個元素時，例如，<code>[10]</code>，首個元素會是 10，未走訪清單會是 <code>[]</code>，這就是你面對的 list。</p>
+<p>Haskell 在定義 list 時，就是基於首元素、尾清單的結構，在〈<a href="../../basics/list/index.html">初探 list 操作</a>〉中也提過，<code>[1, 2, 3]</code> 其實就是 <code>1:2:3:[]</code> 的語法蜜糖，而對於 1 來說，<code>2:3:[]</code> 其尾清單，對於 2 來說，<code>3:[]</code> 是其尾清單，對於 3 來說，<code>[]</code> 是其尾清單。</p>
+<p>也就是說，對於一個非空的 list，總是可以折解 <code>x:xs</code> 的模式，<code>x</code> 是首元素，<code>xs</code> 是尾清單。</p>
+<h2 id="模式比對">模式比對</h2>
+<p>在 Haskell 中，若你知道資料的結構，就可以依結構來拆解資料，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ghci&gt; let x:xs = [1, 2, 3, 4]
+</span></span><span style="display:flex;"><span>ghci&gt; x
+</span></span><span style="display:flex;"><span>1
+</span></span><span style="display:flex;"><span>ghci&gt; xs
+</span></span><span style="display:flex;"><span>[2,3,4]
+</span></span><span style="display:flex;"><span>ghci&gt;
+</span></span></code></pre></div><p>因而像方才的 <code>map'</code>，就可以改寫為以下形式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> mapper lt <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> null lt <span style="color:#66d9ef">then</span> lt
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> x<span style="color:#66d9ef">:</span>xs <span style="color:#f92672">=</span> lt <span style="color:#66d9ef">in</span> (mapper x) <span style="color:#66d9ef">:</span> (map&#39; mapper xs)
+</span></span></code></pre></div><p>不過對於結構模式的比對，Haskell 提供方便的 <code>case/of</code> 語法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> mapper lt <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> lt <span style="color:#66d9ef">of</span> <span style="color:#66d9ef">[]</span>   <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">[]</span>
+</span></span><span style="display:flex;"><span>               x<span style="color:#66d9ef">:</span>xs <span style="color:#f92672">-&gt;</span> (mapper x) <span style="color:#66d9ef">:</span> (map&#39; mapper xs)
+</span></span></code></pre></div><p>如果 <code>case/of</code> 的使用很單純，像是以上的 <code>map'</code> 實作，會直接在函式上定義模式比對：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#f92672">::</span> (a <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> [a] <span style="color:#f92672">-&gt;</span> [a]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> <span style="color:#66d9ef">_</span> <span style="color:#66d9ef">[]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">[]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">map&#39;</span> mapper (x<span style="color:#66d9ef">:</span>xs) <span style="color:#f92672">=</span> (mapper x) <span style="color:#66d9ef">:</span> (map&#39; mapper xs)
+</span></span></code></pre></div><p>這種寫法是 <code>case/of</code> 的語法糖；既然可以比對 <code>[]</code>，這表示除了比對結構的模式之外，模式比對也可以直接比對值，因此像〈<a href="../../../algorithm/basics/fibonacci/index.html">費式數列</a>〉，使用模式比對來實作的話：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">fibonacci</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fibonacci</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fibonacci</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fibonacci</span> n <span style="color:#f92672">=</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span>)
+</span></span></code></pre></div><p>這不就是與費式數的定義是對應嗎？這也是為何純函數式，會被稱為宣告式的關係：</p>
+<pre tabindex="0"><code>F₀ = 0
+F₁ = 1
+Fₙ = Fₙ₋₁ + Fₙ₋₂
+</code></pre><p>Haskell 總是優先思考資料該具有什麼樣的結構，因此在拿到資料時，總是能基於結構的模式來進行比對，在 Haskell 中，模式比對是處理資料時再自然不過的一種方式。</p>
+<h2 id="caseofwhere-與-let">case/of、where 與 let</h2>
+<p>方才談到如果 <code>case/of</code> 的使用很單純，會直接在函式上定義模式比對；<code>case/of</code> 是個運算式，若想將 <code>case/of</code> 的運算結果拿來進一步處理，就會直接使用 <code>case/of</code>，例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> n <span style="color:#f92672">=</span> 
+</span></span><span style="display:flex;"><span>    show n <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; is &#34;</span> <span style="color:#f92672">++</span> <span style="color:#66d9ef">case</span> n `mod` <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">of</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Even&#34;</span>
+</span></span><span style="display:flex;"><span>                                          <span style="color:#ae81ff">1</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Odd&#34;</span>
+</span></span></code></pre></div><p>上面的 <code>descOddEven</code> 不是很好讀，結合 <code>where</code> 來定義一個 <code>oddOrEven</code> 或許會好一些：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> n <span style="color:#f92672">=</span> 
+</span></span><span style="display:flex;"><span>    show n <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; is &#34;</span> <span style="color:#f92672">++</span> oddOrEven n
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> oddOrEven n <span style="color:#f92672">=</span> <span style="color:#66d9ef">case</span> n `mod` <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">of</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Even&#34;</span>
+</span></span><span style="display:flex;"><span>                                          <span style="color:#ae81ff">1</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Odd&#34;</span>
+</span></span></code></pre></div><p>這個例子也可以改為 <code>let in</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">descOddEven</span> n <span style="color:#f92672">=</span>     
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> oddOrEven n <span style="color:#f92672">=</span> <span style="color:#66d9ef">case</span> n `mod` <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">of</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Even&#34;</span>
+</span></span><span style="display:flex;"><span>                                    <span style="color:#ae81ff">1</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Odd&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">in</span> show n <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; is &#34;</span> <span style="color:#f92672">++</span> oddOrEven n
+</span></span></code></pre></div><p>差別在於，<code>where</code> 中定義的名稱，對整個函式中可見，而 <code>let</code> 中定義的名稱，只對 <code>in</code> 的運算式可見，<code>let in</code> 是個運算式，然而 <code>where</code> 只是語法，不能在一個 <code>=</code> 後接上 <code>where</code>，或者在某運算式之後接上 <code>where</code>。</p>
+<p>方才談到，直接在函式上定義模式比對，不過是 <code>case of</code> 的語法糖，那麼，在 <code>where</code> 之後可以如下使用模式比對就不足為奇了，下面這個函式可以求得費式數列：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">fibonacciLt</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> [<span style="color:#66d9ef">Int</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fibonacciLt</span> n <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    [fibonacci x <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span> <span style="color:#f92672">..</span> n]]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> fibonacci <span style="color:#ae81ff">0</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>            fibonacci <span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            fibonacci n <span style="color:#f92672">=</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span>)
+</span></span></code></pre></div><p>使用 <code>let</code> 定義函式時，當然也可以用模式比對：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">fibonacciLt</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> [<span style="color:#66d9ef">Int</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fibonacciLt</span> n <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> fibonacci <span style="color:#ae81ff">0</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        fibonacci <span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        fibonacci n <span style="color:#f92672">=</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fibonacci (n <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">in</span> [fibonacci x <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span> <span style="color:#f92672">..</span> n]]
+</span></span></code></pre></div><h2 id="guard-運算">Guard 運算</h2>
+<p><code>case.of</code> 或函式的模式比對，是依資料的結構模式來比對，那麼，對於大於、小於、大於等於、小於等於呢？使用 <code>if else</code> 當然是可以解決問題，不過，如果要比較的條件很多，就會形成一長串的 <code>if else</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">grade</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">grade</span> score <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">90</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#34;A&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">80</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#34;B&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">70</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#34;C&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">60</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#34;D&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#34;E&#34;</span>
+</span></span></code></pre></div><p>這種情況下，你可以使用 Guard 運算：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">grade</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">grade</span> score 
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">90</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">80</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;B&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">70</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">60</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;D&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|</span> otherwise   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;E&#34;</span>
+</span></span></code></pre></div><p>Guard 是個布林運算，只有在 <code>|</code> 的條件式為 <code>True</code> 的情況下，才會傳回 <code>=</code> 右邊的值。</p>
+<p><code>where</code> 中也可以用 guard：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">descGrade</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">descGrade</span> score <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;Your score is &#34;</span> <span style="color:#f92672">++</span> show score <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; and is level &#34;</span> <span style="color:#f92672">++</span> grade score
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> grade score
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">90</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">80</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;B&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">70</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">60</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;D&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">|</span> otherwise   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;E&#34;</span>
+</span></span></code></pre></div><p><code>let</code> 中也可以，只是不見得好讀罷了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-haskell" data-lang="haskell"><span style="display:flex;"><span><span style="color:#a6e22e">descGrade</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">String</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">descGrade</span> score <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> grade score
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">90</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;A&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">80</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;B&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">70</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">|</span> score <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">60</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;D&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">|</span> otherwise   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;E&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#34;Your score is &#34;</span> <span style="color:#f92672">++</span> show score <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; and is level &#34;</span> <span style="color:#f92672">++</span> grade score
+</span></span></code></pre></div><p>怎麼使用這篇介紹到的語法，看範圍、看作用，也看可讀性，在這之間作個權衡！</p>
+
+
+<p></p>
+<p>
+
+
+
+<a href="https://www.linkedin.com/shareArticle?url=https://openhome.cc/zh-tw/haskell/abstraction/pattern-matching-guard/" target="_blank"><img src = "../../../images/linkedin.png" title="分享到 LinkedIn" alt="分享到 LinkedIn"  style="float: right; margin: 5px"/></a>
+<a href="https://www.facebook.com/sharer.php?u=https://openhome.cc/zh-tw/haskell/abstraction/pattern-matching-guard/" target="_blank"><img src = "../../../images/facebook.png" title="分享到 Facebook" alt="分享到 Facebook"  style="float: right; margin: 5px"/></a>
+<a href="https://twitter.com/share?text=Haskell%3a%3a%e6%a8%a1%e5%bc%8f%e6%af%94%e5%b0%8d%ef%bc%8fGuard%20%e9%81%8b%e7%ae%97&url=https%3a%2f%2fopenhome.cc%2fzh-tw%2fhaskell%2fabstraction%2fpattern-matching-guard%2f" target="_blank"><img src = "../../../images/twitter.png" title="分享到 Twitter" alt="分享到 Twitter" style="float: right; margin: 5px"/></a>
+</p>
+
+<br>
+
+<p></p>
+
+<br>
+
+
+<p>
+ 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9750319131714390"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9750319131714390"
+     data-ad-slot="9976409681"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</p>
+       
+
+          <footer class=" footline">
+          </footer>
+        </main>
+      </div>
+      <div id="navigation">
+        <a class="nav nav-prev" href="../comprehension/index.html" title="Comprehension 表示"><i class="fa fa-chevron-left"></i></a>
+        <a class="nav nav-next" href="../lambda-composition/index.html" title="從 lambda 到函式合成"><i class="fa fa-chevron-right"></i></a>
+      </div>
+    </div>
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="../../../js/clipboard.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.min.js%3F1664443679"></script>
+    <script src="../../../js/perfect-scrollbar.jquery.min.js%3F1664443679"></script>
+    <script src="../../../js/jquery.svg.pan.zoom.js%3F1664443679"></script>
+    <script src="../../../js/featherlight.min.js%3F1664443679"></script>
+    <script src="../../../js/modernizr.custom-3.6.0.js%3F1664443679"></script>
+    <script src="../../../js/mermaid.min.js%3F1664443679"></script>
+    <script>
+      if (typeof mermaid != 'undefined' && typeof mermaid.mermaidAPI != 'undefined') {
+        mermaid.mermaidAPI.initialize( Object.assign( { "securityLevel": "antiscript" }, JSON.parse("{ \"startOnLoad\": true }"), { startOnLoad: false } ) );
+      }
+    </script>
+    <script src="../../../js/relearn.js%3F1664443679"></script>
+  </body>
+</html>
