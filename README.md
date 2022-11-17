@@ -1,6 +1,6 @@
 # openhome.cc
 
-This is a backup of https://openhome.cc
+This is a web archive of https://openhome.cc
 
 With his knowledge left, his spirit will always be with us forever.
 
